@@ -41,7 +41,8 @@ function index_wp_mysql_for_speed_do_everything() {
 		$db = new ImfsDb();
 		$output = $db->getStats();
 		$problems = $db->anyProblems("enable");
-		$foo = $db->newIndexing();
+		$foo = $db->rekey("enable");
+		$problems = $db->anyProblems("disable");
 	}
 }
 

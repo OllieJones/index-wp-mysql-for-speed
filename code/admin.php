@@ -14,24 +14,24 @@ class IndexMySqlAdminPage {
 	}
 
 	function admin_actions() {
-		load_plugin_textdomain( index_mysql_for_speed_domain, index_mysql_for_speed_PLUGIN_DIR, 'languages' );
+		load_plugin_textdomain( index_wp_mysql_for_speed_domain, index_wp_mysql_for_speed_PLUGIN_DIR, 'languages' );
 		add_options_page(
-			__( 'Index MySQL', index_mysql_for_speed_domain ),
-			__( 'Index MySQL', index_mysql_for_speed_domain ),
+			__( 'Index MySQL', index_wp_mysql_for_speed_domain ),
+			__( 'Index MySQL', index_wp_mysql_for_speed_domain ),
 			'upload_files',
-			index_mysql_for_speed_domain,
+			index_wp_mysql_for_speed_domain,
 			array( $this, 'admin_page' ) );
 	}
 
 	function register_setting() {
-		register_setting( 'index_mysql_for_speed', '_options', array( $this, 'validate_options' ) );
+		register_setting( 'index_wp_mysql_for_speed', '_options', array( $this, 'validate_options' ) );
 	}
 
 	/**
 	 * emit the options heading for the overview section
 	 */
 	function general_text() {
-		echo '<p>' . __( 'Adding indexes to make your database faster.', index_mysql_for_speed_domain ) . '</p>';
+		echo '<p>' . __( 'Adding indexes to make your database faster.', index_wp_mysql_for_speed_domain ) . '</p>';
 	}
 
 
@@ -40,14 +40,14 @@ class IndexMySqlAdminPage {
 	 */
 	function populate_question( $optitem, $optyesanswer, $optnoanswer ) {
 		// get option 'populate_tags' value from the database
-		$options = get_option( 'index_mysql_for_speed_options' );
+		$options = get_option( 'index_wp_mysql_for_speed_options' );
 		$choice  = ( empty( $options[ $optitem ] ) ) ? 'no' : $options[ $optitem ];
 
 		$choices = array(
 			'yes' => $optyesanswer,
 			'no'  => $optnoanswer,
 		);
-		$pattern = '<input type="radio" id="index_mysql_for_speed_4$s" name="index_mysql_for_speed_options[%4$s]" value="%1$s" %2$s> %3$s';
+		$pattern = '<input type="radio" id="index_wp_mysql_for_speed_4$s" name="index_wp_mysql_for_speed_options[%4$s]" value="%1$s" %2$s> %3$s';
 
 		$f = array();
 		foreach ( $choices as $i => $k ) {
@@ -64,9 +64,9 @@ class IndexMySqlAdminPage {
 	 * @param string $item contains the options item name ... e.g. audio_caption
 	 */
 	function admin_text( $item ) {
-		$options = get_option( 'index_mysql_for_speed_options' );
+		$options = get_option( 'index_wp_mysql_for_speed_options' );
 		$value   = ( empty( $options[ $item ] ) ) ? ' ' : $options[ $item ];
-		$pattern = '<input type="text" id="index_mysql_for_speedadmin_%2$s" name="index_mysql_for_speed_options[%2$s]" value="%1$s" size="80" />';
+		$pattern = '<input type="text" id="index_wp_mysql_for_speedadmin_%2$s" name="index_wp_mysql_for_speed_options[%2$s]" value="%1$s" size="80" />';
 		$pattern = sprintf( $pattern, htmlspecialchars( $value ), $item );
 		echo $pattern;
 		echo "\n";
@@ -95,20 +95,20 @@ class IndexMySqlAdminPage {
             <div id="icon-plugins" class="icon32"></div>
             <div id="icon-options-general" class="icon32"></div>
 			<?php
-			printf( '<div class="wrap"><h2>' . __( 'Index MySQL For Speed (Version %1s) Settings', index_mysql_for_speed_domain ) . '</h2></div>', index_mysql_for_speed_VERSION_NUM );
+			printf( '<div class="wrap"><h2>' . __( 'Index MySQL For Speed (Version %1s) Settings', index_wp_mysql_for_speed_domain ) . '</h2></div>', index_wp_mysql_for_speed_VERSION_NUM );
 
 			?>
             <form action="options.php" method="post">
 
 				<?php
-				settings_fields( 'index_mysql_for_speed' );
-				do_settings_sections( 'index_mysql_for_speed' );
+				settings_fields( 'index_wp_mysql_for_speed' );
+				do_settings_sections( 'index_wp_mysql_for_speed' );
 				?>
 
                 <p class="submit">
                     <input name="Submit" type="submit" id="submit"
                            class="button button-primary"
-                           value="<?php _e( 'Save Changes', index_mysql_for_speed_domain ); ?>"/>
+                           value="<?php _e( 'Save Changes', index_wp_mysql_for_speed_domain ); ?>"/>
                 </p></form>
         </div>
 
