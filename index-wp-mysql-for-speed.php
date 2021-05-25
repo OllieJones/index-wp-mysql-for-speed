@@ -39,9 +39,22 @@ function index_wp_mysql_for_speed_do_everything() {
 		require_once( 'code/imsfdb.php' );
 		require_once( 'code/admin.php' );
 		$db = new ImfsDb();
-		$output = $db->getStats();
-		$problems = $db->anyProblems("enable");
-		$foo = $db->newIndexing();
+		try {
+			$output   = $db->getStats();
+			foreach ($db->tables() as $name) {
+				$msgs = $db->clearMessages();
+				$canEnable = $db->checkTable("enable", $name);
+				$msgs = $db->clearMessages();
+				$canDisable = $db->checkTable("disable", $name);
+				if ($canDisable) {
+					$db->rekeyTable("disable", $name);
+				}
+				$canEnable = $db->checkTable("enable", $name);
+				$canDisable = $db->checkTable("disable", $name);
+			}
+		} catch ( ImfsException $e ) {
+			$foo = (string) $e;
+		}
 	}
 }
 
@@ -49,7 +62,7 @@ function index_wp_mysql_for_speed_l12n() {
 	if ( is_admin() ) {
 		/* no need for translation except in admin */
 		load_plugin_textdomain( 'index-wp-mysql-for-speed', false, dirname( plugin_basename( __FILE__ ) ) .
-		                                                        DIRECTORY_SEPARATOR . 'languages' . DIRECTORY_SEPARATOR );
+		                                                           DIRECTORY_SEPARATOR . 'languages' . DIRECTORY_SEPARATOR );
 	}
 }
 
