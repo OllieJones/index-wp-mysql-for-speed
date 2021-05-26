@@ -25,8 +25,44 @@ class ImfsDb {
 	public bool $lookForExtraKeys = false;
 
 	public function __construct() {
-		$this->queries  = getQueries();
-		$this->messages = array();
+		$this->queries             = getQueries();
+		$this->messages            = array();
+	}
+
+	/** run a SELECT
+	 *
+	 * @param $sql
+	 *
+	 * @return array|object|null
+	 * @throws ImfsException
+	 */
+	public function get_results( $sql ) {
+		global $wpdb;
+		$results = $wpdb->get_results( $sql, OBJECT_K );
+		if ( false === $results || $wpdb->last_error ) {
+			throw new ImfsException( $wpdb->last_error, $wpdb->last_query );
+		}
+
+		return $results;
+
+	}
+
+	/** run a query
+	 *
+	 * @param $sql
+	 *
+	 * @return bool|int
+	 * @throws ImfsException
+	 */
+	public function query( $sql ) {
+		global $wpdb;
+		$results = $wpdb->query( $sql );
+		if ( false === $results || $wpdb->last_error ) {
+			throw new ImfsException( $wpdb->last_error, $wpdb->last_query );
+		}
+
+		return $results;
+
 	}
 
 	/**
@@ -39,10 +75,7 @@ class ImfsDb {
 		$output  = array();
 		$dbstats = $this->queries['dbstats'];
 		foreach ( $dbstats as $q ) {
-			$results = $wpdb->get_results( $q, OBJECT_K );
-			if ( false === $results || $wpdb->last_error ) {
-				throw new ImfsException( $wpdb->last_error, $wpdb->last_query );
-			}
+			$results = $this->get_results( $q );
 			array_push( $output, $results );
 		}
 
@@ -52,10 +85,11 @@ class ImfsDb {
 	/** List of tables to manipulate
 	 * @return Generator tables manipulated by this module
 	 */
-	public function tables(): Generator {
+	public function tables( $prefixed = false ): Generator {
+		global $wpdb;
 		foreach ( $this->queries as $name => $stmts ) {
-			if ( array_key_exists( 'tablename', $stmts ) && $name == $stmts['tablename'] ) {
-				yield $name;
+			if ( is_array( $stmts ) && array_key_exists( 'tablename', $stmts ) && $name === $stmts['tablename'] ) {
+				yield $prefixed ? $wpdb->prefix . $name : $name;
 			}
 		}
 
@@ -71,13 +105,9 @@ class ImfsDb {
 	 */
 	public function getKeyDML( string $name ) {
 		global $wpdb;
-		$stmt    = $wpdb->prepare( $this->queries['indexes'], $wpdb->prefix . $name );
-		$results = $wpdb->get_results( $stmt, OBJECT_K );
-		if ( false === $results || $wpdb->last_error ) {
-			throw new ImfsException( $wpdb->last_error, $wpdb->last_query );
-		}
+		$stmt = $wpdb->prepare( $this->queries['indexes'], $wpdb->prefix . $name );
 
-		return $results;
+		return $this->get_results( $stmt );
 	}
 
 	/** Check whether a table is ready to be acted upon
@@ -152,11 +182,8 @@ class ImfsDb {
 		$table = $wpdb->prefix . $name;
 		if ( $action ) {
 			foreach ( $stmts as $fragment ) {
-				$q       = "ALTER TABLE " . $table . " " . $fragment;
-				$results = $wpdb->query( $q );
-				if ( false === $results || $wpdb->last_error ) {
-					throw new ImfsException( $wpdb->last_error, $wpdb->last_query );
-				}
+				$q = "ALTER TABLE " . $table . " " . $fragment;
+				$this->query( $q );
 			}
 		}
 	}
@@ -198,5 +225,47 @@ class ImfsDb {
 		}
 
 		return true;
+	}
+
+	public function lock() {
+		$this->enterMaintenanceMode();
+		$tables = array();
+		foreach ( $this->tables( true ) as $tbl ) {
+			array_push( $tables, $tbl . ' ' . 'WRITE' );
+		}
+		/* always specify locks in the same order to avoid starving the philosophers */
+		sort( $tables );
+		$q = "LOCK TABLES " . implode( ', ', $tables );
+		$this->query( $q );
+	}
+
+	public function unlock() {
+		$this->query( "UNLOCK TABLES" );
+		$this->leaveMaintenanceMode();
+	}
+
+	/**
+	 * @param int $duration how many seconds until maintenance expires
+	 */
+	public function enterMaintenanceMode( int $duration = 60 ) {
+		$maintenanceFileName = $_SERVER['DOCUMENT_ROOT'] . DIRECTORY_SEPARATOR . '.maintenance';
+		$maintain     = array();
+		$expirationTs = time() + $duration - 600;
+		array_push( $maintain,
+			'<?php',
+			'/* Maintenance Mode was entered by ' .
+			index_wp_mysql_for_speed_PLUGIN_NAME .
+			' for table reindexing at ' .
+			date( "Y-m-d H:i:s" ) . ' */',
+			/* notice that maintenance expires ten minutes, 600 sec, after the time in the file. */
+			'$upgrading = ' . $expirationTs . ';',
+			'?>' );
+
+		$result = file_put_contents( $maintenanceFileName, implode( PHP_EOL, $maintain ) );
+	}
+
+	public function leaveMaintenanceMode() {
+		$maintenanceFileName = $_SERVER['DOCUMENT_ROOT'] . DIRECTORY_SEPARATOR . '.maintenance';
+		unlink( $maintenanceFileName );
 	}
 }

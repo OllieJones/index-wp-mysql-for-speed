@@ -41,11 +41,13 @@ function index_wp_mysql_for_speed_do_everything() {
 		$db = new ImfsDb();
 		try {
 			$output   = $db->getStats();
+			$db->lock();
 			foreach ($db->tables() as $name) {
 				$msgs = $db->clearMessages();
 				$canEnable = $db->checkTable("enable", $name);
 				$msgs = $db->clearMessages();
 				$canDisable = $db->checkTable("disable", $name);
+				$msgs = $db->clearMessages();
 				if ($canDisable) {
 					$db->rekeyTable("disable", $name);
 				}
@@ -54,6 +56,8 @@ function index_wp_mysql_for_speed_do_everything() {
 			}
 		} catch ( ImfsException $e ) {
 			$foo = (string) $e;
+		} finally {
+			$db->unlock();
 		}
 	}
 }
