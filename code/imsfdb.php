@@ -1,5 +1,7 @@
 <?php
 require_once( 'getqueries.php' );
+require_once( ABSPATH . 'wp-admin/includes/class-wp-upgrader.php');
+
 
 class ImfsException extends Exception {
 	protected $message;
@@ -155,8 +157,8 @@ class ImfsDb {
 				$desc = $indexes[ $index ];
 				if ( $desc->add !== $stmt ) {
 					$msg = sprintf(
-					/* translators: %1$s is table name, %2$s is key (index) name, %3$s is expected key, %4$s is actual */
-						__( 'Table %1$s: Found an unexpected definition for key %2$s. It should be %3$s, but is %4$s. Cannot rekey this table' ),
+					/* translators: %1$s is table name, %2$s is key (index) name, %4$s is expected key, %3$s is actual */
+						__( 'Table %1$s: Found an unexpected definition for key %2$s. It should be %4$s, but is %3$s. Cannot rekey this table' ),
 						$table, $index, $desc->add, $checks[ $index ]
 					);
 					array_push( $this->messages, $msg );
@@ -248,7 +250,7 @@ class ImfsDb {
 	 * @param int $duration how many seconds until maintenance expires
 	 */
 	public function enterMaintenanceMode( int $duration = 60 ) {
-		$maintenanceFileName = $_SERVER['DOCUMENT_ROOT'] . DIRECTORY_SEPARATOR . '.maintenance';
+		$maintenanceFileName = ABSPATH . '.maintenance';
 		$maintain     = array();
 		$expirationTs = time() + $duration - 600;
 		array_push( $maintain,
@@ -265,7 +267,7 @@ class ImfsDb {
 	}
 
 	public function leaveMaintenanceMode() {
-		$maintenanceFileName = $_SERVER['DOCUMENT_ROOT'] . DIRECTORY_SEPARATOR . '.maintenance';
+		$maintenanceFileName = ABSPATH . '.maintenance';
 		unlink( $maintenanceFileName );
 	}
 }

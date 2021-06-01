@@ -18,8 +18,8 @@ class IndexMySqlAdminPage {
 		add_options_page(
 			__( 'Index MySQL', index_wp_mysql_for_speed_domain ),
 			__( 'Index MySQL', index_wp_mysql_for_speed_domain ),
-			'upload_files',
-			index_wp_mysql_for_speed_domain,
+			'activate_plugins',
+			'imfsdb',
 			array( $this, 'admin_page' ) );
 	}
 
@@ -77,10 +77,10 @@ class IndexMySqlAdminPage {
 	 *
 	 * @param array $input
 	 *
-	 * @return validated array
+	 * @return array
 	 */
 	function validate_options( $input ) {
-		$codes = array( 'option1', 'option2' );
+		$codes = array( 'telemetry_ok' );
 		$valid = array();
 		foreach ( $codes as $code ) {
 			$valid[ $code ] = htmlspecialchars_decode( $input[ $code ] );
@@ -89,13 +89,43 @@ class IndexMySqlAdminPage {
 		return $valid;
 	}
 
+	/**
+	 * emit the telemetry ok question
+	 */
+	function telemetry_ok_text() {
+		$this->populate_question( 'telemetry_ok',
+			__( 'Yes', index_wp_mysql_for_speed_domain ),
+			__( 'No', index_wp_mysql_for_speed_domain )
+		);
+	}
+
+
 	function admin_page() {
 		?>
         <div class="wrap">
             <div id="icon-plugins" class="icon32"></div>
             <div id="icon-options-general" class="icon32"></div>
 			<?php
-			printf( '<div class="wrap"><h2>' . __( 'Index MySQL For Speed (Version %1s) Settings', index_wp_mysql_for_speed_domain ) . '</h2></div>', index_wp_mysql_for_speed_VERSION_NUM );
+			printf( '<div class="wrap"><h2>' .
+			        __( 'Index MySQL For Speed', index_wp_mysql_for_speed_domain ) .
+			        '<small> (v%1s)</small>' .
+			        '</h2></div>', index_wp_mysql_for_speed_VERSION_NUM );
+
+			add_settings_section(
+				'imfsdb_admin_general',
+				__( 'Settings', index_wp_mysql_for_speed_domain ),
+				array( $this, 'general_text' ),
+				'imfsdb' );
+
+
+			add_settings_field(
+				'imfsdb_admin_telemetry_ok',
+				__( 'Upload anonymous information about your database', index_wp_mysql_for_speed_domain ),
+				array( $this, 'telemetry_ok_text' ),
+				'imfsdb',
+				'imfsdb_admin_general'
+			);
+
 
 			?>
             <form action="options.php" method="post">

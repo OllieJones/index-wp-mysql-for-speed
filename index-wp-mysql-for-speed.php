@@ -35,29 +35,31 @@ add_action( 'init', 'index_wp_mysql_for_speed_do_everything' );
 add_action( 'plugins_loaded', 'index_wp_mysql_for_speed_l12n' );
 
 function index_wp_mysql_for_speed_do_everything() {
-	if ( is_admin() && current_user_can( 'manage_options' ) ) {
+	if ( is_admin() && current_user_can( 'activate_plugins' ) ) {
 		require_once( 'code/imsfdb.php' );
 		require_once( 'code/admin.php' );
-		$db = new ImfsDb();
-		try {
-			$output   = $db->getStats();
-			$db->lock();
-			foreach ($db->tables() as $name) {
-				$msgs = $db->clearMessages();
-				$canEnable = $db->checkTable("enable", $name);
-				$msgs = $db->clearMessages();
-				$canDisable = $db->checkTable("disable", $name);
-				$msgs = $db->clearMessages();
-				if ($canDisable) {
-					$db->rekeyTable("disable", $name);
+		if ( false ) {
+			$db = new ImfsDb();
+			try {
+				$output = $db->getStats();
+				$db->lock();
+				foreach ( $db->tables() as $name ) {
+					$msgs       = $db->clearMessages();
+					$canEnable  = $db->checkTable( "enable", $name );
+					$msgs       = $db->clearMessages();
+					$canDisable = $db->checkTable( "disable", $name );
+					$msgs       = $db->clearMessages();
+					if ( $canDisable ) {
+						$db->rekeyTable( "disable", $name );
+					}
+					$canEnable  = $db->checkTable( "enable", $name );
+					$canDisable = $db->checkTable( "disable", $name );
 				}
-				$canEnable = $db->checkTable("enable", $name);
-				$canDisable = $db->checkTable("disable", $name);
+			} catch ( ImfsException $e ) {
+				$foo = (string) $e;
+			} finally {
+				$db->unlock();
 			}
-		} catch ( ImfsException $e ) {
-			$foo = (string) $e;
-		} finally {
-			$db->unlock();
 		}
 	}
 }

@@ -14,19 +14,22 @@ function getQueries() {
 			"enable"        => array(
 				"ADD UNIQUE KEY meta_id (meta_id)",
 				"DROP PRIMARY KEY",
-				"ADD PRIMARY KEY (post_id, meta_key(191), meta_id)",
+				"ADD PRIMARY KEY (post_id, meta_id)",
 				"DROP KEY post_id",
+				"ADD KEY post_id (post_id, meta_key(191))",
 				"DROP KEY meta_key",
 				"ADD KEY meta_key (meta_key(191), post_id)"
 			),
 			"check.disable" => array(
-				"PRIMARY KEY" => "ADD PRIMARY KEY (post_id, meta_key(191), meta_id)",
+				"PRIMARY KEY" => "ADD PRIMARY KEY (post_id, meta_id)",
+				"post_id"     => "ADD KEY post_id (post_id, meta_key(191))",
 				"meta_key"    => "ADD KEY meta_key (meta_key(191), post_id)"
 			),
 			"disable"       => array(
 				"DROP PRIMARY KEY",
 				"ADD PRIMARY KEY (meta_id)",
 				"DROP KEY meta_id",
+				"DROP KEY post_id",
 				"ADD KEY post_id (post_id)",
 				"DROP KEY meta_key",
 				"ADD KEY meta_key (meta_key(191))",
@@ -43,20 +46,23 @@ function getQueries() {
 			"enable"        => array(
 				"ADD UNIQUE KEY umeta_id (umeta_id)",
 				"DROP PRIMARY KEY",
-				"ADD PRIMARY KEY (user_id, meta_key(191), umeta_id)",
+				"ADD PRIMARY KEY (user_id, umeta_id)",
 				"DROP KEY user_id",
+				"ADD KEY user_id (user_id, meta_key(191))",
 				"DROP KEY meta_key",
 				"ADD KEY meta_key (meta_key(191), user_id)"
 			),
 			"check.disable" => array(
 				"umeta_id"    => "ADD UNIQUE KEY umeta_id (umeta_id)",
-				"PRIMARY KEY" => "ADD PRIMARY KEY (user_id, meta_key(191), umeta_id)",
+				"user_id"     => "ADD KEY user_id (user_id, meta_key(191))",
+				"PRIMARY KEY" => "ADD PRIMARY KEY (user_id, umeta_id)",
 				"meta_key"    => "ADD KEY meta_key (meta_key(191), user_id)"
 			),
 			"disable"       => array(
 				"DROP PRIMARY KEY",
 				"ADD PRIMARY KEY (umeta_id)",
 				"DROP KEY umeta_id",
+				"DROP KEY user_id",
 				"ADD KEY user_id (user_id)",
 				"DROP KEY meta_key",
 				"ADD KEY meta_key (meta_key(191))",
@@ -72,14 +78,16 @@ function getQueries() {
 			"enable"        => array(
 				"ADD UNIQUE KEY meta_id (meta_id)",
 				"DROP PRIMARY KEY",
-				"ADD PRIMARY KEY (term_id, meta_key(191), meta_id)",
+				"ADD PRIMARY KEY (term_id, meta_id)",
 				"DROP KEY term_id",
+				"ADD KEY term_id (term_id, meta_key(191))",
 				"DROP KEY meta_key",
 				"ADD KEY meta_key (meta_key(191), term_id)"
 			),
 			"check.disable" => array(
-				"PRIMARY KEY" => "ADD PRIMARY KEY (term_id, meta_key(191), meta_id)",
+				"PRIMARY KEY" => "ADD PRIMARY KEY (term_id, meta_id)",
 				"meta_id"     => "ADD UNIQUE KEY meta_id (meta_id)",
+				"term_id"     => "ADD KEY term_id (term_id, meta_key(191))",
 				"meta_key"    => "ADD KEY meta_key (meta_key(191), term_id)",
 			),
 			"disable"       => array(
@@ -88,6 +96,7 @@ function getQueries() {
 				"DROP KEY meta_id",
 				"DROP KEY meta_key",
 				"ADD KEY meta_key (meta_key(191))",
+				"DROP KEY term_id",
 				"ADD KEY term_id (term_id)",
 			),
 		),
@@ -95,8 +104,7 @@ function getQueries() {
 			"tablename"     => "options",
 			"check.enable"  => array(
 				"PRIMARY KEY" => "ADD PRIMARY KEY (option_id)",
-				"autoload"    => "ADD KEY autoload (autoload)",
-				//"option_name" => "ADD UNIQUE KEY option_name (option_name)",
+				"autoload"    => "ADD KEY autoload (autoload)"
 			),
 			"enable"        => array(
 				"ADD UNIQUE KEY option_id (option_id)",
@@ -106,7 +114,7 @@ function getQueries() {
 			),
 			"check.disable" => array(
 				"PRIMARY KEY" => "ADD PRIMARY KEY (autoload, option_id)",
-				"option_id" => "ADD UNIQUE KEY option_id (option_id)"
+				"option_id"   => "ADD UNIQUE KEY option_id (option_id)"
 			),
 			"disable"       => array(
 				"DROP PRIMARY KEY",
