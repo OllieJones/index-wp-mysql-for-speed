@@ -19,12 +19,11 @@ Domain Path:       /languages
 defineIfNot( 'index_wp_mysql_for_speed_VERSION_NUM', '0.0.1' );
 
 /* set up some handy globals */
-defineIfNot( 'index_wp_mysql_for_speed_THEME_DIR', ABSPATH . 'wp-content/themes/' . get_template() );
-defineIfNot( 'index_wp_mysql_for_speed_PLUGIN_NAME', trim( dirname( plugin_basename( __FILE__ ) ), '/' ) );
-defineIfNot( 'index_wp_mysql_for_speed_PLUGIN_DIR', WP_PLUGIN_DIR . '/' . index_wp_mysql_for_speed_PLUGIN_NAME );
-defineIfNot( 'index_wp_mysql_for_speed_PLUGIN_URL', WP_PLUGIN_URL . '/' . index_wp_mysql_for_speed_PLUGIN_NAME );
-defineIfNot( 'index_wp_mysql_for_speed_POSTMETA_KEY', '_' . index_wp_mysql_for_speed_PLUGIN_NAME . '_metadata' );
-defineIfNot( 'index_wp_mysql_for_speed_domain', '_' . index_wp_mysql_for_speed_PLUGIN_NAME );
+define( 'index_wp_mysql_for_speed_THEME_DIR', ABSPATH . 'wp-content/themes/' . get_template() );
+define( 'index_wp_mysql_for_speed_PLUGIN_NAME', trim( dirname( plugin_basename( __FILE__ ) ), '/' ) );
+define( 'index_wp_mysql_for_speed_PLUGIN_DIR', WP_PLUGIN_DIR . '/' . index_wp_mysql_for_speed_PLUGIN_NAME );
+define( 'index_wp_mysql_for_speed_PLUGIN_URL', WP_PLUGIN_URL . '/' . index_wp_mysql_for_speed_PLUGIN_NAME );
+define( 'index_wp_mysql_for_speed_domain', index_wp_mysql_for_speed_PLUGIN_NAME );
 
 register_activation_hook( __FILE__, 'index_wp_mysql_for_speed_activate' );
 
@@ -32,43 +31,11 @@ $saved = get_include_path();
 set_include_path( $saved . PATH_SEPARATOR . index_wp_mysql_for_speed_PLUGIN_DIR . DIRECTORY_SEPARATOR . 'code' );
 
 add_action( 'init', 'index_wp_mysql_for_speed_do_everything' );
-add_action( 'plugins_loaded', 'index_wp_mysql_for_speed_l12n' );
 
 function index_wp_mysql_for_speed_do_everything() {
 	if ( is_admin() && current_user_can( 'activate_plugins' ) ) {
 		require_once( 'code/imsfdb.php' );
 		require_once( 'code/admin.php' );
-		if ( false ) {
-			$db = new ImfsDb();
-			try {
-				$output = $db->getStats();
-				$db->lock();
-				foreach ( $db->tables() as $name ) {
-					$msgs       = $db->clearMessages();
-					$canEnable  = $db->checkTable( "enable", $name );
-					$msgs       = $db->clearMessages();
-					$canDisable = $db->checkTable( "disable", $name );
-					$msgs       = $db->clearMessages();
-					if ( $canDisable ) {
-						$db->rekeyTable( "disable", $name );
-					}
-					$canEnable  = $db->checkTable( "enable", $name );
-					$canDisable = $db->checkTable( "disable", $name );
-				}
-			} catch ( ImfsException $e ) {
-				$foo = (string) $e;
-			} finally {
-				$db->unlock();
-			}
-		}
-	}
-}
-
-function index_wp_mysql_for_speed_l12n() {
-	if ( is_admin() ) {
-		/* no need for translation except in admin */
-		load_plugin_textdomain( 'index-wp-mysql-for-speed', false, dirname( plugin_basename( __FILE__ ) ) .
-		                                                           DIRECTORY_SEPARATOR . 'languages' . DIRECTORY_SEPARATOR );
 	}
 }
 
