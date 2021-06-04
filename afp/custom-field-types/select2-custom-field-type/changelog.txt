@@ -1,0 +1,22 @@
+# Change Log
+
+= 0.0.5 - 2019/05/30 =
+- Updated select2 from v4.0.6-rc.1 to v4.0.7.
+- Fixed a bug that initialization failed for repeated fields.
+
+= 0.0.4 - 2019/02/17 =
+- Updated select2 from v4.0.3 to v4.0.6-rc.1.
+- Fixed a bug with that requests did not go through with nested fields.
+- Fixed an issue that the message "the results could not be loaded" was displayed while during Ajax requests by updating the select2 library to 4.0.6-rc.1.
+
+= 0.0.3 - 2017/01/11 =
+- Changed the Ajax request url to `wp-admin/admin-ajax.php`.
+- Changed the minimum required version of Admin Page Framework to 3.8.14.
+- Supported fields of factories other than admin pages.
+
+= 0.0.2b - 2016/10/24 =
+- Set a field type slug to the register callback function to avoid unnecessary callback function calls.
+- Made it compatible with Admin Page Framework 3.8.8.
+
+= 0.0.1b =
+- Released. Uses Select2 v4.0.3.

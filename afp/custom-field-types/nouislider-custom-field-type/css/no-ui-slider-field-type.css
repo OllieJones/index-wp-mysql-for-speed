@@ -1,0 +1,13 @@
+.index-wp-mysql-for-speed-field-no_ui_slider input[data-type='no_ui_slider'] {
+    text-align: right;
+}
+.no-ui-sliders {
+    margin-bottom: 2em;
+}
+.no-ui-sliders.has-pips {
+    margin-bottom: 4em;
+}
+.index-wp-mysql-for-speed-field-no_ui_slider > .index-wp-mysql-for-speed-input-label-container {
+    margin-bottom: 1em;
+    margin-right: 2em;
+}
