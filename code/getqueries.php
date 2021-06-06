@@ -1,9 +1,212 @@
 <?php
-function getQueries() {
+
+function getMySQLIndexingConstraint() {
 	global $wpdb;
-	$p = $wpdb->prefix;
-	/** @var array $queryArray an array of arrays of queries for this to use */
-	$queryArray = array(
+	$semver  = " 
+	 SELECT VERSION() version,
+            CAST(SUBSTRING_INDEX(VERSION(), '.', 1) AS INT) major,
+            CAST(SUBSTRING_INDEX(SUBSTRING_INDEX(VERSION(), '.', 2), '.', -1) AS INT) minor,
+            CAST(SUBSTRING_INDEX(SUBSTRING_INDEX(REPLACE(VERSION(), '-', '.'), '.', 3), '.', -1) AS INT) build,
+            IF(LOCATE('-', VERSION()) <> 0, SUBSTRING_INDEX(VERSION(), '-', -1), NULL) fork";
+	$results = $wpdb->get_results( $semver );
+	$results = $results[0];
+	if ( $results->major >= 8 ) {
+		return true;
+	}
+	/* innodb_large_prefix variable is missing in MySQL 8+ */
+	$largePrefix = "SELECT @@innodb_large_prefix";
+	$largePrefix = $wpdb->get_var( $largePrefix );
+	if ( $largePrefix >= 3072 ) {
+		return true;
+	}
+
+	return false;
+}
+
+/**
+ * @param $constraint true or false for unconstrained or 191 constrained indexing
+ *
+ * @return array
+ */
+function getReindexingInstructions( $constraint ): array {
+	$reindexAnyway = array(
+		"posts"    => array(
+			"tablename"     => "posts",
+			"check.enable"  => array(
+				// no need to verify the keys we don't alter
+				//"PRIMARY KEY"      => "ADD PRIMARY KEY (ID)",
+				//"post_name"        => "ADD KEY post_name (post_name)",
+				//"post_parent"      => "ADD KEY post_parent (post_parent)",
+				"type_status_date" => "ADD KEY type_status_date (post_type, post_status, post_date, ID)",
+				"post_author"      => "ADD KEY post_author (post_author)"
+			),
+			"enable"        => array(
+				"DROP KEY type_status_date",
+				"ADD KEY type_status_date (post_type, post_status, post_date, post_author, ID)",
+				"DROP KEY post_author",
+				"ADD KEY post_author (post_author, post_type, post_status, post_date, ID)"
+			),
+			"check.disable" => array(
+				//"PRIMARY KEY"      => "ADD PRIMARY KEY (ID)",
+				//"post_name"        => "ADD KEY post_name (post_name)",
+				//"post_parent"      => "ADD KEY post_parent (post_parent)",
+				"type_status_date" => "ADD KEY type_status_date (post_type, post_status, post_date, post_author, ID)",
+				"post_author"      => "ADD KEY post_author (post_author, post_type, post_status, post_date, ID)"
+			),
+			"disable"       => array(
+				"DROP KEY type_status_date",
+				"ADD KEY type_status_date (post_type, post_status, post_date, ID)",
+				"DROP KEY post_author",
+				"ADD KEY post_author (post_author)"
+			),
+		),
+		"comments" => array(
+			"tablename"     => "comments",
+			"check.enable"  => array(
+				//"PRIMARY KEY"               => "ADD PRIMARY KEY (comment_ID)",
+				//"comment_post_ID"           => "ADD KEY comment_post_ID (comment_post_ID)",
+				//"comment_approved_date_gmt" => "ADD KEY comment_approved_date_gmt (comment_approved, comment_date_gmt)",
+				//"comment_date_gmt"          => "ADD KEY comment_date_gmt (comment_date_gmt)",
+				//"comment_parent"            => "ADD KEY comment_parent (comment_parent)",
+				//"comment_author_email"      => "ADD KEY comment_author_email (comment_author_email(10))"
+			),
+			"enable"        => array(
+				"ADD KEY comment_post_parent_approved (comment_post_ID, comment_parent, comment_approved)"
+			),
+			"check.disable" => array(
+				//"PRIMARY KEY"                  => "ADD PRIMARY KEY (comment_ID)",
+				//"comment_post_ID"              => "ADD KEY comment_post_ID (comment_post_ID",
+				//"comment_approved_date_gmt"    => "ADD KEY comment_approved_date_gmt (comment_approved, comment_date_gmt)",
+				//"comment_date_gmt"             => "ADD KEY comment_date_gmt (comment_date_gmt)",
+				//"comment_parent"               => "ADD KEY comment_parent (comment_parent)",
+				//"comment_author_email"         => "ADD KEY comment_author_email (comment_author_email)",
+				"comment_post_parent_approved" => "ADD KEY comment_post_parent_approved (comment_post_ID, comment_parent, comment_approved)"
+			),
+			"disable"       => array(
+				"DROP KEY comment_post_parent_approved"
+			),
+		)
+	);
+
+
+	$reindexWithoutConstraint = array(
+		"postmeta" => array(
+			"tablename"     => "postmeta",
+			"check.enable"  => array(
+				"PRIMARY KEY" => "ADD PRIMARY KEY (meta_id)",
+				"meta_key"    => "ADD KEY meta_key (meta_key(191))",
+				"post_id"     => "ADD KEY post_id (post_id)"
+			),
+			"enable"        => array(
+				"ADD UNIQUE KEY meta_id (meta_id)",
+				"DROP PRIMARY KEY",
+				"ADD PRIMARY KEY (post_id, meta_key, meta_id)",
+				"DROP KEY post_id",
+				"DROP KEY meta_key",
+				"ADD KEY meta_key (meta_key, post_id)"
+			),
+			"check.disable" => array(
+				"PRIMARY KEY" => "ADD PRIMARY KEY (post_id, meta_key, meta_id)",
+				"meta_key"    => "ADD KEY meta_key (meta_key, post_id)"
+			),
+			"disable"       => array(
+				"DROP PRIMARY KEY",
+				"ADD PRIMARY KEY (meta_id)",
+				"DROP KEY meta_id",
+				"ADD KEY post_id (post_id)",
+				"DROP KEY meta_key",
+				"ADD KEY meta_key (meta_key(191))",
+			),
+		),
+
+		"usermeta" => array(
+			"tablename"     => "usermeta",
+			"check.enable"  => array(
+				"PRIMARY KEY" => "ADD PRIMARY KEY (umeta_id)",
+				"meta_key"    => "ADD KEY meta_key (meta_key(191))",
+				"user_id"     => "ADD KEY user_id (user_id)"
+			),
+			"enable"        => array(
+				"ADD UNIQUE KEY umeta_id (umeta_id)",
+				"DROP PRIMARY KEY",
+				"ADD PRIMARY KEY (user_id, meta_key, umeta_id)",
+				"DROP KEY user_id",
+				"DROP KEY meta_key",
+				"ADD KEY meta_key (meta_key, user_id)"
+			),
+			"check.disable" => array(
+				"umeta_id"    => "ADD UNIQUE KEY umeta_id (umeta_id)",
+				"PRIMARY KEY" => "ADD PRIMARY KEY (user_id, meta_key, umeta_id)",
+				"meta_key"    => "ADD KEY meta_key (meta_key, user_id)"
+			),
+			"disable"       => array(
+				"DROP PRIMARY KEY",
+				"ADD PRIMARY KEY (umeta_id)",
+				"DROP KEY umeta_id",
+				"DROP KEY user_id",
+				"ADD KEY user_id (user_id)",
+				"DROP KEY meta_key",
+				"ADD KEY meta_key (meta_key(191))",
+			),
+		),
+		"termmeta" => array(
+			"tablename"     => "termmeta",
+			"check.enable"  => array(
+				"PRIMARY KEY" => "ADD PRIMARY KEY (meta_id)",
+				"meta_key"    => "ADD KEY meta_key (meta_key(191))",
+				"term_id"     => "ADD KEY term_id (term_id)"
+			),
+			"enable"        => array(
+				"ADD UNIQUE KEY meta_id (meta_id)",
+				"DROP PRIMARY KEY",
+				"ADD PRIMARY KEY (term_id, meta_key, meta_id)",
+				"DROP KEY term_id",
+				"ADD KEY term_id (term_id, meta_key)",
+				"DROP KEY meta_key",
+				"ADD KEY meta_key (meta_key, term_id)"
+			),
+			"check.disable" => array(
+				"PRIMARY KEY" => "ADD PRIMARY KEY (term_id, meta_key, meta_id)",
+				"meta_id"     => "ADD UNIQUE KEY meta_id (meta_id)",
+				"term_id"     => "ADD KEY term_id (term_id, meta_key)",
+				"meta_key"    => "ADD KEY meta_key (meta_key, term_id)",
+			),
+			"disable"       => array(
+				"DROP PRIMARY KEY",
+				"ADD PRIMARY KEY (meta_id)",
+				"DROP KEY meta_id",
+				"DROP KEY meta_key",
+				"ADD KEY meta_key (meta_key(191))",
+				"DROP KEY term_id",
+				"ADD KEY term_id (term_id)",
+			),
+		),
+		"options"  => array(
+			"tablename"     => "options",
+			"check.enable"  => array(
+				"PRIMARY KEY" => "ADD PRIMARY KEY (option_id)",
+				"autoload"    => "ADD KEY autoload (autoload)"
+			),
+			"enable"        => array(
+				"ADD UNIQUE KEY option_id (option_id)",
+				"DROP PRIMARY KEY",
+				"ADD PRIMARY KEY (autoload, option_id)",
+				"DROP KEY autoload"
+			),
+			"check.disable" => array(
+				"PRIMARY KEY" => "ADD PRIMARY KEY (autoload, option_id)",
+				"option_id"   => "ADD UNIQUE KEY option_id (option_id)"
+			),
+			"disable"       => array(
+				"DROP PRIMARY KEY",
+				"ADD PRIMARY KEY (option_id)",
+				"DROP KEY option_id",
+				"ADD KEY autoload (autoload)"
+			),
+		)
+	);
+
+	$reindexWith191Constraint = array(
 		"postmeta" => array(
 			"tablename"     => "postmeta",
 			"check.enable"  => array(
@@ -122,64 +325,23 @@ function getQueries() {
 				"DROP KEY option_id",
 				"ADD KEY autoload (autoload)"
 			),
-		),
-		"posts"    => array(
-			"tablename"     => "posts",
-			"check.enable"  => array(
-				// no need to verify the keys we don't alter
-				//"PRIMARY KEY"      => "ADD PRIMARY KEY (ID)",
-				//"post_name"        => "ADD KEY post_name (post_name)",
-				//"post_parent"      => "ADD KEY post_parent (post_parent)",
-				"type_status_date" => "ADD KEY type_status_date (post_type, post_status, post_date, ID)",
-				"post_author"      => "ADD KEY post_author (post_author)"
-			),
-			"enable"        => array(
-				"DROP KEY type_status_date",
-				"ADD KEY type_status_date (post_type, post_status, post_date, post_author, ID)",
-				"DROP KEY post_author",
-				"ADD KEY post_author (post_author, post_type, post_status, post_date, ID)"
-			),
-			"check.disable" => array(
-				//"PRIMARY KEY"      => "ADD PRIMARY KEY (ID)",
-				//"post_name"        => "ADD KEY post_name (post_name)",
-				//"post_parent"      => "ADD KEY post_parent (post_parent)",
-				"type_status_date" => "ADD KEY type_status_date (post_type, post_status, post_date, post_author, ID)",
-				"post_author"      => "ADD KEY post_author (post_author, post_type, post_status, post_date, ID)"
-			),
-			"disable"       => array(
-				"DROP KEY type_status_date",
-				"ADD KEY type_status_date (post_type, post_status, post_date, ID)",
-				"DROP KEY post_author",
-				"ADD KEY post_author (post_author)"
-			),
-		),
-		"comments" => array(
-			"tablename"     => "comments",
-			"check.enable"  => array(
-				//"PRIMARY KEY"               => "ADD PRIMARY KEY (comment_ID)",
-				//"comment_post_ID"           => "ADD KEY comment_post_ID (comment_post_ID)",
-				//"comment_approved_date_gmt" => "ADD KEY comment_approved_date_gmt (comment_approved, comment_date_gmt)",
-				//"comment_date_gmt"          => "ADD KEY comment_date_gmt (comment_date_gmt)",
-				//"comment_parent"            => "ADD KEY comment_parent (comment_parent)",
-				//"comment_author_email"      => "ADD KEY comment_author_email (comment_author_email(10))"
-			),
-			"enable"        => array(
-				"ADD KEY comment_post_parent_approved (comment_post_ID, comment_parent, comment_approved)"
-			),
-			"check.disable" => array(
-				//"PRIMARY KEY"                  => "ADD PRIMARY KEY (comment_ID)",
-				//"comment_post_ID"              => "ADD KEY comment_post_ID (comment_post_ID",
-				//"comment_approved_date_gmt"    => "ADD KEY comment_approved_date_gmt (comment_approved, comment_date_gmt)",
-				//"comment_date_gmt"             => "ADD KEY comment_date_gmt (comment_date_gmt)",
-				//"comment_parent"               => "ADD KEY comment_parent (comment_parent)",
-				//"comment_author_email"         => "ADD KEY comment_author_email (comment_author_email)",
-				"comment_post_parent_approved" => "ADD KEY comment_post_parent_approved (comment_post_ID, comment_parent, comment_approved)"
-			),
-			"disable"       => array(
-				"DROP KEY comment_post_parent_approved"
-			),
-		),
-		"indexes"  => "		
+		)
+	);
+	$result                   = $reindexAnyway;
+	switch ( $constraint ) {
+		case true:
+			return array_merge( $reindexWithoutConstraint, $reindexAnyway );
+		case false:
+			return array_merge( $reindexWith191Constraint, $reindexAnyway );
+	}
+}
+
+function getQueries() {
+	global $wpdb;
+	$p = $wpdb->prefix;
+	/** @var array $queryArray an array of arrays of queries for this to use */
+	$queryArray = array(
+		"indexes" => "		
         SELECT
            s.TABLE_NAME,  
            IF(tc.CONSTRAINT_TYPE LIKE 'PRIMARY KEY', tc.CONSTRAINT_TYPE, CONCAT (s.INDEX_NAME)) key_name,   
@@ -310,44 +472,48 @@ function getQueries() {
         QQQ,
 			<<<QQQ
             SELECT c.TABLE_NAME,
-                       COUNT(*) column_count,
-                       SUM(IF(c.DATA_TYPE = 'varchar', c.CHARACTER_OCTET_LENGTH, 0)) varchar_total_octets,
-                       MAX(IF(c.DATA_TYPE = 'varchar', c.CHARACTER_OCTET_LENGTH, 0)) varchar_max_octets,
-                       SUM(IF(c.DATA_TYPE = 'varchar', c.CHARACTER_MAXIMUM_LENGTH, 0)) varchar_total_length,
-                       MAX(IF(c.DATA_TYPE = 'varchar', c.CHARACTER_MAXIMUM_LENGTH, 0)) varchar_max_length,
-                       SUM(c.DATA_TYPE= 'varchar') varchar_columns,
-                       SUM(IF(c.DATA_TYPE = 'char', c.CHARACTER_OCTET_LENGTH, 0)) char_total_octets,
-                       MAX(IF(c.DATA_TYPE = 'char', c.CHARACTER_OCTET_LENGTH, 0)) char_max_octets,
-                       SUM(IF(c.DATA_TYPE = 'char', c.CHARACTER_MAXIMUM_LENGTH, 0)) char_total_length,
-                       MAX(IF(c.DATA_TYPE = 'char', c.CHARACTER_MAXIMUM_LENGTH, 0)) char_max_length,
-                       SUM(c.DATA_TYPE= 'char') char_columns,
-                       SUM(IF(c.DATA_TYPE = 'longtext', c.CHARACTER_OCTET_LENGTH, 0)) longtext_total_octets,
-                       MAX(IF(c.DATA_TYPE = 'longtext', c.CHARACTER_OCTET_LENGTH, 0)) longtext_max_octets,
-                       SUM(IF(c.DATA_TYPE = 'longtext', c.CHARACTER_MAXIMUM_LENGTH, 0)) longtext_total_length,
-                       MAX(IF(c.DATA_TYPE = 'longtext', c.CHARACTER_MAXIMUM_LENGTH, 0)) longtext_max_length,
-                       SUM(c.DATA_TYPE= 'longtext') longtext_columns,
-                       SUM(IF(c.DATA_TYPE = 'text', c.CHARACTER_OCTET_LENGTH, 0)) text_sum_octets,
-                       MAX(IF(c.DATA_TYPE = 'text', c.CHARACTER_OCTET_LENGTH, 0)) text_max_octets,
-                       SUM(IF(c.DATA_TYPE = 'text', c.CHARACTER_MAXIMUM_LENGTH, 0)) text_total_length,
-                       MAX(IF(c.DATA_TYPE = 'text', c.CHARACTER_MAXIMUM_LENGTH, 0)) text_max_length,
-                       SUM(c.DATA_TYPE= 'text') text_columns,		        
-                       SUM(
-                           CASE WHEN c.GENERATION_EXPRESSION IS NOT NULL THEN 0
-                                WHEN c.DATA_TYPE IN ('varchar', 'char') THEN c.CHARACTER_OCTET_LENGTH
-                                WHEN c.DATA_TYPE = 'int' THEN 4
-                                WHEN c.DATA_TYPE = 'bigint' THEN 8
-                                WHEN c.DATA_TYPE = 'float' THEN 4
-                                WHEN c.DATA_TYPE = 'double' THEN 8
-                                WHEN c.DATA_TYPE = 'date' THEN 3
-                                WHEN c.DATA_TYPE = 'time' THEN 3 + FLOOR((1+c.DATETIME_PRECISION) / 2)
-                                WHEN c.DATA_TYPE = 'timestamp' THEN 4 + FLOOR((1+c.DATETIME_PRECISION) / 2)
-                                WHEN c.DATA_TYPE = 'datetime' THEN 5 + FLOOR((1+c.DATETIME_PRECISION) / 2)
-                                ELSE 0 END                
-                           ) rowlength
+                   t.ROW_FORMAT,
+                   COUNT(*) column_count,
+                   SUM(IF(c.DATA_TYPE = 'varchar', c.CHARACTER_OCTET_LENGTH, 0)) varchar_total_octets,
+                   MAX(IF(c.DATA_TYPE = 'varchar', c.CHARACTER_OCTET_LENGTH, 0)) varchar_max_octets,
+                   SUM(IF(c.DATA_TYPE = 'varchar', c.CHARACTER_MAXIMUM_LENGTH, 0)) varchar_total_length,
+                   MAX(IF(c.DATA_TYPE = 'varchar', c.CHARACTER_MAXIMUM_LENGTH, 0)) varchar_max_length,
+                   SUM(c.DATA_TYPE= 'varchar') varchar_columns,
+                   SUM(IF(c.DATA_TYPE = 'char', c.CHARACTER_OCTET_LENGTH, 0)) char_total_octets,
+                   MAX(IF(c.DATA_TYPE = 'char', c.CHARACTER_OCTET_LENGTH, 0)) char_max_octets,
+                   SUM(IF(c.DATA_TYPE = 'char', c.CHARACTER_MAXIMUM_LENGTH, 0)) char_total_length,
+                   MAX(IF(c.DATA_TYPE = 'char', c.CHARACTER_MAXIMUM_LENGTH, 0)) char_max_length,
+                   SUM(c.DATA_TYPE= 'char') char_columns,
+                   SUM(IF(c.DATA_TYPE = 'longtext', c.CHARACTER_OCTET_LENGTH, 0)) longtext_total_octets,
+                   MAX(IF(c.DATA_TYPE = 'longtext', c.CHARACTER_OCTET_LENGTH, 0)) longtext_max_octets,
+                   SUM(IF(c.DATA_TYPE = 'longtext', c.CHARACTER_MAXIMUM_LENGTH, 0)) longtext_total_length,
+                   MAX(IF(c.DATA_TYPE = 'longtext', c.CHARACTER_MAXIMUM_LENGTH, 0)) longtext_max_length,
+                   SUM(c.DATA_TYPE= 'longtext') longtext_columns,
+                   SUM(IF(c.DATA_TYPE = 'text', c.CHARACTER_OCTET_LENGTH, 0)) text_sum_octets,
+                   MAX(IF(c.DATA_TYPE = 'text', c.CHARACTER_OCTET_LENGTH, 0)) text_max_octets,
+                   SUM(IF(c.DATA_TYPE = 'text', c.CHARACTER_MAXIMUM_LENGTH, 0)) text_total_length,
+                   MAX(IF(c.DATA_TYPE = 'text', c.CHARACTER_MAXIMUM_LENGTH, 0)) text_max_length,
+                   SUM(c.DATA_TYPE= 'text') text_columns,		        
+                   SUM(
+                       CASE WHEN c.GENERATION_EXPRESSION IS NOT NULL THEN 0
+                            WHEN c.DATA_TYPE IN ('varchar', 'char') THEN c.CHARACTER_OCTET_LENGTH
+                            WHEN c.DATA_TYPE = 'int' THEN 4
+                            WHEN c.DATA_TYPE = 'bigint' THEN 8
+                            WHEN c.DATA_TYPE = 'float' THEN 4
+                            WHEN c.DATA_TYPE = 'double' THEN 8
+                            WHEN c.DATA_TYPE = 'date' THEN 3
+                            WHEN c.DATA_TYPE = 'time' THEN 3 + FLOOR((1+c.DATETIME_PRECISION) / 2)
+                            WHEN c.DATA_TYPE = 'timestamp' THEN 4 + FLOOR((1+c.DATETIME_PRECISION) / 2)
+                            WHEN c.DATA_TYPE = 'datetime' THEN 5 + FLOOR((1+c.DATETIME_PRECISION) / 2)
+                            ELSE 0 END                
+                       ) rowlength
                  FROM information_schema.COLUMNS c
+                 JOIN information_schema.TABLES t
+                       ON c.TABLE_NAME = t.TABLE_NAME
+                      AND c.TABLE_SCHEMA = t.TABLE_SCHEMA
+                      AND c.TABLE_CATALOG = t.TABLE_CATALOG
                  WHERE c.TABLE_SCHEMA = DATABASE()
                 GROUP BY c.TABLE_NAME, c.TABLE_SCHEMA, c.TABLE_CATALOG
-
         QQQ
 
 		)

@@ -25,9 +25,12 @@ class ImfsDb {
 	public array $messages;
 	public bool $lookForMissingKeys = true;
 	public bool $lookForExtraKeys = false;
+	public bool $reindexConstraint = false;
 
 	public function __construct() {
 		$this->queries             = getQueries();
+		$this->reindexConstraint = getMySQLIndexingConstraint();
+		$this->reindexingInstructions = getReindexingInstructions($this->reindexConstraint);
 		$this->messages            = array();
 	}
 
@@ -89,7 +92,7 @@ class ImfsDb {
 	 */
 	public function tables( $prefixed = false ): Generator {
 		global $wpdb;
-		foreach ( $this->queries as $name => $stmts ) {
+		foreach ( $this->reindexingInstructions as $name => $stmts ) {
 			if ( is_array( $stmts ) && array_key_exists( 'tablename', $stmts ) && $name === $stmts['tablename'] ) {
 				yield $prefixed ? $wpdb->prefix . $name : $name;
 			}
@@ -121,7 +124,7 @@ class ImfsDb {
 	 */
 	public function checkTable( $action, $name ): bool {
 		global $wpdb;
-		$block   = $this->queries[ $name ];
+		$block   = $this->reindexingInstructions[ $name ];
 		$checks  = $block[ 'check.' . $action ];
 		$table   = $wpdb->prefix . $name;
 		$result  = true;
@@ -179,7 +182,7 @@ class ImfsDb {
 	 */
 	public function rekeyTable( string $action, string $name ) {
 		global $wpdb;
-		$block = $this->queries[ $name ];
+		$block = $this->reindexingInstructions[ $name ];
 		$stmts = $block[ $action ];
 		$table = $wpdb->prefix . $name;
 		if ( $action ) {

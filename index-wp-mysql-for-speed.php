@@ -16,7 +16,7 @@ Domain Path:       /languages
 */
 
 /** current version number  */
-defineIfNot( 'index_wp_mysql_for_speed_VERSION_NUM', '0.0.1' );
+define( 'index_wp_mysql_for_speed_VERSION_NUM', '0.0.1' );
 
 /* set up some handy globals */
 define( 'index_wp_mysql_for_speed_THEME_DIR', ABSPATH . 'wp-content/themes/' . get_template() );
@@ -37,6 +37,11 @@ function index_wp_mysql_for_speed_do_everything() {
 		require_once( 'code/imsfdb.php' );
 		require_once( dirname( __FILE__ ) . '/afp/admin-page-framework.php' );
 		require_once( 'code/admin.php' );
+		if ( false ) {
+			$db     = new ImfsDb();
+			$status = $db->getStats();
+			print_r( $status );
+		}
 	}
 }
 
@@ -52,25 +57,5 @@ function index_wp_mysql_for_speed_activate() {
 		/* do update procedure here as needed */
 		update_option( 'index_wp_mysql_for_speed_version', index_wp_mysql_for_speed_VERSION_NUM );
 	}
-
-
-	/* handle options settings defaults */
-	$o = array(
-		'option1' => 'TBD',
-		'option2' => 'TBD',
-	);
-	add_option( 'index_wp_mysql_for_speed_options', $o, false, 'no' );
 }
-
-/** conditionally define a symbol
- *
- * @param $name
- * @param $value
- */
-function defineIfNot( $name, $value ) {
-	if ( ! defined( $name ) ) {
-		define( $name, $value );
-	}
-}
-
 
