@@ -1,34 +1,43 @@
 <?php
 
-function getMySQLIndexingConstraint() {
+function getMySQLVersion() {
 	global $wpdb;
 	$semver  = " 
 	 SELECT VERSION() version,
+	        1 canreindex,
+	        1 unconstrained,
             CAST(SUBSTRING_INDEX(VERSION(), '.', 1) AS INT) major,
             CAST(SUBSTRING_INDEX(SUBSTRING_INDEX(VERSION(), '.', 2), '.', -1) AS INT) minor,
             CAST(SUBSTRING_INDEX(SUBSTRING_INDEX(REPLACE(VERSION(), '-', '.'), '.', 3), '.', -1) AS INT) build,
-            IF(LOCATE('-', VERSION()) <> 0, SUBSTRING_INDEX(VERSION(), '-', -1), NULL) fork";
+            '' fork, '' distro";
 	$results = $wpdb->get_results( $semver );
 	$results = $results[0];
+
+	$ver = explode('-', $results->version, 3);
+	if (count($ver) >= 2) $results->fork = $ver[1];
+	if (count($ver) >= 3) $results->distro = $ver[2];
 	if ( $results->major >= 8 ) {
-		return true;
+		return $results;
 	}
 	/* innodb_large_prefix variable is missing in MySQL 8+ */
 	$largePrefix = "SELECT @@innodb_large_prefix";
 	$largePrefix = $wpdb->get_var( $largePrefix );
 	if ( $largePrefix >= 3072 ) {
-		return true;
+		$results->unconstrained = true;
 	}
-
-	return false;
+	$results->unconstrained = true;
+	if ($results->major < 5 ) $results->canreindex = 0;
+	if ($results->major === 5 && $results->minor === 5 && $results->build < 62 ) $results->canreindex = 0;
+	if ($results->major === 5 && $results->minor === 6 && $results->build < 4 ) $results->canreindex = 0;
+	return $results;
 }
 
 /**
- * @param $constraint true or false for unconstrained or 191 constrained indexing
+ * @param $semver
  *
  * @return array
  */
-function getReindexingInstructions( $constraint ): array {
+function getReindexingInstructions( $semver ) {
 	$reindexAnyway = array(
 		"posts"    => array(
 			"tablename"     => "posts",
@@ -327,12 +336,13 @@ function getReindexingInstructions( $constraint ): array {
 			),
 		)
 	);
-	$result                   = $reindexAnyway;
-	switch ( $constraint ) {
-		case true:
+	switch ( $semver->unconstrained ) {
+		case 1:
 			return array_merge( $reindexWithoutConstraint, $reindexAnyway );
-		case false:
+		case 0:
 			return array_merge( $reindexWith191Constraint, $reindexAnyway );
+		default:
+			return $reindexAnyway;
 	}
 }
 
@@ -365,8 +375,9 @@ function getQueries() {
                CONCAT ( 'DROP ',
                 IF(tc.CONSTRAINT_TYPE LIKE 'PRIMARY KEY', tc.CONSTRAINT_TYPE, CONCAT ('KEY', ' ', s.INDEX_NAME))
                 ) `drop`,
-               CONCAT ('ALTER TABLE ', s.TABLE_SCHEMA, '.', s.TABLE_NAME, ' ') `alter`,
-               MAX(t.ROW_FORMAT),
+               CONCAT ('ALTER TABLE ', s.TABLE_SCHEMA, '.', s.TABLE_NAME, ' ') `alter`,	
+               MAX(t.ENGINE) engine,
+               MAX(t.ROW_FORMAT) row_format,
             r.rowlength
           FROM information_schema.STATISTICS s
           LEFT JOIN information_schema.TABLE_CONSTRAINTS tc
@@ -472,6 +483,7 @@ function getQueries() {
         QQQ,
 			<<<QQQ
             SELECT c.TABLE_NAME,
+                   t.ENGINE,
                    t.ROW_FORMAT,
                    COUNT(*) column_count,
                    SUM(IF(c.DATA_TYPE = 'varchar', c.CHARACTER_OCTET_LENGTH, 0)) varchar_total_octets,

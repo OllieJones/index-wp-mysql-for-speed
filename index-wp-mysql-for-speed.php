@@ -27,17 +27,14 @@ define( 'index_wp_mysql_for_speed_domain', index_wp_mysql_for_speed_PLUGIN_NAME 
 
 register_activation_hook( __FILE__, 'index_wp_mysql_for_speed_activate' );
 
-$saved = get_include_path();
-set_include_path( $saved . PATH_SEPARATOR . index_wp_mysql_for_speed_PLUGIN_DIR . DIRECTORY_SEPARATOR . 'code' );
-
 add_action( 'init', 'index_wp_mysql_for_speed_do_everything' );
 
 function index_wp_mysql_for_speed_do_everything() {
 	if ( is_admin() && current_user_can( 'activate_plugins' ) ) {
-		require_once( 'code/imsfdb.php' );
+		require_once( dirname( __FILE__ ) . '/code/imsfdb.php' );
 		require_once( dirname( __FILE__ ) . '/afp/admin-page-framework.php' );
-		require_once( 'code/admin.php' );
-		if ( false ) {
+		require_once( dirname( __FILE__ ) . '/code/admin.php' );
+		if ( false ) {  //TODO get rid of this.
 			$db     = new ImfsDb();
 			$status = $db->getStats();
 			print_r( $status );

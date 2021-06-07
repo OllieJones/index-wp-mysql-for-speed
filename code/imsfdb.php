@@ -1,37 +1,48 @@
 <?php
 require_once( 'getqueries.php' );
-require_once( ABSPATH . 'wp-admin/includes/class-wp-upgrader.php');
+require_once( ABSPATH . 'wp-admin/includes/class-wp-upgrader.php' );
 
-
-class ImfsException extends Exception {
-	protected $message;
-	private string $query;
-
-	public function __construct( $message, $query, $code = 0, Throwable $previous = null ) {
-		global $wpdb;
-		$this->query = $query;
-		parent::__construct( $message, $code, $previous );
-		$wpdb->flush();
-	}
-
-	public function __toString() {
-		return __CLASS__ . ": [{$this->code}]: {$this->message} in {$this->query}\n";
-	}
-}
 
 class ImfsDb {
 
+	private bool $initialized = false;
+	public bool $canReindex = false;
 	public array $queries;
-	public array $messages;
+	public array $messages = array();
 	public bool $lookForMissingKeys = true;
 	public bool $lookForExtraKeys = false;
-	public bool $reindexConstraint = false;
+	public $semver;
+	private array $reindexingInstructions;
+	public array $stats;
+	public array $oldEngineTables;
+	public array $newEngineTables;
 
-	public function __construct() {
-		$this->queries             = getQueries();
-		$this->reindexConstraint = getMySQLIndexingConstraint();
-		$this->reindexingInstructions = getReindexingInstructions($this->reindexConstraint);
-		$this->messages            = array();
+	public function init() {
+		if ( ! $this->initialized ) {
+			$this->initialized = true;
+			$this->queries     = getQueries();
+			$this->semver      = getMySQLVersion();
+			$this->canReindex  = $this->semver->canreindex;
+			if ( $this->semver->canreindex ) {
+				$this->reindexingInstructions = getReindexingInstructions( $this->semver );
+			}
+
+			if ( $this->canReindex ) {
+				$this->stats     = $this->getStats();
+				$oldEngineTables = array();
+				$newEngineTables = array();
+				$tablesData      = $this->stats[2];
+				foreach ( $tablesData as $name => $info ) {
+					if ( $info->ENGINE !== 'InnoDB' ) {
+						$oldEngineTables[] = $name;
+					} else {
+						$newEngineTables[] = $name;
+					}
+				}
+				$this->oldEngineTables = $oldEngineTables;
+				$this->newEngineTables = $newEngineTables;
+			}
+		}
 	}
 
 	/** run a SELECT
@@ -232,14 +243,46 @@ class ImfsDb {
 		return true;
 	}
 
-	public function lock() {
+	/**
+	 * @throws ImfsException
+	 */
+	public function upgradeStorageEngine() {
+		$counter = 0;
+		try {
+			$this->lock($this->oldEngineTables);
+			foreach ( $this->oldEngineTables as $table ) {
+				set_time_limit (60);
+				$sql = 'ALTER TABLE ' . $table . ' ENGINE=InnoDb';
+				$counter ++;
+				$this->query( $sql );
+			}
+			$msg = __('%d tables upgraded', index_wp_mysql_for_speed_PLUGIN_NAME);
+		} catch (ImfsException $ex) {
+			$msg = $ex->getMessage();
+			throw ($ex);
+		} finally {
+			$this->unlock();
+		}
+		return sprintf($msg, $counter);
+	}
+
+	public function lock($tableList) {
 		$this->enterMaintenanceMode();
 		$tables = array();
-		foreach ( $this->tables( true ) as $tbl ) {
-			array_push( $tables, $tbl . ' ' . 'WRITE' );
+		if ($tableList) {
+			$tablesToLock = $tableList;
+		} else {
+			$tablesToLock = array();
+			foreach ( $this->tables( true ) as $tbl ) {
+				array_push( $tablesToLock, $tbl );
+			}
 		}
 		/* always specify locks in the same order to avoid starving the philosophers */
-		sort( $tables );
+		sort( $tablesToLock );
+		foreach ( $tablesToLock as $tbl ) {
+			array_push( $tables, $tbl . ' WRITE' );
+		}
+
 		$q = "LOCK TABLES " . implode( ', ', $tables );
 		$this->query( $q );
 	}
@@ -254,8 +297,8 @@ class ImfsDb {
 	 */
 	public function enterMaintenanceMode( int $duration = 60 ) {
 		$maintenanceFileName = ABSPATH . '.maintenance';
-		$maintain     = array();
-		$expirationTs = time() + $duration - 600;
+		$maintain            = array();
+		$expirationTs        = time() + $duration - 600;
 		array_push( $maintain,
 			'<?php',
 			'/* Maintenance Mode was entered by ' .
@@ -272,5 +315,21 @@ class ImfsDb {
 	public function leaveMaintenanceMode() {
 		$maintenanceFileName = ABSPATH . '.maintenance';
 		unlink( $maintenanceFileName );
+	}
+}
+
+class ImfsException extends Exception {
+	protected $message;
+	private string $query;
+
+	public function __construct( $message, $query, $code = 0, Throwable $previous = null ) {
+		global $wpdb;
+		$this->query = $query;
+		parent::__construct( $message, $code, $previous );
+		$wpdb->flush();
+	}
+
+	public function __toString() {
+		return __CLASS__ . ": [{$this->code}]: {$this->message} in {$this->query}\n";
 	}
 }
