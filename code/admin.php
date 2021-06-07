@@ -195,8 +195,6 @@ class ImfsPage extends Imfs_AdminPageFramework {
 			return $oldInputs;
 		}
 
-
-
 		return $inputs;
 
 	}
