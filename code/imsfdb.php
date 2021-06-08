@@ -145,7 +145,7 @@ class ImfsDb {
 				if ( ! array_key_exists( $index, $indexes ) ) {
 					$msg = sprintf(
 					/* translators: %1$s is table name, %2$s is key (index) name */
-						__( 'Table %1s: Cannot find the expected key %2$s. Cannot rekey this table.' ),
+						__( 'Table %1s: Cannot find the expected key %2$s.', index_wp_mysql_for_speed_domain ),
 						$table, $index
 					);
 					array_push( $this->messages, $msg );
@@ -158,7 +158,7 @@ class ImfsDb {
 				if ( ! array_key_exists( $index, $checks ) ) {
 					$msg = sprintf(
 					/* translators: %1$s is table name, %2$s is key (index) name */
-						__( 'Table %1$s: Found an unexpected key %2$s. Cannot rekey this table' ),
+						__( 'Table %1$s: Found an unexpected key %2$s.', index_wp_mysql_for_speed_domain ),
 						$table, $index
 					);
 					array_push( $this->messages, $msg );
@@ -172,7 +172,7 @@ class ImfsDb {
 				if ( $desc->add !== $stmt ) {
 					$msg = sprintf(
 					/* translators: %1$s is table name, %2$s is key (index) name, %4$s is expected key, %3$s is actual */
-						__( 'Table %1$s: Found an unexpected definition for key %2$s. It should be %4$s, but is %3$s. Cannot rekey this table' ),
+						__( 'Table %1$s: Found an unexpected definition for key %2$s. It should be %4$s, but is %3$s.', index_wp_mysql_for_speed_domain ),
 						$table, $index, $desc->add, $checks[ $index ]
 					);
 					array_push( $this->messages, $msg );
@@ -236,11 +236,48 @@ class ImfsDb {
 	}
 
 	public function rekey( $action ) {
-		foreach ( $this->tables() as $name ) {
-			$this->rekeyTable( $action, $name );
+		try {
+			$this->lock();
+			foreach ( $this->tables() as $name ) {
+				$this->rekeyTable( $action, $name );
+			}
+		} finally {
+			$this->unlock();
 		}
-
 		return true;
+	}
+
+	public function getRekeying () {
+		$enableList  = array();
+		$disableList = array();
+		$errorList = array();
+		try {
+			$this->lock();
+			foreach ( $this->tables() as $name ) {
+				$canEnable = $this->checkTable('enable', $name);
+				$enableMsgs = $this->clearMessages();
+				$canDisable = $this->checkTable('disable', $name);
+				$disableMsgs = $this->clearMessages();
+				if ($canEnable && ! $canDisable) {
+					$enableList[] = $name;
+				} else if ($canDisable && ! $canEnable) {
+					$disableList[] = $name;
+				} else {
+					$msg = __('wp_%s has unexpected keys, so we cannot rekey it.', index_wp_mysql_for_speed_domain);
+					$msg = sprintf ($msg, $name);
+					if (!$canEnable) $msg = $msg . '<br/> ' . implode('<br/> ', $enableMsgs );
+					if (!$canDisable) $msg = $msg . '<br/> ' . implode('<br/> ', $disableMsgs );
+					$errorList[$name] = $msg;
+				}
+			}
+		} finally {
+			$this->unlock();
+		}
+		return array(
+			'enable' => $enableList,
+			'disable' => $disableList,
+			'errors' => $errorList
+		);
 	}
 
 	/**
@@ -256,9 +293,9 @@ class ImfsDb {
 				$counter ++;
 				$this->query( $sql );
 			}
-			$msg = __('%d tables upgraded', index_wp_mysql_for_speed_PLUGIN_NAME);
+			$msg = __('%d tables upgraded', index_wp_mysql_for_speed_domain);
 		} catch (ImfsException $ex) {
-			$msg = $ex->getMessage();
+			$msg = implode(', ', $ex->clearMessages());
 			throw ($ex);
 		} finally {
 			$this->unlock();
@@ -266,7 +303,7 @@ class ImfsDb {
 		return sprintf($msg, $counter);
 	}
 
-	public function lock($tableList) {
+	public function lock($tableList = null) {
 		$this->enterMaintenanceMode();
 		$tables = array();
 		if ($tableList) {

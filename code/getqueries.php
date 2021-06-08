@@ -353,8 +353,8 @@ function getQueries() {
 	$queryArray = array(
 		"indexes" => "		
         SELECT
-           s.TABLE_NAME,  
            IF(tc.CONSTRAINT_TYPE LIKE 'PRIMARY KEY', tc.CONSTRAINT_TYPE, CONCAT (s.INDEX_NAME)) key_name,   
+           s.TABLE_NAME,  
                IF(tc.CONSTRAINT_TYPE LIKE 'PRIMARY KEY', 1, 0) is_primary,
                CASE WHEN tc.CONSTRAINT_TYPE LIKE 'PRIMARY KEY' THEN 1 
                     WHEN tc.CONSTRAINT_TYPE LIKE 'UNIQUE' THEN 1
