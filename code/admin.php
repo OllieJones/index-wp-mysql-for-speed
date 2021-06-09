@@ -24,7 +24,7 @@ class ImfsPage extends Imfs_AdminPageFramework {
 
 	public function setUp() {
 		//$this->setRootMenuPage( 'Settings' );
-		$this->setRootMenuPage( 'Dashboard' ); //TODO put this back to Settings
+		$this->setRootMenuPage( 'Dashboard' ); //TODO put this back to Tools
 
 		$pageName = $this->pluginName . ': ' . __( 'Settings', $this->domain );
 		/* translators: settings page menu text */
@@ -47,34 +47,38 @@ class ImfsPage extends Imfs_AdminPageFramework {
 
 		$this->enqueueStyles(
 			array( plugins_url( 'assets/imfs.css', __FILE__ ) ), 'imfs_settings' );
-		$this->enqueueScripts(
-			array( plugins_url( 'assets/imfs.js', __FILE__ ) ), 'imfs_settings' );
 
 		$this->addSettingFields(
 			array(
-				'field_id'    => 'permission',
-				'type'        => 'checkbox',
-				'title'       => __( 'Permission to upload diagnostic metadata', $this->domain ),
-				'description' => __( 'With your permission, we upload anonymous metadata about your WordPress installation to our servers. We never sell nor give it to any third party. We use it only to improve this plugin.', $this->domain ),
-				'default'     => 0,
-			),
-		);
+				'field_id' => 'backup',
+				'title'    => __( 'Backup', $this->domain ),
+				'label'    => __( 'This plugin modifies your WordPress database. It is vital to make a backup before you proceed.', $this->domain ),
+				'save'     => true,
+				'class'    => array(
+					'fieldrow' => 'info',
+				),
 
-		$this->addSettingFields(
-			array(
-				'field_id'    => 'backup_done',
-				'type'        => 'checkbox',
-				'title'       => __( 'My WordPress installation is backed up', $this->domain ),
-				'description' => __( 'This plugin modifies your WordPress database. It is vital to make a backup before you proceed.', $this->domain ),
-				'default'     => 0,
-				'save'        => false,
+				array(
+					'field_id' => 'backup_done',
+					'type'     => 'checkbox',
+					'label'    => __( 'I have made a backup', $this->domain ),
+					'default'  => 0,
+					'save'     => true,
+					'class'    => array(
+						'fieldrow' => 'major',
+					),
+				)
 			),
 			array(
 				'field_id' => 'version',
-				'title'    => __( 'Your MySQL server version', $this->domain ),
-				'default'  => htmlspecialchars( $this->db->semver->version ),
+				'title'    => __( 'MySQL server', $this->domain ),
+				'default'  => __('version', $this->domain) . ' ' .htmlspecialchars( $this->db->semver->version ),
 				'save'     => false,
-			) );
+				'class'    => array(
+					'fieldrow' => 'info',
+				),
+			)
+		);
 
 		if ( ! $this->db->canReindex ) {
 			$this->addSettingFields(
@@ -84,123 +88,183 @@ class ImfsPage extends Imfs_AdminPageFramework {
 					'default'     => __( 'Sorry, you cannot use this plugin on this version of MySQL', $this->domain ),
 					'description' => __( 'Your MySQL version is outdated. Pleas consider upgrading', $this->domain ),
 					'save'        => false,
+					'class'       => array(
+						'fieldrow' => 'failure',
+					),
 				) );
 
 			return;
 		}
-		/* engine upgrade */
+		/* engine upgrade ***************************/
 		if ( count( $this->db->oldEngineTables ) > 0 ) {
+			$field = array(
+				'field_id' => 'fix_engine_all',
+				'title'    => __( 'Storage Engine Upgrade Needed', $this->domain ),
+				'default'  => __( 'All database tables need upgrading to InnoDB, MySQL\'s latest storage engine.', $this->domain ),
+				'save'     => false,
+				'class'    => array(
+					'fieldrow' => 'info',
+				)
+			);
 
 			if ( count( $this->db->newEngineTables ) === 0 ) {
-				$this->addSettingFields(
-					array(
-						'field_id' => 'fix_engine_all',
-						'title'    => __( 'Storage Engine Upgrade Needed', $this->domain ),
-						'default'  => __( 'All database tables need upgrading to InnoDB, MySQL\'s latest storage engine.', $this->domain ),
-						'save'     => false,
-					) );
+				$field['default'] = __( 'All database tables need upgrading to InnoDB, MySQL\'s latest storage engine.', $this->domain );
 			} else {
-				$tables = htmlspecialchars( implode( ', ', $this->db->oldEngineTables ) );
-
-				$this->addSettingFields(
-					array(
-						'field_id'    => 'fix_engine_some',
-						'title'       => __( 'Storage Engine Upgrade Needed', $this->domain ),
-						'default'     => __( 'These database tables need upgrading to InnoDB, MySQL\'s latest storage engine.', $this->domain ),
-						'description' => $tables,
-						'save'        => false,
-
-					) );
+				$field['default']     = __( 'These database tables need upgrading to InnoDB, MySQL\'s latest storage engine.', $this->domain );
+				$field['description'] = htmlspecialchars( implode( ', ', $this->db->oldEngineTables ) );
 			}
+			$this->addSettingField( $field );
 			$this->addSettingFields(
 				array(
-					'field_id' => 'upgrade_storage_engine_button',
+					'field_id' => 'upgrade_storage_engine_now',
 					'title'    => __( 'Upgrade Storage Engine', $this->domain ),
 					'type'     => 'submit',
 					'save'     => 'false',
-					'value'    => __( 'Upgrade Storage Engine Now', $this->domain )
+					'value'    => __( 'Upgrade Storage Engine Now', $this->domain ),
+					'class'    => array(
+						'fieldrow' => 'action',
+					),
 				) );
 
 			return;
 
 		}
-		/* indexing */
+		/* cannot rekey ***************************/
 		$rekeying = $this->db->getRekeying();
-		if (count($rekeying['errors']) > 0) {
+		if ( count( $rekeying['errors'] ) > 0 ) {
+
 			$this->addSettingFields(
 				array(
-					'field_id' => 'norekeycaption' ,
-					'title'    => 'Problems Rekeying',
-					'default'  => __('We cannot rekey some tables.', $this->domain),
-					'description' => __('This often means they have already been rekeyed by some other plugin or workflow.', $this->domain),
-					'save'     => false,
-				));
+					'field_id'    => 'norekeycaption',
+					'title'       => 'Problems Rekeying',
+					'default'     => __( 'We cannot rekey some tables.', $this->domain ),
+					'description' => __( 'This often means they have already been rekeyed by some other plugin or workflow.', $this->domain ),
+					'save'        => false,
+					'class'       => array(
+						'fieldrow' => 'info',
+					),
+				) );
 			foreach ( $rekeying['errors'] as $tbl => $message ) {
 				$this->addSettingFields(
 					array(
-					'field_id' => 'norekey_' . $tbl,
-					'title'    => 'wp_' . $tbl,
-					'default'  => $message,
-					'save'     => false,
-					));
+						'field_id' => 'norekey_' . $tbl,
+						'title'    => 'wp_' . $tbl,
+						'default'  => $message,
+						'save'     => false,
+						'class'    => array(
+							'fieldrow' => array( 'info', 'detail' ),
+						),
+					) );
 			}
 		}
-		if (count($rekeying['enable']) > 0) {
+		/* rekeying ***************************/
+		if ( count( $rekeying['enable'] ) > 0 ) {
 			$this->addSettingFields(
 				array(
-					'field_id' => 'enablecaption' ,
+					'field_id' => 'enablecaption',
 					'title'    => 'Rekey to optimize',
-					'default'  => __('Rekeying these tables makes database access more efficient.', $this->domain),
+					'default'  => __( 'Rekeying these tables makes database access more efficient.', $this->domain ),
 					'save'     => false,
-				),
-				array(
-					'field_id' => 'enable_all' ,
-					'title'    => 'All Tables',
-					'type' => 'checkbox',
-					'default'  => 0,
-					'save'     => false,
+					'class'    => array(
+						'fieldrow' => 'major',
+					),
 				),
 			);
 
+			$labels   = array();
+			$defaults = array();
 			foreach ( $rekeying['enable'] as $tbl ) {
-				$this->addSettingFields(
-					array(
-						'field_id' => 'enable_' . $tbl,
-						'title'    => 'wp_' . $tbl,
-						'type' => 'checkbox',
-						'default'  => 0,
-						'attributes' => array ('class' => 'cbgroup cbdetail cbgroup-enable')
-					));
+				$labels[ $tbl ]   = 'wp_' . $tbl;
+				$defaults[ $tbl ] = true;
 			}
-		}
-		if (count($rekeying['disable']) > 0) {
+
 			$this->addSettingFields(
 				array(
-					'field_id' => 'disablecaption' ,
-					'title'    => 'Revert keys',
-					'default'  => __('Reverting the keys on these tables restores them to their defaults.', $this->domain),
-					'save'     => false,
-				),
+					'field_id'           => 'enable',
+					'type'               => 'checkbox',
+					'label'              => $labels,
+					'default'            => $defaults,
+					'save'               => false,
+					'after_label'        => '<br />',
+					'select_all_button'  => true,
+					'select_none_button' => true,
+				)
+			);
+
+			$this->addSettingFields(
 				array(
-					'field_id' => 'disable_all' ,
-					'title'    => 'All Tables',
-					'type' => 'checkbox',
-					'default'  => 0,
+					'field_id' => 'enable_now',
+					'type'     => 'submit',
+					'save'     => 'false',
+					'value'    => __( 'Rekey Now', $this->domain ),
+					'class'    => array(
+						'fieldrow' => 'action',
+					),
+				) );
+		}
+		/* reverting  ***************************/
+		if ( count( $rekeying['disable'] ) > 0 ) {
+			$this->addSettingFields(
+				array(
+					'field_id' => 'disablecaption',
+					'title'    => 'Revert keys',
+					'default'  => __( 'Reverting the keys on these tables restores them to their defaults.', $this->domain ),
 					'save'     => false,
+					'class'    => array(
+						'fieldrow' => 'major',
+					),
 				),
 			);
 
+			$labels   = array();
+			$defaults = array();
 			foreach ( $rekeying['disable'] as $tbl ) {
-				$this->addSettingFields(
-					array(
-						'field_id' => 'disable_' . $tbl,
-						'title'    => 'wp_' . $tbl,
-						'type' => 'checkbox',
-						'default'  => 0,
-						'attributes' => array ('class' => 'cbgroup cbdetail cbgroup-disable')
-					));
+				$labels[ $tbl ]   = 'wp_' . $tbl;
+				$defaults[ $tbl ] = false;
 			}
+
+			$this->addSettingFields(
+				array(
+					'field_id'           => 'disable',
+					'type'               => 'checkbox',
+					'label'              => $labels,
+					'default'            => $defaults,
+					'save'               => false,
+					'after_label'        => '<br />',
+					'select_all_button'  => true,
+					'select_none_button' => true,
+				)
+			);
+
+			$this->addSettingFields(
+				array(
+					'field_id' => 'revert_now',
+					'type'     => 'submit',
+					'save'     => 'false',
+					'value'    => __( 'Revert Now', $this->domain ),
+					'class'    => array(
+						'fieldrow' => 'action',
+					),
+				) );
 		}
+		$this->addSettingFields(
+			array(
+				'field_id' => 'permission',
+				'title'    => __( 'Diagnostic data', $this->domain ),
+				'label'    => __( 'We upload metadata about your WordPress site to our plugin\'s servers. We cannot identify you or your web site from it, and we never sell nor give it to any third party. We use it only to improve this plugin.', $this->domain ),
+				'save'     => true,
+				'class'    => array(
+					'fieldrow' => 'info',
+				),
+				array(
+					'field_id' => 'permission',
+					'type'     => 'checkbox',
+					'label'    => __( 'You may upload my site\'s diagnostic metadata', $this->domain ),
+					'default'  => 0,
+					'save'     => true,
+				),
+			)
+		);
 	}
 
 
@@ -214,9 +278,10 @@ class ImfsPage extends Imfs_AdminPageFramework {
 		$valid  = true;
 		$errors = array();
 
-		if ( ! isset ( $inputs['backup_done'] ) || ! $inputs['backup_done'] ) {
-			$valid                 = false;
-			$errors['backup_done'] = __( 'Please acknowledge that you have made a backup', $this->domain );
+		if ( ! isset ( $inputs['backup']['1'] ) || ! $inputs['backup']['1'] ) {
+			$valid            = false;
+			$errors['backup'] = __( 'Please acknowledge that you have made a backup', $this->domain );
+			$this->setSettingNotice( __( 'Make corrections and try again.', $this->domain ) );
 		}
 
 		if ( ! $valid ) {
@@ -231,22 +296,31 @@ class ImfsPage extends Imfs_AdminPageFramework {
 		return $inputs;
 	}
 
+	private function listFromCheckboxes( $cbs ) {
+		$result = array();
+		foreach ( $cbs as $name => $val ) {
+			if ( $val ) {
+				$result[] = $name;
+			}
+		}
+
+		return $result;
+	}
+
 	private function action( $button, $inputs, $oldInputs, $factory, $submitInfo ) {
 		try {
 			switch ( $button ) {
-				case 'upgrade_storage_engine_button':
-
+				case 'upgrade_storage_engine_now':
 					$msg = $this->db->upgradeStorageEngine();
-
 					$this->setSettingNotice( $msg, 'updated' );
 					break;
-				case 'reindex_button':
-
-					$this->setSettingNotice( __( 'Stub reindex', $this->domain ), 'updated' );
+				case 'enable_now':
+					$msg = $this->db->rekeyTables( 'enable', $this->listFromCheckboxes( $inputs['enable'] ) );
+					$this->setSettingNotice( $msg, 'updated' );
 					break;
-				case 'revert_index_button':
-
-					$this->setSettingNotice( __( 'Stub revert index', $this->domain ), 'updated' );
+				case 'revert_now':
+					$msg = $this->db->rekeyTables( 'disable', $this->listFromCheckboxes( $inputs['disable'] ) );
+					$this->setSettingNotice( $msg, 'updated' );
 					break;
 			}
 
@@ -257,9 +331,6 @@ class ImfsPage extends Imfs_AdminPageFramework {
 
 			return $oldInputs;
 		}
-
-		return $inputs;
-
 	}
 
 }

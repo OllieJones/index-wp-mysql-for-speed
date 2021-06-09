@@ -6,16 +6,20 @@ function getMySQLVersion() {
 	 SELECT VERSION() version,
 	        1 canreindex,
 	        1 unconstrained,
-            CAST(SUBSTRING_INDEX(VERSION(), '.', 1) AS INT) major,
-            CAST(SUBSTRING_INDEX(SUBSTRING_INDEX(VERSION(), '.', 2), '.', -1) AS INT) minor,
-            CAST(SUBSTRING_INDEX(SUBSTRING_INDEX(REPLACE(VERSION(), '-', '.'), '.', 3), '.', -1) AS INT) build,
+            CAST(SUBSTRING_INDEX(VERSION(), '.', 1) AS UNSIGNED) major,
+            CAST(SUBSTRING_INDEX(SUBSTRING_INDEX(VERSION(), '.', 2), '.', -1) AS UNSIGNED) minor,
+            CAST(SUBSTRING_INDEX(SUBSTRING_INDEX(REPLACE(VERSION(), '-', '.'), '.', 3), '.', -1) AS UNSIGNED) build,
             '' fork, '' distro";
 	$results = $wpdb->get_results( $semver );
 	$results = $results[0];
 
-	$ver = explode('-', $results->version, 3);
-	if (count($ver) >= 2) $results->fork = $ver[1];
-	if (count($ver) >= 3) $results->distro = $ver[2];
+	$ver = explode( '-', $results->version, 3 );
+	if ( count( $ver ) >= 2 ) {
+		$results->fork = $ver[1];
+	}
+	if ( count( $ver ) >= 3 ) {
+		$results->distro = $ver[2];
+	}
 	if ( $results->major >= 8 ) {
 		return $results;
 	}
@@ -26,9 +30,16 @@ function getMySQLVersion() {
 		$results->unconstrained = true;
 	}
 	$results->unconstrained = true;
-	if ($results->major < 5 ) $results->canreindex = 0;
-	if ($results->major === 5 && $results->minor === 5 && $results->build < 62 ) $results->canreindex = 0;
-	if ($results->major === 5 && $results->minor === 6 && $results->build < 4 ) $results->canreindex = 0;
+	if ( $results->major < 5 ) {
+		$results->canreindex = 0;
+	}
+	if ( $results->major === 5 && $results->minor === 5 && $results->build < 62 ) {
+		$results->canreindex = 0;
+	}
+	if ( $results->major === 5 && $results->minor === 6 && $results->build < 4 ) {
+		$results->canreindex = 0;
+	}
+
 	return $results;
 }
 
@@ -42,10 +53,6 @@ function getReindexingInstructions( $semver ) {
 		"posts"    => array(
 			"tablename"     => "posts",
 			"check.enable"  => array(
-				// no need to verify the keys we don't alter
-				//"PRIMARY KEY"      => "ADD PRIMARY KEY (ID)",
-				//"post_name"        => "ADD KEY post_name (post_name)",
-				//"post_parent"      => "ADD KEY post_parent (post_parent)",
 				"type_status_date" => "ADD KEY type_status_date (post_type, post_status, post_date, ID)",
 				"post_author"      => "ADD KEY post_author (post_author)"
 			),
@@ -56,9 +63,6 @@ function getReindexingInstructions( $semver ) {
 				"ADD KEY post_author (post_author, post_type, post_status, post_date, ID)"
 			),
 			"check.disable" => array(
-				//"PRIMARY KEY"      => "ADD PRIMARY KEY (ID)",
-				//"post_name"        => "ADD KEY post_name (post_name)",
-				//"post_parent"      => "ADD KEY post_parent (post_parent)",
 				"type_status_date" => "ADD KEY type_status_date (post_type, post_status, post_date, post_author, ID)",
 				"post_author"      => "ADD KEY post_author (post_author, post_type, post_status, post_date, ID)"
 			),
@@ -72,24 +76,13 @@ function getReindexingInstructions( $semver ) {
 		"comments" => array(
 			"tablename"     => "comments",
 			"check.enable"  => array(
-				//"PRIMARY KEY"               => "ADD PRIMARY KEY (comment_ID)",
-				//"comment_post_ID"           => "ADD KEY comment_post_ID (comment_post_ID)",
-				//"comment_approved_date_gmt" => "ADD KEY comment_approved_date_gmt (comment_approved, comment_date_gmt)",
-				//"comment_date_gmt"          => "ADD KEY comment_date_gmt (comment_date_gmt)",
-				//"comment_parent"            => "ADD KEY comment_parent (comment_parent)",
-				//"comment_author_email"      => "ADD KEY comment_author_email (comment_author_email(10))"
+				"comment_post_parent_approved" => null,
 			),
 			"enable"        => array(
-				"ADD KEY comment_post_parent_approved (comment_post_ID, comment_parent, comment_approved)"
+				"ADD KEY comment_post_parent_approved (comment_post_ID, comment_parent, comment_approved, comment_ID)"
 			),
 			"check.disable" => array(
-				//"PRIMARY KEY"                  => "ADD PRIMARY KEY (comment_ID)",
-				//"comment_post_ID"              => "ADD KEY comment_post_ID (comment_post_ID",
-				//"comment_approved_date_gmt"    => "ADD KEY comment_approved_date_gmt (comment_approved, comment_date_gmt)",
-				//"comment_date_gmt"             => "ADD KEY comment_date_gmt (comment_date_gmt)",
-				//"comment_parent"               => "ADD KEY comment_parent (comment_parent)",
-				//"comment_author_email"         => "ADD KEY comment_author_email (comment_author_email)",
-				"comment_post_parent_approved" => "ADD KEY comment_post_parent_approved (comment_post_ID, comment_parent, comment_approved)"
+				"comment_post_parent_approved" => "ADD KEY comment_post_parent_approved (comment_post_ID, comment_parent, comment_approved, comment_ID)"
 			),
 			"disable"       => array(
 				"DROP KEY comment_post_parent_approved"
@@ -104,7 +97,8 @@ function getReindexingInstructions( $semver ) {
 			"check.enable"  => array(
 				"PRIMARY KEY" => "ADD PRIMARY KEY (meta_id)",
 				"meta_key"    => "ADD KEY meta_key (meta_key(191))",
-				"post_id"     => "ADD KEY post_id (post_id)"
+				"post_id"     => "ADD KEY post_id (post_id)",
+				"meta_id"     => null,
 			),
 			"enable"        => array(
 				"ADD UNIQUE KEY meta_id (meta_id)",
@@ -133,7 +127,8 @@ function getReindexingInstructions( $semver ) {
 			"check.enable"  => array(
 				"PRIMARY KEY" => "ADD PRIMARY KEY (umeta_id)",
 				"meta_key"    => "ADD KEY meta_key (meta_key(191))",
-				"user_id"     => "ADD KEY user_id (user_id)"
+				"user_id"     => "ADD KEY user_id (user_id)",
+				"umeta_id"    => null,
 			),
 			"enable"        => array(
 				"ADD UNIQUE KEY umeta_id (umeta_id)",
@@ -163,7 +158,8 @@ function getReindexingInstructions( $semver ) {
 			"check.enable"  => array(
 				"PRIMARY KEY" => "ADD PRIMARY KEY (meta_id)",
 				"meta_key"    => "ADD KEY meta_key (meta_key(191))",
-				"term_id"     => "ADD KEY term_id (term_id)"
+				"term_id"     => "ADD KEY term_id (term_id)",
+				"meta_id"     => null,
 			),
 			"enable"        => array(
 				"ADD UNIQUE KEY meta_id (meta_id)",
@@ -194,7 +190,8 @@ function getReindexingInstructions( $semver ) {
 			"tablename"     => "options",
 			"check.enable"  => array(
 				"PRIMARY KEY" => "ADD PRIMARY KEY (option_id)",
-				"autoload"    => "ADD KEY autoload (autoload)"
+				"autoload"    => "ADD KEY autoload (autoload)",
+				"option_id"   => null,
 			),
 			"enable"        => array(
 				"ADD UNIQUE KEY option_id (option_id)",
@@ -204,7 +201,8 @@ function getReindexingInstructions( $semver ) {
 			),
 			"check.disable" => array(
 				"PRIMARY KEY" => "ADD PRIMARY KEY (autoload, option_id)",
-				"option_id"   => "ADD UNIQUE KEY option_id (option_id)"
+				"option_id"   => "ADD UNIQUE KEY option_id (option_id)",
+				"autoload"    => null,
 			),
 			"disable"       => array(
 				"DROP PRIMARY KEY",
