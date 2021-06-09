@@ -34,11 +34,7 @@ function index_wp_mysql_for_speed_do_everything() {
 		require_once( dirname( __FILE__ ) . '/code/imsfdb.php' );
 		require_once( dirname( __FILE__ ) . '/afp/admin-page-framework.php' );
 		require_once( dirname( __FILE__ ) . '/code/admin.php' );
-		if ( false ) {  //TODO get rid of this.
-			$db     = new ImfsDb();
-			$status = $db->getStats();
-			print_r( $status );
-		}
+		add_filter ('plugin_action_links_' . plugin_basename(__FILE__), 'index_wp_mysql_for_speed_action_link');
 	}
 }
 
@@ -56,3 +52,17 @@ function index_wp_mysql_for_speed_activate() {
 	}
 }
 
+/**
+ * Add Settings link to this plugin's listing on the Plugins page.
+ * @param $actions
+ *
+ * @return array
+ */
+function index_wp_mysql_for_speed_action_link ( $actions ): array {
+	$name = __("Settings", index_wp_mysql_for_speed_domain);
+	$mylinks = array(
+		'<a href="' . admin_url( '?page=imfs_settings' ) . '">' . $name . '</a>',
+	);
+
+	return array_merge( $actions, $mylinks );
+}

@@ -1,0 +1,25 @@
+div#wpcontent form div > div > table.form-table > tbody > tr.warning > th {
+    color: #cc9900;
+}
+div#wpcontent form div > div > table.form-table > tbody > tr.detail {
+    padding-top:0.25px;
+    padding-bottom:0
+}
+div#wpcontent form div > div > table.form-table > tbody > tr.warning.detail > th {
+    padding-left: 2em;
+    padding-right: 2em;
+}
+div#wpcontent form div > div > table.form-table > tbody > tr.warning.detail > th label span {
+    font-weight: 400;
+}
+
+div#wpcontent form div > div > table.form-table > tbody > tr > td,
+div#wpcontent form div > div > table.form-table > tbody > tr > th {
+    padding-bottom: 0.5em;
+    padding-top: 0.25em;
+}
+div#wpcontent form div > div > table.form-table > tbody > tr > th {
+    text-align:right;
+}
+
+

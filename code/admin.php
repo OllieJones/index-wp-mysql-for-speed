@@ -6,11 +6,14 @@ class ImfsPage extends Imfs_AdminPageFramework {
 	public string $pluginSlug;
 	public string $domain;
 	private ImfsDb $db;
+	/**
+	 * @var bool true if the dbms allows reindexing at all.
+	 */
 	public bool $canReindex = false;
 	/**
-	 * @var false|mixed|string
+	 * @var bool true if reindexing does not have the 191 constraint
 	 */
-	private $stats = false;
+	private $unconstrained;
 
 	public function __construct( $slug = index_wp_mysql_for_speed_domain ) {
 		parent::__construct();
@@ -42,7 +45,7 @@ class ImfsPage extends Imfs_AdminPageFramework {
 	}
 
 	public function load_ImfsPage( $oAdminPage ) {
-
+		global $wpdb;
 		$this->populate();
 
 		$this->enqueueStyles(
@@ -72,7 +75,7 @@ class ImfsPage extends Imfs_AdminPageFramework {
 			array(
 				'field_id' => 'version',
 				'title'    => __( 'MySQL server', $this->domain ),
-				'default'  => __('version', $this->domain) . ' ' .htmlspecialchars( $this->db->semver->version ),
+				'default'  => __( 'Version', $this->domain ) . ' ' . htmlspecialchars( $this->db->semver->version ),
 				'save'     => false,
 				'class'    => array(
 					'fieldrow' => 'info',
@@ -86,7 +89,7 @@ class ImfsPage extends Imfs_AdminPageFramework {
 					'field_id'    => 'version_error',
 					'title'       => 'Notice',
 					'default'     => __( 'Sorry, you cannot use this plugin on this version of MySQL', $this->domain ),
-					'description' => __( 'Your MySQL version is outdated. Pleas consider upgrading', $this->domain ),
+					'description' => __( 'Your MySQL version is outdated. Please consider upgrading', $this->domain ),
 					'save'        => false,
 					'class'       => array(
 						'fieldrow' => 'failure',
@@ -131,32 +134,6 @@ class ImfsPage extends Imfs_AdminPageFramework {
 		}
 		/* cannot rekey ***************************/
 		$rekeying = $this->db->getRekeying();
-		if ( count( $rekeying['errors'] ) > 0 ) {
-
-			$this->addSettingFields(
-				array(
-					'field_id'    => 'norekeycaption',
-					'title'       => 'Problems Rekeying',
-					'default'     => __( 'We cannot rekey some tables.', $this->domain ),
-					'description' => __( 'This often means they have already been rekeyed by some other plugin or workflow.', $this->domain ),
-					'save'        => false,
-					'class'       => array(
-						'fieldrow' => 'info',
-					),
-				) );
-			foreach ( $rekeying['errors'] as $tbl => $message ) {
-				$this->addSettingFields(
-					array(
-						'field_id' => 'norekey_' . $tbl,
-						'title'    => 'wp_' . $tbl,
-						'default'  => $message,
-						'save'     => false,
-						'class'    => array(
-							'fieldrow' => array( 'info', 'detail' ),
-						),
-					) );
-			}
-		}
 		/* rekeying ***************************/
 		if ( count( $rekeying['enable'] ) > 0 ) {
 			$this->addSettingFields(
@@ -174,7 +151,7 @@ class ImfsPage extends Imfs_AdminPageFramework {
 			$labels   = array();
 			$defaults = array();
 			foreach ( $rekeying['enable'] as $tbl ) {
-				$labels[ $tbl ]   = 'wp_' . $tbl;
+				$labels[ $tbl ]   = $wpdb->prefix . $tbl;
 				$defaults[ $tbl ] = true;
 			}
 
@@ -219,13 +196,13 @@ class ImfsPage extends Imfs_AdminPageFramework {
 			$labels   = array();
 			$defaults = array();
 			foreach ( $rekeying['disable'] as $tbl ) {
-				$labels[ $tbl ]   = 'wp_' . $tbl;
+				$labels[ $tbl ]   = $wpdb->prefix . $tbl;
 				$defaults[ $tbl ] = false;
 			}
 
 			$this->addSettingFields(
 				array(
-					'field_id'           => 'disable',
+					'field_id'           => 'revert',
 					'type'               => 'checkbox',
 					'label'              => $labels,
 					'default'            => $defaults,
@@ -247,6 +224,33 @@ class ImfsPage extends Imfs_AdminPageFramework {
 					),
 				) );
 		}
+		/* errors **********************************/
+		if ( count( $rekeying['errors'] ) > 0 ) {
+			$this->addSettingFields(
+				array(
+					'field_id'    => 'norekeycaption',
+					'title'       => 'Problems Rekeying',
+					'default'     => __( 'We cannot rekey some tables.', $this->domain ),
+					'description' => __( 'This often means they have already been rekeyed by some other plugin or workflow.', $this->domain ),
+					'save'        => false,
+					'class'       => array(
+						'fieldrow' => array( 'warning', 'header' ),
+					),
+				) );
+			foreach ( $rekeying['errors'] as $tbl => $message ) {
+				$this->addSettingFields(
+					array(
+						'field_id' => 'norekey_' . $tbl,
+						'title'    => $wpdb->prefix . $tbl,
+						'default'  => $message,
+						'save'     => false,
+						'class'    => array(
+							'fieldrow' => array( 'warning', 'detail' ),
+						),
+					) );
+			}
+		}
+
 		$this->addSettingFields(
 			array(
 				'field_id' => 'permission',
@@ -272,6 +276,7 @@ class ImfsPage extends Imfs_AdminPageFramework {
 
 		$this->db->init();
 		$this->canReindex = $this->db->canReindex;
+		$this->unconstrained = $this->db->unconstrained;
 	}
 
 	function validation_ImfsPage( $inputs, $oldInputs, $factory, $submitInfo ) {
@@ -281,7 +286,21 @@ class ImfsPage extends Imfs_AdminPageFramework {
 		if ( ! isset ( $inputs['backup']['1'] ) || ! $inputs['backup']['1'] ) {
 			$valid            = false;
 			$errors['backup'] = __( 'Please acknowledge that you have made a backup', $this->domain );
-			$this->setSettingNotice( __( 'Make corrections and try again.', $this->domain ) );
+		}
+
+		$action = $submitInfo['field_id'];
+		$err = __( 'Please select at least one table.', $this->domain );
+		if ( $action === 'enable_now' ) {
+			if ( count( $this->listFromCheckboxes( $inputs['enable'] ) ) === 0 ) {
+				$valid = false;
+				$errors['enable'] = $err;
+			}
+		}
+		if ( $action === 'revert_now' ) {
+			if ( count( $this->listFromCheckboxes( $inputs['enable'] ) ) === 0 ) {
+				$valid = false;
+				$errors['revert'] = $err;
+			}
 		}
 
 		if ( ! $valid ) {
@@ -291,12 +310,10 @@ class ImfsPage extends Imfs_AdminPageFramework {
 			return $oldInputs;
 		}
 
-		$inputs = $this->action( $submitInfo['field_id'], $inputs, $oldInputs, $factory, $submitInfo );
-
-		return $inputs;
+		return $this->action( $submitInfo['field_id'], $inputs, $oldInputs, $factory, $submitInfo );
 	}
 
-	private function listFromCheckboxes( $cbs ) {
+	private function listFromCheckboxes( $cbs ): array {
 		$result = array();
 		foreach ( $cbs as $name => $val ) {
 			if ( $val ) {

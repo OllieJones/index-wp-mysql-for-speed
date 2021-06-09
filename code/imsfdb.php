@@ -148,7 +148,7 @@ class ImfsDb {
 				if ( ! $desc && array_key_exists( $index, $indexes ) ) {
 					$msg = sprintf(
 					/* translators: %1$s is table name, %2$s is key (index) name */
-						__( 'Table %1s: The key %2$s exists when it should not.', index_wp_mysql_for_speed_domain ),
+						__( 'The key %2$s exists when it should not.', index_wp_mysql_for_speed_domain ),
 						$table, $index
 					);
 					array_push( $this->messages, $msg );
@@ -156,7 +156,7 @@ class ImfsDb {
 				} else if ( $desc && ! array_key_exists( $index, $indexes ) ) {
 					$msg = sprintf(
 					/* translators: %1$s is table name, %2$s is key (index) name */
-						__( 'Table %1s: Cannot find the expected key %2$s.', index_wp_mysql_for_speed_domain ),
+						__( 'Cannot find the expected key %2$s.', index_wp_mysql_for_speed_domain ),
 						$table, $index
 					);
 					array_push( $this->messages, $msg );
@@ -169,7 +169,7 @@ class ImfsDb {
 				if ( ! array_key_exists( $index, $checks ) ) {
 					$msg = sprintf(
 					/* translators: %1$s is table name, %2$s is key (index) name */
-						__( 'Table %1$s: Found an unexpected key %2$s.', index_wp_mysql_for_speed_domain ),
+						__( 'Found an unexpected key %2$s.', index_wp_mysql_for_speed_domain ),
 						$table, $index
 					);
 					array_push( $this->messages, $msg );
@@ -183,7 +183,7 @@ class ImfsDb {
 				if ( $desc->add !== $stmt ) {
 					$msg = sprintf(
 					/* translators: %1$s is table name, %2$s is key (index) name, %4$s is expected key, %3$s is actual */
-						__( 'Table %1$s: Found an unexpected definition for key %2$s. It should be %4$s, but is %3$s.', index_wp_mysql_for_speed_domain ),
+						__( 'Found an unexpected definition for key %2$s. It should be %4$s, but is %3$s.', index_wp_mysql_for_speed_domain ),
 						$table, $index, $desc->add, $stmt
 					);
 					array_push( $this->messages, $msg );
@@ -291,11 +291,12 @@ class ImfsDb {
 				} else {
 					$msg = __( 'wp_%s has unexpected keys, so we cannot rekey it.', index_wp_mysql_for_speed_domain );
 					$msg = sprintf( $msg, $name );
+					$delim = '<br />&emsp;&emsp;';
 					if ( ! $canEnable ) {
-						$msg = $msg . '<br/> ' . implode( '<br/> ', $enableMsgs );
+						$msg = $msg . $delim . implode( $delim, $enableMsgs );
 					}
 					if ( ! $canDisable ) {
-						$msg = $msg . '<br/> ' . implode( '<br/> ', $disableMsgs );
+						$msg = $msg . $delim . implode( $delim, $disableMsgs );
 					}
 					$errorList[ $name ] = $msg;
 				}
