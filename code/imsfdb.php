@@ -266,7 +266,7 @@ class ImfsDb {
 		} finally {
 			$this->unlock();
 		}
-		if ($action = 'enable') $msg = __( 'High-performance keys addded to %d tables.', index_wp_mysql_for_speed_domain );
+		if ($action === 'enable') $msg = __( 'High-performance keys added to %d tables.', index_wp_mysql_for_speed_domain );
 		else $msg = __( 'Keys on %d tables reverted to WordPress standard.', index_wp_mysql_for_speed_domain );
 
 		return sprintf( $msg, $count );
