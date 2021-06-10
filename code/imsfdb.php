@@ -22,7 +22,6 @@ class ImfsDb {
 		if ( ! $this->initialized ) {
 			$this->initialized   = true;
 			$this->queries       = getQueries();
-			$this->stats         = $this->getStats();
 			$this->semver        = getMySQLVersion();
 			$this->canReindex    = $this->semver->canreindex;
 			$this->unconstrained = $this->semver->unconstrained;
@@ -31,6 +30,7 @@ class ImfsDb {
 			}
 
 			if ( $this->canReindex ) {
+				$this->stats     = $this->getStats();
 				$oldEngineTables = array();
 				$newEngineTables = array();
 				$tablesData      = $this->stats[2];
@@ -258,7 +258,7 @@ class ImfsDb {
 	 */
 	public function rekeyTables( string $action, array $tables ): string {
 		$count = 0;
-		if (is_array($tables) && count($tables) > 0) {
+		if ( is_array( $tables ) && count( $tables ) > 0 ) {
 			try {
 				$this->lock( $tables, true );
 				foreach ( $tables as $name ) {
@@ -269,8 +269,11 @@ class ImfsDb {
 				$this->unlock();
 			}
 		}
-		if ($action === 'enable') $msg = __( 'High-performance keys added to %d tables.', index_wp_mysql_for_speed_domain );
-		else $msg = __( 'Keys on %d tables reverted to WordPress standard.', index_wp_mysql_for_speed_domain );
+		if ( $action === 'enable' ) {
+			$msg = __( 'High-performance keys added to %d tables.', index_wp_mysql_for_speed_domain );
+		} else {
+			$msg = __( 'Keys on %d tables reverted to WordPress standard.', index_wp_mysql_for_speed_domain );
+		}
 
 		return sprintf( $msg, $count );
 
@@ -280,7 +283,7 @@ class ImfsDb {
 		$enableList  = array();
 		$disableList = array();
 		$errorList   = array();
-		$tables = array();
+		$tables      = array();
 		foreach ( $this->tables() as $table ) {
 			$tables[] = $table;
 		}
@@ -296,8 +299,8 @@ class ImfsDb {
 				} else if ( $canDisable && ! $canEnable ) {
 					$disableList[] = $name;
 				} else {
-					$msg = __( 'wp_%s has unexpected keys, so we cannot rekey it.', index_wp_mysql_for_speed_domain );
-					$msg = sprintf( $msg, $name );
+					$msg   = __( 'wp_%s has unexpected keys, so we cannot rekey it.', index_wp_mysql_for_speed_domain );
+					$msg   = sprintf( $msg, $name );
 					$delim = '<br />&emsp;&emsp;';
 					if ( ! $canEnable ) {
 						$msg = $msg . $delim . implode( $delim, $enableMsgs );
@@ -344,6 +347,7 @@ class ImfsDb {
 	}
 
 	/** Put the site into maintenance mode and lock a list of tables
+	 *
 	 * @param $tableList
 	 * @param $addPrefix
 	 *
@@ -351,7 +355,9 @@ class ImfsDb {
 	 */
 	private function lock( $tableList, $addPrefix ) {
 		global $wpdb;
-		if (!is_array($tableList) || count($tableList) === 0 ) throw new ImfsException("Invalid attempt to lock. At least one table must be locked");
+		if ( ! is_array( $tableList ) || count( $tableList ) === 0 ) {
+			throw new ImfsException( "Invalid attempt to lock. At least one table must be locked" );
+		}
 		$this->enterMaintenanceMode();
 		$tablesToLock = array();
 		foreach ( $tableList as $tbl ) {

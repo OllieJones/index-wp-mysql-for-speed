@@ -415,9 +415,9 @@ function getQueries() {
                         WHEN c.DATA_TYPE = 'float' THEN 4
                         WHEN c.DATA_TYPE = 'double' THEN 8
                         WHEN c.DATA_TYPE = 'date' THEN 3
-                        WHEN c.DATA_TYPE = 'time' THEN 3 + FLOOR((1+c.DATETIME_PRECISION) / 2)
-                        WHEN c.DATA_TYPE = 'timestamp' THEN 4 + FLOOR((1+c.DATETIME_PRECISION) / 2)
-                        WHEN c.DATA_TYPE = 'datetime' THEN 5 + FLOOR((1+c.DATETIME_PRECISION) / 2)
+                        WHEN c.DATA_TYPE = 'time' THEN 3
+                        WHEN c.DATA_TYPE = 'timestamp' THEN 4
+                        WHEN c.DATA_TYPE = 'datetime' THEN 5
                         ELSE 0 END                
                    ) rowlength
          FROM information_schema.COLUMNS c
@@ -522,9 +522,9 @@ function getQueries() {
                             WHEN c.DATA_TYPE = 'float' THEN 4
                             WHEN c.DATA_TYPE = 'double' THEN 8
                             WHEN c.DATA_TYPE = 'date' THEN 3
-                            WHEN c.DATA_TYPE = 'time' THEN 3 + FLOOR((1+c.DATETIME_PRECISION) / 2)
-                            WHEN c.DATA_TYPE = 'timestamp' THEN 4 + FLOOR((1+c.DATETIME_PRECISION) / 2)
-                            WHEN c.DATA_TYPE = 'datetime' THEN 5 + FLOOR((1+c.DATETIME_PRECISION) / 2)
+                            WHEN c.DATA_TYPE = 'time' THEN 3
+                            WHEN c.DATA_TYPE = 'timestamp' THEN 4
+                            WHEN c.DATA_TYPE = 'datetime' THEN 5
                             ELSE 0 END                
                        ) rowlength
                  FROM information_schema.COLUMNS c
