@@ -5,7 +5,7 @@ function getMySQLVersion() {
 	$semver  = " 
 	 SELECT VERSION() version,
 	        1 canreindex,
-	        1 unconstrained,
+	        0 unconstrained,
             CAST(SUBSTRING_INDEX(VERSION(), '.', 1) AS UNSIGNED) major,
             CAST(SUBSTRING_INDEX(SUBSTRING_INDEX(VERSION(), '.', 2), '.', -1) AS UNSIGNED) minor,
             CAST(SUBSTRING_INDEX(SUBSTRING_INDEX(REPLACE(VERSION(), '-', '.'), '.', 3), '.', -1) AS UNSIGNED) build,
@@ -21,23 +21,32 @@ function getMySQLVersion() {
 		$results->distro = $ver[2];
 	}
 	if ( $results->major >= 8 ) {
+		$results->unconstrained = 1;
+
 		return $results;
 	}
-	/* innodb_large_prefix variable is missing in MySQL 8+ */
-	$largePrefix = "SELECT @@innodb_large_prefix";
-	$largePrefix = $wpdb->get_var( $largePrefix );
-	if ( $largePrefix >= 3072 ) {
-		$results->unconstrained = true;
-	}
-	$results->unconstrained = true;
 	if ( $results->major < 5 ) {
 		$results->canreindex = 0;
+
+		return $results;
 	}
 	if ( $results->major === 5 && $results->minor === 5 && $results->build < 62 ) {
 		$results->canreindex = 0;
+
+		return $results;
 	}
 	if ( $results->major === 5 && $results->minor === 6 && $results->build < 4 ) {
 		$results->canreindex = 0;
+
+		return $results;
+	}
+	/* innodb_large_prefix variable is missing in MySQL 8+ */
+	$prefix = $wpdb->get_results( "SHOW VARIABLES LIKE 'innodb_large_prefix'", OBJECT_K );
+	if ( $prefix && is_array( $prefix ) && array_key_exists( 'innodb_large_prefix', $prefix ) ) {
+		$prefix = $prefix['innodb_large_prefix'];
+		if ( $prefix->Value === 'ON' ) {
+			$results->unconstrained = 1;
+		}
 	}
 
 	return $results;
@@ -111,7 +120,7 @@ function getReindexingInstructions( $semver ) {
 			"check.disable" => array(
 				"PRIMARY KEY" => "ADD PRIMARY KEY (post_id, meta_key, meta_id)",
 				"meta_key"    => "ADD KEY meta_key (meta_key, post_id)",
-				"meta_id" => "ADD UNIQUE KEY meta_id (meta_id)",
+				"meta_id"     => "ADD UNIQUE KEY meta_id (meta_id)",
 			),
 			"disable"       => array(
 				"DROP PRIMARY KEY",
@@ -143,7 +152,7 @@ function getReindexingInstructions( $semver ) {
 				"umeta_id"    => "ADD UNIQUE KEY umeta_id (umeta_id)",
 				"PRIMARY KEY" => "ADD PRIMARY KEY (user_id, meta_key, umeta_id)",
 				"meta_key"    => "ADD KEY meta_key (meta_key, user_id)",
-				"user_id"   => null,
+				"user_id"     => null,
 			),
 			"disable"       => array(
 				"DROP PRIMARY KEY",
@@ -236,7 +245,7 @@ function getReindexingInstructions( $semver ) {
 				"PRIMARY KEY" => "ADD PRIMARY KEY (post_id, meta_id)",
 				"post_id"     => "ADD KEY post_id (post_id, meta_key(191))",
 				"meta_key"    => "ADD KEY meta_key (meta_key(191), post_id)",
-				"meta_id" >= "ADD UNIQUE KEY meta_id (meta_id)",
+				"meta_id"     => "ADD UNIQUE KEY meta_id (meta_id)",
 			),
 			"disable"       => array(
 				"DROP PRIMARY KEY",
@@ -400,8 +409,7 @@ function getQueries() {
                c.TABLE_SCHEMA,
                c.TABLE_CATALOG,
                SUM(
-                   CASE WHEN c.GENERATION_EXPRESSION IS NOT NULL THEN 0
-                        WHEN c.DATA_TYPE IN ('varchar', 'char') THEN c.CHARACTER_OCTET_LENGTH
+                   CASE WHEN c.DATA_TYPE IN ('varchar', 'char') THEN c.CHARACTER_OCTET_LENGTH
                         WHEN c.DATA_TYPE = 'int' THEN 4
                         WHEN c.DATA_TYPE = 'bigint' THEN 8
                         WHEN c.DATA_TYPE = 'float' THEN 4
@@ -423,7 +431,7 @@ function getQueries() {
          ORDER BY s.TABLE_NAME, s.INDEX_NAME",
 
 		"dbstats" => array(
-			"SELECT VARIABLE_NAME variable, COALESCE(SESSION_VALUE, GLOBAL_VALUE) value FROM information_schema.SYSTEM_VARIABLES ORDER BY VARIABLE_NAME",
+			"SHOW VARIABLES",
 			/* fetch key/value statistics */
 			<<<QQQ
         SELECT 'postmeta' AS 'table',
@@ -508,8 +516,7 @@ function getQueries() {
                    MAX(IF(c.DATA_TYPE = 'text', c.CHARACTER_MAXIMUM_LENGTH, 0)) text_max_length,
                    SUM(c.DATA_TYPE= 'text') text_columns,		        
                    SUM(
-                       CASE WHEN c.GENERATION_EXPRESSION IS NOT NULL THEN 0
-                            WHEN c.DATA_TYPE IN ('varchar', 'char') THEN c.CHARACTER_OCTET_LENGTH
+                       CASE WHEN c.DATA_TYPE IN ('varchar', 'char') THEN c.CHARACTER_OCTET_LENGTH
                             WHEN c.DATA_TYPE = 'int' THEN 4
                             WHEN c.DATA_TYPE = 'bigint' THEN 8
                             WHEN c.DATA_TYPE = 'float' THEN 4

@@ -1,6 +1,9 @@
 div#wpcontent form div > div > table.form-table > tbody > tr.warning > th {
     color: #cc9900;
 }
+div#wpcontent form div > div > table.form-table > tbody > tr.success > th {
+    color: #2020ff;
+}
 
 div#wpcontent form div > div > table.form-table > tbody > tr.failure > th {
     color: red;

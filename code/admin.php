@@ -96,6 +96,20 @@ class ImfsPage extends Imfs_AdminPageFramework {
 					),
 				) );
 		} else {
+			if (!$this->db->unconstrained) {
+				$this->addSettingFields(
+					array(
+						'field_id'    => 'constraint_notice',
+						'title'       => 'Notice',
+						'default'     => __( 'Upgrading your MySQL server version will give you even better performance.', $this->domain ),
+						'save'        => false,
+						'class'       => array(
+							'fieldrow' => 'warning',
+						),
+					) );
+
+			}
+
 			/* engine upgrade ***************************/
 			if ( count( $this->db->oldEngineTables ) > 0 ) {
 				$field = array(
@@ -171,7 +185,7 @@ class ImfsPage extends Imfs_AdminPageFramework {
 						'field_id' => 'enable_now',
 						'type'     => 'submit',
 						'save'     => 'false',
-						'value'    => __( 'Rekey Now', $this->domain ),
+						'value'    => __( 'Add Keys Now', $this->domain ),
 						'class'    => array(
 							'fieldrow' => 'action',
 						),
@@ -186,7 +200,7 @@ class ImfsPage extends Imfs_AdminPageFramework {
 						'default'  => __( 'Your WordPress tables now have high-performance keys.', $this->domain ),
 						'save'     => false,
 						'class'    => array(
-							'fieldrow' => 'major',
+							'fieldrow' => array('major', 'success'),
 						),
 					),
 					array(
@@ -225,7 +239,7 @@ class ImfsPage extends Imfs_AdminPageFramework {
 						'field_id' => 'revert_now',
 						'type'     => 'submit',
 						'save'     => 'false',
-						'value'    => __( 'Revert Now', $this->domain ),
+						'value'    => __( 'Revert Keys Now', $this->domain ),
 						'class'    => array(
 							'fieldrow' => 'action',
 						),

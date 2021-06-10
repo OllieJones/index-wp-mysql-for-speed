@@ -209,6 +209,7 @@ class ImfsDb {
 		$table = $wpdb->prefix . $name;
 		if ( $action ) {
 			foreach ( $stmts as $fragment ) {
+				set_time_limit( 120 );
 				$q = "ALTER TABLE " . $table . " " . $fragment;
 				$this->query( $q );
 			}
@@ -257,14 +258,16 @@ class ImfsDb {
 	 */
 	public function rekeyTables( string $action, array $tables ): string {
 		$count = 0;
-		try {
-			$this->lock( $tables, true );
-			foreach ( $tables as $name ) {
-				$this->rekeyTable( $action, $name );
-				$count ++;
+		if (is_array($tables) && count($tables) > 0) {
+			try {
+				$this->lock( $tables, true );
+				foreach ( $tables as $name ) {
+					$this->rekeyTable( $action, $name );
+					$count ++;
+				}
+			} finally {
+				$this->unlock();
 			}
-		} finally {
-			$this->unlock();
 		}
 		if ($action === 'enable') $msg = __( 'High-performance keys added to %d tables.', index_wp_mysql_for_speed_domain );
 		else $msg = __( 'Keys on %d tables reverted to WordPress standard.', index_wp_mysql_for_speed_domain );
@@ -277,8 +280,12 @@ class ImfsDb {
 		$enableList  = array();
 		$disableList = array();
 		$errorList   = array();
+		$tables = array();
+		foreach ( $this->tables() as $table ) {
+			$tables[] = $table;
+		}
 		try {
-			$this->lock( $this->tables(), true );
+			$this->lock( $tables, true );
 			foreach ( $this->tables() as $name ) {
 				$canEnable   = $this->checkTable( 'enable', $name );
 				$enableMsgs  = $this->clearMessages();
@@ -320,7 +327,7 @@ class ImfsDb {
 		try {
 			$this->lock( $this->oldEngineTables, false );
 			foreach ( $this->oldEngineTables as $table ) {
-				set_time_limit( 60 );
+				set_time_limit( 120 );
 				$sql = 'ALTER TABLE ' . $table . ' ENGINE=InnoDb';
 				$counter ++;
 				$this->query( $sql );
@@ -344,7 +351,7 @@ class ImfsDb {
 	 */
 	private function lock( $tableList, $addPrefix ) {
 		global $wpdb;
-		if (count($tableList) === 0 ) throw new ImfsException("Invalid attempt to lock. At least one table must be locked");
+		if (!is_array($tableList) || count($tableList) === 0 ) throw new ImfsException("Invalid attempt to lock. At least one table must be locked");
 		$this->enterMaintenanceMode();
 		$tablesToLock = array();
 		foreach ( $tableList as $tbl ) {
