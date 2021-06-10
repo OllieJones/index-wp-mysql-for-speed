@@ -42,14 +42,6 @@ function index_wp_mysql_for_speed_activate() {
 	if ( version_compare( get_bloginfo( 'version' ), '5.2', '<' ) ) {
 		deactivate_plugins( basename( __FILE__ ) ); /* fail activation */
 	}
-	/* make sure the options are loaded, but don't overwrite existing version */
-	add_option( 'index_wp_mysql_for_speed_version', index_wp_mysql_for_speed_VERSION_NUM, false, 'no' );
-
-	/* check version and upgrade plugin if need be. */
-	if ( index_wp_mysql_for_speed_VERSION_NUM != ( $opt = get_option( 'index_wp_mysql_for_speed_version', '0.0.0' ) ) ) {
-		/* do update procedure here as needed */
-		update_option( 'index_wp_mysql_for_speed_version', index_wp_mysql_for_speed_VERSION_NUM );
-	}
 }
 
 /**

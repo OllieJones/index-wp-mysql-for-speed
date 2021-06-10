@@ -68,11 +68,11 @@ No. All this plugin's work happens from the WordPress Dashboard. Only a tiny bit
 
 = How can I learn more about this business of database keys? =
 
-It's a large topic. Some people (often called Database Administrators--DBSs) make entire careers out of this work. Where can you look?
+It's a large topic. Some people (often called Database Administrators--DBSs) make entire careers out of this kind work. Where can you look to get started?
 
 * Marcus Winand's great book [Use The Index, Luke][https://use-the-index-luke.com].
 * Rick James, a contributor to this plugin, has a good article [Building the best INDEX for a given SELECT][http://mysql.rjweb.org/doc.php/index_cookbook_mysql].
-* StackOverflow's [Why are references to wp_postmeta so slow?[https://stackoverflow.com/questions/43859351/why-are-references-to-wp-postmeta-so-slow] is useful.
+* StackOverflow's [Why are references to wp_postmeta so slow?][https://stackoverflow.com/questions/43859351/why-are-references-to-wp-postmeta-so-slow] is useful.
 * [wordpress.stackexchange.com][https://wordpress.stackexchange.com]'s article [Simple SQL query on wp_postmeta very slow][https://wordpress.stackexchange.com/questions/248207/simple-sql-query-on-wp-postmeta-very-slow].
 * The [proposal][https://www.plumislandmedia.net/wordpress/speeding-up-wordpress-database-operations/] for this plugin.
 
