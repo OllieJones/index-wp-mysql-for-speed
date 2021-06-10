@@ -220,7 +220,7 @@ registerImfs_AdminPageFrameworkColorPickerField = function( osTragetInput, aOpti
                 'index-wp-mysql-for-speed_field_type_color_changed',
                 [ jQuery( this ), sInputID ]
             ); 
-        }, // a callback to fire whenever the color changes to a valid color. reference : http://automattic.github.io/Iris/     
+        }, // a callback to fire whenever the color changes to a valid color. reference : https://automattic.github.io/Iris/     
         clear: function( event, ui ) {
             jQuery( this ).trigger(
                 'index-wp-mysql-for-speed_field_type_color_cleared',

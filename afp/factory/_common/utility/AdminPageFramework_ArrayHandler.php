@@ -79,7 +79,7 @@ class Imfs_AdminPageFramework_FrameworkUtility extends Imfs_AdminPageFramework_W
                 $this->aData[$_asKeys] = $_mValue;
                 return;
             }
-            $this->unsetDimensionalArrayElement($this->aData, $aKeys);
+            $this->unsetDimensionalArrayElement($this->aData, $_asKeys);
         }
         public function __toString() {
             return $this->getObjectInfo($this);

@@ -93,7 +93,7 @@ class Imfs_AdminPageFramework_Link_admin_page extends Imfs_AdminPageFramework_Li
         $_aAddingLinks = array();
         foreach (array_filter($this->oProp->aPluginTitleLinks) as $_sLinkHTML) {
             if (is_array($_sLinkHTML)) {
-                $_aAddingLinks = array_merge($_sLinkHTML, $aAddingLinks);
+                $_aAddingLinks = array_merge($_sLinkHTML, $_aAddingLinks);
                 continue;
             }
             $_aAddingLinks[] = ( string )$_sLinkHTML;

@@ -48,7 +48,7 @@ jQuery( document ).ready( function(){
             return;
         }
      
-        // Store the previous texatrea value. jQuery has a bug that val() for <textarea> does not work for cloned element. @see: http://bugs.jquery.com/ticket/3016
+        // Store the previous texatrea value. jQuery has a bug that val() for <textarea> does not work for cloned element. @see: https://bugs.jquery.com/ticket/3016
         var oTextArea       = jQuery( '#' + sTextAreaID );
         var sTextAreaValue  = oTextArea.val();
         
@@ -78,7 +78,7 @@ jQuery( document ).ready( function(){
                 body_class:     sTextAreaID,
                 height:         '100px',  
                 menubar:        false,
-                setup :         function( ed ) {    // see: http://www.tinymce.com/wiki.php/API3:event.tinymce.Editor.onChange
+                setup :         function( ed ) {    // see: https://www.tinymce.com/wiki.php/API3:event.tinymce.Editor.onChange
                     // It seems for tinyMCE 4 or above the on() method must be used.
                     if ( tinymce.majorVersion >= 4 ) {
                         ed.on( 'change', function(){                                           

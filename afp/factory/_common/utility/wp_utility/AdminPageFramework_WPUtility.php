@@ -505,7 +505,7 @@ class Imfs_AdminPageFramework_WPUtility_URL extends Imfs_AdminPageFramework_Util
             return self::getMetaDataByKeys($iUserID, $aKeys, 'user');
         }
         static public function getSavedTermMetaArray($iTermID, array $aKeys) {
-            return self::getMetaDataByKeys($iUserID, $aKeys, 'term');
+            return self::getMetaDataByKeys($iTermID, $aKeys, 'term');
         }
         static public function getMetaDataByKeys($iObjectID, $aKeys, $sMetaType = 'post') {
             $_aSavedMeta = array();

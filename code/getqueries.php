@@ -433,8 +433,7 @@ function getQueries() {
 		"dbstats" => array(
 			"SHOW VARIABLES",
 			/* fetch key/value statistics */
-			<<<QQQ
-        SELECT 'postmeta' AS 'table',
+			"SELECT 'postmeta' AS 'table',
                '${p}' AS 'prefix',
                 COUNT(*) AS 'count',
                 COUNT(DISTINCT post_id) distinct_id,
@@ -443,8 +442,8 @@ function getQueries() {
                 MAX(LENGTH(meta_value)) value_max_length,
                 MIN(LENGTH(meta_key)) key_min_length,
                 MIN(LENGTH(meta_value)) value_min_length,
-                SUM(CASE WHEN LENGTH(meta_key) > 191 THEN 1 ELSE 0 END) longer_191_key_count,
-                SUM(CASE WHEN LENGTH(meta_value) > 191 THEN 1 ELSE 0 END) longer_191_value_count,
+                SUM(IF(LENGTH(meta_key) > 191, 1, 0)) longer_191_key_count,
+                SUM(IF(LENGTH(meta_value) > 191, 1, 0)) longer_191_value_count,
                 0 autoload_count
           FROM ${p}postmeta
         UNION ALL
@@ -457,8 +456,8 @@ function getQueries() {
                 MAX(LENGTH(meta_value)) meta_value_max_length,
                 MIN(LENGTH(meta_key)) key_min_length,
                 MIN(LENGTH(meta_value)) value_min_length,
-                SUM(CASE WHEN LENGTH(meta_key) > 191 THEN 1 ELSE 0 END) longer_191_key_count,
-                SUM(CASE WHEN LENGTH(meta_value) > 191 THEN 1 ELSE 0 END) longer_191_value_count,
+                SUM(IF(LENGTH(meta_key) > 191, 1, 0)) longer_191_key_count,
+                SUM(IF(LENGTH(meta_value) > 191, 1, 0)) longer_191_value_count,
                 0 autoload_count
           FROM ${p}usermeta
         UNION ALL
@@ -471,8 +470,8 @@ function getQueries() {
                 MAX(LENGTH(meta_value)) value_max_length,
                 MIN(LENGTH(meta_key)) key_min_length,
                 MIN(LENGTH(meta_value)) value_min_length,
-                SUM(CASE WHEN LENGTH(meta_key) > 191 THEN 1 ELSE 0 END) longer_191_key_count,
-                SUM(CASE WHEN LENGTH(meta_value) > 191 THEN 1 ELSE 0 END) longer_191_value_count,
+                SUM(IF(LENGTH(meta_key) > 191, 1, 0)) longer_191_key_count,
+                SUM(IF(LENGTH(meta_value) > 191, 1, 0)) longer_191_value_count,
                 0 autoload_count
           FROM ${p}termmeta
         UNION ALL 
@@ -485,13 +484,11 @@ function getQueries() {
                 MAX(LENGTH(option_value)) value_max_length,
                 MIN(LENGTH(option_name)) min_length,
                 MIN(LENGTH(option_value)) value_min_length,
-                SUM(CASE WHEN LENGTH(option_name) > 191 THEN 1 ELSE 0 END) longer_191_key_count,
-                SUM(CASE WHEN LENGTH(option_value) > 191 THEN 1 ELSE 0 END) longer_191_value_count,
-                SUM(CASE WHEN autoload = 'yes' THEN 1 ELSE 0 END) autoload_count
-          FROM ${p}options;
-        QQQ,
-			<<<QQQ
-            SELECT c.TABLE_NAME,
+                SUM(IF(LENGTH(option_name) > 191, 1, 0)) longer_191_key_count,
+                SUM(IF(LENGTH(option_value) > 191, 1, 0)) longer_191_value_count,
+                SUM(IF(autoload = 'yes', 1, 0)) autoload_count
+          FROM ${p}options;",
+			"SELECT c.TABLE_NAME,
                    t.ENGINE,
                    t.ROW_FORMAT,
                    COUNT(*) column_count,
@@ -534,7 +531,7 @@ function getQueries() {
                       AND c.TABLE_CATALOG = t.TABLE_CATALOG
                  WHERE c.TABLE_SCHEMA = DATABASE()
                 GROUP BY c.TABLE_NAME, c.TABLE_SCHEMA, c.TABLE_CATALOG
-        QQQ
+        "
 
 		)
 	);

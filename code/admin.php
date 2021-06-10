@@ -2,18 +2,18 @@
 
 class ImfsPage extends Imfs_AdminPageFramework {
 
-	public string $pluginName;
-	public string $pluginSlug;
-	public string $domain;
-	private ImfsDb $db;
+	public $pluginName;
+	public $pluginSlug;
+	public $domain;
+	private $db;
 	/**
 	 * @var bool true if the dbms allows reindexing at all.
 	 */
-	public bool $canReindex = false;
+	public $canReindex = false;
 	/**
 	 * @var bool true if reindexing does not have the 191 constraint
 	 */
-	private $unconstrained;
+	private $unconstrained = false;
 
 	public function __construct( $slug = index_wp_mysql_for_speed_domain ) {
 		parent::__construct();
@@ -96,14 +96,14 @@ class ImfsPage extends Imfs_AdminPageFramework {
 					),
 				) );
 		} else {
-			if (!$this->db->unconstrained) {
+			if ( ! $this->db->unconstrained ) {
 				$this->addSettingFields(
 					array(
-						'field_id'    => 'constraint_notice',
-						'title'       => 'Notice',
-						'default'     => __( 'Upgrading your MySQL server version will give you even better performance.', $this->domain ),
-						'save'        => false,
-						'class'       => array(
+						'field_id' => 'constraint_notice',
+						'title'    => 'Notice',
+						'default'  => __( 'Upgrading your MySQL server version will give you even better performance.', $this->domain ),
+						'save'     => false,
+						'class'    => array(
 							'fieldrow' => 'warning',
 						),
 					) );
@@ -157,7 +157,7 @@ class ImfsPage extends Imfs_AdminPageFramework {
 						'class'    => array(
 							'fieldrow' => 'major',
 						),
-					),
+					)
 				);
 
 				$labels   = array();
@@ -200,7 +200,7 @@ class ImfsPage extends Imfs_AdminPageFramework {
 						'default'  => __( 'Your WordPress tables now have high-performance keys.', $this->domain ),
 						'save'     => false,
 						'class'    => array(
-							'fieldrow' => array('major', 'success'),
+							'fieldrow' => array( 'major', 'success' ),
 						),
 					),
 					array(
@@ -211,7 +211,7 @@ class ImfsPage extends Imfs_AdminPageFramework {
 						'class'    => array(
 							'fieldrow' => 'major',
 						),
-					),
+					)
 				);
 
 				$labels   = array();
@@ -273,7 +273,7 @@ class ImfsPage extends Imfs_AdminPageFramework {
 			}
 		}
 
-		if (extension_loaded('curl') ) {
+		if ( extension_loaded( 'curl' ) ) {
 
 			$this->addSettingFields(
 				array(
@@ -338,7 +338,7 @@ class ImfsPage extends Imfs_AdminPageFramework {
 		return $this->action( $submitInfo['field_id'], $inputs, $oldInputs, $factory, $submitInfo );
 	}
 
-	private function listFromCheckboxes( $cbs ): array {
+	private function listFromCheckboxes( $cbs ) {
 		$result = array();
 		foreach ( $cbs as $name => $val ) {
 			if ( $val ) {
@@ -369,7 +369,7 @@ class ImfsPage extends Imfs_AdminPageFramework {
 			return $inputs;
 		} catch ( ImfsException $ex ) {
 			$msg = $ex->getMessage();
-			$this->setSettingNotice( $msg, 'error' );
+			$this->setSettingNotice( $msg );
 
 			return $oldInputs;
 		}

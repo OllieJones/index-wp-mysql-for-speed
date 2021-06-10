@@ -5,18 +5,18 @@ require_once( ABSPATH . 'wp-admin/includes/class-wp-upgrader.php' );
 
 class ImfsDb {
 
-	private bool $initialized = false;
-	public bool $canReindex = false;
-	public bool $unconstrained;
-	public array $queries;
-	public array $messages = array();
-	public bool $lookForMissingKeys = true;
-	public bool $lookForExtraKeys = false;
-	public object $semver;
-	private array $reindexingInstructions;
-	public array $stats;
-	public array $oldEngineTables;
-	public array $newEngineTables;
+	private $initialized = false;
+	public $canReindex = false;
+	public $unconstrained;
+	public $queries;
+	public $messages = array();
+	public $lookForMissingKeys = true;
+	public $lookForExtraKeys = false;
+	public $semver;
+	private $reindexingInstructions;
+	public $stats;
+	public $oldEngineTables;
+	public $newEngineTables;
 
 	public function init() {
 		if ( ! $this->initialized ) {
@@ -87,7 +87,7 @@ class ImfsDb {
 	 * @return array server information
 	 * @throws ImfsException
 	 */
-	public function getStats(): array {
+	public function getStats() {
 		global $wpdb;
 		$wpdb->flush();
 		$output  = array();
@@ -101,16 +101,17 @@ class ImfsDb {
 	}
 
 	/** List of tables to manipulate
-	 * @return Generator tables manipulated by this module
+	 * @return  tables manipulated by this module
 	 */
-	public function tables( $prefixed = false ): Generator {
+	public function tables( $prefixed = false ) {
+		$result = array();
 		global $wpdb;
 		foreach ( $this->reindexingInstructions as $name => $stmts ) {
 			if ( is_array( $stmts ) && array_key_exists( 'tablename', $stmts ) && $name === $stmts['tablename'] ) {
-				yield $prefixed ? $wpdb->prefix . $name : $name;
+				$result[] = $prefixed ? $wpdb->prefix . $name : $name;
 			}
 		}
-
+		return $result;
 	}
 
 	/**
@@ -121,7 +122,7 @@ class ImfsDb {
 	 * @return array|object|null
 	 * @throws ImfsException
 	 */
-	public function getKeyDML( string $name ) {
+	public function getKeyDML( $name ) {
 		global $wpdb;
 		$stmt = $wpdb->prepare( $this->queries['indexes'], $wpdb->prefix . $name );
 
@@ -136,7 +137,7 @@ class ImfsDb {
 	 * @return bool
 	 * @throws ImfsException
 	 */
-	public function checkTable( $action, $name ): bool {
+	public function checkTable( $action, $name ) {
 		global $wpdb;
 		$block   = $this->reindexingInstructions[ $name ];
 		$checks  = $block[ 'check.' . $action ];
@@ -202,7 +203,7 @@ class ImfsDb {
 	 *
 	 * @throws ImfsException
 	 */
-	public function rekeyTable( string $action, string $name ) {
+	public function rekeyTable( $action, $name ) {
 		global $wpdb;
 		$block = $this->reindexingInstructions[ $name ];
 		$stmts = $block[ $action ];
@@ -219,33 +220,11 @@ class ImfsDb {
 	/** Resets the messages in this class and returns the previous messages.
 	 * @return array
 	 */
-	public function clearMessages(): array {
+	public function clearMessages() {
 		$msgs           = $this->messages;
 		$this->messages = array();
 
 		return $msgs;
-	}
-
-	/** Check the tables for any issues prior to rekeying them.
-	 *
-	 * @param $action "enable" or "disable"
-	 *
-	 * @return array|bool strings with messages describing problems, or falsey if no problems
-	 * @throws ImfsException
-	 */
-	public function anyProblems( $action ) {
-		$problems = false;
-		$this->clearMessages();
-		foreach ( $this->tables() as $name ) {
-			if ( ! $this->checkTable( $action, $name ) ) {
-				$problems = true;
-			}
-		}
-		if ( $problems ) {
-			return $this->messages;
-		}
-
-		return false;
 	}
 
 	/**
@@ -256,7 +235,7 @@ class ImfsDb {
 	 * @throws ImfsException
 	 *
 	 */
-	public function rekeyTables( string $action, array $tables ): string {
+	public function rekeyTables( $action, array $tables ) {
 		$count = 0;
 		if ( is_array( $tables ) && count( $tables ) > 0 ) {
 			try {
@@ -279,17 +258,14 @@ class ImfsDb {
 
 	}
 
-	public function getRekeying(): array {
+	public function getRekeying()  {
 		$enableList  = array();
 		$disableList = array();
 		$errorList   = array();
-		$tables      = array();
-		foreach ( $this->tables() as $table ) {
-			$tables[] = $table;
-		}
+		$tables      = $this->tables();
 		try {
 			$this->lock( $tables, true );
-			foreach ( $this->tables() as $name ) {
+			foreach ( $tables as $name ) {
 				$canEnable   = $this->checkTable( 'enable', $name );
 				$enableMsgs  = $this->clearMessages();
 				$canDisable  = $this->checkTable( 'disable', $name );
@@ -325,7 +301,7 @@ class ImfsDb {
 	/**
 	 * @throws ImfsException
 	 */
-	public function upgradeStorageEngine(): string {
+	public function upgradeStorageEngine() {
 		$counter = 0;
 		try {
 			$this->lock( $this->oldEngineTables, false );
@@ -389,7 +365,7 @@ class ImfsDb {
 	/**
 	 * @param int $duration how many seconds until maintenance expires
 	 */
-	public function enterMaintenanceMode( int $duration = 60 ) {
+	public function enterMaintenanceMode( $duration = 60 ) {
 		$maintenanceFileName = ABSPATH . '.maintenance';
 		$maintain            = array();
 		$expirationTs        = time() + $duration - 600;
@@ -414,9 +390,9 @@ class ImfsDb {
 
 class ImfsException extends Exception {
 	protected $message;
-	private string $query;
+	private $query;
 
-	public function __construct( $message, $query, $code = 0, Throwable $previous = null ) {
+	public function __construct( $message, $query = '', $code = 0, $previous = null ) {
 		global $wpdb;
 		$this->query = $query;
 		parent::__construct( $message, $code, $previous );
