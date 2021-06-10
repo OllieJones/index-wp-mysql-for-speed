@@ -27,7 +27,7 @@ class ImfsPage extends Imfs_AdminPageFramework {
 
 	public function setUp() {
 		//$this->setRootMenuPage( 'Settings' );
-		$this->setRootMenuPage( 'Dashboard' ); //TODO put this back to Tools
+		$this->setRootMenuPage( 'Tools' );
 
 		$pageName = $this->pluginName;
 		/* translators: settings page menu text */
@@ -37,7 +37,7 @@ class ImfsPage extends Imfs_AdminPageFramework {
 				'title'      => $pageName,
 				'menu_title' => $menuName,
 				'page_slug'  => 'imfs_settings',
-				'order'      => 50,
+				'order'      => 10,
 				'capability' => 'activate_plugins'
 
 			)
