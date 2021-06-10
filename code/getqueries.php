@@ -110,7 +110,8 @@ function getReindexingInstructions( $semver ) {
 			),
 			"check.disable" => array(
 				"PRIMARY KEY" => "ADD PRIMARY KEY (post_id, meta_key, meta_id)",
-				"meta_key"    => "ADD KEY meta_key (meta_key, post_id)"
+				"meta_key"    => "ADD KEY meta_key (meta_key, post_id)",
+				"meta_id" => "ADD UNIQUE KEY meta_id (meta_id)",
 			),
 			"disable"       => array(
 				"DROP PRIMARY KEY",
@@ -141,13 +142,13 @@ function getReindexingInstructions( $semver ) {
 			"check.disable" => array(
 				"umeta_id"    => "ADD UNIQUE KEY umeta_id (umeta_id)",
 				"PRIMARY KEY" => "ADD PRIMARY KEY (user_id, meta_key, umeta_id)",
-				"meta_key"    => "ADD KEY meta_key (meta_key, user_id)"
+				"meta_key"    => "ADD KEY meta_key (meta_key, user_id)",
+				"user_id"   => null,
 			),
 			"disable"       => array(
 				"DROP PRIMARY KEY",
 				"ADD PRIMARY KEY (umeta_id)",
 				"DROP KEY umeta_id",
-				"DROP KEY user_id",
 				"ADD KEY user_id (user_id)",
 				"DROP KEY meta_key",
 				"ADD KEY meta_key (meta_key(191))",
@@ -166,15 +167,14 @@ function getReindexingInstructions( $semver ) {
 				"DROP PRIMARY KEY",
 				"ADD PRIMARY KEY (term_id, meta_key, meta_id)",
 				"DROP KEY term_id",
-				"ADD KEY term_id (term_id, meta_key)",
 				"DROP KEY meta_key",
 				"ADD KEY meta_key (meta_key, term_id)"
 			),
 			"check.disable" => array(
 				"PRIMARY KEY" => "ADD PRIMARY KEY (term_id, meta_key, meta_id)",
 				"meta_id"     => "ADD UNIQUE KEY meta_id (meta_id)",
-				"term_id"     => "ADD KEY term_id (term_id, meta_key)",
 				"meta_key"    => "ADD KEY meta_key (meta_key, term_id)",
+				"term_id"     => null,
 			),
 			"disable"       => array(
 				"DROP PRIMARY KEY",
@@ -182,7 +182,6 @@ function getReindexingInstructions( $semver ) {
 				"DROP KEY meta_id",
 				"DROP KEY meta_key",
 				"ADD KEY meta_key (meta_key(191))",
-				"DROP KEY term_id",
 				"ADD KEY term_id (term_id)",
 			),
 		),
@@ -191,6 +190,7 @@ function getReindexingInstructions( $semver ) {
 			"check.enable"  => array(
 				"PRIMARY KEY" => "ADD PRIMARY KEY (option_id)",
 				"autoload"    => "ADD KEY autoload (autoload)",
+				"option_name" => "ADD UNIQUE KEY option_name (option_name)",
 				"option_id"   => null,
 			),
 			"enable"        => array(
@@ -202,6 +202,7 @@ function getReindexingInstructions( $semver ) {
 			"check.disable" => array(
 				"PRIMARY KEY" => "ADD PRIMARY KEY (autoload, option_id)",
 				"option_id"   => "ADD UNIQUE KEY option_id (option_id)",
+				"option_name" => "ADD UNIQUE KEY option_name (option_name)",
 				"autoload"    => null,
 			),
 			"disable"       => array(
@@ -219,7 +220,8 @@ function getReindexingInstructions( $semver ) {
 			"check.enable"  => array(
 				"PRIMARY KEY" => "ADD PRIMARY KEY (meta_id)",
 				"meta_key"    => "ADD KEY meta_key (meta_key(191))",
-				"post_id"     => "ADD KEY post_id (post_id)"
+				"post_id"     => "ADD KEY post_id (post_id)",
+				"meta_id"     => null,
 			),
 			"enable"        => array(
 				"ADD UNIQUE KEY meta_id (meta_id)",
@@ -233,7 +235,8 @@ function getReindexingInstructions( $semver ) {
 			"check.disable" => array(
 				"PRIMARY KEY" => "ADD PRIMARY KEY (post_id, meta_id)",
 				"post_id"     => "ADD KEY post_id (post_id, meta_key(191))",
-				"meta_key"    => "ADD KEY meta_key (meta_key(191), post_id)"
+				"meta_key"    => "ADD KEY meta_key (meta_key(191), post_id)",
+				"meta_id" >= "ADD UNIQUE KEY meta_id (meta_id)",
 			),
 			"disable"       => array(
 				"DROP PRIMARY KEY",

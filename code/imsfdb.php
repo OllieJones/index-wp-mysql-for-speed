@@ -266,8 +266,8 @@ class ImfsDb {
 		} finally {
 			$this->unlock();
 		}
-
-		$msg = __( '%d tables upgraded', index_wp_mysql_for_speed_domain );
+		if ($action = 'enable') $msg = __( 'High-performance keys addded to %d tables.', index_wp_mysql_for_speed_domain );
+		else $msg = __( 'Keys on %d tables reverted to WordPress standard.', index_wp_mysql_for_speed_domain );
 
 		return sprintf( $msg, $count );
 
@@ -336,8 +336,15 @@ class ImfsDb {
 		return sprintf( $msg, $counter );
 	}
 
+	/** Put the site into maintenance mode and lock a list of tables
+	 * @param $tableList
+	 * @param $addPrefix
+	 *
+	 * @throws ImfsException
+	 */
 	private function lock( $tableList, $addPrefix ) {
 		global $wpdb;
+		if (count($tableList) === 0 ) throw new ImfsException("Invalid attempt to lock. At least one table must be locked");
 		$this->enterMaintenanceMode();
 		$tablesToLock = array();
 		foreach ( $tableList as $tbl ) {
@@ -358,6 +365,9 @@ class ImfsDb {
 		$this->query( $q );
 	}
 
+	/** Undo lock.  This is ideally called from a finally clause.
+	 * @throws ImfsException
+	 */
 	private function unlock() {
 		$this->query( "UNLOCK TABLES" );
 		$this->leaveMaintenanceMode();
