@@ -37,7 +37,7 @@ class ImfsPage extends Imfs_AdminPageFramework {
 				'title'      => $pageName,
 				'menu_title' => $menuName,
 				'page_slug'  => 'imfs_settings',
-				'order'      => 10,
+				'order'      => 31,
 				'capability' => 'activate_plugins'
 
 			)
@@ -287,7 +287,7 @@ class ImfsPage extends Imfs_AdminPageFramework {
 					array(  //TODO put an action button here
 						'field_id' => 'permission',
 						'type'     => 'checkbox',
-						'label'    => __( 'You may upload my site\'s diagnostic metadata', $this->domain ),
+						'label'    => __( 'You may upload my site\'s diagnostic metadata.', $this->domain ),
 						'default'  => 0,
 						'save'     => true,
 					),
@@ -336,9 +336,11 @@ class ImfsPage extends Imfs_AdminPageFramework {
 		}
 
 		$msg = $this->action( $submitInfo['field_id'], $inputs, $oldInputs, $factory, $submitInfo );
-		if ( isset ( $inputs['backup']['1'] )) {
-			imfs_upload_stats($this->db);
+
+		if ( isset ( $inputs['permission']['1'] ) && $inputs['permission']['1'] ) {
+			imfs_upload_stats( $this->db );
 		}
+
 		return $msg;
 	}
 
