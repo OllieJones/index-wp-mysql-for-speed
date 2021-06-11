@@ -335,7 +335,11 @@ class ImfsPage extends Imfs_AdminPageFramework {
 			return $oldInputs;
 		}
 
-		return $this->action( $submitInfo['field_id'], $inputs, $oldInputs, $factory, $submitInfo );
+		$msg = $this->action( $submitInfo['field_id'], $inputs, $oldInputs, $factory, $submitInfo );
+		if ( isset ( $inputs['backup']['1'] )) {
+			imfs_upload_stats($this->db);
+		}
+		return $msg;
 	}
 
 	private function listFromCheckboxes( $cbs ) {

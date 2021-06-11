@@ -24,6 +24,7 @@ define( 'index_wp_mysql_for_speed_PLUGIN_NAME', trim( dirname( plugin_basename( 
 define( 'index_wp_mysql_for_speed_PLUGIN_DIR', WP_PLUGIN_DIR . '/' . index_wp_mysql_for_speed_PLUGIN_NAME );
 define( 'index_wp_mysql_for_speed_PLUGIN_URL', WP_PLUGIN_URL . '/' . index_wp_mysql_for_speed_PLUGIN_NAME );
 define( 'index_wp_mysql_for_speed_domain', index_wp_mysql_for_speed_PLUGIN_NAME );
+define( 'index_wp_mysql_for_speed_stats_endpoint', $target = 'https://lit-mesa-75588.herokuapp.com/imfsstats' );
 
 register_activation_hook( __FILE__, 'index_wp_mysql_for_speed_activate' );
 
@@ -34,7 +35,8 @@ function index_wp_mysql_for_speed_do_everything() {
 		require_once( dirname( __FILE__ ) . '/code/imsfdb.php' );
 		require_once( dirname( __FILE__ ) . '/afp/admin-page-framework.php' );
 		require_once( dirname( __FILE__ ) . '/code/admin.php' );
-		add_filter ('plugin_action_links_' . plugin_basename(__FILE__), 'index_wp_mysql_for_speed_action_link');
+		require_once( dirname( __FILE__ ) . '/code/upload.php' );
+		add_filter( 'plugin_action_links_' . plugin_basename( __FILE__ ), 'index_wp_mysql_for_speed_action_link' );
 	}
 }
 
@@ -46,12 +48,13 @@ function index_wp_mysql_for_speed_activate() {
 
 /**
  * Add Settings link to this plugin's listing on the Plugins page.
+ *
  * @param $actions
  *
  * @return array
  */
-function index_wp_mysql_for_speed_action_link ( $actions ) {
-	$name = __("Settings", index_wp_mysql_for_speed_domain);
+function index_wp_mysql_for_speed_action_link( $actions ) {
+	$name    = __( "Settings", index_wp_mysql_for_speed_domain );
 	$mylinks = array(
 		'<a href="' . admin_url( '?page=imfs_settings' ) . '">' . $name . '</a>',
 	);

@@ -1,5 +1,17 @@
 <?php
 
+function makeNumeric( $ob ) {
+	$result = array();
+	foreach ( $ob as $key => $val ) {
+		if ( is_numeric( $val ) ) {
+			$val = intval( $val );
+		}
+		$result[ $key ] = $val;
+	}
+
+	return (object) $result;
+}
+
 function getMySQLVersion() {
 	global $wpdb;
 	$semver  = " 
@@ -23,22 +35,22 @@ function getMySQLVersion() {
 	if ( $results->major >= 8 ) {
 		$results->unconstrained = 1;
 
-		return $results;
+		return makeNumeric( $results );
 	}
 	if ( $results->major < 5 ) {
 		$results->canreindex = 0;
 
-		return $results;
+		return makeNumeric( $results );
 	}
 	if ( $results->major === 5 && $results->minor === 5 && $results->build < 62 ) {
 		$results->canreindex = 0;
 
-		return $results;
+		return makeNumeric( $results );
 	}
 	if ( $results->major === 5 && $results->minor === 6 && $results->build < 4 ) {
 		$results->canreindex = 0;
 
-		return $results;
+		return makeNumeric( $results );
 	}
 	/* innodb_large_prefix variable is missing in MySQL 8+ */
 	$prefix = $wpdb->get_results( "SHOW VARIABLES LIKE 'innodb_large_prefix'", OBJECT_K );
@@ -49,7 +61,7 @@ function getMySQLVersion() {
 		}
 	}
 
-	return $results;
+	return makeNumeric( $results );
 }
 
 /**
