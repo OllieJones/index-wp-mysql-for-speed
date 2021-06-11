@@ -4,7 +4,7 @@ Tags: database, optimize, index, key, mysql
 Requires at least: 5.2
 Tested up to: 5.7.2
 Requires PHP: 5.5
-Stable tag: 0.1.1
+Stable tag: 0.1.2
 License: GPL v2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 Text Domain: index-wp-mysql-for-speed
@@ -78,8 +78,12 @@ It's a large topic. Some people (often called Database Administrators--DBSs) mak
 
 == Changelog ==
 
-= 0.0.5 =
-* First release
+= 0.1.1 =
+Submit for review
+
+= 0.1.1 =
+Resubmit correcting my poor choice of curl.
+
 
 == Upgrade Notice ==
 The first release.

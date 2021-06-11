@@ -15,11 +15,18 @@ function imfs_upload_stats( $db, $target = index_wp_mysql_for_speed_stats_endpoi
 function imfs_upload_post( $stats, $target = index_wp_mysql_for_speed_stats_endpoint ) {
 
 	$payload = json_encode( $stats );
-	$c       = curl_init( $target );
-	curl_setopt( $c, CURLOPT_POST, true );
-	curl_setopt( $c, CURLOPT_POSTFIELDS, $payload );
-	curl_setopt( $c, CURLOPT_HTTPHEADER, array( 'Content-Type:application/json' ) );
-	curl_setopt( $c, CURLOPT_RETURNTRANSFER, true );
-	$result = curl_exec( $c );
-	curl_close( $c );
+	$options = [
+		'body'        => $payload,
+		'headers'     => [
+			'Content-Type' => 'application/json',
+		],
+		'timeout'     => 60,
+		'redirection' => 5,
+		'blocking'    => true,
+		'httpversion' => '1.0',
+		'sslverify'   => false,
+		'data_format' => 'body',
+	];
+
+	wp_remote_post( $target, $options );
 }

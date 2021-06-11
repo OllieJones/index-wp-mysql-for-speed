@@ -273,27 +273,24 @@ class ImfsPage extends Imfs_AdminPageFramework {
 			}
 		}
 
-		if ( extension_loaded( 'curl' ) ) {
-
-			$this->addSettingFields(
-				array(
+		$this->addSettingFields(
+			array(
+				'field_id' => 'permission',
+				'title'    => __( 'Diagnostic data', $this->domain ),
+				'label'    => __( 'We upload metadata about your WordPress site to our plugin\'s servers. We cannot identify you or your web site from it, and we never sell nor give it to any third party. We use it only to improve this plugin.', $this->domain ),
+				'save'     => true,
+				'class'    => array(
+					'fieldrow' => 'info',
+				),
+				array(  //TODO put an action button here
 					'field_id' => 'permission',
-					'title'    => __( 'Diagnostic data', $this->domain ),
-					'label'    => __( 'We upload metadata about your WordPress site to our plugin\'s servers. We cannot identify you or your web site from it, and we never sell nor give it to any third party. We use it only to improve this plugin.', $this->domain ),
+					'type'     => 'checkbox',
+					'label'    => __( 'You may upload my site\'s diagnostic metadata.', $this->domain ),
+					'default'  => 0,
 					'save'     => true,
-					'class'    => array(
-						'fieldrow' => 'info',
-					),
-					array(  //TODO put an action button here
-						'field_id' => 'permission',
-						'type'     => 'checkbox',
-						'label'    => __( 'You may upload my site\'s diagnostic metadata.', $this->domain ),
-						'default'  => 0,
-						'save'     => true,
-					),
-				)
-			);
-		}
+				),
+			)
+		);
 	}
 
 
