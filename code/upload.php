@@ -1,13 +1,38 @@
 <?php
 
-function imfs_upload_stats( $db, $target = index_wp_mysql_for_speed_stats_endpoint ) {
+function imfs_to_object ($rows) {
 	$variables = array();
-	foreach ( $db->stats[0] as $var ) {
-		$variables[ $var->Variable_name ] = is_numeric( $var->Value ) ? intval( $var->Value ) : $var->Value;
+	foreach ( $rows as $row ) {
+		$variables[ $row->Variable_name ] = is_numeric( $row->Value ) ? intval( $row->Value ) : $row->Value;
 	}
-	$variables = (object) $variables;
+	return (object) $variables;
+}
 
-	$stats = (object) array( 'semver' => $db->semver, 'variables' => $variables, 'alltables' => $db->stats[1] );
+function imfs_upload_stats( $db, $target = index_wp_mysql_for_speed_stats_endpoint ) {
+	global $_SERVER;
+	global $wp_db_version;
+	global $wp_version;
+	global $required_php_version;
+	global $required_mysql_version;
+	$variables = imfs_to_object ($db->stats[0]);
+	$globalStatus = imfs_to_object($db->stats[3]);
+
+	$wordpress = array (
+		'phpversion' => phpversion(),
+		'webserverversion' => $_SERVER['SERVER_SOFTWARE'],
+		'wp_version' => $wp_version,
+		'wp_db_version' => $wp_db_version,
+		'required_php_version' => $required_php_version,
+		'required_mysql_version' => $required_mysql_version
+	);
+
+	$stats = (object) array(
+		'mysqlVer' => $db->semver,
+		'wordpress' => $wordpress,
+		'timings' => $db->timings,
+		'globalStatus' => $globalStatus,
+		'variables' => $variables,
+		'alltables' => $db->stats[1] );
 
 	imfs_upload_post( $stats, $target );
 }
@@ -22,7 +47,7 @@ function imfs_upload_post( $stats, $target = index_wp_mysql_for_speed_stats_endp
 		],
 		'timeout'     => 60,
 		'redirection' => 5,
-		'blocking'    => true,
+		'blocking'    => false,
 		'httpversion' => '1.0',
 		'sslverify'   => false,
 		'data_format' => 'body',

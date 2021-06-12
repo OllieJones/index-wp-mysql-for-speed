@@ -17,10 +17,13 @@ class ImfsDb {
 	public $stats;
 	public $oldEngineTables;
 	public $newEngineTables;
+	public $timings;
+	private $hasHrTime;
 
 	public function init() {
 		if ( ! $this->initialized ) {
 			$this->initialized   = true;
+			$this->timings       = array();
 			$this->queries       = getQueries();
 			$this->semver        = getMySQLVersion();
 			$this->canReindex    = $this->semver->canreindex;
@@ -44,7 +47,13 @@ class ImfsDb {
 				$this->oldEngineTables = $oldEngineTables;
 				$this->newEngineTables = $newEngineTables;
 			}
+
+			$this->hasHrTime = function_exists( 'hrtime' );
 		}
+	}
+
+	public function getTime() {
+		return $this->hasHrTime ? hrtime( true ) * 0.000000001 : time();
 	}
 
 	/** run a SELECT
@@ -54,11 +63,15 @@ class ImfsDb {
 	 * @return array|object|null
 	 * @throws ImfsException
 	 */
-	public function get_results( $sql ) {
+	public function get_results( $sql, $doTiming = false ) {
 		global $wpdb;
-		$results = $wpdb->get_results( $sql, OBJECT_K );
+		$thentime = $doTiming ? $this->getTime() : - 1;
+		$results  = $wpdb->get_results( $sql, OBJECT_K );
 		if ( false === $results || $wpdb->last_error ) {
 			throw new ImfsException( $wpdb->last_error, $wpdb->last_query );
+		}
+		if ( $doTiming ) {
+			$this->timings[] = array( 'time' => $this->getTime() - $thentime, 'sql' => $sql );
 		}
 
 		return $results;
@@ -72,11 +85,15 @@ class ImfsDb {
 	 * @return bool|int
 	 * @throws ImfsException
 	 */
-	public function query( $sql ) {
+	public function query( $sql, $doTiming = false ) {
 		global $wpdb;
-		$results = $wpdb->query( $sql );
+		$thentime = $doTiming ? $this->getTime() : - 1;
+		$results  = $wpdb->query( $sql );
 		if ( false === $results || $wpdb->last_error ) {
 			throw new ImfsException( $wpdb->last_error, $wpdb->last_query );
+		}
+		if ( $doTiming ) {
+			$this->timings[] = array( 'time' => $this->getTime() - $thentime, 'sql' => $sql );
 		}
 
 		return $results;
@@ -111,6 +128,7 @@ class ImfsDb {
 				$result[] = $prefixed ? $wpdb->prefix . $name : $name;
 			}
 		}
+
 		return $result;
 	}
 
@@ -212,7 +230,7 @@ class ImfsDb {
 			foreach ( $stmts as $fragment ) {
 				set_time_limit( 120 );
 				$q = "ALTER TABLE " . $table . " " . $fragment;
-				$this->query( $q );
+				$this->query( $q, true );
 			}
 		}
 	}
@@ -258,7 +276,7 @@ class ImfsDb {
 
 	}
 
-	public function getRekeying()  {
+	public function getRekeying() {
 		$enableList  = array();
 		$disableList = array();
 		$errorList   = array();
@@ -309,7 +327,7 @@ class ImfsDb {
 				set_time_limit( 120 );
 				$sql = 'ALTER TABLE ' . $table . ' ENGINE=InnoDb';
 				$counter ++;
-				$this->query( $sql );
+				$this->query( $sql, true );
 			}
 			$msg = __( '%d tables upgraded', index_wp_mysql_for_speed_domain );
 		} catch ( ImfsException $ex ) {

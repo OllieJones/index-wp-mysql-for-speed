@@ -456,7 +456,7 @@ function getQueries() {
                 MIN(LENGTH(meta_value)) value_min_length,
                 SUM(IF(LENGTH(meta_key) > 191, 1, 0)) longer_191_key_count,
                 SUM(IF(LENGTH(meta_value) > 191, 1, 0)) longer_191_value_count,
-                0 autoload_count
+                NULL autoload_count
           FROM ${p}postmeta
         UNION ALL
         SELECT 'usermeta' AS 'table',
@@ -470,7 +470,7 @@ function getQueries() {
                 MIN(LENGTH(meta_value)) value_min_length,
                 SUM(IF(LENGTH(meta_key) > 191, 1, 0)) longer_191_key_count,
                 SUM(IF(LENGTH(meta_value) > 191, 1, 0)) longer_191_value_count,
-                0 autoload_count
+                NULL autoload_count
           FROM ${p}usermeta
         UNION ALL
         SELECT 'termmeta' AS 'table',
@@ -484,13 +484,13 @@ function getQueries() {
                 MIN(LENGTH(meta_value)) value_min_length,
                 SUM(IF(LENGTH(meta_key) > 191, 1, 0)) longer_191_key_count,
                 SUM(IF(LENGTH(meta_value) > 191, 1, 0)) longer_191_value_count,
-                0 autoload_count
+                NULL autoload_count
           FROM ${p}termmeta
         UNION ALL 
         SELECT 'options' AS  'table',
                '${p}' AS 'prefix',
                 COUNT(*) AS 'count',
-                0 AS distinct_id,
+                NULL AS distinct_id,
                 COUNT(DISTINCT option_name) distinct_meta_key,
                 MAX(LENGTH(option_name)) key_max_length,
                 MAX(LENGTH(option_value)) value_max_length,
@@ -499,7 +499,35 @@ function getQueries() {
                 SUM(IF(LENGTH(option_name) > 191, 1, 0)) longer_191_key_count,
                 SUM(IF(LENGTH(option_value) > 191, 1, 0)) longer_191_value_count,
                 SUM(IF(autoload = 'yes', 1, 0)) autoload_count
-          FROM ${p}options;",
+          FROM ${p}options
+        UNION ALL 
+        SELECT 'posts' AS  'table',
+               '${p}' AS 'prefix',
+                COUNT(*) AS 'count',
+                NULL AS distinct_id,
+                COUNT(DISTINCT post_author) distinct_meta_key,
+                NULL key_max_length,
+                MAX(LENGTH(post_content)) value_max_length,
+                NULL min_length,
+                MIN(LENGTH(post_content)) value_min_length,
+                NULL longer_191_key_count,
+                NULL longer_191_value_count,
+                NULL autoload_count
+          FROM ${p}posts
+        UNION ALL 
+        SELECT 'comments' AS  'table',
+               '${p}' AS 'prefix',
+                COUNT(*) AS 'count',
+                NULL AS distinct_id,
+                COUNT(DISTINCT comment_post_ID) distinct_meta_key,
+                NULL key_max_length,
+                MAX(LENGTH(comment_content)) value_max_length,
+                NULL min_length,
+                MIN(LENGTH(comment_content)) value_min_length,
+                NULL longer_191_key_count,
+                NULL longer_191_value_count,
+                NULL autoload_count
+          FROM ${p}comments;",
 			"SELECT c.TABLE_NAME,
                    t.ENGINE,
                    t.ROW_FORMAT,
@@ -543,7 +571,8 @@ function getQueries() {
                       AND c.TABLE_CATALOG = t.TABLE_CATALOG
                  WHERE c.TABLE_SCHEMA = DATABASE()
                 GROUP BY c.TABLE_NAME, c.TABLE_SCHEMA, c.TABLE_CATALOG
-        "
+        ",
+			"SHOW GLOBAL STATUS"
 
 		)
 	);
