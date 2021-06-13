@@ -4,6 +4,15 @@ A plugin to add useful indexes to your WordPress installation's MySQL database.
 
 For more information [see here](https://www.plumislandmedia.net/wordpress/speeding-up-wordpress-database-operations/).
 
+## Plugin repo stuff
+
+See [this](https://developer.wordpress.org/plugins/wordpress-org/how-to-use-subversion/).
+
+Here's the info on the repo.
+
+* SVN URL: https://plugins.svn.wordpress.org/index-wp-mysql-for-speed
+* Public URL: https://wordpress.org/plugins/index-wp-mysql-for-speed
+
 ## Description
 
 * Version: 0.0.1
