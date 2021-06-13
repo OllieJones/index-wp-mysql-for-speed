@@ -136,6 +136,7 @@ class ImfsPage extends Imfs_AdminPageFramework {
 						'type'     => 'submit',
 						'save'     => 'false',
 						'value'    => __( 'Upgrade Storage Engine Now', $this->domain ),
+						'description' => __('This may take a few minutes. Please do not navigate away from this page while you wait', $this->domain),
 						'class'    => array(
 							'fieldrow' => 'action',
 						),
@@ -186,6 +187,7 @@ class ImfsPage extends Imfs_AdminPageFramework {
 						'type'     => 'submit',
 						'save'     => 'false',
 						'value'    => __( 'Add Keys Now', $this->domain ),
+						'description' => __('This may take a few minutes. Please do not navigate away from this page while you wait', $this->domain),
 						'class'    => array(
 							'fieldrow' => 'action',
 						),
@@ -240,6 +242,7 @@ class ImfsPage extends Imfs_AdminPageFramework {
 						'type'     => 'submit',
 						'save'     => 'false',
 						'value'    => __( 'Revert Keys Now', $this->domain ),
+						'description' => __('This may take a few minutes. Please do not navigate away from this page while you wait', $this->domain),
 						'class'    => array(
 							'fieldrow' => 'action',
 						),

@@ -47,13 +47,20 @@ class ImfsDb {
 				$this->oldEngineTables = $oldEngineTables;
 				$this->newEngineTables = $newEngineTables;
 			}
-
-			$this->hasHrTime = function_exists( 'hrtime' );
+			try {
+				$this->hasHrTime = function_exists( 'hrtime' );
+			} catch (Exception $ex) {
+				$this->hasHrTime = false;
+			}
 		}
 	}
 
 	public function getTime() {
-		return $this->hasHrTime ? hrtime( true ) * 0.000000001 : time();
+		try {
+			return $this->hasHrTime ? hrtime( true ) * 0.000000001 : time();
+		} catch (Exception $ex ) {
+			return time();
+		}
 	}
 
 	/** run a SELECT
@@ -71,7 +78,8 @@ class ImfsDb {
 			throw new ImfsException( $wpdb->last_error, $wpdb->last_query );
 		}
 		if ( $doTiming ) {
-			$this->timings[] = array( 'time' => $this->getTime() - $thentime, 'sql' => $sql );
+			$delta = round(floatval($this->getTime() - $thentime),3);
+			$this->timings[] = array( 't' => $delta, 'q' => $sql );
 		}
 
 		return $results;
@@ -93,7 +101,8 @@ class ImfsDb {
 			throw new ImfsException( $wpdb->last_error, $wpdb->last_query );
 		}
 		if ( $doTiming ) {
-			$this->timings[] = array( 'time' => $this->getTime() - $thentime, 'sql' => $sql );
+			$delta = round(floatval($this->getTime() - $thentime),3);
+			$this->timings[] = array( 't' => $delta, 'q' => $sql );
 		}
 
 		return $results;

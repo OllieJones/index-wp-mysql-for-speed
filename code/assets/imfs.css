@@ -2,7 +2,7 @@ div#wpcontent form div > div > table.form-table > tbody > tr.warning > th {
     color: #cc9900;
 }
 div#wpcontent form div > div > table.form-table > tbody > tr.success > th {
-    color: #10ff10;
+    color: #10a010;
 }
 
 div#wpcontent form div > div > table.form-table > tbody > tr.failure > th {
@@ -12,6 +12,10 @@ div#wpcontent form div > div > table.form-table > tbody > tr.failure > th {
 div#wpcontent form div > div > table.form-table > tbody > tr.detail {
     padding-top: 0.25px;
     padding-bottom: 0
+}
+
+div#wpcontent form div > div > table.form-table > tbody > tr.action > td > fieldset > p {
+    padding-bottom: 1.5rem
 }
 
 div#wpcontent form div > div > table.form-table > tbody > tr.warning.detail > th {
