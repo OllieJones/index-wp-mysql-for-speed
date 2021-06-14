@@ -14,7 +14,7 @@ Add high-performance indexes (keys) to your WordPress installation MySQL databas
 
 == Description ==
 
-Where does WordPress store all that stuff that makes your site great? Where are your pages, posts, products, media, users, custom fields, metadata, and all your valuable content? All that data is in the [MySQL][https://www.mysql.com/] relational database management system. (Some hosting providers and servers use the [MariaDB][https://mariadb.org/] fork of WordPress; it works exactly the same as MySQL itself.)
+Where does WordPress store all that stuff that makes your site great? Where are your pages, posts, products, media, users, custom fields, metadata, and all your valuable content? All that data is in the [MySQL](https://www.mysql.com/) relational database management system. (Some hosting providers and servers use the [MariaDB](https://mariadb.org/) fork of WordPress; it works exactly the same as MySQL itself.)
 
 As your site grows, your MySQL tables grow. Giant tables can make your page loads slow down, frustrate your users, and even hurt your search-engine rankings. What can you do about this?
 
@@ -22,7 +22,7 @@ You can install and use a database cleaner plugin to get rid of old unwanted dat
 
 That is not the task of this plugin.
 
-This plugin adds database [keys][https://dev.mysql.com/doc/refman/8.0/en/mysql-indexes.html] (also called indexes) to your MySQL tables to make it easier for WordPress to find the information it needs. All relational database management systems store your information in long-lived _tables_. For example, WordPress stores your posts and other content in a table called _wp_posts_, and custom post fields in another table called _wp_postmeta_.  A successful site can have thousands of posts and hundreds of thousands of custom post fields. MySQL has two jobs.
+This plugin adds database [keys](https://dev.mysql.com/doc/refman/8.0/en/mysql-indexes.html) (also called indexes) to your MySQL tables to make it easier for WordPress to find the information it needs. All relational database management systems store your information in long-lived _tables_. For example, WordPress stores your posts and other content in a table called _wp_posts_, and custom post fields in another table called _wp_postmeta_.  A successful site can have thousands of posts and hundreds of thousands of custom post fields. MySQL has two jobs.
 
 1. Keep all that data organized.
 2. Find the data it needs quickly.
@@ -50,9 +50,14 @@ Experience with large sites shows that many MySQL slowdowns can be improved by b
 
 Yes. You already knew that.
 
-= I use a nonstandard database prefix. Will this work ? =
+= It takes a long time to display the plugin's settings page. Why? =
 
-Yes. Some WordPress databases have tables named _something_posts_, _something_postmeta_, and so forth instead of _wp_posts_ and _wp_postmeta_. This works with those databases.
+This plugin examines your MySQL database as it renders its settings page. On shared hosts that can take a while. Please be patient, and please avoid clicking
+the link more than once.
+
+= I use a nonstandard database table prefix. Will this work ? =
+
+Yes. Some WordPress databases have [nonstandard prefixes](https://codex.wordpress.org/Creating_Tables_with_Plugins#Database_Table_Prefix). That is, their tables are named _something_posts_, _something_postmeta_, and so forth instead of _wp_posts_ and _wp_postmeta_. This works with those databases.
 
 = Which versions of MySQL and MariaDB does this support? =
 
@@ -60,7 +65,7 @@ MySQL versions 5.5.62 and above, 5.6.4 and above, 8 and above. MariaDB version 1
 
 = What database Storage Engine does this support? =
 
-InnoDB only. If your tables use MyISAM (the older storage engine) this plugin offers to upgrade them for you. If you have the _Barracuda_ version of InnoDB, this plugin uses its capability to build efficient keys. If you have the older version it still builds keys, but they are less efficient. It must use [Index Prefixes][https://dev.mysql.com/doc/refman/8.0/en/column-indexes.html#column-indexes-prefix] on that version.
+InnoDB only. If your tables use MyISAM (the older storage engine) this plugin offers to upgrade them for you. If you have the _Barracuda_ version of InnoDB, this plugin uses its capability to build efficient keys. If you have the older version it still builds keys, but they are less efficient. It must use [Index Prefixes](https://dev.mysql.com/doc/refman/8.0/en/column-indexes.html#column-indexes-prefix) on that version.
 
 = Does this plugin generate any overhead when my site is busy? =
 
@@ -70,23 +75,26 @@ No. All this plugin's work happens from the WordPress Dashboard. Only a tiny bit
 
 It's a large topic. Some people (often called Database Administrators--DBSs) make entire careers out of this kind work. Where can you look to get started?
 
-* Marcus Winand's great book [Use The Index, Luke][https://use-the-index-luke.com].
-* Rick James, a contributor to this plugin, has a good article [Building the best INDEX for a given SELECT][http://mysql.rjweb.org/doc.php/index_cookbook_mysql].
-* StackOverflow's [Why are references to wp_postmeta so slow?][https://stackoverflow.com/questions/43859351/why-are-references-to-wp-postmeta-so-slow] is useful.
-* [wordpress.stackexchange.com][https://wordpress.stackexchange.com]'s article [Simple SQL query on wp_postmeta very slow][https://wordpress.stackexchange.com/questions/248207/simple-sql-query-on-wp-postmeta-very-slow].
-* The [proposal][https://www.plumislandmedia.net/wordpress/speeding-up-wordpress-database-operations/] for this plugin.
+* Marcus Winand's great book [Use The Index, Luke](https://use-the-index-luke.com).
+* Rick James, a contributor to this plugin, has a good article [Building the best INDEX for a given SELECT](http://mysql.rjweb.org/doc.php/index_cookbook_mysql).
+* StackOverflow's [Why are references to wp_postmeta so slow?](https://stackoverflow.com/questions/43859351/why-are-references-to-wp-postmeta-so-slow) is useful.
+* [wordpress.stackexchange.com](https://wordpress.stackexchange.com)'s article [Simple SQL query on wp_postmeta very slow](https://wordpress.stackexchange.com/questions/248207/simple-sql-query-on-wp-postmeta-very-slow).
+* The [proposal](https://www.plumislandmedia.net/wordpress/speeding-up-wordpress-database-operations/) for this plugin.
 
 == Changelog ==
 
 = 0.1.1 =
 Submit for review
 
-= 0.1.1 =
+= 0.1.2 =
 Resubmit correcting my poor choice of curl.
+
+= 0.1.3 =
+Minor updates.
 
 
 == Upgrade Notice ==
-The first release.
+A few things work better in this release.
 
 == Screenshots ==
 
