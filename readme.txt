@@ -53,7 +53,7 @@ Yes. You already knew that.
 = It takes a long time to display the plugin's settings page. Why? =
 
 This plugin examines your MySQL database as it renders its settings page. On shared hosts that can take a while. Please be patient, and please avoid clicking
-the link more than once.
+the Index MySQL link more than once.
 
 = I use a nonstandard database table prefix. Will this work ? =
 
@@ -61,7 +61,7 @@ Yes. Some WordPress databases have [nonstandard prefixes](https://codex.wordpres
 
 = Which versions of MySQL and MariaDB does this support? =
 
-MySQL versions 5.5.62 and above, 5.6.4 and above, 8 and above. MariaDB version 10 and above.
+MySQL versions 5.5.62 and above, 5.6.4 and above, 8 and above. MariaDB version 10 and above. Version 5.5 has a limitation on index lengths that requires WordPress to use [prefix keys](https://www.mysqltutorial.org/mysql-index/mysql-prefix-index/). Those have slightly reduced performance. Consider upgrading!
 
 = What database Storage Engine does this support? =
 
@@ -69,11 +69,15 @@ InnoDB only. If your tables use MyISAM (the older storage engine) this plugin of
 
 = Does this plugin generate any overhead when my site is busy? =
 
-No. All this plugin's work happens from the WordPress Dashboard. Only a tiny bit of its code runs when your visitors view your site.
+No. Some plugins' code runs when your visitors view pages. All this plugin's work happens from the WordPress Dashboard. It sets up the keys in your database and then gets out of the way.
+
+= What happens when I deactivate this plugin? =
+
+Its high-performance keys remain in place. You can always reactivate it if you need to revert your keys to the WordPress standard.
 
 = How can I learn more about this business of database keys? =
 
-It's a large topic. Some people (often called Database Administrators--DBSs) make entire careers out of this kind work. Where can you look to get started?
+It's a large topic. Some people (often called Database Administrators--DBAs) make entire careers out of this kind of work. Where can you look to get started?
 
 * Marcus Winand's great book [Use The Index, Luke](https://use-the-index-luke.com).
 * Rick James, a contributor to this plugin, has a good article [Building the best INDEX for a given SELECT](http://mysql.rjweb.org/doc.php/index_cookbook_mysql).
@@ -82,19 +86,15 @@ It's a large topic. Some people (often called Database Administrators--DBSs) mak
 * The [proposal](https://www.plumislandmedia.net/wordpress/speeding-up-wordpress-database-operations/) for this plugin.
 
 == Changelog ==
-
-= 0.1.1 =
-Submit for review
-
 = 0.1.2 =
-Resubmit correcting my poor choice of curl.
+First publication.
 
 = 0.1.3 =
 Minor updates.
 
 
 == Upgrade Notice ==
-A few things work better in this release.
+A few things work better in this release and the documentation is clearer.
 
 == Screenshots ==
 

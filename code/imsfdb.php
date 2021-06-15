@@ -127,7 +127,7 @@ class ImfsDb {
 	}
 
 	/** List of tables to manipulate
-	 * @return  tables manipulated by this module
+	 * @return array tables manipulated by this module
 	 */
 	public function tables( $prefixed = false ) {
 		$result = array();
