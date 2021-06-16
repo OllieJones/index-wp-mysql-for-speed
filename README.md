@@ -13,9 +13,30 @@ Here's the info on the repo.
 * SVN URL: https://plugins.svn.wordpress.org/index-wp-mysql-for-speed
 * Public URL: https://wordpress.org/plugins/index-wp-mysql-for-speed
 
+### Repo update notes.
+
+1. Make the changes.
+2. Be sure to update the current version number whereever it appears.
+3. Commit to github and push.
+4. If it isn't done already, do 
+   ```bash
+   svn co https://plugins.svn.wordpress.org/index-wp-mysql-for-speed svn
+   ```
+5. Copy the files to be released into the `svn/trunk` directory.
+6. From the `svn` directory do
+   ```bash
+   svn cp trunk tags/xx.yy.zz
+   ```
+   where `xx.yy.zz` is the version to release
+7. Do this
+   ```bash
+   svn ci -m "vxx.yy.zz commit message"
+   ```
+   `svn ci` may prompt you on a web browser. If it seems to hang, look at a browser.
+
 ## Description
 
-* Version: 0.0.1
+* Version: 0.1.4
 * Author: Ollie Jones
 * Author URI: https://github.com/OllieJones
 * Requires at least: 5.2

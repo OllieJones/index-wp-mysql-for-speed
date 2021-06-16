@@ -4,7 +4,7 @@ Tags: database, optimize, index, key, mysql
 Requires at least: 5.2
 Tested up to: 5.7.2
 Requires PHP: 5.5
-Stable tag: 0.1.2
+Stable tag: 0.1.4
 License: GPL v2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 Text Domain: index-wp-mysql-for-speed
@@ -83,13 +83,14 @@ It's a large topic. Some people (often called Database Administrators--DBAs) mak
 * Rick James, a contributor to this plugin, has a good article [Building the best INDEX for a given SELECT](http://mysql.rjweb.org/doc.php/index_cookbook_mysql).
 * StackOverflow's [Why are references to wp_postmeta so slow?](https://stackoverflow.com/questions/43859351/why-are-references-to-wp-postmeta-so-slow) is useful.
 * [wordpress.stackexchange.com](https://wordpress.stackexchange.com)'s article [Simple SQL query on wp_postmeta very slow](https://wordpress.stackexchange.com/questions/248207/simple-sql-query-on-wp-postmeta-very-slow).
+* Good [advice about the wp_options table](https://10up.com/blog/2017/wp-options-table/) from web agency [10up.com](https://10up.com/). This plugin puts a key on that table to optimize options loading.
 * The [proposal](https://www.plumislandmedia.net/wordpress/speeding-up-wordpress-database-operations/) for this plugin.
 
 == Changelog ==
 = 0.1.2 =
 First publication.
 
-= 0.1.3 =
+= 0.1.4 =
 Minor updates.
 
 
