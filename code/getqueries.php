@@ -25,6 +25,7 @@ function getMySQLVersion() {
 	$results = $wpdb->get_results( $semver );
 	$results = $results[0];
 
+	$results->db_host = DB_HOST;
 	$ver = explode( '-', $results->version, 3 );
 	if ( count( $ver ) >= 2 ) {
 		$results->fork = $ver[1];

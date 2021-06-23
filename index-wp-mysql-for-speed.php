@@ -59,5 +59,5 @@ function index_wp_mysql_for_speed_action_link( $actions ) {
 		'<a href="' . admin_url( 'tools.php?page=imfs_settings' ) . '">' . $name . '</a>',
 	);
 
-	return array_merge( $actions, $mylinks );
+	return array_merge( $mylinks, $actions );
 }

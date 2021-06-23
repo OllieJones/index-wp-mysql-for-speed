@@ -7,10 +7,12 @@ Requires PHP: 5.5
 Stable tag: 0.1.4
 License: GPL v2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
+Author URI: http://mysql.rjweb.org/
+Plugin URI: https://www.plumislandmedia.net/wordpress/speeding-up-wordpress-database-operations/
 Text Domain: index-wp-mysql-for-speed
 Domain Path: /languages
 
-Add high-performance indexes (keys) to your WordPress installation MySQL database tables.
+Speed up your WordPress site by adding high-performance keys (database indexes) to your MySQL database tables.
 
 == Description ==
 
@@ -29,7 +31,7 @@ This plugin adds database [keys](https://dev.mysql.com/doc/refman/8.0/en/mysql-i
 
 To do its second job, MySQL uses database keys. Each table has one or more keys. For example, `wp_posts` has a key to let it quickly find posts when you know the author. Without its _post_author_ key MySQL would have to scan the entire table looking for posts matching the author you want. We all know what that looks like: slow.
 
-In a new WordPress site with a couple of users and a dozen posts, the keys don't matter very much. As the site grows the keys start to matter, a lot. Database management systems are designed to have their keys updated, adjusted, and tweaked as their tables grow. They're designed to allow the keys to evolve without changing the content of the underlying tables. In organizations with large databases Adding, dropping, or altering keys doesn't change the underlying data. It is a routine maintenance task in many data centers. If changing keys caused databases to lose data, the MySQL and MariaDB developers would hear howling not just from you and me, but from many heavyweight users. (You should still back up your WordPress instance of course.)
+In a new WordPress site with a couple of users and a dozen posts, the keys don't matter very much. As the site grows the keys start to matter, a lot. Database management systems are designed to have their keys updated, adjusted, and tweaked as their tables grow. They're designed to allow the keys to evolve without changing the content of the underlying tables. In organizations with large databases adding, dropping, or altering keys doesn't change the underlying data. It is a routine maintenance task in many data centers. If changing keys caused databases to lose data, the MySQL and MariaDB developers would hear howling not just from you and me, but from many heavyweight users. (You should still back up your WordPress instance of course.)
 
 Better keys allow WordPress's code to run faster _without any code changes_.  Code is poetry, data is treasure, and database keys are grease that makes code and data work together smoothly.
 
@@ -52,8 +54,7 @@ Yes. You already knew that.
 
 = It takes a long time to display the plugin's settings page. Why? =
 
-This plugin examines your MySQL database as it renders its settings page. On shared hosts that can take a while. Please be patient, and please avoid clicking
-the Index MySQL link more than once.
+This plugin examines your MySQL database as it renders its settings page. On shared hosts that can take a while. Please be patient, and please avoid clicking the Index MySQL link more than once.
 
 = I use a nonstandard database table prefix. Will this work ? =
 
