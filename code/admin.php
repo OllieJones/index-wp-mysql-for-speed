@@ -44,13 +44,30 @@ class ImfsPage extends Imfs_AdminPageFramework {
 		);
 	}
 
+	public function content_ImfsPage( $sHTML ) {
+		$hyperlink          = '<a href="%s" target="_blank">%s</a>';
+		$supportUrl         = "https://wordpress.org/support/plugin/index-wp-mysql-for-speed/";
+		$reviewUrl          = "https://wordpress.org/support/plugin/index-wp-mysql-for-speed/reviews/";
+		$detailsUrl         = "https://www.plumislandmedia.net/wordpress/speeding-up-wordpress-database-operations/#what-specific-key-changes-do-we-make-even-wonkier";
+		$clickHere          = __( 'click here', $this->domain );
+		$support            = sprintf( $hyperlink, $supportUrl, $clickHere );
+		$review             = sprintf( $hyperlink, $reviewUrl, $clickHere );
+		$details            = sprintf( $hyperlink, $detailsUrl, $clickHere );
+		$supportString      = '<p class="topinfo">' . __( 'For support please %s. Please %s to rate this plugin.', $this->domain ) . '</p>';
+		$supportString      = sprintf( $supportString, $support, $review );
+		$detailsString      = '<p class="topinfo">' . __( 'For detailed information about this plugin\'s actions on your database, please %s.', $this->domain ) . '</p>';
+		$detailsString      = sprintf( $detailsString, $details );
+		$doItYourselfString = '<p class="topinfo">' . __( 'If you prefer, of course you may use phpmyadmin or another MySQL database client to take these actions instead of this plugin.', $this->domain ) . '</p>';
+
+		return $supportString . $detailsString . $doItYourselfString . $sHTML;
+	}
+
 	public function load_ImfsPage( $oAdminPage ) {
 		global $wpdb;
 		$this->populate();
-
 		$this->enqueueStyles(
 			array( plugins_url( 'assets/imfs.css', __FILE__ ) ), 'imfs_settings' );
-
+		$dontNavigate = __( 'This may take a few minutes. <em>Please do not navigate away from this page while you wait</em>.', $this->domain );
 		$this->addSettingFields(
 			array(
 				'field_id' => 'backup',
@@ -131,13 +148,13 @@ class ImfsPage extends Imfs_AdminPageFramework {
 				$this->addSettingField( $field );
 				$this->addSettingFields(
 					array(
-						'field_id' => 'upgrade_storage_engine_now',
-						'title'    => __( 'Upgrade Storage Engine', $this->domain ),
-						'type'     => 'submit',
-						'save'     => 'false',
-						'value'    => __( 'Upgrade Storage Engine Now', $this->domain ),
-						'description' => __('This may take a few minutes. Please do not navigate away from this page while you wait', $this->domain),
-						'class'    => array(
+						'field_id'    => 'upgrade_storage_engine_now',
+						'title'       => __( 'Upgrade Storage Engine', $this->domain ),
+						'type'        => 'submit',
+						'save'        => 'false',
+						'value'       => __( 'Upgrade Storage Engine Now', $this->domain ),
+						'description' => $dontNavigate,
+						'class'       => array(
 							'fieldrow' => 'action',
 						),
 					) );
@@ -152,8 +169,8 @@ class ImfsPage extends Imfs_AdminPageFramework {
 				$this->addSettingFields(
 					array(
 						'field_id' => 'enablecaption',
-						'title'    => 'Add high-performance keys',
-						'default'  => __( 'Add keys to these tables to make your WordPress database faster.', $this->domain ),
+						'title'    => 'Add keys',
+						'default'  => __( 'Add high-performance keys to these tables to make your WordPress database faster.', $this->domain ),
 						'save'     => false,
 						'class'    => array(
 							'fieldrow' => 'major',
@@ -183,12 +200,12 @@ class ImfsPage extends Imfs_AdminPageFramework {
 
 				$this->addSettingFields(
 					array(
-						'field_id' => 'enable_now',
-						'type'     => 'submit',
-						'save'     => 'false',
-						'value'    => __( 'Add Keys Now', $this->domain ),
-						'description' => __('This may take a few minutes. Please do not navigate away from this page while you wait', $this->domain),
-						'class'    => array(
+						'field_id'    => 'enable_now',
+						'type'        => 'submit',
+						'save'        => 'false',
+						'value'       => __( 'Add Keys Now', $this->domain ),
+						'description' => $dontNavigate,
+						'class'       => array(
 							'fieldrow' => 'action',
 						),
 					) );
@@ -238,12 +255,12 @@ class ImfsPage extends Imfs_AdminPageFramework {
 
 				$this->addSettingFields(
 					array(
-						'field_id' => 'revert_now',
-						'type'     => 'submit',
-						'save'     => 'false',
-						'value'    => __( 'Revert Keys Now', $this->domain ),
-						'description' => __('This may take a few minutes. Please do not navigate away from this page while you wait', $this->domain),
-						'class'    => array(
+						'field_id'    => 'revert_now',
+						'type'        => 'submit',
+						'save'        => 'false',
+						'value'       => __( 'Revert Keys Now', $this->domain ),
+						'description' => $dontNavigate,
+						'class'       => array(
 							'fieldrow' => 'action',
 						),
 					) );

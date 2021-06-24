@@ -37,4 +37,13 @@ div#wpcontent form div > div > table.form-table > tbody > tr > th {
     text-align: right;
 }
 
+p.topinfo {
+    font-size: 14px;
+    margin-top: 0.5em;
+    margin-bottom: 0.5em;
+}
+p.topinfo:last-of-type {
+    margin-bottom: 2em;
+}
+
 

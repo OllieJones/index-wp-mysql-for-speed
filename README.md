@@ -36,7 +36,7 @@ Here's the info on the repo.
 
 ## Description
 
-* Version: 0.1.4
+* Version: 0.9.1
 * Author: Ollie Jones
 * Author URI: https://github.com/OllieJones
 * Requires at least: 5.2

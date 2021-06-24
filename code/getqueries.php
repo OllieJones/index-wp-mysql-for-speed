@@ -1,5 +1,13 @@
 <?php
 
+function ImfsRedactHost ($host) {
+	if (trim($host) === '') return $host;
+	if (trim($host) === '127.0.0.1') return $host;
+	if (trim($host) === 'localhost') return $host;
+	if (trim($host) === '::1') return $host;
+	return "Redacted, not localhost";
+}
+
 function makeNumeric( $ob ) {
 	$result = array();
 	foreach ( $ob as $key => $val ) {
@@ -25,7 +33,7 @@ function getMySQLVersion() {
 	$results = $wpdb->get_results( $semver );
 	$results = $results[0];
 
-	$results->db_host = DB_HOST;
+	$results->db_host = imfsRedactHost(DB_HOST);
 	$ver = explode( '-', $results->version, 3 );
 	if ( count( $ver ) >= 2 ) {
 		$results->fork = $ver[1];

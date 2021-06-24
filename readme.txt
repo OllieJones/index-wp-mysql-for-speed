@@ -4,7 +4,7 @@ Tags: database, optimize, index, key, mysql
 Requires at least: 5.2
 Tested up to: 5.7.2
 Requires PHP: 5.5
-Stable tag: 0.1.4
+Stable tag: 0.9.1
 License: GPL v2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 Author URI: http://mysql.rjweb.org/
@@ -94,9 +94,12 @@ First publication.
 = 0.1.4 =
 Minor updates.
 
+= 0.9.1 =
+More complete diagnostic information upload, minor usability and documentation improvements.
+
 
 == Upgrade Notice ==
-A few things work better in this release and the documentation is clearer.
+This version has usability and documentation improvements, and uploads more complete diagnostic information (as always, when you grant permission).
 
 == Screenshots ==
 
