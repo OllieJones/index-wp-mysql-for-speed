@@ -134,7 +134,10 @@ class ImfsDb {
 		global $wpdb;
 		foreach ( $this->reindexingInstructions as $name => $stmts ) {
 			if ( is_array( $stmts ) && array_key_exists( 'tablename', $stmts ) && $name === $stmts['tablename'] ) {
-				$result[] = $prefixed ? $wpdb->prefix . $name : $name;
+				$mainSiteOnly = array_key_exists('mainSiteOnly', $stmts) && $stmts['mainSiteOnly'];
+				if (is_main_site() || !$mainSiteOnly) {
+					$result[] = $prefixed ? $wpdb->prefix . $name : $name;
+				}
 			}
 		}
 

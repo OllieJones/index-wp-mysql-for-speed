@@ -2,9 +2,10 @@
 Contributors: OllieJones
 Tags: database, optimize, index, key, mysql
 Requires at least: 5.2
-Tested up to: 5.7.2
+Tested up to: 5.8
 Requires PHP: 5.5
-Stable tag: 0.9.1
+Stable tag: 1.0.1
+Network: true
 License: GPL v2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 Author URI: http://mysql.rjweb.org/
@@ -60,9 +61,13 @@ This plugin examines your MySQL database as it renders its settings page. On sha
 
 Yes. Some WordPress databases have [nonstandard prefixes](https://codex.wordpress.org/Creating_Tables_with_Plugins#Database_Table_Prefix). That is, their tables are named _something_posts_, _something_postmeta_, and so forth instead of _wp_posts_ and _wp_postmeta_. This works with those databases.
 
+= My WordPress host offers MariaDB, not MySQL. Can I use this?
+
+Yes.
+
 = Which versions of MySQL and MariaDB does this support? =
 
-MySQL versions 5.5.62 and above, 5.6.4 and above, 8 and above. MariaDB version 10 and above. Version 5.5 has a limitation on index lengths that requires WordPress to use [prefix keys](https://www.mysqltutorial.org/mysql-index/mysql-prefix-index/). Those have slightly reduced performance. Consider upgrading!
+MySQL versions 5.5.62 and above, 5.6.4 and above, 8 and above. MariaDB version 5.5 and above. Version 5.5 has a limitation on index lengths that requires WordPress to use [prefix keys](https://www.mysqltutorial.org/mysql-index/mysql-prefix-index/). Those have slightly reduced performance. Consider upgrading!
 
 = What database Storage Engine does this support? =
 
@@ -70,11 +75,17 @@ InnoDB only. If your tables use MyISAM (the older storage engine) this plugin of
 
 = Does this plugin generate any overhead when my site is busy? =
 
-No. Some plugins' code runs when your visitors view pages. All this plugin's work happens from the WordPress Dashboard. It sets up the keys in your database and then gets out of the way.
+No. Some plugins' code runs when your visitors view pages. All this plugin's work happens from the WordPress Dashboard. It sets up the keys in your database and then gets out of the way. You can even deactivate and delete the plugin once you've run it.
 
 = What happens when I deactivate this plugin? =
 
-Its high-performance keys remain in place. You can always reactivate it if you need to revert your keys to the WordPress standard.
+Its high-performance keys remain in place. You can always re-add it and reactivate it if you need to revert your keys to the WordPress standard.
+
+= Does this work on my multisite (network) WordPress instance?
+
+Yes. On multisite instances, you must activate the plugin from the Network Admin dashboard. The *Index MySQL* tool is available for use by the network administrator on each site.
+
+**NOTE** if you upgrade your WordPress instance to multisite (a network) following [these instructions](https://wordpress.org/support/article/create-a-network/), *be sure to revert your high-performance keys first.*
 
 = How can I learn more about this business of database keys? =
 
@@ -97,9 +108,11 @@ Minor updates.
 = 0.9.1 =
 More complete diagnostic information upload, minor usability and documentation improvements.
 
+= 1.0.1 =
+Works for multisite, add more user choices
 
 == Upgrade Notice ==
-This version has usability and documentation improvements, and uploads more complete diagnostic information (as always, when you grant permission).
+This version works on multisite (network) WordPress installations, and has more options.
 
 == Screenshots ==
 

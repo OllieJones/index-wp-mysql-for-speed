@@ -4,7 +4,7 @@
 Plugin Name: Index WP MySQL For Speed
 Plugin URI: https://plumislandmedia.org/
 Description: Add useful indexes to your WordPress installation's MySQL database.
-Version: 0.9.1
+Version: 1.0.1
 Author: Ollie Jones
 Author URI: https://github.com/OllieJones
 Requires at least: 5.2
@@ -13,10 +13,11 @@ License:           GPL v2 or later
 License URI:       https://www.gnu.org/licenses/gpl-2.0.html
 Text Domain:       index-wp-mysql-for-speed
 Domain Path:       /languages
+Network:           true
 */
 
 /** current version number  */
-define( 'index_wp_mysql_for_speed_VERSION_NUM', '0.9.1' );
+define( 'index_wp_mysql_for_speed_VERSION_NUM', '1.0.1' );
 
 /* set up some handy globals */
 define( 'index_wp_mysql_for_speed_THEME_DIR', ABSPATH . 'wp-content/themes/' . get_template() );
@@ -31,12 +32,20 @@ register_activation_hook( __FILE__, 'index_wp_mysql_for_speed_activate' );
 add_action( 'init', 'index_wp_mysql_for_speed_do_everything' );
 
 function index_wp_mysql_for_speed_do_everything() {
-	if ( is_admin() && current_user_can( 'activate_plugins' ) ) {
-		require_once( dirname( __FILE__ ) . '/code/imsfdb.php' );
-		require_once( dirname( __FILE__ ) . '/afp/admin-page-framework.php' );
-		require_once( dirname( __FILE__ ) . '/code/admin.php' );
-		require_once( dirname( __FILE__ ) . '/code/upload.php' );
-		add_filter( 'plugin_action_links_' . plugin_basename( __FILE__ ), 'index_wp_mysql_for_speed_action_link' );
+	$userCanLoad = false;
+	if ( is_admin() ) {
+		if ( is_multisite() ) {
+			$userCanLoad = is_super_admin();
+		} else {
+			$userCanLoad = current_user_can( 'activate_plugins' );
+		}
+		if ( $userCanLoad ) {
+			require_once( dirname( __FILE__ ) . '/code/imsfdb.php' );
+			require_once( dirname( __FILE__ ) . '/afp/admin-page-framework.php' );
+			require_once( dirname( __FILE__ ) . '/code/admin.php' );
+			require_once( dirname( __FILE__ ) . '/code/upload.php' );
+			add_filter( 'plugin_action_links_' . plugin_basename( __FILE__ ), 'index_wp_mysql_for_speed_action_link' );
+		}
 	}
 }
 

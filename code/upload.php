@@ -28,7 +28,9 @@ function imfs_upload_stats( $db, $target = index_wp_mysql_for_speed_stats_endpoi
 			'wp_version'             => $wp_version,
 			'wp_db_version'          => $wp_db_version,
 			'required_php_version'   => $required_php_version,
-			'required_mysql_version' => $required_mysql_version
+			'required_mysql_version' => $required_mysql_version,
+			'is_multisite'           => is_multisite(),
+			'is_main_site'           => is_main_site()
 		);
 		$stats                      = (object) array(
 			'wordpress'    => $wordpress,
