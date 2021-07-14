@@ -4,7 +4,7 @@ Tags: database, optimize, index, key, mysql
 Requires at least: 5.2
 Tested up to: 5.8
 Requires PHP: 5.5
-Stable tag: 1.0.1
+Stable tag: 1.0.2
 Network: true
 License: GPL v2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -111,8 +111,11 @@ More complete diagnostic information upload, minor usability and documentation i
 = 1.0.1 =
 Works for multisite, add more user choices
 
+= 1.0.2 =
+Do not upgrade the storage engine for views or for non-WordPress tables.
+
 == Upgrade Notice ==
-This version works on multisite (network) WordPress installations, and has more options.
+This version works on multisite (network) WordPress installations, has more options, and does not attempt to upgrade the storage engine on database objects that don't belong to WordPress.
 
 == Screenshots ==
 

@@ -9,6 +9,18 @@ function imfs_to_object( $rows ) {
 	return (object) $variables;
 }
 
+function get_active_plugins() {
+	$plugins = get_plugins();
+	$result  = array();
+	foreach ( $plugins as $path => $desc ) {
+		if ( is_plugin_active( $path ) ) {
+			$result[] = $desc['Name'];
+		}
+	}
+
+	return $result;
+}
+
 function imfs_upload_stats( $db, $target = index_wp_mysql_for_speed_stats_endpoint ) {
 	global $_SERVER;
 	global $wp_db_version;
@@ -30,7 +42,9 @@ function imfs_upload_stats( $db, $target = index_wp_mysql_for_speed_stats_endpoi
 			'required_php_version'   => $required_php_version,
 			'required_mysql_version' => $required_mysql_version,
 			'is_multisite'           => is_multisite(),
-			'is_main_site'           => is_main_site()
+			'is_main_site'           => is_main_site(),
+			'current_blog_id'        => get_current_blog_id(),
+			'active_plugins'         => implode( '|', get_active_plugins() )
 		);
 		$stats                      = (object) array(
 			'wordpress'    => $wordpress,

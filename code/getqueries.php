@@ -582,6 +582,8 @@ function getQueries() {
                       AND c.TABLE_SCHEMA = t.TABLE_SCHEMA
                       AND c.TABLE_CATALOG = t.TABLE_CATALOG
                  WHERE c.TABLE_SCHEMA = DATABASE()
+                   AND t.TABLE_TYPE = 'BASE TABLE'
+                   AND t.ENGINE IS NOT NULL
                 GROUP BY c.TABLE_NAME, c.TABLE_SCHEMA, c.TABLE_CATALOG
         ",
 			"SHOW GLOBAL STATUS"

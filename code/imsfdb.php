@@ -20,7 +20,11 @@ class ImfsDb {
 	public $timings;
 	private $hasHrTime;
 
+	/**
+	 * @throws ImfsException
+	 */
 	public function init() {
+		global $wpdb;
 		if ( ! $this->initialized ) {
 			$this->initialized   = true;
 			$this->timings       = array();
@@ -36,12 +40,26 @@ class ImfsDb {
 				$this->stats     = $this->getStats();
 				$oldEngineTables = array();
 				$newEngineTables = array();
-				$tablesData      = $this->stats[2];
+				/* make sure we only upgrade the engine on WordPress's own tables */
+				$wpTables = array_flip( $wpdb->tables( 'blog', true ) );
+				if ( is_main_site() ) {
+					$wpTables = $wpTables + array_flip( $wpdb->tables( 'global', true ) );
+				}
+				$tablesData = $this->stats[2];
 				foreach ( $tablesData as $name => $info ) {
-					if ( $info->ENGINE !== 'InnoDB' ) {
-						$oldEngineTables[] = $name;
-					} else {
-						$newEngineTables[] = $name;
+					$activeTable = false;
+					if ( isset( $wpTables[ $name ] ) ) {
+						$activeTable = true;
+					}
+					if ( 0 === strpos( $name, $wpdb->prefix ) ) {
+						$activeTable = true;
+					}
+					if ( $activeTable ) {
+						if ( $info->ENGINE !== 'InnoDB' ) {
+							$oldEngineTables[] = $name;
+						} else {
+							$newEngineTables[] = $name;
+						}
 					}
 				}
 				$this->oldEngineTables = $oldEngineTables;
@@ -49,7 +67,7 @@ class ImfsDb {
 			}
 			try {
 				$this->hasHrTime = function_exists( 'hrtime' );
-			} catch (Exception $ex) {
+			} catch ( Exception $ex ) {
 				$this->hasHrTime = false;
 			}
 		}
@@ -58,7 +76,7 @@ class ImfsDb {
 	public function getTime() {
 		try {
 			return $this->hasHrTime ? hrtime( true ) * 0.000000001 : time();
-		} catch (Exception $ex ) {
+		} catch ( Exception $ex ) {
 			return time();
 		}
 	}
@@ -78,7 +96,7 @@ class ImfsDb {
 			throw new ImfsException( $wpdb->last_error, $wpdb->last_query );
 		}
 		if ( $doTiming ) {
-			$delta = round(floatval($this->getTime() - $thentime),3);
+			$delta           = round( floatval( $this->getTime() - $thentime ), 3 );
 			$this->timings[] = array( 't' => $delta, 'q' => $sql );
 		}
 
@@ -101,7 +119,7 @@ class ImfsDb {
 			throw new ImfsException( $wpdb->last_error, $wpdb->last_query );
 		}
 		if ( $doTiming ) {
-			$delta = round(floatval($this->getTime() - $thentime),3);
+			$delta           = round( floatval( $this->getTime() - $thentime ), 3 );
 			$this->timings[] = array( 't' => $delta, 'q' => $sql );
 		}
 
@@ -134,8 +152,8 @@ class ImfsDb {
 		global $wpdb;
 		foreach ( $this->reindexingInstructions as $name => $stmts ) {
 			if ( is_array( $stmts ) && array_key_exists( 'tablename', $stmts ) && $name === $stmts['tablename'] ) {
-				$mainSiteOnly = array_key_exists('mainSiteOnly', $stmts) && $stmts['mainSiteOnly'];
-				if (is_main_site() || !$mainSiteOnly) {
+				$mainSiteOnly = array_key_exists( 'mainSiteOnly', $stmts ) && $stmts['mainSiteOnly'];
+				if ( is_main_site() || ! $mainSiteOnly ) {
 					$result[] = $prefixed ? $wpdb->prefix . $name : $name;
 				}
 			}
