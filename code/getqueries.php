@@ -1,10 +1,26 @@
 <?php
 
-function ImfsRedactHost ($host) {
-	if (trim($host) === '') return $host;
-	if (trim($host) === '127.0.0.1') return $host;
-	if (trim($host) === 'localhost') return $host;
-	if (trim($host) === '::1') return $host;
+function ImfsStripPrefix( $name ) {
+	global $wpdb;
+	$pattern = '/^' . $wpdb->prefix . '/';
+
+	return preg_replace( $pattern, '', $name );
+}
+
+function ImfsRedactHost( $host ) {
+	if ( trim( $host ) === '' ) {
+		return $host;
+	}
+	if ( trim( $host ) === '127.0.0.1' ) {
+		return $host;
+	}
+	if ( trim( $host ) === 'localhost' ) {
+		return $host;
+	}
+	if ( trim( $host ) === '::1' ) {
+		return $host;
+	}
+
 	return "Redacted, not localhost";
 }
 
@@ -33,8 +49,8 @@ function getMySQLVersion() {
 	$results = $wpdb->get_results( $semver );
 	$results = $results[0];
 
-	$results->db_host = imfsRedactHost(DB_HOST);
-	$ver = explode( '-', $results->version, 3 );
+	$results->db_host = imfsRedactHost( DB_HOST );
+	$ver              = explode( '-', $results->version, 3 );
 	if ( count( $ver ) >= 2 ) {
 		$results->fork = $ver[1];
 	}
@@ -47,6 +63,11 @@ function getMySQLVersion() {
 		return makeNumeric( $results );
 	}
 	if ( $results->major < 5 ) {
+		$results->canreindex = 0;
+
+		return makeNumeric( $results );
+	}
+	if ( $results->major == 5 && $results->minor < 5 ) {
 		$results->canreindex = 0;
 
 		return makeNumeric( $results );
@@ -184,6 +205,7 @@ function getReindexingInstructions( $semver ) {
 				"DROP KEY meta_key",
 				"ADD KEY meta_key (meta_key(191))",
 			),
+
 		),
 		"termmeta" => array(
 			"tablename"     => "termmeta",
@@ -215,6 +237,7 @@ function getReindexingInstructions( $semver ) {
 				"ADD KEY meta_key (meta_key(191))",
 				"ADD KEY term_id (term_id)",
 			),
+
 		),
 		"options"  => array(
 			"tablename"     => "options",
@@ -379,9 +402,49 @@ function getReindexingInstructions( $semver ) {
 	}
 }
 
+function getStandardIndexes() {
+	return array(
+		'postmeta' => array(
+			"PRIMARY KEY" => "ADD PRIMARY KEY (meta_id)",
+			"post_id"     => "ADD KEY post_id (post_id)",
+			"meta_key"    => "ADD KEY meta_key (meta_key(191))",
+		),
+		'usermeta' => array(
+			"PRIMARY KEY" => "ADD PRIMARY KEY (umeta_id)",
+			"user_id"     => "ADD KEY user_id (user_id)",
+			"meta_key"    => "ADD KEY meta_key (meta_key(191))",
+		),
+		'termmeta' => array(
+			"PRIMARY KEY" => "ADD PRIMARY KEY (meta_id)",
+			"term_id"     => "ADD KEY term_id (term_id)",
+			"meta_key"    => "ADD KEY meta_key (meta_key(191))",
+		),
+		'options'  => array(
+			"PRIMARY KEY" => "ADD PRIMARY KEY (option_id)",
+			"option_name" => "ADD UNIQUE KEY option_name (option_name)",
+			"autoload"    => "ADD KEY autoload (autoload)"
+		),
+		'posts'    => array(
+			"PRIMARY KEY"      => "ADD PRIMARY KEY (ID)",
+			"post_parent"      => "ADD KEY post_parent (post_parent)",
+			"post_name"        => "ADD KEY post_name (post_name(191))",
+			"type_status_date" => "ADD KEY type_status_date (post_type, post_status, post_date, ID)",
+			"post_author"      => "ADD KEY post_author (post_author)",
+		),
+		'comments' => array(
+			"PRIMARY KEY"               => "ADD PRIMARY KEY (comment_ID)",
+			"comment_post_ID"           => "ADD KEY comment_post_ID (comment_post_ID)",
+			"comment_approved_date_gmt" => "ADD KEY comment_approved_date_gmt (comment_approved,comment_date_gmt)",
+			"comment_date_gmt"          => "ADD KEY comment_date_gmt (comment_date_gmt)",
+			"comment_parent"            => "ADD KEY comment_parent (comment_parent)",
+			"comment_author_email"      => "ADD KEY comment_author_email (comment_author_email(10))"
+		)
+	);
+}
+
 function getQueries() {
 	global $wpdb;
-	$p = $wpdb->prefix;
+	$p     = $wpdb->prefix;
 	$stats = array(
 		"SELECT 'postmeta' AS 'table',
                '${p}' AS 'prefix',
@@ -450,9 +513,9 @@ function getQueries() {
           FROM ${p}comments"
 	);
 
-		if (is_main_site()) {
-			$stats[] =
-				"SELECT 'usermeta' AS 'table',
+	if ( is_main_site() ) {
+		$stats[] =
+			"SELECT 'usermeta' AS 'table',
                '${p}' AS 'prefix',
                 COUNT(*) AS 'count',
                 COUNT(DISTINCT user_id) distinct_id,
@@ -465,11 +528,14 @@ function getQueries() {
                 SUM(IF(LENGTH(meta_value) > 191, 1, 0)) longer_191_value_count,
                 NULL autoload_count
           FROM ${p}usermeta";
-		}
-		/** @var array $queryArray an array of arrays of queries for this to use */
+	}
+	/** @var array $queryArray an array of arrays of queries for this to use */
 	$queryArray = array(
 		"indexes" => "		
-        SELECT
+        SELECT *,
+               IF(is_autoincrement = 1, columns, NULL) autoincrement_column
+         FROM (
+          SELECT             
            IF(tc.CONSTRAINT_TYPE LIKE 'PRIMARY KEY', tc.CONSTRAINT_TYPE, CONCAT (s.INDEX_NAME)) key_name,   
            s.TABLE_NAME,  
                IF(tc.CONSTRAINT_TYPE LIKE 'PRIMARY KEY', 1, 0) is_primary,
@@ -478,6 +544,7 @@ function getQueries() {
                     ELSE 0 END is_unique,
                IF(MAX(c.EXTRA) = 'auto_increment', 1, 0) 'contains_autoincrement',
                IF(MAX(c.EXTRA) = 'auto_increment' AND COUNT(*) = 1, 1, 0) 'is_autoincrement',
+               GROUP_CONCAT(s.COLUMN_NAME ORDER BY s.SEQ_IN_INDEX SEPARATOR ', ') 'columns',
                CONCAT ( 'ADD ',
                 CASE WHEN tc.CONSTRAINT_TYPE = 'UNIQUE' THEN CONCAT ('UNIQUE KEY ', s.INDEX_NAME)
                      WHEN tc.CONSTRAINT_TYPE LIKE 'PRIMARY KEY' THEN tc.CONSTRAINT_TYPE
@@ -534,12 +601,13 @@ function getQueries() {
                  AND s.TABLE_CATALOG = r.TABLE_CATALOG
          WHERE s.TABLE_SCHEMA = DATABASE()
            AND s.TABLE_NAME = %s
-         GROUP BY s.TABLE_NAME, s.INDEX_NAME
-         ORDER BY s.TABLE_NAME, s.INDEX_NAME",
+         GROUP BY TABLE_NAME, INDEX_NAME
+        ) q
+        ORDER BY TABLE_NAME, is_primary DESC, is_unique DESC, key_name",
 
 		"dbstats" => array(
 			"SHOW VARIABLES",
-			implode (" UNION ALL ", $stats),
+			implode( " UNION ALL ", $stats ),
 			"SELECT c.TABLE_NAME,
                    t.ENGINE,
                    t.ROW_FORMAT,

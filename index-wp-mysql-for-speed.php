@@ -4,7 +4,7 @@
 Plugin Name: Index WP MySQL For Speed
 Plugin URI: https://plumislandmedia.org/
 Description: Add useful indexes to your WordPress installation's MySQL database.
-Version: 1.0.2
+Version: 1.2.0
 Author: Ollie Jones
 Author URI: https://github.com/OllieJones
 Requires at least: 5.2
@@ -17,7 +17,7 @@ Network:           true
 */
 
 /** current version number  */
-define( 'index_wp_mysql_for_speed_VERSION_NUM', '1.0.2' );
+define( 'index_wp_mysql_for_speed_VERSION_NUM', '1.2.0' );
 
 /* set up some handy globals */
 define( 'index_wp_mysql_for_speed_THEME_DIR', ABSPATH . 'wp-content/themes/' . get_template() );
@@ -32,6 +32,10 @@ register_activation_hook( __FILE__, 'index_wp_mysql_for_speed_activate' );
 add_action( 'init', 'index_wp_mysql_for_speed_do_everything' );
 
 function index_wp_mysql_for_speed_do_everything() {
+	/* notice the absence of any activation except for admin or wp-cli:
+	 * this plugin's code is not required
+	 * to deliver content to non-adminstrator users */
+	/* admin page activation */
 	if ( is_admin() ) {
 		if ( is_multisite() ) {
 			$userCanLoad = is_super_admin();
@@ -39,13 +43,22 @@ function index_wp_mysql_for_speed_do_everything() {
 			$userCanLoad = current_user_can( 'activate_plugins' );
 		}
 		if ( $userCanLoad ) {
-			require_once( dirname( __FILE__ ) . '/code/imsfdb.php' );
-			require_once( dirname( __FILE__ ) . '/afp/admin-page-framework.php' );
-			require_once( dirname( __FILE__ ) . '/code/admin.php' );
-			require_once( dirname( __FILE__ ) . '/code/upload.php' );
+			requireThemAll ();
 			add_filter( 'plugin_action_links_' . plugin_basename( __FILE__ ), 'index_wp_mysql_for_speed_action_link' );
 		}
 	}
+	/* wp-cli interface activation */
+	if ( defined( 'WP_CLI' ) && WP_CLI) {
+		require_once( dirname( __FILE__ ) . '/code/cli.php');
+		requireThemAll();
+	}
+}
+
+function requireThemAll () {
+	require_once( dirname( __FILE__ ) . '/code/imsfdb.php' );
+	require_once( dirname( __FILE__ ) . '/afp/admin-page-framework.php' );
+	require_once( dirname( __FILE__ ) . '/code/admin.php' );
+	require_once( dirname( __FILE__ ) . '/code/upload.php' );
 }
 
 function index_wp_mysql_for_speed_activate() {

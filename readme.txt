@@ -1,10 +1,10 @@
 === Index WP MySQL For Speed ===
 Contributors: OllieJones
-Tags: database, optimize, index, key, mysql
+Tags: database, optimize, index, key, mysql, wp-cli
 Requires at least: 5.2
 Tested up to: 5.8
 Requires PHP: 5.5
-Stable tag: 1.0.2
+Stable tag: 1.2.0
 Network: true
 License: GPL v2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -17,6 +17,8 @@ Speed up your WordPress site by adding high-performance keys (database indexes) 
 
 == Description ==
 
+Use this plugin with the Index MySQL Tool under the Tools menu. Or, give the shell command _wp help index-mysql_ to learn how to use it with WP-CLI.
+
 Where does WordPress store all that stuff that makes your site great? Where are your pages, posts, products, media, users, custom fields, metadata, and all your valuable content? All that data is in the [MySQL](https://www.mysql.com/) relational database management system. (Some hosting providers and servers use the [MariaDB](https://mariadb.org/) fork of WordPress; it works exactly the same as MySQL itself.)
 
 As your site grows, your MySQL tables grow. Giant tables can make your page loads slow down, frustrate your users, and even hurt your search-engine rankings. What can you do about this?
@@ -25,7 +27,7 @@ You can install and use a database cleaner plugin to get rid of old unwanted dat
 
 That is not the task of this plugin.
 
-This plugin adds database [keys](https://dev.mysql.com/doc/refman/8.0/en/mysql-indexes.html) (also called indexes) to your MySQL tables to make it easier for WordPress to find the information it needs. All relational database management systems store your information in long-lived _tables_. For example, WordPress stores your posts and other content in a table called _wp_posts_, and custom post fields in another table called _wp_postmeta_.  A successful site can have thousands of posts and hundreds of thousands of custom post fields. MySQL has two jobs.
+This plugin adds database [keys](https://dev.mysql.com/doc/refman/8.0/en/mysql-indexes.html) (also called indexes) to your MySQL tables to make it easier for WordPress to find the information it needs. All relational database management systems store your information in long-lived _tables_. For example, WordPress stores your posts and other content in a table called _wp_posts_, and custom post fields in another table called _wp_postmeta_.  A successful site can have thousands of posts and hundreds of thousands of custom post fields. MySQL has two jobs:
 
 1. Keep all that data organized.
 2. Find the data it needs quickly.
@@ -45,7 +47,7 @@ This plugin updates those keys. It works on six tables found in all WordPress in
 * wp_usermeta
 * wp_termmeta
 
-Experience with large sites shows that many MySQL slowdowns can be improved by better keys.  When you install and activate this plugin, you'll find a Tool (under the Tools menu) to add high-performance keys to those tables. You only need run it once to get its benefit.
+Experience with large sites shows that many MySQL slowdowns can be improved by better keys. You only need run this plugin once to get its benefits.
 
 == Frequently Asked Questions ==
 
@@ -61,21 +63,29 @@ This plugin examines your MySQL database as it renders its settings page. On sha
 
 Yes. Some WordPress databases have [nonstandard prefixes](https://codex.wordpress.org/Creating_Tables_with_Plugins#Database_Table_Prefix). That is, their tables are named _something_posts_, _something_postmeta_, and so forth instead of _wp_posts_ and _wp_postmeta_. This works with those databases.
 
-= My WordPress host offers MariaDB, not MySQL. Can I use this?
+= My WordPress host offers MariaDB, not MySQL. Can I use this plugin?
 
 Yes.
 
 = Which versions of MySQL and MariaDB does this support? =
 
-MySQL versions 5.5.62 and above, 5.6.4 and above, 8 and above. MariaDB version 5.5 and above. Version 5.5 has a limitation on index lengths that requires WordPress to use [prefix keys](https://www.mysqltutorial.org/mysql-index/mysql-prefix-index/). Those have slightly reduced performance. Consider upgrading!
+MySQL versions 5.5.62 and above, 5.6.4 and above, 8 and above. MariaDB version 5.5 and above.
 
 = What database Storage Engine does this support? =
 
-InnoDB only. If your tables use MyISAM (the older storage engine) this plugin offers to upgrade them for you. If you have the _Barracuda_ version of InnoDB, this plugin uses its capability to build efficient keys. If you have the older version it still builds keys, but they are less efficient. It must use [Index Prefixes](https://dev.mysql.com/doc/refman/8.0/en/column-indexes.html#column-indexes-prefix) on that version.
+InnoDB only. If your tables use MyISAM (the older storage engine) this plugin offers to upgrade them for you.
+
+= Which versions of MySQL and MariaDB work best? =
+
+If at all possible upgrade to Version 8 or later of MySQL.  For MariaDB upgrade to Version 10.3 or later. The MySQL and MariaDB developers have made many performance improvements over the past few years. They have the mission of making things better for WordPress site operators: we are by far their biggest user base.
+
+Avoid Versions 5.5 of both MySQL and MariaDB if you can. They use the older Antelope version of InnnoDB. It has a limitation on index lengths that requires WordPress to use [prefix keys](https://dev.mysql.com/doc/refman/8.0/en/column-indexes.html#column-indexes-prefix). Those have reduced performance.
+
+If you have the later _Barracuda_ version of InnoDB, this plugin uses its capability to build efficient [covering](https://dev.mysql.com/doc/refman/8.0/en/glossary.html#glos_covering_index) keys. If you have the older Antelope version it still builds keys, but they are less efficient. It must use prefix keys on that version. Those cannot be covering keys.
 
 = Does this plugin generate any overhead when my site is busy? =
 
-No. Some plugins' code runs when your visitors view pages. All this plugin's work happens from the WordPress Dashboard. It sets up the keys in your database and then gets out of the way. You can even deactivate and delete the plugin once you've run it.
+No. Some plugins' code runs when your visitors view pages. All this plugin's work happens from the WordPress Dashboard or WP-CLI. It sets up the keys in your database and then gets out of the way. You can even deactivate and delete the plugin once you've run it.
 
 = What happens when I deactivate this plugin? =
 
@@ -83,9 +93,11 @@ Its high-performance keys remain in place. You can always re-add it and reactiva
 
 = Does this work on my multisite (network) WordPress instance?
 
-Yes. On multisite instances, you must activate the plugin from the Network Admin dashboard. The *Index MySQL* tool is available for use by the network administrator on each site.
+Yes. On multisite instances, you must activate the plugin from the Network Admin dashboard. The *Index MySQL* tool is available for use by the administrator on each site.
 
-**NOTE** if you upgrade your WordPress instance to multisite (a network) following [these instructions](https://wordpress.org/support/article/create-a-network/), *be sure to revert your high-performance keys first.*
+= Can I upgrade my WordPress instance to multisite after using this plugin?
+
+**No**. if you upgrade your WordPress instance to multisite (a network) following [these instructions](https://wordpress.org/support/article/create-a-network/), **revert your high-performance keys first.** After you complete your upgrade you can add back the high-performance keys.
 
 = How can I learn more about this business of database keys? =
 
@@ -114,9 +126,15 @@ Works for multisite, add more user choices
 = 1.0.2 =
 Do not upgrade the storage engine for views or for non-WordPress tables.
 
+= 1.2.0 =
+Add WP-CLI support. Add selective storage-enging upgrades. Add the Reset option to put back WordPress standard keys on tables with unrecognized combinations of keys.
+
 == Upgrade Notice ==
-This version works on multisite (network) WordPress installations, has more options, and does not attempt to upgrade the storage engine on database objects that don't belong to WordPress.
+This version supports [WP-CLI](https://make.wordpress.org/cli/handbook/); you can run it from a shell command line. It supports a way to reset your tables' keys to the WordPress standard
+if it doesn't recognize the existing keys. If you have MyISAM tables, you can choose which tables to upgrade to InnoDB instead of upgrading them all.
 
 == Screenshots ==
 
 1. The settings page.
+
+2. WP-CLI terminal.

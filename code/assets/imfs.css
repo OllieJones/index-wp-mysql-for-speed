@@ -1,4 +1,6 @@
-div#wpcontent form div > div > table.form-table > tbody > tr.warning > th {
+div#wpcontent form div > div > table.form-table > tbody > tr.warning > th,
+div#wpcontent form div > div > table.form-table > tbody > tr > th span.warning
+{
     color: #cc9900;
 }
 div#wpcontent form div > div > table.form-table > tbody > tr.success > th {
@@ -15,7 +17,7 @@ div#wpcontent form div > div > table.form-table > tbody > tr.detail {
 }
 
 div#wpcontent form div > div > table.form-table > tbody > tr.action > td > fieldset > p {
-    padding-bottom: 1.5rem
+    //padding-bottom: 1.5rem
 }
 
 div#wpcontent form div > div > table.form-table > tbody > tr.warning.detail > th {
