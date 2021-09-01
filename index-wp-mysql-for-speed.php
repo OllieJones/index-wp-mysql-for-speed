@@ -4,7 +4,7 @@
 Plugin Name: Index WP MySQL For Speed
 Plugin URI: https://plumislandmedia.org/
 Description: Add useful indexes to your WordPress installation's MySQL database.
-Version: 1.2.0
+Version: 1.2.1
 Author: Ollie Jones
 Author URI: https://github.com/OllieJones
 Requires at least: 5.2
@@ -17,13 +17,10 @@ Network:           true
 */
 
 /** current version number  */
-define( 'index_wp_mysql_for_speed_VERSION_NUM', '1.2.0' );
+define( 'index_wp_mysql_for_speed_VERSION_NUM', '1.2.1' );
 
 /* set up some handy globals */
-define( 'index_wp_mysql_for_speed_THEME_DIR', ABSPATH . 'wp-content/themes/' . get_template() );
 define( 'index_wp_mysql_for_speed_PLUGIN_NAME', trim( dirname( plugin_basename( __FILE__ ) ), '/' ) );
-define( 'index_wp_mysql_for_speed_PLUGIN_DIR', WP_PLUGIN_DIR . '/' . index_wp_mysql_for_speed_PLUGIN_NAME );
-define( 'index_wp_mysql_for_speed_PLUGIN_URL', WP_PLUGIN_URL . '/' . index_wp_mysql_for_speed_PLUGIN_NAME );
 define( 'index_wp_mysql_for_speed_domain', index_wp_mysql_for_speed_PLUGIN_NAME );
 define( 'index_wp_mysql_for_speed_stats_endpoint', $target = 'https://lit-mesa-75588.herokuapp.com/imfsstats' );
 
@@ -49,16 +46,16 @@ function index_wp_mysql_for_speed_do_everything() {
 	}
 	/* wp-cli interface activation */
 	if ( defined( 'WP_CLI' ) && WP_CLI) {
-		require_once( dirname( __FILE__ ) . '/code/cli.php');
+		require_once( plugin_dir_path( __FILE__ ) . 'code/cli.php');
 		requireThemAll();
 	}
 }
 
 function requireThemAll () {
-	require_once( dirname( __FILE__ ) . '/code/imsfdb.php' );
-	require_once( dirname( __FILE__ ) . '/afp/admin-page-framework.php' );
-	require_once( dirname( __FILE__ ) . '/code/admin.php' );
-	require_once( dirname( __FILE__ ) . '/code/upload.php' );
+	require_once( plugin_dir_path( __FILE__ ) . 'code/imsfdb.php' );
+	require_once( plugin_dir_path( __FILE__ ) . 'afp/admin-page-framework.php' );
+	require_once( plugin_dir_path( __FILE__ ) . 'code/admin.php' );
+	require_once( plugin_dir_path( __FILE__ ) . 'code/upload.php' );
 }
 
 function index_wp_mysql_for_speed_activate() {

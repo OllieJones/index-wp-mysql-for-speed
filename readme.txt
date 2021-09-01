@@ -4,7 +4,7 @@ Tags: database, optimize, index, key, mysql, wp-cli
 Requires at least: 5.2
 Tested up to: 5.8
 Requires PHP: 5.5
-Stable tag: 1.2.0
+Stable tag: 1.2.1
 Network: true
 License: GPL v2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -128,6 +128,9 @@ Do not upgrade the storage engine for views or for non-WordPress tables.
 
 = 1.2.0 =
 Add WP-CLI support. Add selective storage-enging upgrades. Add the Reset option to put back WordPress standard keys on tables with unrecognized combinations of keys.
+
+= 1.2.1 =
+Fix require_once defect exposed by wp-cli workflow.
 
 == Upgrade Notice ==
 This version supports [WP-CLI](https://make.wordpress.org/cli/handbook/); you can run it from a shell command line. It supports a way to reset your tables' keys to the WordPress standard
