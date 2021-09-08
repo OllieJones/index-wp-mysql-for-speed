@@ -1,6 +1,6 @@
 === Index WP MySQL For Speed ===
 Contributors: OllieJones
-Tags: database, optimize, index, key, mysql, wp-cli
+Tags: database, index, key, mysql, wp-cli
 Requires at least: 5.2
 Tested up to: 5.8
 Requires PHP: 5.5
@@ -48,6 +48,10 @@ This plugin updates those keys. It works on six tables found in all WordPress in
 * wp_termmeta
 
 Experience with large sites shows that many MySQL slowdowns can be improved by better keys. You only need run this plugin once to get its benefits.
+
+= Credits =
+* Marco Cesarato for his LiteSQLParser.
+* Rick James for everything.
 
 == Frequently Asked Questions ==
 
@@ -138,6 +142,6 @@ if it doesn't recognize the existing keys. If you have MyISAM tables, you can ch
 
 == Screenshots ==
 
-1. The settings page.
+01 The settings page.
 
-2. WP-CLI terminal.
+02 WP-CLI terminal.

@@ -25,6 +25,7 @@ class ImfsDb {
 	 */
 	public function init() {
 		global $wpdb;
+		define ('SAVEQUERIES', 1);
 		if ( ! $this->initialized ) {
 			$this->initialized   = true;
 			$this->timings       = array();
