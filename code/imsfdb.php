@@ -413,29 +413,32 @@ class ImfsDb {
 				$tables[] = $name;
 			}
 		}
-		try {
-			$this->lock( $tables, false );
-			foreach ( $tables as $name ) {
-				$canEnable   = $this->checkTable( 'enable', $name );
-				$enableMsgs  = $this->clearMessages();
-				$canDisable  = $this->checkTable( 'disable', $name );
-				$disableMsgs = $this->clearMessages();
-				if ( $canEnable && ! $canDisable ) {
-					$enableList[] = $name;
-				} else if ( $canDisable && ! $canEnable ) {
-					$disableList[] = $name;
-				} else {
-					$msg   = __( '%s has unexpected keys, so you cannot rekey it without resetting it first.', index_wp_mysql_for_speed_domain );
-					$msg   = sprintf( $wpdb->prefix . $msg, $name );
-					$delim = '<br />&emsp;';
-					if ( ! $canEnable ) {
-						$msg = $msg . $delim . implode( $delim, $enableMsgs );
+		/* any rekeyable tables? */
+		if (is_array($tables) && count($tables) > 0) {
+			try {
+				$this->lock( $tables, false );
+				foreach ( $tables as $name ) {
+					$canEnable   = $this->checkTable( 'enable', $name );
+					$enableMsgs  = $this->clearMessages();
+					$canDisable  = $this->checkTable( 'disable', $name );
+					$disableMsgs = $this->clearMessages();
+					if ( $canEnable && ! $canDisable ) {
+						$enableList[] = $name;
+					} else if ( $canDisable && ! $canEnable ) {
+						$disableList[] = $name;
+					} else {
+						$msg   = __( '%s has unexpected keys, so you cannot rekey it without resetting it first.', index_wp_mysql_for_speed_domain );
+						$msg   = sprintf( $wpdb->prefix . $msg, $name );
+						$delim = '<br />&emsp;';
+						if ( ! $canEnable ) {
+							$msg = $msg . $delim . implode( $delim, $enableMsgs );
+						}
+						$errorList[ $name ] = $msg;
 					}
-					$errorList[ $name ] = $msg;
 				}
+			} finally {
+				$this->unlock();
 			}
-		} finally {
-			$this->unlock();
 		}
 
 		return array(
