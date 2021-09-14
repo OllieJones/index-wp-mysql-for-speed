@@ -15,6 +15,17 @@ class LightSQLParser
 	protected static $connectors = array('OR', 'AND', 'ON', 'LIMIT', 'WHERE', 'JOIN', 'GROUP', 'ORDER', 'OPTION', 'LEFT', 'INNER', 'RIGHT', 'OUTER', 'SET', 'HAVING', 'VALUES', 'SELECT', '\(', '\)');
 	protected static $connectors_imploded = '';
 	protected $queries = [];
+	protected $tokenRe = <<<'END_OF_REGEX'
+/
+  [A-Za-z_.]+\(.*?\)+   # Match FUNCTION(...)
+  |\(.*?\)+             # Match grouped items
+  |"(?:[^"]|\"|"")*"+   # Match double quotes
+  |'[^'](?:|\'|'')*'+   #   and single quotes
+  |`(?:[^`]|``)*`+      #   and backticks
+  |[^ ,]+
+  |,
+/x
+END_OF_REGEX;
 
 	/**
 	 * Constructor
@@ -253,4 +264,10 @@ class LightSQLParser
 		}
 		return array_unique($results);
 	}
+
+	function getFingerprint () {
+		$query = $this->getQuery();
+		$tokens = preg_match_all($this->tokenRe, $query);
+	}
+
 }

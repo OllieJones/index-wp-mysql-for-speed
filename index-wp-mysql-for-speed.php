@@ -23,7 +23,7 @@ define( 'index_wp_mysql_for_speed_VERSION_NUM', '1.2.2' );
 define( 'index_wp_mysql_for_speed_PLUGIN_NAME', trim( dirname( plugin_basename( __FILE__ ) ), '/' ) );
 define( 'index_wp_mysql_for_speed_domain', index_wp_mysql_for_speed_PLUGIN_NAME );
 define( 'index_wp_mysql_for_speed_stats_endpoint', $target = 'https://lit-mesa-75588.herokuapp.com/imfsstats' );
-define( 'index_wp_mysql_for_speed_monitor', 'index_wp_mysql_for_speed_monitor');
+define( 'index_wp_mysql_for_speed_monitor', 'imfsQueryMonitor');
 
 register_activation_hook( __FILE__, 'index_wp_mysql_for_speed_activate' );
 
@@ -42,12 +42,12 @@ function index_wp_mysql_for_speed_do_everything() {
 			add_filter( 'plugin_action_links_' . plugin_basename( __FILE__ ), 'index_wp_mysql_for_speed_action_link' );
 		}
 	}
-	else {
+	//  TODO only if active. else {
 		/* production page ... are we still monitoring? */
 		if (true || get_transient(index_wp_mysql_for_speed_monitor)) {
 			require_once( plugin_dir_path( __FILE__ ) . 'code/querymon.php' );
 		}
-	}
+	//}
 	/* wp-cli interface activation */
 	if ( defined( 'WP_CLI' ) && WP_CLI) {
 		require_once( plugin_dir_path( __FILE__ ) . 'code/cli.php');
