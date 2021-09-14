@@ -443,10 +443,92 @@ function getStandardIndexes() {
 }
 
 function getQueries() {
+	$giganticTables = true;
 	global $wpdb;
 	$p     = $wpdb->prefix;
-	$stats = array(
-		"SELECT 'postmeta' AS 'table',
+	if ($giganticTables) {
+		$stats = array(
+			"SELECT 'postmeta' AS 'table',
+               '${p}' AS 'prefix',
+                -1 AS 'count',
+                NULL distinct_id,
+                NULL distinct_key,
+                NULL key_max_length,
+                NULL value_max_length,
+                NULL key_min_length,
+                NULL value_min_length,
+                NULL longer_191_key_count,
+                NULL longer_191_value_count,
+                NULL autoload_count",
+			"SELECT 'termmeta' AS 'table',
+               '${p}' AS 'prefix',
+                -1 AS 'count',
+                NULL distinct_id,
+                NULL distinct_key,
+                NULL key_max_length,
+                NULL value_max_length,
+                NULL key_min_length,
+                NULL value_min_length,
+                NULL longer_191_key_count,
+                NULL longer_191_value_count,
+                NULL autoload_count",
+			"SELECT 'options' AS  'table',
+               '${p}' AS 'prefix',
+                -1 AS 'count',
+                NULL AS distinct_id,
+                NULL distinct_meta_key,
+                NULL key_max_length,
+                NULL value_max_length,
+                NULL min_length,
+                NULL value_min_length,
+                NULL longer_191_key_count,
+                NULL longer_191_value_count,
+                NULL autoload_count",
+			"SELECT 'posts' AS  'table',
+               '${p}' AS 'prefix',
+                -1 AS 'count',
+                NULL AS distinct_id,
+                NULL distinct_meta_key,
+                NULL key_max_length,
+                NULL value_max_length,
+                NULL min_length,
+                NULL value_min_length,
+                NULL longer_191_key_count,
+                NULL longer_191_value_count,
+                NULL autoload_count",
+			"SELECT 'comments' AS  'table',
+               '${p}' AS 'prefix',
+                -1 AS 'count',
+                NULL AS distinct_id,
+                NULL distinct_meta_key,
+                NULL key_max_length,
+                NULL value_max_length,
+                NULL min_length,
+                NULL value_min_length,
+                NULL longer_191_key_count,
+                NULL longer_191_value_count,
+                NULL autoload_count"
+		);
+
+		if ( is_main_site() ) {
+			$stats[] =
+				"SELECT 'usermeta' AS 'table',
+               '${p}' AS 'prefix',
+                -1 AS 'count',
+                NULL distinct_id,
+                NULL distinct_key,
+                NULL key_max_length,
+                NULL meta_value_max_length,
+                NULL key_min_length,
+                NULL value_min_length,
+                NULL longer_191_key_count,
+                NULL longer_191_value_count,
+                NULL autoload_count";
+		}
+	}
+	else {
+		$stats = array(
+			"SELECT 'postmeta' AS 'table',
                '${p}' AS 'prefix',
                 COUNT(*) AS 'count',
                 COUNT(DISTINCT post_id) distinct_id,
@@ -528,6 +610,7 @@ function getQueries() {
                 SUM(IF(LENGTH(meta_value) > 191, 1, 0)) longer_191_value_count,
                 NULL autoload_count
           FROM ${p}usermeta";
+		}
 	}
 	/** @var array $queryArray an array of arrays of queries for this to use */
 	$queryArray = array(
