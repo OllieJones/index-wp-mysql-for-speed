@@ -450,7 +450,7 @@ function getQueries() {
 		$stats = array(
 			"SELECT 'postmeta' AS 'table',
                '${p}' AS 'prefix',
-                -1 AS 'count',
+                TABLE_ROWS AS 'count',
                 NULL distinct_id,
                 NULL distinct_key,
                 NULL key_max_length,
@@ -459,10 +459,12 @@ function getQueries() {
                 NULL value_min_length,
                 NULL longer_191_key_count,
                 NULL longer_191_value_count,
-                NULL autoload_count",
+                NULL autoload_count
+             FROM information_schema.TABLES
+             WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = '${p}postmeta'",
 			"SELECT 'termmeta' AS 'table',
                '${p}' AS 'prefix',
-                -1 AS 'count',
+                TABLE_ROWS AS 'count',
                 NULL distinct_id,
                 NULL distinct_key,
                 NULL key_max_length,
@@ -471,10 +473,12 @@ function getQueries() {
                 NULL value_min_length,
                 NULL longer_191_key_count,
                 NULL longer_191_value_count,
-                NULL autoload_count",
+                NULL autoload_count
+             FROM information_schema.TABLES
+             WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = '${p}termmeta'",
 			"SELECT 'options' AS  'table',
                '${p}' AS 'prefix',
-                -1 AS 'count',
+                TABLE_ROWS AS 'count',
                 NULL AS distinct_id,
                 NULL distinct_meta_key,
                 NULL key_max_length,
@@ -483,10 +487,12 @@ function getQueries() {
                 NULL value_min_length,
                 NULL longer_191_key_count,
                 NULL longer_191_value_count,
-                NULL autoload_count",
+                NULL autoload_count
+             FROM information_schema.TABLES
+             WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = '${p}options'",
 			"SELECT 'posts' AS  'table',
                '${p}' AS 'prefix',
-                -1 AS 'count',
+                TABLE_ROWS AS 'count',
                 NULL AS distinct_id,
                 NULL distinct_meta_key,
                 NULL key_max_length,
@@ -495,10 +501,12 @@ function getQueries() {
                 NULL value_min_length,
                 NULL longer_191_key_count,
                 NULL longer_191_value_count,
-                NULL autoload_count",
+                NULL autoload_count
+             FROM information_schema.TABLES
+             WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = '${p}posts'",
 			"SELECT 'comments' AS  'table',
                '${p}' AS 'prefix',
-                -1 AS 'count',
+                TABLE_ROWS AS 'count',
                 NULL AS distinct_id,
                 NULL distinct_meta_key,
                 NULL key_max_length,
@@ -507,14 +515,16 @@ function getQueries() {
                 NULL value_min_length,
                 NULL longer_191_key_count,
                 NULL longer_191_value_count,
-                NULL autoload_count"
+                NULL autoload_count
+             FROM information_schema.TABLES
+             WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = '${p}comments'"
 		);
 
 		if ( is_main_site() ) {
 			$stats[] =
 				"SELECT 'usermeta' AS 'table',
                '${p}' AS 'prefix',
-                -1 AS 'count',
+                TABLE_ROWS AS 'count',
                 NULL distinct_id,
                 NULL distinct_key,
                 NULL key_max_length,
@@ -523,7 +533,9 @@ function getQueries() {
                 NULL value_min_length,
                 NULL longer_191_key_count,
                 NULL longer_191_value_count,
-                NULL autoload_count";
+                NULL autoload_count
+             FROM information_schema.TABLES
+             WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = '${p}usermeta'";
 		}
 	}
 	else {
