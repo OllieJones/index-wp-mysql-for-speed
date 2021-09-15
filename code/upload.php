@@ -75,6 +75,9 @@ function imfsGetAllStats( $db, $idString ) {
 	$variables->hostname        = imfsRedactHost( $variables->hostname );
 	$variables->report_host     = imfsRedactHost( $variables->report_host );
 	$variables->report_password = imfsRedactHost( $variables->report_password );
+	if ($globalStatus->Rsa_public_key) {
+		$globalStatus->Rsa_public_key = 'Redacted';
+	}
 	$wordpress                  = imfsGetWpDescription( $db );
 	/** @noinspection PhpUnnecessaryLocalVariableInspection */
 	$stats = (object) array(
