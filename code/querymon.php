@@ -11,7 +11,8 @@ class ImfsMonitor {
 	public $queryLogSizeThreshold = 1048576; /* 1 MiB */
 	public $queryGatherSizeLimit = 524288; /* 0.5 MiB */
 	public $gatherDelimiter = "\e\036\e"; /* unlikely oldtimey ascii esc and rs */
-	public $gatherExpiration = 300; /* seconds */
+	public $gatherExpiration = 60; /* seconds */
+	public $cronInterval = 30; /* seconds, always less than $gatherExpiration */
 	public $queryLogExpiration = 864000; /* ten days */
 	public $parser;
 	public $explainVerb = "EXPLAIN";
@@ -20,6 +21,8 @@ class ImfsMonitor {
 	public function __construct() {
 		$this->parser = new LightSQLParser();
 		add_action( 'shutdown', [ $this, 'imfsMonitorGather' ], 99 );
+
+		add_option(index_wp_mysql_for_speed_monitor . 'nextMonitorUpdate', time() + $this->cronInterval);
 	}
 
 	function imfsMonitorGather() {
@@ -45,8 +48,12 @@ class ImfsMonitor {
 		}
 		$this->storeGathered( $transientName, $uploads, $this->gatherExpiration, $this->gatherDelimiter, $this->queryGatherSizeLimit );
 
-		//TODO debug Junk
-		$this->imfsMonitorProcess();
+		$nextMonitorUpdate = intval(get_option(index_wp_mysql_for_speed_monitor . 'nextMonitorUpdate'));
+		$now = time();
+		if ($now > $nextMonitorUpdate) {
+			$this->imfsMonitorProcess();
+			update_option(index_wp_mysql_for_speed_monitor . 'nextMonitorUpdate', $now + $this->cronInterval);
+		}
 	}
 
 	function encodeQuery( $q, $explain = true ) {

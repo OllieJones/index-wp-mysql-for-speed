@@ -334,13 +334,13 @@ class LightSQLParser {
 		$result = preg_replace( '/IN +\( *(\d+, *){2,9}(\d+ *\))/', 'IN (?ilist?)', $result );
 		$result = preg_replace( '/IN +\( *(\d+, *){10,}(\d+ *\))/', 'IN (?ilonglist?)', $result );
 		/* unadorned integers, except in table names */
-		$result = preg_replace( '/(?:[^_])\d+/', '?i?', $result );
+		$result = preg_replace( '/([^_])\d+/', '$1?i?', $result );
 
 		/* quoted strings, with escapes processed correctly */
 		$result = preg_replace( '/\'(?:.*?[^\\\\])??(?:(?:\\\\\\\\)+)?\'/', '?s?', $result );
 
-		/* quoted strings, with escapes processed correctly */
-		$result = preg_replace( "/(INSERT +[^\\(]+\\([^\\)]+\\) *VALUES )(?:.{150,}+)/", '$1 (?valuelist?)', $result );
+		/* giant inserts */
+		$result = preg_replace( "/(INSERT +[^\\(]+\\([^\\)]+\\) *VALUES *)(?:.{150,}+)/", '$1 (?valuelist?)', $result );
 
 		$result = strlen( $limitClause ) > 0 ? $result . ' ' . $limitClause : $result;
 		/* extra white space */

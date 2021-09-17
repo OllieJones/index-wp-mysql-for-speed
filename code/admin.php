@@ -9,11 +9,11 @@ class ImfsPage extends Imfs_AdminPageFramework {
 	 * @var bool true if the dbms allows reindexing at all.
 	 */
 	public $canReindex = false;
-	private $db;
 	/**
 	 * @var bool true if reindexing does not have the 191 prefix index limitation.
 	 */
 	public $unconstrained = false;
+	private $db;
 	/**
 	 * @var false|mixed
 	 */
@@ -52,21 +52,21 @@ class ImfsPage extends Imfs_AdminPageFramework {
 	/** @noinspection PhpUnused */
 	public function content_ImfsPage( $sHTML ) {
 		/** @noinspection HtmlUnknownTarget */
-		$hyperlink          = '<a href="%s" target="_blank">%s</a>';
-		$supportUrl         = "https://wordpress.org/support/plugin/index-wp-mysql-for-speed/";
-		$reviewUrl          = "https://wordpress.org/support/plugin/index-wp-mysql-for-speed/reviews/";
-		$detailsUrl         = "https://www.plumislandmedia.net/wordpress/speeding-up-wordpress-database-operations/#what-specific-key-changes-do-we-make-even-wonkier";
-		$wpCliUrl           = '<a href="https://make.wordpress.org/cli/handbook/">WP-CLI</a>';
-		$clickHere          = __( 'click here', $this->domain );
-		$support            = sprintf( $hyperlink, $supportUrl, $clickHere );
-		$review             = sprintf( $hyperlink, $reviewUrl, $clickHere );
-		$details            = sprintf( $hyperlink, $detailsUrl, $clickHere );
-		$supportString      = '<p class="topinfo">' . __( 'For support please %s. If you create a topic in the support forum, please upload your diagnostic metadata, and mention the id of your upload.  Please %s to rate this plugin.', $this->domain ) . '</p>';
-		$supportString      = sprintf( $supportString, $support, $review );
-		$detailsString      = '<p class="topinfo">' . __( 'For detailed information about this plugin\'s actions on your database, please %s.', $this->domain ) . '</p>';
-		$detailsString      = sprintf( $detailsString, $details );
-		$wpCliString        = '<p class="topinfo">' . __( 'This plugin supports %s. You may run its operations that way if your hosting machine is set up for it. If your tables are large, WP-CLI may be a good choice to avoid timeouts.', $this->domain ) . '</p>';
-		$wpCliString        = sprintf( $wpCliString, $wpCliUrl );
+		$hyperlink     = '<a href="%s" target="_blank">%s</a>';
+		$supportUrl    = "https://wordpress.org/support/plugin/index-wp-mysql-for-speed/";
+		$reviewUrl     = "https://wordpress.org/support/plugin/index-wp-mysql-for-speed/reviews/";
+		$detailsUrl    = "https://www.plumislandmedia.net/wordpress/speeding-up-wordpress-database-operations/#what-specific-key-changes-do-we-make-even-wonkier";
+		$wpCliUrl      = '<a href="https://make.wordpress.org/cli/handbook/">WP-CLI</a>';
+		$clickHere     = __( 'click here', $this->domain );
+		$support       = sprintf( $hyperlink, $supportUrl, $clickHere );
+		$review        = sprintf( $hyperlink, $reviewUrl, $clickHere );
+		$details       = sprintf( $hyperlink, $detailsUrl, $clickHere );
+		$supportString = '<p class="topinfo">' . __( 'For support please %s. If you create a topic in the support forum, please upload your diagnostic metadata, and mention the id of your upload.  Please %s to rate this plugin.', $this->domain ) . '</p>';
+		$supportString = sprintf( $supportString, $support, $review );
+		$detailsString = '<p class="topinfo">' . __( 'For detailed information about this plugin\'s actions on your database, please %s.', $this->domain ) . '</p>';
+		$detailsString = sprintf( $detailsString, $details );
+		$wpCliString   = '<p class="topinfo">' . __( 'This plugin supports %s. You may run its operations that way if your hosting machine is set up for it. If your tables are large, WP-CLI may be a good choice to avoid timeouts.', $this->domain ) . '</p>';
+		$wpCliString   = sprintf( $wpCliString, $wpCliUrl );
 
 		return $supportString . $detailsString . $wpCliString . $sHTML;
 	}
@@ -314,8 +314,8 @@ class ImfsPage extends Imfs_AdminPageFramework {
 		//$cliLink = ' <a href="https://make.wordpress.org/cli/handbook/" target="_blank">WP-CLI</a>';
 		$cliLink = ' WP-CLI';
 		$wp      = 'wp index-mysql';
-		$blogid = get_current_blog_id();
-		if ($blogid > 1 ) {
+		$blogid  = get_current_blog_id();
+		if ( $blogid > 1 ) {
 			$wp .= ' ' . '--blogid=' . $blogid;
 		}
 		/* translators: %1$s is WP-CLI hyperlink, %2s is 'wp index-mysql',  %3$s describes the function, %4$s is the cli commmand */
