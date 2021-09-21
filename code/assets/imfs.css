@@ -7,6 +7,29 @@ div#wpcontent form div > div > table.form-table > tbody > tr.success > th {
     color: #10a010;
 }
 
+/* inline fields layout */
+/*.index-wp-mysql-for-speed-field-inline_mixed > fieldset > .index-wp-mysql-for-speed-fields > .index-wp-mysql-for-speed-field > .index-wp-mysql-for-speed-input-label-container > label > input, .index-wp-mysql-for-speed-field-inline_mixed > fieldset > .index-wp-mysql-for-speed-fields > .index-wp-mysql-for-speed-field > * > .index-wp-mysql-for-speed-input-label-container > label > input*/
+fieldset div.with-child-fields > fieldset.inline > div.index-wp-mysql-for-speed-fields > div.index-wp-mysql-for-speed-field > div > label > input {
+    min-width: auto;
+}
+
+
+/* space after labels on inline fields */
+fieldset div.with-child-fields > fieldset.inline > div > div.index-wp-mysql-for-speed-field > div > label > span.index-wp-mysql-for-speed-input-label-string {
+    padding-right: 0.5em;
+}
+
+/* width of inline number entry field */
+fieldset.inline input.number {
+    width: 4em;
+}
+
+
+/* width of inline text entry field */
+fieldset.inline input.name {
+    width: 12em;
+}
+
 div#wpcontent form div > div > table.form-table > tbody > tr.failure > th {
     color: red;
 }
@@ -47,5 +70,3 @@ p.topinfo {
 p.topinfo:last-of-type {
     margin-bottom: 2em;
 }
-
-

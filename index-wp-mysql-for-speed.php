@@ -43,10 +43,14 @@ function index_wp_mysql_for_speed_do_everything() {
 			add_filter( 'plugin_action_links_' . plugin_basename( __FILE__ ), 'index_wp_mysql_for_speed_action_link' );
 		}
 	}
-	//  TODO only if active. else {
 	/* production page ... are we still monitoring? */
-	if ( true || get_transient( index_wp_mysql_for_speed_monitor ) ) {
-		require_once( plugin_dir_path( __FILE__ ) . 'code/querymon.php' );
+	if ( $monval = get_transient( index_wp_mysql_for_speed_monitor ) ) {
+		if ($monval->stoptime > time()) {
+			require_once( plugin_dir_path( __FILE__ ) . 'code/querymon.php' );
+		}
+		else {
+			delete_transient(index_wp_mysql_for_speed_monitor);
+		}
 	}
 	//}
 	/* wp-cli interface activation */
@@ -61,6 +65,7 @@ function requireThemAll() {
 	require_once( plugin_dir_path( __FILE__ ) . 'afp/admin-page-framework.php' );
 	require_once( plugin_dir_path( __FILE__ ) . 'code/admin.php' );
 	require_once( plugin_dir_path( __FILE__ ) . 'code/upload.php' );
+	require_once( plugin_dir_path( __FILE__ ) . 'code/querymoncontrol.php' );
 }
 
 function index_wp_mysql_for_speed_activate() {

@@ -129,6 +129,7 @@ class ImfsPage extends Imfs_AdminPageFramework {
 
 		}
 		$this->uploadMetadata();
+		$this->configureMonitoring();
 	}
 
 	/**
@@ -344,7 +345,7 @@ class ImfsPage extends Imfs_AdminPageFramework {
 			array(
 				'field_id' => 'permission',
 				'title'    => __( 'Diagnostic data', $this->domain ),
-				'label'    => __( 'With your permission we upload metadata about your WordPress site to our plugin\'s servers. We cannot identify you or your web site from it, and we never sell nor give it to any third party. We use it only to improve this plugin.', $this->domain ),
+				'label'    => __( 'With your permission we upload metadata about your WordPress site to our plugin\'s servers. We cannot identify you or your website from it, and we never sell nor give it to any third party. We use it only to improve this plugin.', $this->domain ),
 				'save'     => false,
 				'class'    => array(
 					'fieldrow' => 'info',
@@ -361,6 +362,79 @@ class ImfsPage extends Imfs_AdminPageFramework {
 				),
 				array(
 					'label' => $this->cliMessage( 'upload_metadata', __( 'Upload metadata', $this->domain ) ),
+					'type'  => 'label',
+					'save'  => false,
+					'class' => array(
+						'fieldrow' => 'info',
+					),
+				)
+			)
+		);
+	}
+
+	/** @noinspection PhpUnused */
+
+	/**
+	 * render the upload-metadata page.
+	 */
+	function configureMonitoring() {
+		$this->addSettingFields(
+			array(
+				'field_id' => 'monitoring_parameters',
+				'title'    => __( 'Monitoring', $this->domain ),
+				'label'    => __( 'We can monitor your site\'s use of MySQL for a few minutes to help you understand what runs slowly.', $this->domain ),
+				'save'     => false,
+				'class'    => array(
+					'fieldrow' => 'info',
+				),
+			),
+			array(
+				'field_id' => 'monitor_specs',
+				'type'     => 'inline_mixed',
+				'content'  => array(
+					array(
+						'field_id'        => 'monitor_duration',
+						'type'            => 'number',
+						'label_min_width' => '',
+						'label'           => __( 'Monitor for' ),
+						'save'            => true,
+						'default'         => 5,
+						'class'           => array(
+							'fieldset' => 'inline',
+							'fieldrow' => 'number',
+						),
+					),
+					array(
+						'field_id' => 'monitor_name',
+						'type'     => 'text',
+						'label'    => __( 'minutes.', $this->domain ) . ' ' . __( 'Save into', $this->domain ),
+						'save'     => true,
+						'default'  => 'monitor',
+						'class'    => array(
+							'fieldset' => 'inline',
+							'fieldrow' => 'name',
+						),
+					),
+				)
+			),
+			array(
+				'field_id' => 'monitoring_starter',
+				'label'    => __( 'Monitoring stops automatically.', $this->domain ),
+				'save'     => false,
+				'class'    => array(
+					'fieldrow' => 'info',
+				),
+				array(
+					'field_id' => 'start_monitoring_now',
+					'type'     => 'submit',
+					'save'     => 'false',
+					'value'    => __( 'Start Monitoring', $this->domain ),
+					'class'    => array(
+						'fieldrow' => 'action',
+					),
+				),
+				array(
+					'label' => $this->cliMessage( 'monitor --minutes=n', __( 'Monitor', $this->domain ) ),
 					'type'  => 'label',
 					'save'  => false,
 					'class' => array(
@@ -429,6 +503,11 @@ class ImfsPage extends Imfs_AdminPageFramework {
 	private function action( $button, $inputs, $oldInputs, $factory, $submitInfo ) {
 		try {
 			switch ( $button ) {
+				case 'start_monitoring_now':
+					$qmc = new QueryMonControl();
+					$message = $qmc->start($inputs['monitor_duration'], $inputs['monitor_name']);
+					$this->setSettingNotice( $message, 'updated' );
+					break;
 				case 'upload_metadata_now':
 					$id = imfs_upload_stats( $this->db );
 					$this->setSettingNotice( __( 'Metadata uploaded to id ', $this->domain ) . $id, 'updated' );
