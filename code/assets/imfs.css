@@ -13,6 +13,11 @@ fieldset div.with-child-fields > fieldset.inline > div.index-wp-mysql-for-speed-
     min-width: auto;
 }
 
+/* alignment of text fields */
+#fieldset-monitor_specs_Array {
+ /* https://github.com/michaeluno/admin-page-framework/issues/293 vertical-align: initial !important; */
+}
+
 
 /* space after labels on inline fields */
 fieldset div.with-child-fields > fieldset.inline > div > div.index-wp-mysql-for-speed-field > div > label > span.index-wp-mysql-for-speed-input-label-string {

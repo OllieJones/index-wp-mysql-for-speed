@@ -393,7 +393,7 @@ class ImfsPage extends Imfs_AdminPageFramework {
 				'type'     => 'inline_mixed',
 				'content'  => array(
 					array(
-						'field_id'        => 'monitor_duration',
+						'field_id'        => 'duration',
 						'type'            => 'number',
 						'label_min_width' => '',
 						'label'           => __( 'Monitor for' ),
@@ -405,7 +405,7 @@ class ImfsPage extends Imfs_AdminPageFramework {
 						),
 					),
 					array(
-						'field_id' => 'monitor_name',
+						'field_id' => 'name',
 						'type'     => 'text',
 						'label'    => __( 'minutes.', $this->domain ) . ' ' . __( 'Save into', $this->domain ),
 						'save'     => true,
@@ -414,6 +414,32 @@ class ImfsPage extends Imfs_AdminPageFramework {
 							'fieldset' => 'inline',
 							'fieldrow' => 'name',
 						),
+					),
+					array(
+						'name' => 'sample_text',
+						'save' => false,
+						'content' => __( 'Sample' ),
+					),
+					array(
+						'field_id' => 'samplerate',
+						'type'     => 'select',
+						'save'=> true,
+						'help'     => __( 'If your site is very busy, chooose a lower sample rate.', $this->domain ),
+						'default'  => 100,
+						'label'    => array(
+							100 => __( 'All', $this->domain ),
+							50  => '50%',
+							20  => '20%',
+							10  => '10%',
+							5   => '5%',
+							2   => '2%',
+							1   => '1%',
+						),
+					),
+					array(
+						'content' => __( 'Page Views' ),
+						'name' => 'pv_text',
+						'save' => false,
 					),
 				)
 			),
@@ -504,8 +530,8 @@ class ImfsPage extends Imfs_AdminPageFramework {
 		try {
 			switch ( $button ) {
 				case 'start_monitoring_now':
-					$qmc = new QueryMonControl();
-					$message = $qmc->start($inputs['monitor_duration'], $inputs['monitor_name']);
+					$qmc     = new QueryMonControl();
+					$message = $qmc->start( $inputs['monitor_specs'] );
 					$this->setSettingNotice( $message, 'updated' );
 					break;
 				case 'upload_metadata_now':
