@@ -378,6 +378,7 @@ class ImfsPage extends Imfs_AdminPageFramework {
 	 * render the upload-metadata page.
 	 */
 	function configureMonitoring() {
+		$sampleText = __( 'Sample %d%% of pageviews', $this->domain );
 		$this->addSettingFields(
 			array(
 				'field_id' => 'monitoring_parameters',
@@ -387,7 +388,8 @@ class ImfsPage extends Imfs_AdminPageFramework {
 				'class'    => array(
 					'fieldrow' => 'info',
 				),
-			),
+			) );
+		$this->addSettingFields(
 			array(
 				'field_id' => 'monitor_specs',
 				'type'     => 'inline_mixed',
@@ -396,7 +398,7 @@ class ImfsPage extends Imfs_AdminPageFramework {
 						'field_id'        => 'duration',
 						'type'            => 'number',
 						'label_min_width' => '',
-						'label'           => __( 'Monitor for' ),
+						'label'           => __( 'Monitor for (minutes)' ),
 						'save'            => true,
 						'default'         => 5,
 						'class'           => array(
@@ -405,9 +407,25 @@ class ImfsPage extends Imfs_AdminPageFramework {
 						),
 					),
 					array(
+						'field_id' => 'samplerate',
+						'type'     => 'select',
+						'save'     => true,
+						'help'     => __( 'If your site is very busy, chooose a lower sample rate.', $this->domain ),
+						'default'  => 100,
+						'label'    => array(
+							100 => __( 'Monitor all pageviews', $this->domain ),
+							50  => sprintf( $sampleText, 50 ),
+							20  => sprintf( $sampleText, 20 ),
+							10  => sprintf( $sampleText, 10 ),
+							5   => sprintf( $sampleText, 5 ),
+							2   => sprintf( $sampleText, 2 ),
+							1   => sprintf( $sampleText, 1 ),
+						),
+					),
+					array(
 						'field_id' => 'name',
 						'type'     => 'text',
-						'label'    => __( 'minutes.', $this->domain ) . ' ' . __( 'Save into', $this->domain ),
+						'label'    => __( 'Save into', $this->domain ),
 						'save'     => true,
 						'default'  => 'monitor',
 						'class'    => array(
@@ -415,34 +433,10 @@ class ImfsPage extends Imfs_AdminPageFramework {
 							'fieldrow' => 'name',
 						),
 					),
-					array(
-						'name' => 'sample_text',
-						'save' => false,
-						'content' => __( 'Sample' ),
-					),
-					array(
-						'field_id' => 'samplerate',
-						'type'     => 'select',
-						'save'=> true,
-						'help'     => __( 'If your site is very busy, chooose a lower sample rate.', $this->domain ),
-						'default'  => 100,
-						'label'    => array(
-							100 => __( 'All', $this->domain ),
-							50  => '50%',
-							20  => '20%',
-							10  => '10%',
-							5   => '5%',
-							2   => '2%',
-							1   => '1%',
-						),
-					),
-					array(
-						'content' => __( 'Page Views' ),
-						'name' => 'pv_text',
-						'save' => false,
-					),
-				)
-			),
+				),
+			) );
+
+		$this->addSettingFields(
 			array(
 				'field_id' => 'monitoring_starter',
 				'label'    => __( 'Monitoring stops automatically.', $this->domain ),
@@ -466,7 +460,8 @@ class ImfsPage extends Imfs_AdminPageFramework {
 					'class' => array(
 						'fieldrow' => 'info',
 					),
-				)
+				),
+
 			)
 		);
 	}
