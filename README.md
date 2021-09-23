@@ -23,12 +23,16 @@ Here's the info on the repo.
    svn co https://plugins.svn.wordpress.org/index-wp-mysql-for-speed svn
    ```
 5. Copy the files to be released into the `svn/trunk` directory.
-6. From the `svn` directory do
+6. From the `svn` directory add any new files:
+   ```bash
+   svn add svn/trunk/code/whatever.ext
+    ```
+8. From the `svn` directory do
    ```bash
    svn cp trunk tags/xx.yy.zz
    ```
    where `xx.yy.zz` is the version to release
-7. Do this
+9. Do this
    ```bash
    svn ci -m "vxx.yy.zz commit message"
    ```
