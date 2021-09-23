@@ -32,21 +32,29 @@ add_action( 'init', 'index_wp_mysql_for_speed_do_everything' );
 
 function index_wp_mysql_for_speed_do_everything() {
 	/* admin page activation */
-	if ( is_admin() ) {
+	$admin = is_admin();
+	if ( $admin ) {
 		$userCanLoad = is_multisite() ? is_super_admin() : current_user_can( 'activate_plugins' );
 		if ( $userCanLoad ) {
 			requireThemAll();
 			add_filter( 'plugin_action_links_' . plugin_basename( __FILE__ ), 'index_wp_mysql_for_speed_action_link' );
 		}
 	}
-	/* production page ... are we still monitoring? */
-	if ( $monval = get_transient( index_wp_mysql_for_speed_monitor ) ) {
+	/* monitoring code ... as light as possible when not monitoring. */
+	$monval = get_option( index_wp_mysql_for_speed_monitor );
+	if ( $monval ) {
 		if ( $monval->stoptime > time() ) {
-			if ( $monval->sampleRate === 1.0 ||  rand() <= $monval->samplerate * getrandmax() ) {
-				require_once( plugin_dir_path( __FILE__ ) . 'code/querymon.php' );
+			if ( ( ( $monval->targets & 1 ) !== 0 && $admin ) || ( ( $monval->targets & 2 ) !== 0 && ! $admin ) ) {
+				if ( $monval->sampleRate === 1.0 || rand() <= $monval->samplerate * getrandmax() ) {
+					require_once( plugin_dir_path( __FILE__ ) . 'code/querymon.php' );
+					new ImfsMonitor( $monval, 'capture' );
+				}
 			}
 		} else {
-			delete_transient( index_wp_mysql_for_speed_monitor );
+			require_once( plugin_dir_path( __FILE__ ) . 'code/querymon.php' );
+			$m = new ImfsMonitor( $monval, 'nocapture' );
+			$m->completeMonitoring();
+			delete_option( index_wp_mysql_for_speed_monitor );
 		}
 	}
 	//}
@@ -72,12 +80,14 @@ function index_wp_mysql_for_speed_activate() {
 }
 
 function index_wp_mysql_for_speed_deactivate() {
-	/* clean up transients and options */
-	delete_transient( index_wp_mysql_for_speed_monitor . 'Gather' );
-	delete_transient( index_wp_mysql_for_speed_monitor . 'Log' );
-	delete_transient( index_wp_mysql_for_speed_monitor);
-	delete_option( index_wp_mysql_for_speed_monitor . 'nextMonitorUpdate' );
+	/* clean up options */
+	global $wpdb;
 	delete_option( 'ImfsPage' );
+	$q  = "SELECT option_name FROM {$wpdb->options} WHERE option_name LIKE '" . index_wp_mysql_for_speed_monitor . "%'";
+	$rs = $wpdb->get_results( $q );
+	foreach ( $rs as $r ) {
+		delete_option( $r->option_name );
+	}
 }
 
 /**

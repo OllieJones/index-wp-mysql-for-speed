@@ -11,24 +11,26 @@ class ImfsMonitor {
 	public $queryLogSizeThreshold = 1048576; /* 1 MiB */
 	public $queryGatherSizeLimit = 524288; /* 0.5 MiB */
 	public $gatherDelimiter = "\e\036\e"; /* unlikely oldtimey ascii esc and rs */
-	public $gatherExpiration = 60; /* seconds */
 	public $cronInterval = 30; /* seconds, always less than $gatherExpiration */
-	public $queryLogExpiration = 864000; /* ten days */
 	public $parser;
 	public $explainVerb = "EXPLAIN";
-	public $analyzeVerb = "ANALYZE"; /* change to EXPLAIN to avoid ANALYZE overhead */
+	public $analyzeVerb = "EXPLAIN"; /* change to EXPLAIN to avoid ANALYZE overhead */
+	public $captureName;
 
-	public function __construct() {
-		$this->parser = new LightSQLParser();
-		add_action( 'shutdown', [ $this, 'imfsMonitorGather' ], 99 );
+	public function __construct( $monval, $action ) {
+		$this->captureName = $monval->name;
+		$this->parser      = new LightSQLParser();
+		if ( $action === 'capture' ) {
+			add_action( 'shutdown', [ $this, 'imfsMonitorGather' ], 99 );
 
-		add_option(index_wp_mysql_for_speed_monitor . 'nextMonitorUpdate', time() + $this->cronInterval);
+			update_option( index_wp_mysql_for_speed_monitor . 'nextMonitorUpdate', time() + $this->cronInterval, true );
+		}
 	}
 
 	function imfsMonitorGather() {
 		global $wpdb;
 
-		$transientName = index_wp_mysql_for_speed_monitor . 'Gather';
+		$optionName = index_wp_mysql_for_speed_monitor . 'Gather';
 
 		$uploads = array();
 
@@ -46,13 +48,13 @@ class ImfsMonitor {
 				}
 			}
 		}
-		$this->storeGathered( $transientName, $uploads, $this->gatherExpiration, $this->gatherDelimiter, $this->queryGatherSizeLimit );
+		$this->storeGathered( $optionName, $uploads, $this->gatherDelimiter, $this->queryGatherSizeLimit );
 
-		$nextMonitorUpdate = intval(get_option(index_wp_mysql_for_speed_monitor . 'nextMonitorUpdate'));
-		$now = time();
-		if ($now > $nextMonitorUpdate) {
+		$nextMonitorUpdate = intval( get_option( index_wp_mysql_for_speed_monitor . 'nextMonitorUpdate' ) );
+		$now               = time();
+		if ( $now > $nextMonitorUpdate ) {
 			$this->imfsMonitorProcess();
-			update_option(index_wp_mysql_for_speed_monitor . 'nextMonitorUpdate', $now + $this->cronInterval);
+			update_option( index_wp_mysql_for_speed_monitor . 'nextMonitorUpdate', $now + $this->cronInterval, true );
 		}
 	}
 
@@ -64,7 +66,7 @@ class ImfsMonitor {
 			$item->t = $q[1]; /* duration in microseconds */
 			//$item->c      = $q[2]; /* call traceback */
 			//$item->s      = $q[3]; /* query start time */
-			$item->a = ! ! is_admin(); /* 0 if front-end, 1 if admin */
+			$item->a = ! ! is_admin();
 			if ( $explain ) {
 				$explainer = stripos( $q[0], 'SELECT ' ) === 0 ? $this->analyzeVerb : $this->explainVerb;
 				$explainq  = $explainer . ' ' . $q[0];
@@ -77,22 +79,21 @@ class ImfsMonitor {
 		}
 	}
 
-	function storeGathered( $transient, $uploadArray, $expiration, $separator, $maxlength ) {
-		$this->imfs_append_to_transient( $transient, implode( $separator, $uploadArray ), $expiration, $separator, $maxlength );
+	function storeGathered( $name, $uploadArray, $separator, $maxlength ) {
+		$this->imfs_append_to_option( $name, implode( $separator, $uploadArray ), $separator, $maxlength );
 	}
 
-	/** Upsert and append data to a WordPress transient.
+	/** Upsert and append data to a WordPress option.
 	 *
-	 * This function deletes the transient from the WordPress options cache to avoid stale data.
+	 * This function deletes the option from the WordPress options cache to avoid stale data.
 	 *
-	 * @param string $transient Transient name.
+	 * @param string $name option name.
 	 * @param string $value Data to append.
-	 * @param int $expiration Transient expiration (default 120 sec). 0 means the transient does not expire.
 	 * @param string $separator Separator between appended values (default '|||').
 	 * @param int $maxlength Stop appending when value reaches this length to avoid bloat (default 512 KiB).
 	 */
-	function imfs_append_to_transient( $transient, $value, $expiration = 120, $separator = '|||', $maxlength = 524288 ) {
-		if ( ! $transient || strlen( $transient ) === 0 ) {
+	function imfs_append_to_option( $name, $value, $separator = '|||', $maxlength = 524288 ) {
+		if ( ! $name || strlen( $name ) === 0 ) {
 			return;
 		}
 		if ( ! $value ) {
@@ -100,14 +101,6 @@ class ImfsMonitor {
 		}
 		try {
 			global $wpdb;
-			if ( $expiration ) {
-				$name = '_transient_timeout_' . $transient;
-				wp_cache_delete( $name, 'options' );
-				$query = "INSERT IGNORE INTO $wpdb->options (option_name, option_value, autoload) VALUES (%s, %d, 'no')";
-				$query = $wpdb->prepare( $query, $name, $expiration + time() );
-				$wpdb->get_results( $query );
-			}
-			$name = '_transient_' . $transient;
 			wp_cache_delete( $name, 'options' );
 			/* INSERT ... ON DUPLICATE KEY UPDATE requires us to mention the $value twice.
 			 * We can't use ON DUPLICATE KEY UPDATE col = VALUES(option_value)
@@ -127,22 +120,27 @@ class ImfsMonitor {
 	}
 
 	function imfsMonitorProcess() {
+		$now                 = time();
 		$queryLogOverflowing = false;
-		$queryLog            = get_transient( index_wp_mysql_for_speed_monitor . 'Log' );
+		$logName             = index_wp_mysql_for_speed_monitor . '-Log-' . $this->captureName;
+		$queryLog            = get_option( $logName );
 		if ( ! $queryLog ) {
 			$queryLog          = (object) array();
-			$queryLog->queries = array();
 			$queryLog->count   = 1;
+			$queryLog->start   = $now;
+			$queryLog->stop    = $now;
+			$queryLog->queries = array();
 		} else {
 			$queryLogOverflowing = strlen( $queryLog ) > $this->queryLogSizeThreshold;
 			$queryLog            = json_decode( $queryLog );
 			$queryLog->queries   = (array) $queryLog->queries;
 			$queryLog->count ++;
+			$queryLog->stop = $now;
 		}
 
-		$queryGather = get_transient( index_wp_mysql_for_speed_monitor . 'Gather' );
+		$queryGather = get_option( index_wp_mysql_for_speed_monitor . 'Gather' );
 		/* tiny race condition window between get and delete here. */
-		delete_transient( index_wp_mysql_for_speed_monitor . 'Gather' );
+		delete_option( index_wp_mysql_for_speed_monitor . 'Gather' );
 
 		$queries     = array();
 		$queryGather = explode( $this->gatherDelimiter, $queryGather );
@@ -158,9 +156,9 @@ class ImfsMonitor {
 			return $b->t - $a->t;
 		} );
 
-		foreach ( $queries as $q ) {
+		foreach ( $queries as $thisQuery ) {
 			try {
-				$query = $q->q;
+				$query = $thisQuery->q;
 				$this->parser->setQuery( $query );
 				$method = $this->parser->getMethod();
 				/* don't analyze SHOW VARIABLES and other SHOW commands */
@@ -170,27 +168,28 @@ class ImfsMonitor {
 					if ( array_key_exists( $qid, $queryLog->queries ) ) {
 						$qe       = $queryLog->queries[ $qid ];
 						$qe->n    += 1;
-						$qe->t    += $q->t;
-						$qe->tsq  += $q->t * $q->t;
-						$qe->ts[] = $q->t;
-						if ( $qe->maxt < $q->t ) {
-							$qe->maxt = $q->t;
-							$qe->e    = $q->e;
-							$qe->q    = $q->q;
+						$qe->t    += $thisQuery->t;
+						$qe->ts[] = $thisQuery->t;
+						if ( $qe->maxt < $thisQuery->t ) {
+							$qe->maxt = $thisQuery->t;
+							$qe->e    = $thisQuery->e; /* grab the longest-running query to report out */
+							$qe->q    = $thisQuery->q;
 						}
-						$qe->mint                   = $qe->t > $q->t ? $q->t : $qe->t;
+						if ( $thisQuery->t < $qe->mint ) {
+							$qe->mint = $thisQuery->t;
+						}
 						$queryLog->queries [ $qid ] = $qe;
 					} else if ( ! $queryLogOverflowing ) {
 						$qe                        = (object) [];
 						$qe->f                     = $fingerprint;
-						$qe->t                     = $q->t;
-						$qe->q                     = $q->q;
-						$qe->e                     = $q->e;
-						$qe->ts                    = array( $q->t );
-						$qe->mint                  = $q->t;
-						$qe->maxt                  = $q->t;
+						$qe->a                     = $thisQuery->a;
 						$qe->n                     = 1;
-						$qe->a                     = $q->a;
+						$qe->t                     = $thisQuery->t;
+						$qe->mint                  = $thisQuery->t;
+						$qe->maxt                  = $thisQuery->t;
+						$qe->e                     = $thisQuery->e;
+						$qe->ts                    = array( $thisQuery->t );
+						$qe->q                     = $thisQuery->q;
 						$queryLog->queries[ $qid ] = $qe;
 					} else {
 						if ( $queryLog->overflowed ) {
@@ -204,8 +203,12 @@ class ImfsMonitor {
 				/* empty, intentionally ... no crash on query parse fail */
 			}
 		}
-		set_transient( index_wp_mysql_for_speed_monitor . 'Log', json_encode( $queryLog ), $this->queryLogExpiration );
+		update_option( $logName, json_encode( $queryLog ), false );
+	}
+
+	function completeMonitoring() {
+		$this->imfsMonitorProcess();
+		delete_option( index_wp_mysql_for_speed_monitor . 'nextMonitorUpdate' );
+		delete_option( index_wp_mysql_for_speed_monitor . 'Gather' );
 	}
 }
-
-new ImfsMonitor;

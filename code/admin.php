@@ -293,7 +293,7 @@ class ImfsPage extends Imfs_AdminPageFramework {
 			array(
 				'field_id'    => $action . '_now',
 				'type'        => 'submit',
-				'save'        => 'false',
+				'save'        => false,
 				'value'       => $callToAction,
 				'description' => $this->dontNavigate,
 				'class'       => array(
@@ -353,7 +353,7 @@ class ImfsPage extends Imfs_AdminPageFramework {
 				array(
 					'field_id'    => 'upload_metadata_now',
 					'type'        => 'submit',
-					'save'        => 'false',
+					'save'        => false,
 					'value'       => __( 'Upload metadata', $this->domain ),
 					'description' => $this->dontNavigate,
 					'class'       => array(
@@ -378,7 +378,7 @@ class ImfsPage extends Imfs_AdminPageFramework {
 	 * render the upload-metadata page.
 	 */
 	function configureMonitoring() {
-		$sampleText = __( 'Sample %d%% of pageviews', $this->domain );
+		$sampleText = __( 'sampling %d%% of pageviews.', $this->domain );
 		$this->addSettingFields(
 			array(
 				'field_id' => 'monitoring_parameters',
@@ -395,10 +395,21 @@ class ImfsPage extends Imfs_AdminPageFramework {
 				'type'     => 'inline_mixed',
 				'content'  => array(
 					array(
+						'field_id' => 'targets',
+						'type'     => 'select',
+						'save'     => true,
+						'default'  => 3,
+						'label'    => array(
+							3 => __( 'Monitor Dashboard and Site', $this->domain ),
+							2 => __( 'Monitor Site Only', $this->domain ),
+							1 => __( 'Monitor Dashboard Only', $this->domain ),
+						),
+					),
+					array(
 						'field_id'        => 'duration',
 						'type'            => 'number',
 						'label_min_width' => '',
-						'label'           => __( 'Monitor for (minutes)' ),
+						'label'           => __( 'for (minutes)' ),
 						'save'            => true,
 						'default'         => 5,
 						'class'           => array(
@@ -413,7 +424,7 @@ class ImfsPage extends Imfs_AdminPageFramework {
 						'help'     => __( 'If your site is very busy, chooose a lower sample rate.', $this->domain ),
 						'default'  => 100,
 						'label'    => array(
-							100 => __( 'Monitor all pageviews', $this->domain ),
+							100 => __( 'capturing all pageviews.', $this->domain ),
 							50  => sprintf( $sampleText, 50 ),
 							20  => sprintf( $sampleText, 20 ),
 							10  => sprintf( $sampleText, 10 ),
@@ -447,7 +458,7 @@ class ImfsPage extends Imfs_AdminPageFramework {
 				array(
 					'field_id' => 'start_monitoring_now',
 					'type'     => 'submit',
-					'save'     => 'false',
+					'save'     => false,
 					'value'    => __( 'Start Monitoring', $this->domain ),
 					'class'    => array(
 						'fieldrow' => 'action',
