@@ -4,7 +4,7 @@ Tags: database, index, key, mysql, wp-cli
 Requires at least: 5.2
 Tested up to: 5.8.1
 Requires PHP: 5.5
-Stable tag: 1.2.2
+Stable tag: 1.2.3
 Network: true
 License: GPL v2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -138,6 +138,9 @@ Fix require_once defect exposed by wp-cli workflow.
 
 = 1.2.2 =
 Fix engine-upgrade defect, stop counting rows because it's too slow..
+
+= 1.2.3 =
+Fix cli defect.
 
 == Upgrade Notice ==
 This version supports [WP-CLI](https://make.wordpress.org/cli/handbook/); you can run it from a shell command line. It supports a way to reset your tables' keys to the WordPress standard
