@@ -45,7 +45,7 @@ function index_wp_mysql_for_speed_do_everything() {
 	if ( $monval ) {
 		if ( $monval->stoptime > time() ) {
 			if ( ( ( $monval->targets & 1 ) !== 0 && $admin ) || ( ( $monval->targets & 2 ) !== 0 && ! $admin ) ) {
-				if ( $monval->sampleRate === 1.0 || rand() <= $monval->samplerate * getrandmax() ) {
+				if ( $monval->samplerate === 1.0 || rand() <= $monval->samplerate * getrandmax() ) {
 					require_once( plugin_dir_path( __FILE__ ) . 'code/querymon.php' );
 					new ImfsMonitor( $monval, 'capture' );
 				}

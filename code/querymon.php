@@ -27,6 +27,15 @@ class ImfsMonitor {
 		}
 	}
 
+	/** Get a queryId, a hash, for a query fingerprint
+	 * @param string $fingerprint query fingerprint like SELECT col, col FROM tbl WHERE col = ?i?
+	 *
+	 * @return false|string
+	 */
+	private static function getQueryId( $fingerprint ) {
+		return substr( hash( 'md5', $fingerprint, false ), 0, 16 );
+	}
+
 	function imfsMonitorGather() {
 		global $wpdb;
 
@@ -53,11 +62,17 @@ class ImfsMonitor {
 		$nextMonitorUpdate = intval( get_option( index_wp_mysql_for_speed_monitor . 'nextMonitorUpdate' ) );
 		$now               = time();
 		if ( $now > $nextMonitorUpdate ) {
-			$this->imfsMonitorProcess();
+			$this->processGatheredQueries();
 			update_option( index_wp_mysql_for_speed_monitor . 'nextMonitorUpdate', $now + $this->cronInterval, true );
 		}
 	}
 
+	/** make a JSON-encoded object containing a query's vital signs.
+	 * @param array $q element in $wpdb->queries  array
+	 * @param bool $explain yes, run EXPLAIN on the query. no, skip it.
+	 *
+	 * @return string|null
+	 */
 	function encodeQuery( $q, $explain = true ) {
 		global $wpdb;
 		try {
@@ -65,7 +80,7 @@ class ImfsMonitor {
 			$item->q = $q[0];
 			$item->t = $q[1]; /* duration in microseconds */
 			//$item->c      = $q[2]; /* call traceback */
-			//$item->s      = $q[3]; /* query start time */
+			$item->s      = intval($q[3]); /* query start time */
 			$item->a = ! ! is_admin();
 			if ( $explain ) {
 				$explainer = stripos( $q[0], 'SELECT ' ) === 0 ? $this->analyzeVerb : $this->explainVerb;
@@ -119,25 +134,119 @@ class ImfsMonitor {
 		}
 	}
 
-	function imfsMonitorProcess() {
-		$now                 = time();
-		$queryLogOverflowing = false;
+	/**
+	 * process the queries gathered by imfsMonitorGather, creating / updating a queryLog
+	 */
+	function processGatheredQueries() {
 		$logName             = index_wp_mysql_for_speed_monitor . '-Log-' . $this->captureName;
-		$queryLog            = get_option( $logName );
+		list( $queryLog, $queryLogOverflowing ) = $this->getQueryLog( $logName );
+
+		$queries = $this->getGatheredQueries();
+		foreach ( $queries as $thisQuery ) {
+			$this->processQuery( $queryLog, $thisQuery, $queryLogOverflowing );
+		}
+		update_option( $logName, json_encode( $queryLog ), false );
+	}
+
+	/**
+	 * process any left-over queries gathered by imfsMonitor and stop gathering.
+	 */
+	function completeMonitoring() {
+		$this->processGatheredQueries();
+		delete_option( index_wp_mysql_for_speed_monitor . 'nextMonitorUpdate' );
+		delete_option( index_wp_mysql_for_speed_monitor . 'Gather' );
+	}
+
+	/** Insert a query into the $queryLog
+	 * @param object $queryLog
+	 * @param object $thisQuery
+	 * @param bool $queryLogOverflowing
+	 */
+	private function processQuery( $queryLog, $thisQuery, $queryLogOverflowing ) {
+		try {
+			/* track time range of items in this queryLog */
+			if ( $queryLog->start < $thisQuery->s ) {
+				$queryLog->start = $thisQuery->s;
+			}
+			if ( $queryLog->end > $thisQuery->s ) {
+				$queryLog->end = $thisQuery->s;
+			}
+			$query = $thisQuery->q;
+			$this->parser->setQuery( $query );
+			$method = $this->parser->getMethod();
+			/* don't analyze SHOW VARIABLES and other SHOW commands */
+			if ( $method != 'SHOW' ) {
+				$fingerprint = $this->parser->getFingerprint();
+				$qid         = self::getQueryId( $thisQuery->a . $fingerprint );
+				if ( array_key_exists( $qid, $queryLog->queries ) ) {
+					$qe       = $queryLog->queries[ $qid ];
+					$qe->n    += 1;
+					$qe->t    += $thisQuery->t;
+					$qe->ts[] = $thisQuery->t;
+					if ( $qe->maxt < $thisQuery->t ) {
+						$qe->maxt = $thisQuery->t;
+						$qe->e    = $thisQuery->e; /* grab the longest-running query to report out */
+						$qe->q    = $thisQuery->q;
+					}
+					if ( $thisQuery->t < $qe->mint ) {
+						$qe->mint = $thisQuery->t;
+					}
+					$queryLog->queries [ $qid ] = $qe;
+				} else if ( ! $queryLogOverflowing ) {
+					$qe                        = (object) [];
+					$qe->f                     = $fingerprint;
+					$qe->a                     = $thisQuery->a;
+					$qe->n                     = 1;
+					$qe->t                     = $thisQuery->t;
+					$qe->mint                  = $thisQuery->t;
+					$qe->maxt                  = $thisQuery->t;
+					$qe->e                     = $thisQuery->e;
+					$qe->ts                    = array( $thisQuery->t );
+					$qe->q                     = $thisQuery->q;
+					$queryLog->queries[ $qid ] = $qe;
+				} else {
+					if ( $queryLog->overflowed ) {
+						$queryLog->overflowed += 1;
+					} else {
+						$queryLog->overflowed = 1;
+					}
+				}
+			}
+		} catch ( Exception $e ) {
+			/* empty, intentionally ... no crash on query parse fail */
+		}
+	}
+
+	/**
+	 * @param $logName
+	 * @param $queryLogOverflowing
+	 * @param $now
+	 *
+	 * @return array
+	 */
+	private function getQueryLog( $logName ) {
+		$queryLog = get_option( $logName );
 		if ( ! $queryLog ) {
+			$queryLogOverflowing = false;
 			$queryLog          = (object) array();
 			$queryLog->count   = 1;
-			$queryLog->start   = $now;
-			$queryLog->stop    = $now;
+			$queryLog->start   = PHP_INT_MIN;
+			$queryLog->end     = PHP_INT_MAX;
 			$queryLog->queries = array();
 		} else {
 			$queryLogOverflowing = strlen( $queryLog ) > $this->queryLogSizeThreshold;
 			$queryLog            = json_decode( $queryLog );
 			$queryLog->queries   = (array) $queryLog->queries;
 			$queryLog->count ++;
-			$queryLog->stop = $now;
 		}
 
+		return array( $queryLog, $queryLogOverflowing );
+}
+
+	/** retrieve gathered queries.
+	 * @return array query objects just gathered.
+	 */
+	private function getGatheredQueries() {
 		$queryGather = get_option( index_wp_mysql_for_speed_monitor . 'Gather' );
 		/* tiny race condition window between get and delete here. */
 		delete_option( index_wp_mysql_for_speed_monitor . 'Gather' );
@@ -151,64 +260,7 @@ class ImfsMonitor {
 				/* empty, intentionally */
 			}
 		}
-		/* get queries in descending order of elapsed time */
-		usort( $queries, function ( $a, $b ) {
-			return $b->t - $a->t;
-		} );
 
-		foreach ( $queries as $thisQuery ) {
-			try {
-				$query = $thisQuery->q;
-				$this->parser->setQuery( $query );
-				$method = $this->parser->getMethod();
-				/* don't analyze SHOW VARIABLES and other SHOW commands */
-				if ( $method != 'SHOW' ) {
-					$fingerprint = $this->parser->getFingerprint();
-					$qid         = substr( hash( 'md5', $fingerprint, false ), 0, 16 );
-					if ( array_key_exists( $qid, $queryLog->queries ) ) {
-						$qe       = $queryLog->queries[ $qid ];
-						$qe->n    += 1;
-						$qe->t    += $thisQuery->t;
-						$qe->ts[] = $thisQuery->t;
-						if ( $qe->maxt < $thisQuery->t ) {
-							$qe->maxt = $thisQuery->t;
-							$qe->e    = $thisQuery->e; /* grab the longest-running query to report out */
-							$qe->q    = $thisQuery->q;
-						}
-						if ( $thisQuery->t < $qe->mint ) {
-							$qe->mint = $thisQuery->t;
-						}
-						$queryLog->queries [ $qid ] = $qe;
-					} else if ( ! $queryLogOverflowing ) {
-						$qe                        = (object) [];
-						$qe->f                     = $fingerprint;
-						$qe->a                     = $thisQuery->a;
-						$qe->n                     = 1;
-						$qe->t                     = $thisQuery->t;
-						$qe->mint                  = $thisQuery->t;
-						$qe->maxt                  = $thisQuery->t;
-						$qe->e                     = $thisQuery->e;
-						$qe->ts                    = array( $thisQuery->t );
-						$qe->q                     = $thisQuery->q;
-						$queryLog->queries[ $qid ] = $qe;
-					} else {
-						if ( $queryLog->overflowed ) {
-							$queryLog->overflowed += 1;
-						} else {
-							$queryLog->overflowed = 1;
-						}
-					}
-				}
-			} catch ( Exception $e ) {
-				/* empty, intentionally ... no crash on query parse fail */
-			}
-		}
-		update_option( $logName, json_encode( $queryLog ), false );
-	}
-
-	function completeMonitoring() {
-		$this->imfsMonitorProcess();
-		delete_option( index_wp_mysql_for_speed_monitor . 'nextMonitorUpdate' );
-		delete_option( index_wp_mysql_for_speed_monitor . 'Gather' );
+		return $queries;
 	}
 }

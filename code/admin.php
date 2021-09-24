@@ -161,7 +161,7 @@ class ImfsPage extends Imfs_AdminPageFramework {
 					'type'     => 'checkbox',
 					'label'    => __( 'I have made a backup', $this->domain ),
 					'default'  => 0,
-					'save'     => true,
+					'save'     => false,
 					'class'    => array(
 						'fieldrow' => 'major',
 					),
