@@ -75,3 +75,22 @@ p.topinfo {
 p.topinfo:last-of-type {
     margin-bottom: 2em;
 }
+
+div#wpbody > div#wpbody-content h1.rendermon {
+    margin-top: 0.7rem;
+    font-size: 1.4rem;
+    font-weight: 600;
+}
+div#wpbody > div#wpbody-content div.rendermon.table-container {
+    margin-top: 0.5em;
+    margin-bottom: 0.5em;
+}
+
+div#wpbody > div#wpbody-content div.rendermon.table-container table thead tr td.rendermon.query.header {
+    font-weight: 600;
+}
+
+div#wpbody > div#wpbody-content div.rendermon.table-container button.dt-button span,
+div#wpbody > div#wpbody-content div.rendermon.table-container div.dataTables_filter label {
+    font-size: 0.85rem;
+}

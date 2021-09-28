@@ -13,9 +13,9 @@ class QueryMonControl {
 
 		$monval->targets = intval( $specs['targets'] );
 		$targetText      = __( 'Monitoring dashboard and site', index_wp_mysql_for_speed_domain );
-		if ( $monval->targets === 1 ) {
+		if ( $monval->targets === 2 ) {
 			$targetText = __( 'Monitoring site only', index_wp_mysql_for_speed_domain );
-		} else if ( $monval->targets === 2 ) {
+		} else if ( $monval->targets === 1 ) {
 			$targetText = __( 'Monitoring dashboard only', index_wp_mysql_for_speed_domain );
 		}
 

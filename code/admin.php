@@ -47,10 +47,44 @@ class ImfsPage extends Imfs_AdminPageFramework {
 
 			)
 		);
+		$this->addInPageTabs(
+			'imfs_settings',
+			array(
+				'tab_slug' => 'rekey',
+				'title'    => __( 'High-Performance Keys', $this->domain )
+			),
+			array(
+				'tab_slug' => 'monitor',
+				'title'    => __( 'Monitor Database Operations', $this->domain )
+			),
+			array(
+				'tab_slug' => 'info',
+				'title'    => __( 'About', $this->domain )
+			),
+		);
+		$this->setPageHeadingTabsVisibility( false );
+	}
+
+	/**
+	 * render monitor output.
+	 */
+	public function content_bottom_imfs_settings_monitor( $sHTML ) {
+		require_once( 'rendermonitor.php' );
+		$renders  = array();
+		$monitors = RenderMonitor::getMonitors();
+
+		foreach ( $monitors as $monitor ) {
+			$rm = new RenderMonitor( $monitor );
+			$rm->load();
+			$renders[] = $rm->top();
+			$renders[] = $rm->table();
+		}
+
+		return implode( "\r", $renders ) . $sHTML;
 	}
 
 	/** @noinspection PhpUnused */
-	public function content_ImfsPage( $sHTML ) {
+	public function content_top_imfs_settings_info( $sHTML ) {
 		/** @noinspection HtmlUnknownTarget */
 		$hyperlink     = '<a href="%s" target="_blank">%s</a>';
 		$supportUrl    = "https://wordpress.org/support/plugin/index-wp-mysql-for-speed/";
@@ -68,28 +102,22 @@ class ImfsPage extends Imfs_AdminPageFramework {
 		$wpCliString   = '<p class="topinfo">' . __( 'This plugin supports %s. You may run its operations that way if your hosting machine is set up for it. If your tables are large, WP-CLI may be a good choice to avoid timeouts.', $this->domain ) . '</p>';
 		$wpCliString   = sprintf( $wpCliString, $wpCliUrl );
 
-		return $supportString . $detailsString . $wpCliString . $sHTML;
+		return $sHTML . $supportString . $detailsString . $wpCliString;
 	}
 
-	/** Render the plugin's admin page.
+	/** Render the plugin's admin page rekey tab
 	 *
 	 * @param $oAdminPage
 	 *
 	 * @noinspection PhpUnusedParameterInspection PhpUnused
 	 */
-	public function load_ImfsPage( $oAdminPage ) {
-		try {
-			$this->populate();
-		} catch ( ImfsException $ex ) {
-			$msg = __( 'Something went wrong inspecting your database', $this->domain ) . ': ' . $ex->getMessage();
-			$this->setSettingNotice( $msg );
-
-			return;
-		}
+	public function load_imfs_settings_rekey( $oAdminPage ) {
 		$this->enqueueStyles(
-			array( plugins_url( 'assets/imfs.css', __FILE__ ) ), 'imfs_settings' );
+			array(
+				plugins_url( 'assets/imfs.css', __FILE__ ),
+			), 'imfs_settings' );
 
-		if ( $this->MySQLVersionInfo() ) {
+		if ( $this->checkVersionInfo() ) {
 
 			$rekeying = $this->db->getRekeying();
 			/* errors **********************************/
@@ -128,23 +156,9 @@ class ImfsPage extends Imfs_AdminPageFramework {
 			}
 
 		}
-		$this->uploadMetadata();
-		$this->configureMonitoring();
 	}
 
-	/**
-	 * @throws ImfsException
-	 */
-	protected function populate() {
-
-		$this->db->init();
-		$this->canReindex    = $this->db->canReindex;
-		$this->unconstrained = $this->db->unconstrained;
-	}
-
-	private function MySQLVersionInfo() {
-		global $wp_version;
-		$versionString = 'MySQL:' . htmlspecialchars( $this->db->semver->version ) . ' WordPress:' . $wp_version . ' php:' . phpversion();
+	private function checkVersionInfo() {
 
 		$this->addSettingFields(
 			array(
@@ -167,18 +181,10 @@ class ImfsPage extends Imfs_AdminPageFramework {
 					),
 				)
 			),
-			array(
-				'field_id' => 'version',
-				'title'    => __( 'Versions', $this->domain ),
-				'default'  => $versionString,
-				'save'     => false,
-				'class'    => array(
-					'fieldrow' => 'info',
-				),
-			)
 		);
 
 		if ( ! $this->db->canReindex ) {
+			$this->showVersionInfo();
 			$this->addSettingFields(
 				array(
 					'field_id'    => 'version_error',
@@ -192,6 +198,7 @@ class ImfsPage extends Imfs_AdminPageFramework {
 				) );
 		} else {
 			if ( ! $this->db->unconstrained ) {
+				$this->showVersionInfo();
 				$this->addSettingFields(
 					array(
 						'field_id' => 'constraint_notice',
@@ -202,11 +209,26 @@ class ImfsPage extends Imfs_AdminPageFramework {
 							'fieldrow' => 'warning',
 						),
 					) );
-
 			}
 		}
 
 		return $this->db->canReindex;
+	}
+
+	private function showVersionInfo() {
+		global $wp_version;
+		$versionString = 'MySQL:' . htmlspecialchars( $this->db->semver->version ) . ' WordPress:' . $wp_version . ' php:' . phpversion();
+		$this->addSettingFields(
+			array(
+				'field_id' => 'version',
+				'title'    => __( 'Versions', $this->domain ),
+				'default'  => $versionString,
+				'save'     => false,
+				'class'    => array(
+					'fieldrow' => 'info',
+				),
+			)
+		);
 	}
 
 	/**
@@ -335,44 +357,27 @@ class ImfsPage extends Imfs_AdminPageFramework {
 		}
 	}
 
-	/** @noinspection PhpUnused */
-
-	/**
-	 * render the upload-metadata page.
+	/** Render the plugin's admin page rekey tab
+	 *
+	 * @param $oAdminPage
+	 *
+	 * @noinspection PhpUnusedParameterInspection PhpUnused
 	 */
-	function uploadMetadata() {
-		$this->addSettingFields(
+	public function load_imfs_settings_monitor( $oAdminPage ) {
+		$this->enqueueStyles(
 			array(
-				'field_id' => 'permission',
-				'title'    => __( 'Diagnostic data', $this->domain ),
-				'label'    => __( 'With your permission we upload metadata about your WordPress site to our plugin\'s servers. We cannot identify you or your website from it, and we never sell nor give it to any third party. We use it only to improve this plugin.', $this->domain ),
-				'save'     => false,
-				'class'    => array(
-					'fieldrow' => 'info',
-				),
-				array(
-					'field_id'    => 'upload_metadata_now',
-					'type'        => 'submit',
-					'save'        => false,
-					'value'       => __( 'Upload metadata', $this->domain ),
-					'description' => $this->dontNavigate,
-					'class'       => array(
-						'fieldrow' => 'action',
-					),
-				),
-				array(
-					'label' => $this->cliMessage( 'upload_metadata', __( 'Upload metadata', $this->domain ) ),
-					'type'  => 'label',
-					'save'  => false,
-					'class' => array(
-						'fieldrow' => 'info',
-					),
-				)
-			)
-		);
-	}
+				plugins_url( 'assets/imfs.css', __FILE__ ),
+				plugins_url( 'assets/datatables/datatables.min.css', __FILE__ )
+			), 'imfs_settings' );
+		$this->enqueueScripts(
+			array(
+				plugins_url( 'assets/datatables/datatables.min.js', __FILE__ ),
+				plugins_url( 'assets/imfs.js', __FILE__ )
 
-	/** @noinspection PhpUnused */
+			), 'imfs_settings' );
+
+		$this->configureMonitoring();
+	}
 
 	/**
 	 * render the upload-metadata page.
@@ -477,8 +482,97 @@ class ImfsPage extends Imfs_AdminPageFramework {
 		);
 	}
 
+	/** Render the plugin's admin page rekey tab
+	 *
+	 * @param $oAdminPage
+	 *
+	 * @noinspection PhpUnusedParameterInspection PhpUnused
+	 */
+	public function load_imfs_settings_info( $oAdminPage ) {
+		$this->enqueueStyles(
+			array(
+				plugins_url( 'assets/imfs.css', __FILE__ ),
+			), 'imfs_settings' );
+
+		global $wp_version;
+		$versionString = 'MySQL:' . htmlspecialchars( $this->db->semver->version ) . ' WordPress:' . $wp_version . ' php:' . phpversion();
+		$this->addSettingFields(
+			array(
+				'field_id' => 'version',
+				'title'    => __( 'Versions', $this->domain ),
+				'default'  => $versionString,
+				'save'     => false,
+				'class'    => array(
+					'fieldrow' => 'info',
+				),
+			)
+		);
+		$this->uploadMetadata();
+	}
+
+	/**
+	 * render the upload-metadata page.
+	 */
+	function uploadMetadata() {
+		$this->addSettingFields(
+			array(
+				'field_id' => 'permission',
+				'title'    => __( 'Diagnostic data', $this->domain ),
+				'label'    => __( 'With your permission we upload metadata about your WordPress site to our plugin\'s servers. We cannot identify you or your website from it, and we never sell nor give it to any third party. We use it only to improve this plugin.', $this->domain ),
+				'save'     => false,
+				'class'    => array(
+					'fieldrow' => 'info',
+				),
+				array(
+					'field_id'    => 'upload_metadata_now',
+					'type'        => 'submit',
+					'save'        => false,
+					'value'       => __( 'Upload metadata', $this->domain ),
+					'description' => $this->dontNavigate,
+					'class'       => array(
+						'fieldrow' => 'action',
+					),
+				),
+				array(
+					'label' => $this->cliMessage( 'upload_metadata', __( 'Upload metadata', $this->domain ) ),
+					'type'  => 'label',
+					'save'  => false,
+					'class' => array(
+						'fieldrow' => 'info',
+					),
+				)
+			)
+		);
+	}
+
 	/** @noinspection PhpUnused */
-	function validation_ImfsPage( $inputs, $oldInputs, $factory, $submitInfo ) {
+
+	public function load_imfs_settings( $oAdminPage ) {
+		try {
+			$this->populate();
+		} catch ( ImfsException $ex ) {
+			$msg = __( 'Something went wrong inspecting your database', $this->domain ) . ': ' . $ex->getMessage();
+			$this->setSettingNotice( $msg );
+
+			return;
+		}
+	}
+
+	/** @noinspection PhpUnused */
+
+	/**
+	 * @throws ImfsException
+	 */
+	protected function populate() {
+
+		$this->db->init();
+		$this->canReindex    = $this->db->canReindex;
+		$this->unconstrained = $this->db->unconstrained;
+	}
+
+	/** @noinspection PhpUnused */
+
+	function validation_imfs_settings_rekey( $inputs, $oldInputs, $factory, $submitInfo ) {
 		$valid  = true;
 		$errors = array();
 
@@ -508,6 +602,8 @@ class ImfsPage extends Imfs_AdminPageFramework {
 			}
 		}
 
+		$this->valid = $valid;
+
 		if ( ! $valid ) {
 			$this->setFieldErrors( $errors );
 			$this->setSettingNotice( __( 'Make corrections and try again.', $this->domain ) );
@@ -518,7 +614,7 @@ class ImfsPage extends Imfs_AdminPageFramework {
 		return $this->action( $submitInfo['field_id'], $inputs, $oldInputs, $factory, $submitInfo );
 	}
 
-	/** @noinspection PhpUnusedParameterInspection */
+	/** @noinspection PhpUnused */
 
 	private function listFromCheckboxes( $cbs ) {
 		$result = array();
@@ -531,7 +627,8 @@ class ImfsPage extends Imfs_AdminPageFramework {
 		return $result;
 	}
 
-	/** @noinspection PhpUnusedParameterInspection */
+	/** @noinspection PhpUnused */
+
 	private function action( $button, $inputs, $oldInputs, $factory, $submitInfo ) {
 		try {
 			switch ( $button ) {
@@ -569,6 +666,36 @@ class ImfsPage extends Imfs_AdminPageFramework {
 
 			return $oldInputs;
 		}
+	}
+
+	/** @noinspection PhpUnusedParameterInspection */
+
+	function validation_imfs_settings_monitor( $inputs, $oldInputs, $factory, $submitInfo ) {
+		$valid  = true;
+		$errors = array();
+		if ( ! $valid ) {
+			$this->setFieldErrors( $errors );
+			$this->setSettingNotice( __( 'Make corrections and try again.', $this->domain ) );
+
+			return $oldInputs;
+		}
+
+		return $this->action( $submitInfo['field_id'], $inputs, $oldInputs, $factory, $submitInfo );
+	}
+
+	/** @noinspection PhpUnusedParameterInspection */
+
+	function validation_imfs_settings_info( $inputs, $oldInputs, $factory, $submitInfo ) {
+		$valid  = true;
+		$errors = array();
+		if ( ! $valid ) {
+			$this->setFieldErrors( $errors );
+			$this->setSettingNotice( __( 'Make corrections and try again.', $this->domain ) );
+
+			return $oldInputs;
+		}
+
+		return $this->action( $submitInfo['field_id'], $inputs, $oldInputs, $factory, $submitInfo );
 	}
 
 }
