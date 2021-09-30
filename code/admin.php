@@ -21,6 +21,7 @@ class ImfsPage extends Imfs_AdminPageFramework {
 	 * @var false|mixed
 	 */
 	private $dontNavigate;
+	private $valid;
 
 	public function __construct( $slug = index_wp_mysql_for_speed_domain ) {
 		parent::__construct();
