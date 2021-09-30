@@ -1,3 +1,9 @@
+form  div#poststuff  div#post-body,
+div#wpbody > div#wpbody-content div.index-wp-mysql-for-speed-content-container {
+    margin-top: 1em;
+    margin-left: 1em;
+}
+
 div#wpcontent form div > div > table.form-table > tbody > tr.warning > th,
 div#wpcontent form div > div > table.form-table > tbody > tr > th span.warning {
     color: #cc9900;
@@ -79,8 +85,7 @@ p.topinfo:last-of-type {
 }
 
 div#wpbody > div#wpbody-content h1.rendermon {
-    margin-top: 0.7rem;
-    font-size: 1.4rem;
+    padding-top:0;
     font-weight: 600;
 }
 

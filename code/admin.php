@@ -153,7 +153,7 @@ class ImfsPage extends Imfs_AdminPageFramework {
 		$wpCliString   = '<p class="topinfo">' . __( 'This plugin supports %s. You may run its operations that way if your hosting machine is set up for it. If your tables are large, using WP-CLI may be a good choice to avoid timeouts.', $this->domain ) . '</p>';
 		$wpCliString   = sprintf( $wpCliString, $wpCliUrl );
 
-		return $sHTML . $supportString . $detailsString . $wpCliString;
+		return $sHTML . '<div class="index-wp-mysql-for-speed-content-container">'. $supportString . $detailsString . $wpCliString . '</div>';
 	}
 
 	/** Render the form in the rekey tab

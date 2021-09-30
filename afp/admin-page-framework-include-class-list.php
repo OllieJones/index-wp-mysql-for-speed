@@ -10,7 +10,6 @@ $aClassFiles = array(
     "Imfs_AdminPageFramework_ImportOptions"=> Imfs_AdminPageFramework_Registry::$sDirPath . "/factory/admin_page/_model/AdminPageFramework_ImportOptions.php", 
     "Imfs_AdminPageFramework_Property_admin_page"=> Imfs_AdminPageFramework_Registry::$sDirPath . "/factory/admin_page/_model/AdminPageFramework_Property_admin_page.php", 
     "Imfs_AdminPageFramework_Model_Menu__RegisterMenu"=> Imfs_AdminPageFramework_Registry::$sDirPath . "/factory/admin_page/_model/delegate/AdminPageFramework_Model_Menu__RegisterMenu.php", 
-    "Imfs_AdminPageFramework_Model__FormEmailHandler"=> Imfs_AdminPageFramework_Registry::$sDirPath . "/factory/admin_page/_model/delegate/AdminPageFramework_Model__FormEmailHandler.php", 
     "Imfs_AdminPageFramework_Model__FormRedirectHandler"=> Imfs_AdminPageFramework_Registry::$sDirPath . "/factory/admin_page/_model/delegate/AdminPageFramework_Model__FormRedirectHandler.php", 
     "Imfs_AdminPageFramework_Model__FormSubmission"=> Imfs_AdminPageFramework_Registry::$sDirPath . "/factory/admin_page/_model/delegate/AdminPageFramework_Model__FormSubmission.php", 
     "Imfs_AdminPageFramework_Model__FormSubmission__Validator"=> Imfs_AdminPageFramework_Registry::$sDirPath . "/factory/admin_page/_model/delegate/validaor/AdminPageFramework_Model__FormSubmission__Validator.php", 
@@ -323,7 +322,5 @@ $aClassFiles = array(
     "Imfs_AdminPageFramework_Factory_Model"=> Imfs_AdminPageFramework_Registry::$sDirPath . "/factory/_common/_abstract/AdminPageFramework_Factory.php", 
     "Imfs_AdminPageFramework_Factory_View"=> Imfs_AdminPageFramework_Registry::$sDirPath . "/factory/_common/_abstract/AdminPageFramework_Factory.php", 
     "Imfs_AdminPageFramework_Factory_Controller"=> Imfs_AdminPageFramework_Registry::$sDirPath . "/factory/_common/_abstract/AdminPageFramework_Factory.php", 
-    "Imfs_ToggleCustomFieldType" => Imfs_AdminPageFramework_Registry::$sDirPath . "/custom-field-types/toggle-custom-field-type/ToggleCustomFieldType.php",
-    "Imfs_NoUISliderCustomFieldType" => Imfs_AdminPageFramework_Registry::$sDirPath . "/custom-field-types/nouislider-custom-field-type/NoUISliderCustomFieldType.php",
-    "Imfs_Select2CustomFieldType" => Imfs_AdminPageFramework_Registry::$sDirPath . "/custom-field-types/select2-custom-field-type/Select2CustomFieldType.php",
+
 );

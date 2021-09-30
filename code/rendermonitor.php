@@ -46,8 +46,10 @@ class renderMonitor {
 
 	function render() {
 		$this->load();
+		$c     = $this->classPrefix;
+		$prefix = "<div class=\"$c index-wp-mysql-for-speed-content-container\">";
 
-		return $this->top() . $this->table();
+		return $prefix . $this->top() . $this->table() . "</div>";
 	}
 
 	public function load() {
