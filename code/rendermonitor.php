@@ -46,7 +46,7 @@ class renderMonitor {
 
 	function render() {
 		$this->load();
-		$c     = $this->classPrefix;
+		$c      = $this->classPrefix;
 		$prefix = "<div class=\"$c index-wp-mysql-for-speed-content-container\">";
 
 		return $prefix . $this->top() . $this->table() . "</div>";
@@ -55,16 +55,6 @@ class renderMonitor {
 	public function load() {
 		$this->queryLog          = json_decode( get_option( $this->prefix . $this->monitor ) );
 		$this->queryLog->queries = (array) $this->queryLog->queries;
-	}
-
-	public function timeRange() {
-		$l     = $this->queryLog;
-		$c     = $this->classPrefix;
-		$start = wp_date( $this->dateFormat, $l->start );
-		$end   = wp_date( $this->dateFormat, $l->end );
-		return <<<END
-		<span class="$c start">$start</span>―<span class="$c end">$end</span>
-END;
 	}
 
 	public function top() {
@@ -90,6 +80,17 @@ END;
 END;
 
 		return $res;
+	}
+
+	public function timeRange() {
+		$l     = $this->queryLog;
+		$c     = $this->classPrefix;
+		$start = wp_date( $this->dateFormat, $l->start );
+		$end   = wp_date( $this->dateFormat, $l->end );
+
+		return <<<END
+		<span class="$c start">$start</span>―<span class="$c end">$end</span>
+END;
 	}
 
 	public function stats() {
@@ -310,5 +311,10 @@ END;
 		}
 
 		return implode( " ", $expl );
+	}
+
+	static function deleteMonitor( $monitor ) {
+		$prefix = index_wp_mysql_for_speed_monitor . '-Log-';
+		delete_option( $prefix . $monitor );
 	}
 }

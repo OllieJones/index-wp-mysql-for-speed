@@ -50,16 +50,16 @@ class ImfsPage extends Imfs_AdminPageFramework {
 
 			)
 		);
-		$tabs   = array();
-		$tabs[] = array(
+		$tabs           = array();
+		$tabs[]         = array(
 			'tab_slug' => 'rekey',
 			'title'    => __( 'High-Performance Keys', $this->domain )
 		);
-		$tabs[] = array(
+		$tabs[]         = array(
 			'tab_slug' => 'monitor',
 			'title'    => __( 'Monitor Database Operations', $this->domain )
 		);
-		$this->monitors     = RenderMonitor::getMonitors();
+		$this->monitors = RenderMonitor::getMonitors();
 		foreach ( $this->monitors as $monitor ) {
 			$tabs[] = array(
 				'tab_slug' => $monitor . $this->tabSuffix,
@@ -131,6 +131,7 @@ class ImfsPage extends Imfs_AdminPageFramework {
 	}
 
 	/** render informational content at the top of the About tab
+	 *
 	 * @param string $sHTML
 	 *
 	 * @return string
@@ -153,7 +154,7 @@ class ImfsPage extends Imfs_AdminPageFramework {
 		$wpCliString   = '<p class="topinfo">' . __( 'This plugin supports %s. You may run its operations that way if your hosting machine is set up for it. If your tables are large, using WP-CLI may be a good choice to avoid timeouts.', $this->domain ) . '</p>';
 		$wpCliString   = sprintf( $wpCliString, $wpCliUrl );
 
-		return $sHTML . '<div class="index-wp-mysql-for-speed-content-container">'. $supportString . $detailsString . $wpCliString . '</div>';
+		return $sHTML . '<div class="index-wp-mysql-for-speed-content-container">' . $supportString . $detailsString . $wpCliString . '</div>';
 	}
 
 	/** Render the form in the rekey tab
@@ -314,6 +315,7 @@ class ImfsPage extends Imfs_AdminPageFramework {
 	}
 
 	/** list of tables
+	 *
 	 * @param array $tablesToRekey
 	 * @param bool $prefixed true if $tablesToRekey ar wp_foometa not just foometa
 	 * @param string $action "rekey" or "revert"
@@ -400,6 +402,7 @@ class ImfsPage extends Imfs_AdminPageFramework {
 	}
 
 	/** text string with wp cli instrutions
+	 *
 	 * @param string $command cli command string
 	 * @param string $function description of function to carry out
 	 *
@@ -475,7 +478,7 @@ class ImfsPage extends Imfs_AdminPageFramework {
 						'field_id'        => 'duration',
 						'type'            => 'number',
 						'label_min_width' => '',
-						'label'           => __( 'for (minutes)' ),
+						'label'           => __( 'for', $this->domain ),
 						'save'            => true,
 						'default'         => 5,
 						'class'           => array(
@@ -484,12 +487,16 @@ class ImfsPage extends Imfs_AdminPageFramework {
 						),
 					),
 					array(
-						'field_id' => 'samplerate',
-						'type'     => 'select',
-						'save'     => true,
-						'help'     => __( 'If your site is very busy, chooose a lower sample rate.', $this->domain ),
-						'default'  => 100,
-						'label'    => array(
+						'field_id' => 'duration_text_minutes',
+						'label'    => __( 'minutes', $this->domain ),
+						'save'     => false,
+					),
+					array(
+						'field_id'   => 'samplerate',
+						'type'       => 'select',
+						'save'       => true,
+						'default'    => 100,
+						'label'      => array(
 							100 => __( 'capturing all pageviews.', $this->domain ),
 							50  => sprintf( $sampleText, 50 ),
 							20  => sprintf( $sampleText, 20 ),
@@ -498,63 +505,8 @@ class ImfsPage extends Imfs_AdminPageFramework {
 							2   => sprintf( $sampleText, 2 ),
 							1   => sprintf( $sampleText, 1 ),
 						),
-					),
-					array(
-						'field_id' => 'name',
-						'type'     => 'text',
-						'label'    => __( 'Save into', $this->domain ),
-						'save'     => true,
-						'default'  => 'monitor',
-						'class'    => array(
-							'fieldset' => 'inline',
-							'fieldrow' => 'name',
-						),
-					),
-				),
-			) );
-
-		$this->addSettingFields(
-			array(
-				'field_id' => 'monitor_specs',
-				'type'     => 'inline_mixed',
-				'content'  => array(
-					array(
-						'field_id' => 'targets',
-						'type'     => 'select',
-						'save'     => true,
-						'default'  => 3,
-						'label'    => array(
-							3 => __( 'Monitor Dashboard and Site', $this->domain ),
-							2 => __( 'Monitor Site Only', $this->domain ),
-							1 => __( 'Monitor Dashboard Only', $this->domain ),
-						),
-					),
-					array(
-						'field_id'        => 'duration',
-						'type'            => 'number',
-						'label_min_width' => '',
-						'label'           => __( 'for (minutes)' ),
-						'save'            => true,
-						'default'         => 5,
-						'class'           => array(
-							'fieldset' => 'inline',
-							'fieldrow' => 'number',
-						),
-					),
-					array(
-						'field_id' => 'samplerate',
-						'type'     => 'select',
-						'save'     => true,
-						'help'     => __( 'If your site is very busy, chooose a lower sample rate.', $this->domain ),
-						'default'  => 100,
-						'label'    => array(
-							100 => __( 'capturing all pageviews.', $this->domain ),
-							50  => sprintf( $sampleText, 50 ),
-							20  => sprintf( $sampleText, 20 ),
-							10  => sprintf( $sampleText, 10 ),
-							5   => sprintf( $sampleText, 5 ),
-							2   => sprintf( $sampleText, 2 ),
-							1   => sprintf( $sampleText, 1 ),
+						'attributes' => array(
+							'title' => __( 'If your site is very busy, chooose a lower sample rate.', $this->domain ),
 						),
 					),
 					array(
@@ -599,19 +551,48 @@ class ImfsPage extends Imfs_AdminPageFramework {
 
 			)
 		);
-		$monitors = RenderMonitor::getMonitors();
-		foreach ( $monitors as $monitor ) {
+
+		$this->addSettingFields(
+			array(
+				'field_id' => 'monitor_headers',
+				'title'    => __( 'Monitors', $this->domain ),
+				'label'    => __( 'Available monitors', $this->domain ),
+				'save'     => false,
+				'class'    => array(
+					'fieldrow' => 'info',
+				),
+			) );
+
+
+		foreach ( $this->monitors as $monitor ) {
+			$monitorText = sprintf( "<a href=\"%s&tab=%s%s\">%s</a>", admin_url( 'tools.php?page=imfs_settings' ), $monitor, $this->tabSuffix, $monitor );
 			$this->addSettingFields(
 				array(
-					'field_id' => $monitor . '_title',
-					'title'    => $monitor,
-					'default'  => $monitor . '!!!',
-					'save'     => false,
-					'class'    => array(
-						'fieldrow' => 'info',
-					),
-				)
-			);
+					'field_id' => 'monitor_row_' . $monitor,
+					'type'     => 'inline_mixed',
+					'content'  => array(
+						array(
+							'field_id'   => 'delete_' . $monitor . '_now',
+							'type'       => 'submit',
+							'save'       => false,
+							'value'      => 'X',
+							'tip'        => __( 'Delete', $this->domain ) . ' ' . $monitor,
+							'attributes' => array(
+								'class' => 'button button_secondary button_delete',
+								'title' => __( 'Delete', $this->domain ) . ' ' . $monitor,
+							),
+						),
+
+						array(
+							'field_id' => $monitor . '_title',
+							'default'  => $monitorText,
+							'save'     => false,
+							'class'    => array(
+								'fieldrow' => 'info',
+							),
+						),
+					)
+				) );
 		}
 
 	}
@@ -684,6 +665,7 @@ class ImfsPage extends Imfs_AdminPageFramework {
 	/** @noinspection PhpUnused */
 
 	/** load overall page
+	 *
 	 * @param $oAdminPage
 	 */
 	public function load_imfs_settings( $oAdminPage ) {
@@ -812,6 +794,24 @@ class ImfsPage extends Imfs_AdminPageFramework {
 	function validation_imfs_settings_monitor( $inputs, $oldInputs, $factory, $submitInfo ) {
 		$valid  = true;
 		$errors = array();
+
+		foreach ( $inputs as $key => $value ) {
+			if ( 0 === strpos( $key, "monitor_row_" ) ) {
+				foreach ( $value as $rowkey => $button ) {
+					$monitor = preg_replace( "/^delete_(.+)_now$/", "$1", $rowkey );
+					if ( array_search( $monitor, $this->monitors ) !== false ) {
+						RenderMonitor::deleteMonitor( $monitor );
+						$this->monitors = RenderMonitor::getMonitors();
+						$message        = __( 'Monitor %s deleted.', $this->domain );
+						$message        = sprintf( $message, $monitor );
+						$this->setSettingNotice( $message, 'updated' );
+						$this->valid = true;
+
+						return $oldInputs;
+					}
+				}
+			}
+		}
 		if ( ! $valid ) {
 			$this->setFieldErrors( $errors );
 			$this->setSettingNotice( __( 'Make corrections and try again.', $this->domain ) );

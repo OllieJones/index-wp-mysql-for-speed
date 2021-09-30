@@ -1,4 +1,12 @@
-form  div#poststuff  div#post-body,
+#wpcontent > #wpbody > #wpbody-content {
+    padding-bottom: 2rem;
+}
+
+#wpfooter > #footer-left > #footer-thankyou {
+    display: none;
+}
+
+form div#poststuff div#post-body,
 div#wpbody > div#wpbody-content div.index-wp-mysql-for-speed-content-container {
     margin-top: 1em;
     margin-left: 1em;
@@ -14,9 +22,12 @@ div#wpcontent form div > div > table.form-table > tbody > tr.success > th {
 }
 
 /* inline fields layout */
-/*.index-wp-mysql-for-speed-field-inline_mixed > fieldset > .index-wp-mysql-for-speed-fields > .index-wp-mysql-for-speed-field > .index-wp-mysql-for-speed-input-label-container > label > input, .index-wp-mysql-for-speed-field-inline_mixed > fieldset > .index-wp-mysql-for-speed-fields > .index-wp-mysql-for-speed-field > * > .index-wp-mysql-for-speed-input-label-container > label > input*/
 fieldset div.with-child-fields > fieldset.inline > div.index-wp-mysql-for-speed-fields > div.index-wp-mysql-for-speed-field > div > label > input {
     min-width: auto;
+}
+
+fieldset div.with-child-fields > fieldset.inline > div.index-wp-mysql-for-speed-fields > div.index-wp-mysql-for-speed-field > div > label > input[type=number] {
+    width: 5em;
 }
 
 /* alignment of text fields */
@@ -50,8 +61,13 @@ div#wpcontent form div > div > table.form-table > tbody > tr.detail {
     padding-bottom: 0
 }
 
-div#wpcontent form div > div > table.form-table > tbody > tr.action > td > fieldset > p {
-/ / padding-bottom: 1.5 rem
+div.index-wp-mysql-for-speed-input-button-container > label > input.button.button_delete {
+    background-color: red;
+    color: white;
+    font-weight: 900;
+    border-radius: 2em;
+    height: 0.6rem;
+    min-width: unset !important;
 }
 
 div#wpcontent form div > div > table.form-table > tbody > tr.warning.detail > th {
@@ -85,7 +101,7 @@ p.topinfo:last-of-type {
 }
 
 div#wpbody > div#wpbody-content h1.rendermon {
-    padding-top:0;
+    padding-top: 0;
     font-weight: 600;
 }
 
@@ -96,7 +112,7 @@ div#wpbody > div#wpbody-content div.rendermon.table-container {
 
 div.rendermon.query.table-container > .dataTables_wrapper > .dataTables_info {
     padding-top: 0.5em;
-    padding-left: 2em;
+    padding-right: 2em;
 }
 
 div#wpbody > div#wpbody-content div.rendermon.table-container table thead tr td.rendermon.query.header {
