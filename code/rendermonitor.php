@@ -52,15 +52,17 @@ class renderMonitor {
 		return $prefix . $this->top() . $this->table() . "</div>";
 	}
 
-	public function load() {
+	public function load(): renderMonitor {
 		$this->queryLog          = json_decode( get_option( $this->prefix . $this->monitor ) );
 		$this->queryLog->queries = (array) $this->queryLog->queries;
+
+		return $this;
 	}
 
 	public function top() {
 		$l     = $this->queryLog;
 		$c     = $this->classPrefix;
-		$times = $this->timeRange();
+		$times = $this->summary();
 		list ( $allNineFive, $avgNineFive, $maxNineFive, $allMedian, $avgMedian, $maxMedian ) = $this->stats();
 		$res = <<<END
 		<h1 class="$c h1">$this->monitor</h1>
@@ -82,14 +84,15 @@ END;
 		return $res;
 	}
 
-	public function timeRange() {
-		$l     = $this->queryLog;
-		$c     = $this->classPrefix;
-		$start = wp_date( $this->dateFormat, $l->start );
-		$end   = wp_date( $this->dateFormat, $l->end );
+	public function summary(): string {
+		$l          = $this->queryLog;
+		$c          = $this->classPrefix;
+		$start      = wp_date( $this->dateFormat, $l->start );
+		$end        = wp_date( $this->dateFormat, $l->end );
+		$querycount = number_format_i18n( $l->querycount, 0 );
 
 		return <<<END
-		<span class="$c start">$start</span>―<span class="$c end">$end</span>
+		<span class="$c start">$start</span>―<span class="$c end">$end</span> <span class="$c count">$querycount</span> queries.
 END;
 	}
 
@@ -150,13 +153,14 @@ END;
 
 		foreach ( $l->queries as $q ) {
 			if ( $q->n > 0 ) {
+				$f     = $q->f;
 				$row   = [];
 				$row[] = $q->a ? [ "Dashboard", 1 ] : [ "Site", 0 ];
 				$row[] = [ number_format_i18n( $q->n, 0 ), $q->n ];
 				$row[] = $this->timeCell( $q->t );
 				$row[] = $this->timeStatsCell( $q->ts );
 				$row[] = $this->queryPlan( $q );
-				$row[] = $q->f;
+				$row[] = $f;
 				$res   .= "</tr>" . $this->row( $row, "query data row" ) . "</tr>";
 			}
 		}

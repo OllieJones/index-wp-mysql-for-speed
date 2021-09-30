@@ -110,6 +110,16 @@ div#wpbody > div#wpbody-content div.rendermon.table-container {
     margin-bottom: 0.5em;
 }
 
+/* lozenges for query fingerprint placeholders. */
+table.rendermon.query tbody > tr > td > span.t {
+    font-size: 105%;
+    border: 0.05em #a0a0a0 solid;
+    padding-left: 2px;
+    padding-right: 2px;
+    margin-left: 2px;
+    margin-right: 2px;
+
+}
 div.rendermon.query.table-container > .dataTables_wrapper > .dataTables_info {
     padding-top: 0.5em;
     padding-right: 2em;

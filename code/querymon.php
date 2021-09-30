@@ -165,12 +165,13 @@ class ImfsMonitor {
 	private function processQuery( $queryLog, $thisQuery, $queryLogOverflowing ) {
 		try {
 			/* track time range of items in this queryLog */
-			if ( $queryLog->start < $thisQuery->s ) {
+			if ( $queryLog->start > $thisQuery->s ) {
 				$queryLog->start = $thisQuery->s;
 			}
-			if ( $queryLog->end > $thisQuery->s ) {
+			if ( $queryLog->end < $thisQuery->s ) {
 				$queryLog->end = $thisQuery->s;
 			}
+			$queryLog->querycount ++;
 			$query = $thisQuery->q;
 			$this->parser->setQuery( $query );
 			$method = $this->parser->getMethod();
@@ -229,15 +230,16 @@ class ImfsMonitor {
 		if ( ! $queryLog ) {
 			$queryLogOverflowing = false;
 			$queryLog          = (object) array();
-			$queryLog->count   = 1;
-			$queryLog->start   = PHP_INT_MIN;
-			$queryLog->end     = PHP_INT_MAX;
+			$queryLog->gathercount   = 1;
+			$queryLog->querycount = 0;
+			$queryLog->start   = PHP_INT_MAX;
+			$queryLog->end     = PHP_INT_MIN;
 			$queryLog->queries = array();
 		} else {
 			$queryLogOverflowing = strlen( $queryLog ) > $this->queryLogSizeThreshold;
 			$queryLog            = json_decode( $queryLog );
 			$queryLog->queries   = (array) $queryLog->queries;
-			$queryLog->count ++;
+			$queryLog->gathercount ++;
 		}
 
 		return array( $queryLog, $queryLogOverflowing );

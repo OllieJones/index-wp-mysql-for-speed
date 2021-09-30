@@ -566,7 +566,10 @@ class ImfsPage extends Imfs_AdminPageFramework {
 
 
 		foreach ( $this->monitors as $monitor ) {
-			$monitorText = sprintf( "<a href=\"%s&tab=%s%s\">%s</a>", admin_url( 'tools.php?page=imfs_settings' ), $monitor, $this->tabSuffix, $monitor );
+			$log         = new RenderMonitor( $monitor );
+			$summary     = $log->load()->summary();
+			$monitorText = sprintf( "<a href=\"%s&tab=%s%s\">%s</a> %s",
+				admin_url( 'tools.php?page=imfs_settings' ), $monitor, $this->tabSuffix, $monitor, $summary );
 			$this->addSettingFields(
 				array(
 					'field_id' => 'monitor_row_' . $monitor,
@@ -700,7 +703,7 @@ class ImfsPage extends Imfs_AdminPageFramework {
 
 		if ( ! isset ( $inputs['backup']['1'] ) || ! $inputs['backup']['1'] ) {
 			$valid            = false;
-			$errors['backup'] = __( 'Please acknowledge that you have made a backup', $this->domain );
+			$errors['backup'] = __( 'Please acknowledge that you have made a backup.', $this->domain );
 		}
 
 		$action = $submitInfo['field_id'];
@@ -813,6 +816,15 @@ class ImfsPage extends Imfs_AdminPageFramework {
 				}
 			}
 		}
+
+		if ( is_array( $submitInfo ) && is_string( $submitInfo['field_id'] ) && $submitInfo['field_id'] === 'start_monitoring_now' ) {
+			$monitor = $inputs['monitor_specs']['name'];
+			if ( ctype_alnum( $monitor ) === false ) {
+				$valid                   = false;
+				$errors['monitor_specs'] = __( "Letters and numbers only for your monitor name, please.", $this->domain );
+			}
+		}
+
 		if ( ! $valid ) {
 			$this->setFieldErrors( $errors );
 			$this->setSettingNotice( __( 'Make corrections and try again.', $this->domain ) );
