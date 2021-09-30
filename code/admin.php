@@ -17,9 +17,6 @@ class ImfsPage extends Imfs_AdminPageFramework {
 	 */
 	public $unconstrained = false;
 	private $db;
-	/**
-	 * @var false|mixed
-	 */
 	private $dontNavigate;
 	private $valid;
 
