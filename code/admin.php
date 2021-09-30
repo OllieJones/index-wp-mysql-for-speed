@@ -1,10 +1,13 @@
 <?php
 
+require_once( 'rendermonitor.php' );
+
 class ImfsPage extends Imfs_AdminPageFramework {
 
 	public $pluginName;
 	public $pluginSlug;
 	public $domain;
+	public $monitors;
 	/**
 	 * @var bool true if the dbms allows reindexing at all.
 	 */
@@ -26,12 +29,12 @@ class ImfsPage extends Imfs_AdminPageFramework {
 		$this->pluginSlug   = $slug;
 		$this->db           = new ImfsDb();
 		$this->dontNavigate = __( 'This may take a few minutes. <em>Please do not navigate away from this page while you wait</em>.', $this->domain );
+		$this->tabSuffix    = "_m";
 	}
 
 	// https://admin-page-framework.michaeluno.jp/tutorials/01-create-a-wordpress-admin-page/
 
 	public function setUp() {
-		//$this->setRootMenuPage( 'Settings' );
 		$this->setRootMenuPage( 'Tools' );
 
 		$pageName = $this->pluginName;
@@ -47,43 +50,91 @@ class ImfsPage extends Imfs_AdminPageFramework {
 
 			)
 		);
-		$this->addInPageTabs(
-			'imfs_settings',
-			array(
-				'tab_slug' => 'rekey',
-				'title'    => __( 'High-Performance Keys', $this->domain )
-			),
-			array(
-				'tab_slug' => 'monitor',
-				'title'    => __( 'Monitor Database Operations', $this->domain )
-			),
-			array(
-				'tab_slug' => 'info',
-				'title'    => __( 'About', $this->domain )
-			),
+		$tabs   = array();
+		$tabs[] = array(
+			'tab_slug' => 'rekey',
+			'title'    => __( 'High-Performance Keys', $this->domain )
 		);
+		$tabs[] = array(
+			'tab_slug' => 'monitor',
+			'title'    => __( 'Monitor Database Operations', $this->domain )
+		);
+		$this->monitors     = RenderMonitor::getMonitors();
+		foreach ( $this->monitors as $monitor ) {
+			$tabs[] = array(
+				'tab_slug' => $monitor . $this->tabSuffix,
+				'title'    => $monitor
+			);
+		}
+		$tabs[] = array(
+			'tab_slug' => 'info',
+			'title'    => __( 'About', $this->domain )
+		);
+		$this->addInPageTabs( 'imfs_settings', ...$tabs );
 		$this->setPageHeadingTabsVisibility( false );
 	}
 
-	/**
-	 * render monitor output.
+	/** Enqueue css for all tabs.
+	 *
+	 * @param string $sHTML
+	 *
+	 * @return string
 	 */
-	public function content_bottom_imfs_settings_monitor( $sHTML ) {
-		require_once( 'rendermonitor.php' );
-		$renders  = array();
-		$monitors = RenderMonitor::getMonitors();
+	public function content_imfs_settings( $sHTML ) {
+		$this->enqueueStyles(
+			array(
+				plugins_url( 'assets/imfs.css', __FILE__ )
+			), 'imfs_settings' );
 
-		foreach ( $monitors as $monitor ) {
-			$rm = new RenderMonitor( $monitor );
-			$rm->load();
-			$renders[] = $rm->top();
-			$renders[] = $rm->table();
-		}
+		return $sHTML;
+	}
 
-		return implode( "\r", $renders ) . $sHTML;
+	/** If the current tab is a monitor, render the data
+	 *
+	 * @param string $sHTML
+	 *
+	 * @return string
+	 */
+	public function content_bottom_imfs_settings( $sHTML ) {
+		return $sHTML . $this->renderMonitor();
 	}
 
 	/** @noinspection PhpUnused */
+
+	/**
+	 * @param string $sHTML
+	 *
+	 * @return string
+	 */
+	private function renderMonitor(): string {
+		/* See https://wordpress.org/support/topic/when-naming-inpagetabs-with-variables-how-can-i-use-content_pageslug/#post-14924022 */
+		$tab = $this->oProp->getCurrentTabSlug();
+		$pos = strrpos( $tab, $this->tabSuffix );
+		if ( $pos !== strlen( $tab ) - strlen( $this->tabSuffix ) ) {
+			return '';
+		}
+		$monitor = substr( $tab, 0, $pos );
+		if ( array_search( $monitor, $this->monitors ) === false ) {
+			return '';
+		}
+		$this->enqueueStyles(
+			array(
+				plugins_url( 'assets/datatables/datatables.min.css', __FILE__ )
+			), 'imfs_settings' );
+		$this->enqueueScripts(
+			array(
+				plugins_url( 'assets/datatables/datatables.min.js', __FILE__ ),
+				plugins_url( 'assets/imfs.js', __FILE__ )
+			), 'imfs_settings' );
+
+		return RenderMonitor::renderMonitors( $monitor );
+	}
+
+	/** render informational content at the top of the About tab
+	 * @param string $sHTML
+	 *
+	 * @return string
+	 */
 	public function content_top_imfs_settings_info( $sHTML ) {
 		/** @noinspection HtmlUnknownTarget */
 		$hyperlink     = '<a href="%s" target="_blank">%s</a>';
@@ -99,15 +150,15 @@ class ImfsPage extends Imfs_AdminPageFramework {
 		$supportString = sprintf( $supportString, $support, $review );
 		$detailsString = '<p class="topinfo">' . __( 'For detailed information about this plugin\'s actions on your database, please %s.', $this->domain ) . '</p>';
 		$detailsString = sprintf( $detailsString, $details );
-		$wpCliString   = '<p class="topinfo">' . __( 'This plugin supports %s. You may run its operations that way if your hosting machine is set up for it. If your tables are large, WP-CLI may be a good choice to avoid timeouts.', $this->domain ) . '</p>';
+		$wpCliString   = '<p class="topinfo">' . __( 'This plugin supports %s. You may run its operations that way if your hosting machine is set up for it. If your tables are large, using WP-CLI may be a good choice to avoid timeouts.', $this->domain ) . '</p>';
 		$wpCliString   = sprintf( $wpCliString, $wpCliUrl );
 
 		return $sHTML . $supportString . $detailsString . $wpCliString;
 	}
 
-	/** Render the plugin's admin page rekey tab
+	/** Render the form in the rekey tab
 	 *
-	 * @param $oAdminPage
+	 * @param object $oAdminPage
 	 *
 	 * @noinspection PhpUnusedParameterInspection PhpUnused
 	 */
@@ -158,7 +209,10 @@ class ImfsPage extends Imfs_AdminPageFramework {
 		}
 	}
 
-	private function checkVersionInfo() {
+	/** Make sure our MySQL version is sufficient to do all this.
+	 * @return bool
+	 */
+	private function checkVersionInfo(): bool {
 
 		$this->addSettingFields(
 			array(
@@ -215,9 +269,12 @@ class ImfsPage extends Imfs_AdminPageFramework {
 		return $this->db->canReindex;
 	}
 
+	/**
+	 * text field showing versions
+	 */
 	private function showVersionInfo() {
 		global $wp_version;
-		$versionString = 'MySQL:' . htmlspecialchars( $this->db->semver->version ) . ' WordPress:' . $wp_version . ' php:' . phpversion();
+		$versionString = 'MySQL:' . htmlspecialchars( $this->db->semver->version ) . '&emsp;WordPress:' . $wp_version . '&emsp;php:' . phpversion();
 		$this->addSettingFields(
 			array(
 				'field_id' => 'version',
@@ -256,6 +313,15 @@ class ImfsPage extends Imfs_AdminPageFramework {
 		}
 	}
 
+	/** list of tables
+	 * @param array $tablesToRekey
+	 * @param bool $prefixed true if $tablesToRekey ar wp_foometa not just foometa
+	 * @param string $action "rekey" or "revert"
+	 * @param string $title
+	 * @param string $caption
+	 * @param string $callToAction button caption
+	 * @param bool $prechecked items should be prechecked
+	 */
 	private function renderListOfTables( $tablesToRekey, $prefixed, $action, $title, $caption, $callToAction, $prechecked ) {
 		global $wpdb;
 		$this->addSettingFields(
@@ -333,6 +399,12 @@ class ImfsPage extends Imfs_AdminPageFramework {
 		);
 	}
 
+	/** text string with wp cli instrutions
+	 * @param string $command cli command string
+	 * @param string $function description of function to carry out
+	 *
+	 * @return string
+	 */
 	private function cliMessage( $command, $function ) {
 		//$cliLink = ' <a href="https://make.wordpress.org/cli/handbook/" target="_blank">WP-CLI</a>';
 		$cliLink = ' WP-CLI';
@@ -347,6 +419,9 @@ class ImfsPage extends Imfs_AdminPageFramework {
 		return sprintf( $fmt, $cliLink, $function, $wp, $command );
 	}
 
+	/**
+	 * form for upgrading tables to InnoDB
+	 */
 	private function upgradeIndex() {
 		if ( count( $this->db->oldEngineTables ) > 0 ) {
 			$action       = 'upgrade';
@@ -357,7 +432,7 @@ class ImfsPage extends Imfs_AdminPageFramework {
 		}
 	}
 
-	/** Render the plugin's admin page rekey tab
+	/** Render the Monitor Database Operations form
 	 *
 	 * @param $oAdminPage
 	 *
@@ -367,22 +442,8 @@ class ImfsPage extends Imfs_AdminPageFramework {
 		$this->enqueueStyles(
 			array(
 				plugins_url( 'assets/imfs.css', __FILE__ ),
-				plugins_url( 'assets/datatables/datatables.min.css', __FILE__ )
-			), 'imfs_settings' );
-		$this->enqueueScripts(
-			array(
-				plugins_url( 'assets/datatables/datatables.min.js', __FILE__ ),
-				plugins_url( 'assets/imfs.js', __FILE__ )
-
 			), 'imfs_settings' );
 
-		$this->configureMonitoring();
-	}
-
-	/**
-	 * render the upload-metadata page.
-	 */
-	function configureMonitoring() {
 		$sampleText = __( 'sampling %d%% of pageviews.', $this->domain );
 		$this->addSettingFields(
 			array(
@@ -394,6 +455,64 @@ class ImfsPage extends Imfs_AdminPageFramework {
 					'fieldrow' => 'info',
 				),
 			) );
+		$this->addSettingFields(
+			array(
+				'field_id' => 'monitor_specs',
+				'type'     => 'inline_mixed',
+				'content'  => array(
+					array(
+						'field_id' => 'targets',
+						'type'     => 'select',
+						'save'     => true,
+						'default'  => 3,
+						'label'    => array(
+							3 => __( 'Monitor Dashboard and Site', $this->domain ),
+							2 => __( 'Monitor Site Only', $this->domain ),
+							1 => __( 'Monitor Dashboard Only', $this->domain ),
+						),
+					),
+					array(
+						'field_id'        => 'duration',
+						'type'            => 'number',
+						'label_min_width' => '',
+						'label'           => __( 'for (minutes)' ),
+						'save'            => true,
+						'default'         => 5,
+						'class'           => array(
+							'fieldset' => 'inline',
+							'fieldrow' => 'number',
+						),
+					),
+					array(
+						'field_id' => 'samplerate',
+						'type'     => 'select',
+						'save'     => true,
+						'help'     => __( 'If your site is very busy, chooose a lower sample rate.', $this->domain ),
+						'default'  => 100,
+						'label'    => array(
+							100 => __( 'capturing all pageviews.', $this->domain ),
+							50  => sprintf( $sampleText, 50 ),
+							20  => sprintf( $sampleText, 20 ),
+							10  => sprintf( $sampleText, 10 ),
+							5   => sprintf( $sampleText, 5 ),
+							2   => sprintf( $sampleText, 2 ),
+							1   => sprintf( $sampleText, 1 ),
+						),
+					),
+					array(
+						'field_id' => 'name',
+						'type'     => 'text',
+						'label'    => __( 'Save into', $this->domain ),
+						'save'     => true,
+						'default'  => 'monitor',
+						'class'    => array(
+							'fieldset' => 'inline',
+							'fieldrow' => 'name',
+						),
+					),
+				),
+			) );
+
 		$this->addSettingFields(
 			array(
 				'field_id' => 'monitor_specs',
@@ -480,9 +599,24 @@ class ImfsPage extends Imfs_AdminPageFramework {
 
 			)
 		);
+		$monitors = RenderMonitor::getMonitors();
+		foreach ( $monitors as $monitor ) {
+			$this->addSettingFields(
+				array(
+					'field_id' => $monitor . '_title',
+					'title'    => $monitor,
+					'default'  => $monitor . '!!!',
+					'save'     => false,
+					'class'    => array(
+						'fieldrow' => 'info',
+					),
+				)
+			);
+		}
+
 	}
 
-	/** Render the plugin's admin page rekey tab
+	/** Render the About form
 	 *
 	 * @param $oAdminPage
 	 *
@@ -510,8 +644,10 @@ class ImfsPage extends Imfs_AdminPageFramework {
 		$this->uploadMetadata();
 	}
 
+	/** @noinspection PhpUnused */
+
 	/**
-	 * render the upload-metadata page.
+	 * render the upload-metadata form fields.
 	 */
 	function uploadMetadata() {
 		$this->addSettingFields(
@@ -547,6 +683,9 @@ class ImfsPage extends Imfs_AdminPageFramework {
 
 	/** @noinspection PhpUnused */
 
+	/** load overall page
+	 * @param $oAdminPage
+	 */
 	public function load_imfs_settings( $oAdminPage ) {
 		try {
 			$this->populate();
@@ -563,7 +702,7 @@ class ImfsPage extends Imfs_AdminPageFramework {
 	/**
 	 * @throws ImfsException
 	 */
-	protected function populate() {
+	private function populate() {
 
 		$this->db->init();
 		$this->canReindex    = $this->db->canReindex;
@@ -627,7 +766,7 @@ class ImfsPage extends Imfs_AdminPageFramework {
 		return $result;
 	}
 
-	/** @noinspection PhpUnused */
+	/** @noinspection PhpUnusedParameterInspection */
 
 	private function action( $button, $inputs, $oldInputs, $factory, $submitInfo ) {
 		try {
@@ -682,8 +821,6 @@ class ImfsPage extends Imfs_AdminPageFramework {
 
 		return $this->action( $submitInfo['field_id'], $inputs, $oldInputs, $factory, $submitInfo );
 	}
-
-	/** @noinspection PhpUnusedParameterInspection */
 
 	function validation_imfs_settings_info( $inputs, $oldInputs, $factory, $submitInfo ) {
 		$valid  = true;

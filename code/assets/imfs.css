@@ -1,8 +1,8 @@
 div#wpcontent form div > div > table.form-table > tbody > tr.warning > th,
-div#wpcontent form div > div > table.form-table > tbody > tr > th span.warning
-{
+div#wpcontent form div > div > table.form-table > tbody > tr > th span.warning {
     color: #cc9900;
 }
+
 div#wpcontent form div > div > table.form-table > tbody > tr.success > th {
     color: #10a010;
 }
@@ -15,7 +15,7 @@ fieldset div.with-child-fields > fieldset.inline > div.index-wp-mysql-for-speed-
 
 /* alignment of text fields */
 #fieldset-monitor_specs_Array {
- /* https://github.com/michaeluno/admin-page-framework/issues/293 vertical-align: initial !important; */
+    /* https://github.com/michaeluno/admin-page-framework/issues/293 vertical-align: initial !important; */
 }
 
 
@@ -45,7 +45,7 @@ div#wpcontent form div > div > table.form-table > tbody > tr.detail {
 }
 
 div#wpcontent form div > div > table.form-table > tbody > tr.action > td > fieldset > p {
-    //padding-bottom: 1.5rem
+/ / padding-bottom: 1.5 rem
 }
 
 div#wpcontent form div > div > table.form-table > tbody > tr.warning.detail > th {
@@ -61,10 +61,11 @@ div#wpcontent form div > div > table.form-table > tbody > tr > td,
 div#wpcontent form div > div > table.form-table > tbody > tr > th {
     padding-bottom: 0.5em;
     padding-top: 0.25em;
+    padding-right: 0.25em;
 }
 
-div#wpcontent form div > div > table.form-table > tbody > tr > th {
-    text-align: right;
+div#wpcontent form div > div > table.form-table > tbody > tr > th:first-child {
+    width: 7rem;
 }
 
 p.topinfo {
@@ -72,6 +73,7 @@ p.topinfo {
     margin-top: 0.5em;
     margin-bottom: 0.5em;
 }
+
 p.topinfo:last-of-type {
     margin-bottom: 2em;
 }
@@ -81,6 +83,7 @@ div#wpbody > div#wpbody-content h1.rendermon {
     font-size: 1.4rem;
     font-weight: 600;
 }
+
 div#wpbody > div#wpbody-content div.rendermon.table-container {
     margin-top: 0.5em;
     margin-bottom: 0.5em;

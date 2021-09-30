@@ -14,6 +14,22 @@ class renderMonitor {
 		$this->dateFormat = get_option( 'date_format' ) . ' ' . get_option( 'time_format' );
 	}
 
+	static function renderMonitors( $list = null ) {
+		$renders  = array();
+		$monitors = RenderMonitor::getMonitors();
+
+		foreach ( $monitors as $monitor ) {
+			if ( is_null( $list )
+			     || ( is_string( $list ) && $monitor === $list )
+			     || ( is_array( $list ) && array_search( $monitor, $list ) !== false ) ) {
+				$rm        = new RenderMonitor( $monitor );
+				$renders[] = $rm->render();
+			}
+		}
+
+		return implode( "\r", $renders );
+	}
+
 	static function getMonitors() {
 		global $wpdb;
 		$prefix = index_wp_mysql_for_speed_monitor . '-Log-';
@@ -28,22 +44,35 @@ class renderMonitor {
 		return $result;
 	}
 
+	function render() {
+		$this->load();
+
+		return $this->top() . $this->table();
+	}
+
 	public function load() {
 		$this->queryLog          = json_decode( get_option( $this->prefix . $this->monitor ) );
 		$this->queryLog->queries = (array) $this->queryLog->queries;
 	}
 
-	public function top() {
+	public function timeRange() {
 		$l     = $this->queryLog;
 		$c     = $this->classPrefix;
 		$start = wp_date( $this->dateFormat, $l->start );
 		$end   = wp_date( $this->dateFormat, $l->end );
+		return <<<END
+		<span class="$c start">$start</span>―<span class="$c end">$end</span>
+END;
+	}
+
+	public function top() {
+		$l     = $this->queryLog;
+		$c     = $this->classPrefix;
+		$times = $this->timeRange();
 		list ( $allNineFive, $avgNineFive, $maxNineFive, $allMedian, $avgMedian, $maxMedian ) = $this->stats();
 		$res = <<<END
 		<h1 class="$c h1">$this->monitor</h1>
-		<div class="$c top time">
-		<span class="$c start">$start</span>―<span class="$c end">$end</span>
-		</div>
+		<div class="$c top time">$times</div>
 		<div class="$c top stats">
 		<div>
 		<span class="$c stat caption">95th percentiles:</span>
@@ -112,7 +141,7 @@ END;
 		$res = '';
 		$row = $this->row( [ "Where", "Count", "Total", "Mean", "How", "Query" ], "query header row" );
 		$res .= <<<END
-		<div class="$c query table-container"><table id="queries" class="$c query table"><thead>
+		<div class="$c query table-container"><table class="$c query table"><thead>
 		<tr>$row</tr></thead><tbody>
 END;
 
@@ -123,7 +152,7 @@ END;
 				$row[] = [ number_format_i18n( $q->n, 0 ), $q->n ];
 				$row[] = $this->timeCell( $q->t );
 				$row[] = $this->timeStatsCell( $q->ts );
-				$row[] = $this->queryPlan($q);
+				$row[] = $this->queryPlan( $q );
 				$row[] = $q->f;
 				$res   .= "</tr>" . $this->row( $row, "query data row" ) . "</tr>";
 			}
@@ -142,25 +171,6 @@ END;
 
 		return $res;
 	}
-
-	public function queryPlan($q) {
-		if (! $q-> e || !is_array($q->e) || count($q->e) === 0 ) return '';
-		$erow = $q->e[0];
-		$expl = array();
-		$expl[] = $erow->table;
-		$expl[] = $erow->key;
-		$expl[] = "(" . $erow->type . ":" . $erow->ref . ")";
-		foreach (explode(";", $erow->Extra) as $extra) {
-			$extra = strtolower($extra);
-			$expl[] = strpos($extra, "no tables") !== false ? "No Tables" : null;
-			$expl[] = strpos($extra, "impossible where") !== false ? "Impossible Where" : null; // TODO after reading const tables
-			$expl[] = strpos($extra, "using where") !== false? "Filter" : null;
-			$expl[] = strpos($extra, "using index") !== false ? "Index" : null;  //TODO Using Index COndition
-			$expl[] = strpos($extra, "using temporary") !== false ? "Temp" : null;
-			$expl[] = strpos($extra, "using filesort") !== false ? "Sort" : null;
-		}
-		return implode(" ", $expl);
-}
 
 	public function cell( $item, $class ) {
 		$c = $this->classPrefix;
@@ -191,11 +201,31 @@ END;
 	 * @return array
 	 */
 	public function timeCell( $time ) {
-		$renderTime = $time * 0.000001;
-		$unit = $this->getTimeUnit($renderTime);
+		$renderTime  = $time * 0.000001;
+		$unit        = $this->getTimeUnit( $renderTime );
 		$displayTime = number_format_i18n( $renderTime / $unit[0], $unit[2] ) . $unit[1];
 
 		return [ $displayTime, - $renderTime ];
+	}
+
+	public function getTimeUnit( $timeSeconds ) {
+		if ( $timeSeconds >= 3600 * 0.9 ) {
+			$unit = [ 3600, 'h', 2 ];
+		} else if ( $timeSeconds >= 60 * 0.9 ) {
+			$unit = [ 60, 'm', 2 ];
+		} else if ( $timeSeconds >= 0.9 ) {
+			$unit = [ 1, 's', 2 ];
+		} else if ( $timeSeconds >= 0.1 ) {
+			$unit = [ 0.001, 'ms', 0 ];
+		} else if ( $timeSeconds >= 0.01 ) {
+			$unit = [ 0.001, 'ms', 1 ];
+		} else if ( $timeSeconds >= 0.001 ) {
+			$unit = [ 0.001, 'ms', 2 ];
+		} else {
+			$unit = [ 0.000001, 'µs', 0 ];
+		}
+
+		return $unit;
 	}
 
 	/** get cell data for microsecond times
@@ -205,11 +235,12 @@ END;
 	 * @return array
 	 */
 	public function timeStatsCell( $times ) {
-		$time       = $this->mean( $times ) * 0.000001;
-		$mad        = $this->mad( $times ) * 0.000001;
-		$unit = $this->getTimeUnit($time);
+		$time        = $this->mean( $times ) * 0.000001;
+		$mad         = $this->mad( $times ) * 0.000001;
+		$unit        = $this->getTimeUnit( $time );
 		$displayTime = number_format_i18n( $time / $unit[0], $unit[2] ) . '±' .
-		               number_format_i18n( $mad / $unit[0], $unit[2] ) .$unit[1];
+		               number_format_i18n( $mad / $unit[0], $unit[2] ) . $unit[1];
+
 		return [ $displayTime, - $time ];
 	}
 
@@ -257,23 +288,25 @@ END;
 
 	}
 
-	public function getTimeUnit( $timeSeconds ) {
-		if ( $timeSeconds >= 3600 * 0.9 ) {
-			$unit = [ 3600, 'h', 2 ];
-		} else if ( $timeSeconds >= 60 * 0.9 ) {
-			$unit = [ 60, 'm', 2 ];
-		} else if ( $timeSeconds >= 0.9 ) {
-			$unit = [ 1, 's', 2 ];
-		} else if ( $timeSeconds >= 0.1 ) {
-			$unit = [ 0.001, 'ms', 0 ];
-		} else if ( $timeSeconds >= 0.01 ) {
-			$unit = [ 0.001, 'ms', 1 ];
-		} else if ( $timeSeconds >= 0.001 ) {
-			$unit = [ 0.001, 'ms', 2 ];
-		} else {
-			$unit = [ 0.000001, 'µs', 0 ];
+	public function queryPlan( $q ) {
+		if ( ! $q->e || ! is_array( $q->e ) || count( $q->e ) === 0 ) {
+			return '';
+		}
+		$erow   = $q->e[0];
+		$expl   = array();
+		$expl[] = $erow->table;
+		$expl[] = $erow->key;
+		$expl[] = "(" . $erow->type . ":" . $erow->ref . ")";
+		foreach ( explode( ";", $erow->Extra ) as $extra ) {
+			$extra  = strtolower( $extra );
+			$expl[] = strpos( $extra, "no tables" ) !== false ? "No Tables" : null;
+			$expl[] = strpos( $extra, "impossible where" ) !== false ? "Impossible Where" : null; // TODO after reading const tables
+			$expl[] = strpos( $extra, "using where" ) !== false ? "Filter" : null;
+			$expl[] = strpos( $extra, "using index" ) !== false ? "Index" : null;  //TODO Using Index COndition
+			$expl[] = strpos( $extra, "using temporary" ) !== false ? "Temp" : null;
+			$expl[] = strpos( $extra, "using filesort" ) !== false ? "Sort" : null;
 		}
 
-		return $unit;
+		return implode( " ", $expl );
 	}
 }
