@@ -538,14 +538,15 @@ class ImfsPage extends Imfs_AdminPageFramework {
 						'fieldrow' => 'action',
 					),
 				),
-				array(
-					'label' => $this->cliMessage( 'monitor --minutes=n', __( 'Monitor', $this->domain ) ),
-					'type'  => 'label',
-					'save'  => false,
-					'class' => array(
-						'fieldrow' => 'info',
-					),
-				),
+//	 TODO add wp cli for monitoring
+//              array(
+//					'label' => $this->cliMessage( 'monitor --minutes=n', __( 'Monitor', $this->domain ) ),
+//					'type'  => 'label',
+//					'save'  => false,
+//					'class' => array(
+//						'fieldrow' => 'info',
+//					),
+//				),
 
 			)
 		);
