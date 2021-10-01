@@ -1,5 +1,5 @@
 $(document).ready(function () {
-    DataTable.render.query = function () {
+    DataTable.render.formatQueryFingerprint = function () {
         /**
          * put spans into query placeholders to render lozenges.
          */
@@ -32,7 +32,7 @@ $(document).ready(function () {
                 {searchable: false},
                 {searchable: false},
                 null,
-                {data: 'description', render: DataTable.render.query()},
+                {data: 'description', render: DataTable.render.formatQueryFingerprint()},
                 {visible: false}
             ]
         })

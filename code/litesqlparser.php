@@ -303,49 +303,68 @@ class LightSQLParser {
 	}
 
 	function getFingerprint() {
-		$query = $this->getQuery();
+		$query  = $this->getQuery();
 
 		$result = $query;
 		/* backticks */
-		$result = preg_replace( '/\`([^\`]+)\`/', '$1', $result );
+		$result = preg_replace('/\`([^\`]+)\`/', '$1', $result);
 
-		/* take off LIMIT and OFFSET */
-		$limitp      = strripos( $result, ' LIMIT ' );
-		$offsetp     = strripos( $result, ' OFFSET ' );
+		/* take off LIMIT and OFFSET -- we need to see pagination details */
+		$limitp = strripos($result, ' LIMIT ');
+		$offsetp = strripos($result, ' OFFSET ');
 		$limitClause = '';
-		if ( $limitp > 0 || $offsetp > 0 ) {
-			$limitp      = $limitp === false ? PHP_INT_MAX : $limitp;
-			$offsetp     = $offsetp === false ? PHP_INT_MAX : $offsetp;
-			$p           = min( $limitp, $offsetp );
-			$limitClause = substr( $result, $p );
-			$result      = substr( $result, 0, $p );
+		if ($limitp > 0 || $offsetp > 0) {
+			$limitp = $limitp === false ? PHP_INT_MAX : $limitp;
+			$offsetp = $offsetp === false ? PHP_INT_MAX : $offsetp;
+			$p = min($limitp, $offsetp);
+			$limitClause = substr($result, $p );
+			$result = substr($result, 0, $p);
 		}
 
+		$result .= ' ';
+
 		/* date and time constants */
-		$result = preg_replace( '/\'\d\d\d\d-\d\d-\d\d \d\d:\d\d:\dd/', '?datetime?', $result );
-		$result = preg_replace( '/\'\d\d\d\d-\d\d-\d\d/', '?date?', $result );
+		$result = preg_replace ( '/\'\d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d\'/', '?datetime?', $result);
+		$result = preg_replace ( '/\'\d\d\d\d-\d\d-\d\d\'/', '?date?', $result);
 		$result = preg_replace( '/\'[0-9]{10}\'/', '?t?', $result );
 
+		/* special case for autoload = 'yes' */
+		$result = preg_replace('/\s+autoload\s*=\s*\'yes\'/', ' ?autoloadyes? ', $result);
+
 		/* integers */
+		for ($i=0; $i < 5; $i++) {
+			$result = preg_replace( '/([^\d_])0([^\d])/', '$1?izero?$2', $result );
+			$result = preg_replace( '/([^\d_])1([^\d])/', '$1?ione?$2', $result );
+			$result = preg_replace( '/([^\d_])2([^\d])/', '$1?itwo?$2', $result );
+		}
+
 		$result = preg_replace( '/= +\d+/', '= ?i?', $result );
 		$result = preg_replace( '/= +\'\d+\'/', '= ?qi?', $result );
 		$result = preg_replace( '/IN +\( *\d+} *\)/', 'IN (?i?)', $result );
 		$result = preg_replace( '/IN +\( *\d+ *, *\d+ *\)/', 'IN (?i?, ?i?)', $result );
 		$result = preg_replace( '/IN +\( *(\d+, *){2,9}(\d+ *\))/', 'IN (?ilist?)', $result );
 		$result = preg_replace( '/IN +\( *(\d+, *){10,}(\d+ *\))/', 'IN (?ilonglist?)', $result );
-		/* unadorned integers, except in table names */
 		$result = preg_replace( '/([^_])\d+/', '$1?i?', $result );
 
 		/* quoted strings, with escapes processed correctly */
-		$result = preg_replace( '/\'(?:.*?[^\\\\])??(?:(?:\\\\\\\\)+)?\'/', '?s?', $result );
+		$quSt = <<<'END'
+/'(?:.*?[^\\])??(?:(?:\\\\)+)?'/
+END;
+		$result = preg_replace( $quSt, '?s?', $result );
 
 		/* giant inserts */
 		$result = preg_replace( "/(INSERT +[^\\(]+\\([^\\)]+\\) *VALUES *)(?:.{150,}+)/", '$1 (?valuelist?)', $result );
 
-		$result = strlen( $limitClause ) > 0 ? $result . ' ' . $limitClause : $result;
-		/* extra white space */
-		$result = preg_replace( '/\s+/', ' ', $result );
+		/* replace special cases */
+		$result = preg_replace('/\?izero\?/', '0', $result);
+		$result = preg_replace('/\?ione\?/', '1', $result);
+		$result = preg_replace('/\?itwo\?/', '2', $result);
+		$result = preg_replace('/\?autoloadyes\?/', 'autoload = \'yes\' ', $result);
 
+		/* put back LIMIT and OFFSET */
+		$result = strlen($limitClause) > 0 ? $result . ' ' . $limitClause : $result;
+		/* extra white space */
+		$result = preg_replace('/\s+/', ' ', $result);
 		return $result;
 	}
 }
