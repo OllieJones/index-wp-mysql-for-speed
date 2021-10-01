@@ -6,7 +6,7 @@ $(document).ready(function () {
         return function (data, type, row) {
             if (type === 'display') {
                 try {
-                    return data.replaceAll(/\?([a-z0-9]+)\?/g, '<span class="i">?</span></span><span class="t $1">$1</span><span class="i">?</span>');
+                    return data.replaceAll(/\?([a-z0-9]+)\?/g, '<span class="ZZ">?</span></span><span class="t $1">$1</span><span class="ZZ">?</span>');
                 } catch (ex) {
                     console.error(ex);
                     return data;

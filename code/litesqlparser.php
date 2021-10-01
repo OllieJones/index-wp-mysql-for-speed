@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Light SQL Parser Class
  * @author Marco Cesarato <cesarato.developer@gmail.com>, Ollie JOnes <olliejones@gmail.com>
@@ -335,15 +334,14 @@ class LightSQLParser {
 		for ($i=0; $i < 5; $i++) {
 			$result = preg_replace( '/([^\d_])0([^\d])/', '$1?izero?$2', $result );
 			$result = preg_replace( '/([^\d_])1([^\d])/', '$1?ione?$2', $result );
-			$result = preg_replace( '/([^\d_])2([^\d])/', '$1?itwo?$2', $result );
 		}
 
 		$result = preg_replace( '/= +\d+/', '= ?i?', $result );
 		$result = preg_replace( '/= +\'\d+\'/', '= ?qi?', $result );
 		$result = preg_replace( '/IN +\( *\d+} *\)/', 'IN (?i?)', $result );
 		$result = preg_replace( '/IN +\( *\d+ *, *\d+ *\)/', 'IN (?i?, ?i?)', $result );
-		$result = preg_replace( '/IN +\( *(\d+, *){2,9}(\d+ *\))/', 'IN (?ilist?)', $result );
-		$result = preg_replace( '/IN +\( *(\d+, *){10,}(\d+ *\))/', 'IN (?ilonglist?)', $result );
+		$result = preg_replace( '/IN\s*\((?:\s*(?:\?izero\?|\?ione\?|\d+)\s*,*?){2,9}\s*\)/', 'IN (?ilist?)', $result );
+		$result = preg_replace( '/IN\s*\((?:\s*(?:\?izero\?|\?ione\?|\d+)\s*,*?){10,}\s*\)/', 'IN (?ilonglist?)', $result );
 		$result = preg_replace( '/([^_])\d+/', '$1?i?', $result );
 
 		/* quoted strings, with escapes processed correctly */
@@ -358,7 +356,6 @@ END;
 		/* replace special cases */
 		$result = preg_replace('/\?izero\?/', '0', $result);
 		$result = preg_replace('/\?ione\?/', '1', $result);
-		$result = preg_replace('/\?itwo\?/', '2', $result);
 		$result = preg_replace('/\?autoloadyes\?/', 'autoload = \'yes\' ', $result);
 
 		/* put back LIMIT and OFFSET */

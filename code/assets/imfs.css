@@ -119,7 +119,7 @@ table.rendermon.query tbody > tr > td > span.t {
     margin-left: 2px;
     margin-right: 2px;
 }
-table.rendermon.query tbody > tr > td > span.i {
+table.rendermon.query tbody > tr > td > span.ZZ {
     display: none;
 }
 div.rendermon.query.table-container > .dataTables_wrapper > .dataTables_info {
