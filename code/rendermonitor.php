@@ -145,7 +145,7 @@ END;
 		$l   = $this->queryLog;
 		$c   = $this->classPrefix;
 		$res = '';
-		$row = $this->row( [ "Where", "Count", "Total", "Mean", "How", "Query" ], "query header row" );
+		$row = $this->row( [ "Where", "Count", "Total", "Mean", "How", "Query", "Actual" ], "query header row" );
 		$res .= <<<END
 		<div class="$c query table-container"><table class="$c query table"><thead>
 		<tr>$row</tr></thead><tbody>
@@ -153,14 +153,14 @@ END;
 
 		foreach ( $l->queries as $q ) {
 			if ( $q->n > 0 ) {
-				$f     = $q->f;
 				$row   = [];
 				$row[] = $q->a ? [ "Dashboard", 1 ] : [ "Site", 0 ];
 				$row[] = [ number_format_i18n( $q->n, 0 ), $q->n ];
 				$row[] = $this->timeCell( $q->t );
 				$row[] = $this->timeStatsCell( $q->ts );
 				$row[] = $this->queryPlan( $q );
-				$row[] = $f;
+				$row[] = $q->f;
+				$row[] = $q->q;
 				$res   .= "</tr>" . $this->row( $row, "query data row" ) . "</tr>";
 			}
 		}

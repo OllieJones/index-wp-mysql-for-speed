@@ -6,7 +6,7 @@ $(document).ready(function () {
         return function (data, type, row) {
             if (type === 'display') {
                 try {
-                    return data.replaceAll(/\?([a-z0-9]+)\?/g, '<span class="t $1">$1</span>');
+                    return data.replaceAll(/\?([a-z0-9]+)\?/g, '<span class="i">?</span></span><span class="t $1">$1</span><span class="i">?</span>');
                 } catch (ex) {
                     console.error(ex);
                     return data;
@@ -32,7 +32,8 @@ $(document).ready(function () {
                 {searchable: false},
                 {searchable: false},
                 null,
-                {data: 'description', render: DataTable.render.query()}
+                {data: 'description', render: DataTable.render.query()},
+                {visible: false}
             ]
         })
 })

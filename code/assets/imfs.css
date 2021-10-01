@@ -118,7 +118,9 @@ table.rendermon.query tbody > tr > td > span.t {
     padding-right: 2px;
     margin-left: 2px;
     margin-right: 2px;
-
+}
+table.rendermon.query tbody > tr > td > span.i {
+    display: none;
 }
 div.rendermon.query.table-container > .dataTables_wrapper > .dataTables_info {
     padding-top: 0.5em;
