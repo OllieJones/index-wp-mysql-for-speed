@@ -152,7 +152,7 @@ END;
 END;
 
 		foreach ( $l->queries as $q ) {
-			if ( $q->n > 0 ) {
+			if ( $q->n > 0  && !is_null($q->f) ) {
 				$row   = [];
 				$row[] = $q->a ? [ "Dashboard", 1 ] : [ "Site", 0 ];
 				$row[] = [ number_format_i18n( $q->n, 0 ), $q->n ];
@@ -193,11 +193,17 @@ END;
 		<td class="$c $class" data-order="$item[1]">$item[0]</td>
 END;
 		}
-		$item = htmlspecialchars( implode( '', $item ) );
+		if ( is_array ($item )) {
+			$item = htmlspecialchars( implode( '', $item ) );
 
-		return <<<END
+			return <<<END
 		<td class="$c $class">$item</td>
 END;
+		}
+		return <<<END
+		<td class="$c $class"></td>
+END;
+
 
 	}
 
