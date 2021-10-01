@@ -17,7 +17,15 @@ Speed up your WordPress site by adding high-performance keys (database indexes) 
 
 == Description ==
 
+<h4>How do I use this plugin?</h4>
+
 Use this plugin with the Index MySQL Tool under the Tools menu. Or, give the shell command _wp help index-mysql_ to learn how to use it with WP-CLI.
+
+<h4>What does it do for my site?</h4>
+
+This plugin works to make your MySQL database work more efficiently, by adding high-performance keys to its tables. It also monitors your site's use of your MySQL database to detect which database operations are slowest.
+
+<h4>What is this all about?</h4>
 
 Where does WordPress store all that stuff that makes your site great? Where are your pages, posts, products, media, users, custom fields, metadata, and all your valuable content? All that data is in the [MySQL](https://www.mysql.com/) relational database management system. (Some hosting providers and servers use the [MariaDB](https://mariadb.org/) fork of WordPress; it works exactly the same as MySQL itself.)
 
@@ -38,6 +46,8 @@ In a new WordPress site with a couple of users and a dozen posts, the keys don't
 
 Better keys allow WordPress's code to run faster _without any code changes_.  Code is poetry, data is treasure, and database keys are grease that makes code and data work together smoothly.
 
+<h4>What tables does it add keys to?</h4>
+
 This plugin updates those keys. It works on six tables found in all WordPress installations.
 
 * wp_options
@@ -49,8 +59,23 @@ This plugin updates those keys. It works on six tables found in all WordPress in
 
 Experience with large sites shows that many MySQL slowdowns can be improved by better keys. You only need run this plugin once to get its benefits.
 
+<h4>How can I monitor my database's operation?</h4>
+
+On the Index MySQL page (from your Tools menu on your dashboard), you will find the "Monitor Database Operations" tab. Use it to request monitoring for a number of minutes you choose.
+
+You can monitor
+
+* either the site (your user-visible pages) or the dashboard, or both.
+* all pageviews, or a random sample. (Random samples are useful on very busy sites.)
+
+Once you have gathered monitoring information, you can view the queries, and sort them by how long they take. Or you can save the monitor information to a file and show it to somebody who knows about database operations.
+
+It's a good idea to monitor for a five-minute interval when your site is busy. Once you've completed a monitor, you can examine it to determine which database operations are slowing you down the most.
+
 = Credits =
 * Marco Cesarato for his LiteSQLParser.
+* Allan Jardine for Datatables.net.
+* Japreet Sethi for advice, and testing on his large installation.
 * Rick James for everything.
 
 == Frequently Asked Questions ==
@@ -81,7 +106,7 @@ InnoDB only. If your tables use MyISAM (the older storage engine) this plugin of
 
 = Which versions of MySQL and MariaDB work best? =
 
-If at all possible upgrade to Version 8 or later of MySQL.  For MariaDB upgrade to Version 10.3 or later. The MySQL and MariaDB developers have made many performance improvements over the past few years. They have the mission of making things better for WordPress site operators: we are by far their biggest user base.
+If at all possible upgrade to Version 8 or later of MySQL.  For MariaDB upgrade to Version 10.3 or later. The MySQL and MariaDB developers have made many performance improvements over the past few years. They have the mission of making things better for WordPress site operators: we are by far their biggest user base. So, we have a lot to gain by using their latest versions.
 
 Avoid Versions 5.5 of both MySQL and MariaDB if you can. They use the older Antelope version of InnnoDB. It has a limitation on index lengths that requires WordPress to use [prefix keys](https://dev.mysql.com/doc/refman/8.0/en/column-indexes.html#column-indexes-prefix). Those have reduced performance.
 
@@ -89,11 +114,15 @@ If you have the later _Barracuda_ version of InnoDB, this plugin uses its capabi
 
 = Does this plugin generate any overhead when my site is busy? =
 
-No. Some plugins' code runs when your visitors view pages. All this plugin's work happens from the WordPress Dashboard or WP-CLI. It sets up the keys in your database and then gets out of the way. You can even deactivate and delete the plugin once you've run it.
+Only when you are monitoring database operations, and that is for limited periods of time.
+
+Some plugins' code runs whenever your visitors view pages. All this plugin's work happens from the WordPress Dashboard or WP-CLI. It sets up the keys in your database and then gets out of the way. You can even deactivate and delete the plugin once you've run it.
 
 = What happens when I deactivate this plugin? =
 
-Its high-performance keys remain in place. You can always re-add it and reactivate it if you need to revert your keys to the WordPress standard.
+Its high-performance keys remain in place. You can always re-add it and reactivate the plugin if you need to revert your keys to the WordPress standard.
+
+Your saved monitors are removed when you deactivate the plugin.
 
 = Does this work on my multisite (network) WordPress instance?
 
@@ -102,6 +131,10 @@ Yes. On multisite instances, you must activate the plugin from the Network Admin
 = Can I upgrade my WordPress instance to multisite after using this plugin?
 
 **No**. if you upgrade your WordPress instance to multisite (a network) following [these instructions](https://wordpress.org/support/article/create-a-network/), **revert your high-performance keys first.** After you complete your upgrade you can add back the high-performance keys.
+
+= Can I restore a backup or duplicate to another server after using this plugin?
+
+Yes. But if you restore it to a server with an older version of MySQL (looking at you, GoDaddy) you should revert your keys to the WordPress standard before creating your backup or duplicate.
 
 = How can I learn more about this business of database keys? =
 
@@ -142,12 +175,18 @@ Fix engine-upgrade defect, stop counting rows because it's too slow..
 = 1.2.3 =
 Fix cli defect.
 
+= 1.3.0 =
+Add monitors.
+
 == Upgrade Notice ==
-This version supports [WP-CLI](https://make.wordpress.org/cli/handbook/); you can run it from a shell command line. It supports a way to reset your tables' keys to the WordPress standard
-if it doesn't recognize the existing keys. If you have MyISAM tables, you can choose which tables to upgrade to InnoDB instead of upgrading them all.
+In this version you can monitor your database operations to analyze database performance.
 
 == Screenshots ==
 
-01 The settings page.
+01 Adding high-performance keys.
 
-02 WP-CLI terminal.
+02 Monitoring database operations.
+
+03 Viewing a database operations monitor.
+
+04 Using WP CLI.
