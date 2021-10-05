@@ -73,9 +73,10 @@ Once you have gathered monitoring information, you can view the queries, and sor
 It's a good idea to monitor for a five-minute interval when your site is busy. Once you've completed a monitor, you can examine it to determine which database operations are slowing you down the most.
 
 = Credits =
-* Marco Cesarato for his LiteSQLParser.
+* Michael Uno for Admin Page Framework.
+* Marco Cesarato for LiteSQLParser.
 * Allan Jardine for Datatables.net.
-* Japreet Sethi for advice, and testing on his large installation.
+* Japreet Sethi for advice, and for testing on his large installation.
 * Rick James for everything.
 
 == Frequently Asked Questions ==

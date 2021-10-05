@@ -55,7 +55,7 @@ class ImfsDb {
 						$activeTable = true;
 					}
 					if ( $activeTable ) {
-						if ( $info->ENGINE !== 'InnoDB' ) {
+						if ( $info->ENGINE !== 'InnoDB' || ($info->ROW_FORMAT !== 'Dynamic' && $info->ROW_FORMAT !== 'Compressed' ) ) {
 							$oldEngineTables[] = $name;
 						} else {
 							$newEngineTables[] = $name;
@@ -271,7 +271,7 @@ class ImfsDb {
 	public function repairTables( $action, $tables ) {
 		$count = 0;
 		$names = array();
-		foreach ($tables as $table) {
+		foreach ( $tables as $table ) {
 			$splits  = explode( ' ', $table, 2 );
 			$names[] = $splits[0];
 		}
@@ -414,7 +414,7 @@ class ImfsDb {
 			}
 		}
 		/* any rekeyable tables? */
-		if (is_array($tables) && count($tables) > 0) {
+		if ( is_array( $tables ) && count( $tables ) > 0 ) {
 			try {
 				$this->lock( $tables, false );
 				foreach ( $tables as $name ) {
@@ -571,7 +571,7 @@ class ImfsDb {
 	 */
 	public function upgradeTableStorageEngine( $table ) {
 		set_time_limit( 120 );
-		$sql = 'ALTER TABLE ' . $table . ' ENGINE=InnoDb';
+		$sql = 'ALTER TABLE ' . $table . ' ENGINE=InnoDb, ROW_FORMAT=DYNAMIC';
 		$this->query( $sql, true );
 
 		return true;

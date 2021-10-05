@@ -443,187 +443,41 @@ function getStandardIndexes() {
 }
 
 function getQueries() {
-	$giganticTables = true;
 	global $wpdb;
 	$p     = $wpdb->prefix;
-	if ($giganticTables) {
-		$stats = array(
-			"SELECT 'postmeta' AS 'table',
+	$stats = array(
+		"SELECT REPLACE(t.TABLE_NAME, '${p}', '') AS 'table',
                '${p}' AS 'prefix',
-                TABLE_ROWS AS 'count',
-                NULL distinct_id,
-                NULL distinct_key,
-                NULL key_max_length,
-                NULL value_max_length,
-                NULL key_min_length,
-                NULL value_min_length,
-                NULL longer_191_key_count,
-                NULL longer_191_value_count,
-                NULL autoload_count
-             FROM information_schema.TABLES
-             WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = '${p}postmeta'",
-			"SELECT 'termmeta' AS 'table',
-               '${p}' AS 'prefix',
-                TABLE_ROWS AS 'count',
-                NULL distinct_id,
-                NULL distinct_key,
-                NULL key_max_length,
-                NULL value_max_length,
-                NULL key_min_length,
-                NULL value_min_length,
-                NULL longer_191_key_count,
-                NULL longer_191_value_count,
-                NULL autoload_count
-             FROM information_schema.TABLES
-             WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = '${p}termmeta'",
-			"SELECT 'options' AS  'table',
-               '${p}' AS 'prefix',
-                TABLE_ROWS AS 'count',
-                NULL AS distinct_id,
-                NULL distinct_meta_key,
-                NULL key_max_length,
-                NULL value_max_length,
-                NULL min_length,
-                NULL value_min_length,
-                NULL longer_191_key_count,
-                NULL longer_191_value_count,
-                NULL autoload_count
-             FROM information_schema.TABLES
-             WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = '${p}options'",
-			"SELECT 'posts' AS  'table',
-               '${p}' AS 'prefix',
-                TABLE_ROWS AS 'count',
-                NULL AS distinct_id,
-                NULL distinct_meta_key,
-                NULL key_max_length,
-                NULL value_max_length,
-                NULL min_length,
-                NULL value_min_length,
-                NULL longer_191_key_count,
-                NULL longer_191_value_count,
-                NULL autoload_count
-             FROM information_schema.TABLES
-             WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = '${p}posts'",
-			"SELECT 'comments' AS  'table',
-               '${p}' AS 'prefix',
-                TABLE_ROWS AS 'count',
-                NULL AS distinct_id,
-                NULL distinct_meta_key,
-                NULL key_max_length,
-                NULL value_max_length,
-                NULL min_length,
-                NULL value_min_length,
-                NULL longer_191_key_count,
-                NULL longer_191_value_count,
-                NULL autoload_count
-             FROM information_schema.TABLES
-             WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = '${p}comments'"
-		);
-
-		if ( is_main_site() ) {
-			$stats[] =
-				"SELECT 'usermeta' AS 'table',
-               '${p}' AS 'prefix',
-                TABLE_ROWS AS 'count',
-                NULL distinct_id,
-                NULL distinct_key,
-                NULL key_max_length,
-                NULL meta_value_max_length,
-                NULL key_min_length,
-                NULL value_min_length,
-                NULL longer_191_key_count,
-                NULL longer_191_value_count,
-                NULL autoload_count
-             FROM information_schema.TABLES
-             WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = '${p}usermeta'";
-		}
-	}
-	else {
-		$stats = array(
-			"SELECT 'postmeta' AS 'table',
-               '${p}' AS 'prefix',
-                COUNT(*) AS 'count',
-                COUNT(DISTINCT post_id) distinct_id,
-                COUNT(DISTINCT meta_key) distinct_key,
-                MAX(LENGTH(meta_key)) key_max_length,
-                MAX(LENGTH(meta_value)) value_max_length,
-                MIN(LENGTH(meta_key)) key_min_length,
-                MIN(LENGTH(meta_value)) value_min_length,
-                SUM(IF(LENGTH(meta_key) > 191, 1, 0)) longer_191_key_count,
-                SUM(IF(LENGTH(meta_value) > 191, 1, 0)) longer_191_value_count,
-                NULL autoload_count
-          FROM ${p}postmeta",
-		"SELECT 'termmeta' AS 'table',
-               '${p}' AS 'prefix',
-                COUNT(*) AS 'count',
-                COUNT(DISTINCT term_id) distinct_id,
-                COUNT(DISTINCT meta_key) distinct_key,
-                MAX(LENGTH(meta_key)) key_max_length,
-                MAX(LENGTH(meta_value)) value_max_length,
-                MIN(LENGTH(meta_key)) key_min_length,
-                MIN(LENGTH(meta_value)) value_min_length,
-                SUM(IF(LENGTH(meta_key) > 191, 1, 0)) longer_191_key_count,
-                SUM(IF(LENGTH(meta_value) > 191, 1, 0)) longer_191_value_count,
-                NULL autoload_count
-          FROM ${p}termmeta",
-		"SELECT 'options' AS  'table',
-               '${p}' AS 'prefix',
-                COUNT(*) AS 'count',
-                NULL AS distinct_id,
-                COUNT(DISTINCT option_name) distinct_meta_key,
-                MAX(LENGTH(option_name)) key_max_length,
-                MAX(LENGTH(option_value)) value_max_length,
-                MIN(LENGTH(option_name)) min_length,
-                MIN(LENGTH(option_value)) value_min_length,
-                SUM(IF(LENGTH(option_name) > 191, 1, 0)) longer_191_key_count,
-                SUM(IF(LENGTH(option_value) > 191, 1, 0)) longer_191_value_count,
-                SUM(IF(autoload = 'yes', 1, 0)) autoload_count
-          FROM ${p}options",
-		"SELECT 'posts' AS  'table',
-               '${p}' AS 'prefix',
-                COUNT(*) AS 'count',
-                NULL AS distinct_id,
-                COUNT(DISTINCT post_author) distinct_meta_key,
-                NULL key_max_length,
-                MAX(LENGTH(post_content)) value_max_length,
-                NULL min_length,
-                MIN(LENGTH(post_content)) value_min_length,
-                NULL longer_191_key_count,
-                NULL longer_191_value_count,
-                NULL autoload_count
-          FROM ${p}posts",
-		"SELECT 'comments' AS  'table',
-               '${p}' AS 'prefix',
-                COUNT(*) AS 'count',
-                NULL AS distinct_id,
-                COUNT(DISTINCT comment_post_ID) distinct_meta_key,
-                NULL key_max_length,
-                MAX(LENGTH(comment_content)) value_max_length,
-                NULL min_length,
-                MIN(LENGTH(comment_content)) value_min_length,
-                NULL longer_191_key_count,
-                NULL longer_191_value_count,
-                NULL autoload_count
-          FROM ${p}comments"
+                MAX(t.TABLE_ROWS) AS 'count',
+                MAX(p.CARDINALITY) AS distinct_id,
+                MIN(k.CARDINALITY) AS distinct_key,
+                MAX(autoload.autoload_count) AS autoload_count,
+                MAX(t.ENGINE) AS engine,
+                MAX(t.ROW_FORMAT) AS row_format,
+                MAX(t.TABLE_COLLATION) AS collation
+             FROM information_schema.TABLES t
+             LEFT JOIN information_schema.STATISTICS p 
+				       ON t.TABLE_SCHEMA = p.TABLE_SCHEMA
+						AND t.TABLE_NAME = p.TABLE_NAME
+						AND LOWER(p.COLUMN_NAME) LIKE '%id'
+						AND p.CARDINALITY < t.TABLE_ROWS
+             LEFT JOIN information_schema.STATISTICS k 
+				       ON t.TABLE_SCHEMA = k.TABLE_SCHEMA
+						AND t.TABLE_NAME = k.TABLE_NAME
+						AND LOWER(k.COLUMN_NAME) LIKE '%_key'
+             LEFT JOIN (
+                  SELECT '${p}options' TABLE_NAME,
+                         DATABASE() TABLE_SCHEMA,    
+                         SUM(autoload = 'yes') autoload_count
+                    FROM {$p}options
+                  ) autoload 
+				       ON t.TABLE_SCHEMA = autoload.TABLE_SCHEMA
+						AND t.TABLE_NAME = autoload.TABLE_NAME
+             WHERE t.TABLE_SCHEMA = DATABASE() 
+               AND t.TABLE_NAME IN ('${p}postmeta','${p}termmeta','${p}usermeta' ,'${p}posts','${p}comments', '${p}options', '${p}users')
+             GROUP BY REPLACE(t.TABLE_NAME, 'wp_', '')",
 	);
 
-	if ( is_main_site() ) {
-		$stats[] =
-			"SELECT 'usermeta' AS 'table',
-               '${p}' AS 'prefix',
-                COUNT(*) AS 'count',
-                COUNT(DISTINCT user_id) distinct_id,
-                COUNT(DISTINCT meta_key) distinct_key,
-                MAX(LENGTH(meta_key)) key_max_length,
-                MAX(LENGTH(meta_value)) meta_value_max_length,
-                MIN(LENGTH(meta_key)) key_min_length,
-                MIN(LENGTH(meta_value)) value_min_length,
-                SUM(IF(LENGTH(meta_key) > 191, 1, 0)) longer_191_key_count,
-                SUM(IF(LENGTH(meta_value) > 191, 1, 0)) longer_191_value_count,
-                NULL autoload_count
-          FROM ${p}usermeta";
-		}
-	}
 	/** @var array $queryArray an array of arrays of queries for this to use */
 	$queryArray = array(
 		"indexes" => "		
@@ -707,6 +561,7 @@ function getQueries() {
                    t.ENGINE,
                    t.ROW_FORMAT,
                    COUNT(*) column_count,
+                   t.TABLE_ROWS row_count,
                    SUM(IF(c.DATA_TYPE = 'varchar', c.CHARACTER_OCTET_LENGTH, 0)) varchar_total_octets,
                    MAX(IF(c.DATA_TYPE = 'varchar', c.CHARACTER_OCTET_LENGTH, 0)) varchar_max_octets,
                    SUM(IF(c.DATA_TYPE = 'varchar', c.CHARACTER_MAXIMUM_LENGTH, 0)) varchar_total_length,

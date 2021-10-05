@@ -260,7 +260,7 @@ class ImsfCli extends WP_CLI_Command {
 		$fmt = __( 'You cannot rekey some tables without resetting their keys first.', $this->domain ) . ' ' .
 		       __( 'This often means they have already been rekeyed by some other plugin or workflow.', $this->domain );
 		$this->showCommandLine( 'reset', $fmt, true, true );
-		$fmt = __( 'These database tables need upgrading to InnoDB, MySQL\'s latest storage engine.', $this->domain );
+		$fmt = __( 'These database tables need upgrading to InnoDB with the Dynamic row format, MySQL\'s latest storage scheme.', $this->domain );
 		$this->showCommandLine( 'upgrade', $fmt, true, true );
 		$fmt = __( 'Add high-performance keys to these tables to make your WordPress database faster.', $this->domain );
 		$this->showCommandLine( 'enable', $fmt, false );

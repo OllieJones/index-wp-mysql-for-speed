@@ -426,9 +426,9 @@ class ImfsPage extends Imfs_AdminPageFramework {
 	private function upgradeIndex() {
 		if ( count( $this->db->oldEngineTables ) > 0 ) {
 			$action       = 'upgrade';
-			$title        = '<span class="warning header">' . __( 'Upgrade storage engine', $this->domain ) . '</span>';
-			$caption      = __( 'These database tables need upgrading to InnoDB, MySQL\'s latest storage engine.', $this->domain );
-			$callToAction = __( 'Upgrade Storage Engine Now', $this->domain );
+			$title        = '<span class="warning header">' . __( 'Upgrade table storage', $this->domain ) . '</span>';
+			$caption      = __( 'These database tables need upgrading to InnoDB with the Dynamic row format, MySQL\'s latest table storage.', $this->domain );
+			$callToAction = __( 'Upgrade Storage Now', $this->domain );
 			$this->renderListOfTables( $this->db->oldEngineTables, true, $action, $title, $caption, $callToAction, true );
 		}
 	}
