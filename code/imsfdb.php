@@ -55,7 +55,12 @@ class ImfsDb {
 						$activeTable = true;
 					}
 					if ( $activeTable ) {
-						if ( $info->ENGINE !== 'InnoDB' || ($info->ROW_FORMAT !== 'Dynamic' && $info->ROW_FORMAT !== 'Compressed' ) ) {
+						/* not InnoDB, we should upgrade */
+						$wrongEngine = $info->ENGINE !== 'InnoDB' ;
+						/* one of the old row formats, probably compact. But ignore if old MySQL version. */
+						$wrongRowFormat = $this->unconstrained && $info->ROW_FORMAT !== 'Dynamic' && $info->ROW_FORMAT !== 'Compressed';
+
+						if ( $wrongEngine || $wrongRowFormat ) {
 							$oldEngineTables[] = $name;
 						} else {
 							$newEngineTables[] = $name;
