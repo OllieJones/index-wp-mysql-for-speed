@@ -56,7 +56,7 @@ class ImfsDb {
 					}
 					if ( $activeTable ) {
 						/* not InnoDB, we should upgrade */
-						$wrongEngine = $info->ENGINE !== 'InnoDB' ;
+						$wrongEngine = $info->ENGINE !== 'InnoDB';
 						/* one of the old row formats, probably compact. But ignore if old MySQL version. */
 						$wrongRowFormat = $this->unconstrained && $info->ROW_FORMAT !== 'Dynamic' && $info->ROW_FORMAT !== 'Compressed';
 
@@ -105,7 +105,7 @@ class ImfsDb {
 	public function get_results( $sql, $doTiming = false ) {
 		global $wpdb;
 		$thentime = $doTiming ? $this->getTime() : - 1;
-		$results  = $wpdb->get_results( $sql, OBJECT_K );
+		$results  = $wpdb->get_results( index_wp_mysql_for_speed_querytag . $sql, OBJECT_K );
 		if ( false === $results || $wpdb->last_error ) {
 			throw new ImfsException( $wpdb->last_error, $wpdb->last_query );
 		}
@@ -223,7 +223,7 @@ class ImfsDb {
 	public function query( $sql, $doTiming = false ) {
 		global $wpdb;
 		$thentime = $doTiming ? $this->getTime() : - 1;
-		$results  = $wpdb->query( $sql );
+		$results  = $wpdb->query( index_wp_mysql_for_speed_querytag . $sql );
 		if ( false === $results || $wpdb->last_error ) {
 			throw new ImfsException( $wpdb->last_error, $wpdb->last_query );
 		}

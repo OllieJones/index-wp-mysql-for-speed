@@ -215,7 +215,7 @@ class ImsfCli extends WP_CLI_Command {
 		try {
 			$this->db->lock( $tbls, true );
 			foreach ( $tbls as $tbl ) {
-				$this->db->lock(array($tbl), true);
+				$this->db->lock( array( $tbl ), true );
 				$this->db->timings = array();
 				$arr               = array( $tbl );
 				$this->db->upgradeStorageEngine( $arr );
@@ -239,7 +239,7 @@ class ImsfCli extends WP_CLI_Command {
 			$this->db->lock( $tbls, true );
 			foreach ( $tbls as $tbl ) {
 				$this->db->timings = array();
-				$this->db->repairKeys($tbl );
+				$this->db->repairKeys( $tbl );
 				WP_CLI::log( $this->reportCompletion( $action, $tbl ) );
 			}
 		} catch ( ImfsException $ex ) {

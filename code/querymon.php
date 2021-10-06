@@ -27,33 +27,29 @@ class ImfsMonitor {
 		}
 	}
 
-	/** Get a queryId, a hash, for a query fingerprint
-	 * @param string $fingerprint query fingerprint like SELECT col, col FROM tbl WHERE col = ?i?
-	 *
-	 * @return false|string
-	 */
-	private static function getQueryId( $fingerprint ) {
-		return substr( hash( 'md5', $fingerprint, false ), 0, 16 );
-	}
-
 	function imfsMonitorGather() {
 		global $wpdb;
 
 		$optionName = index_wp_mysql_for_speed_monitor . 'Gather';
 
 		$uploads = array();
+		$skipped = 0;
 
 		/* examine queries: over time threshold, not SHOW */
 		foreach ( $wpdb->queries as $q ) {
 			$q[1] = intval( $q[1] * 1000000 );
 			if ( $q[1] >= $this->thresholdMicroseconds ) {
 				$query = preg_replace( '/[\t\r\n]+/m', ' ', trim( $q[0] ) );
-				if ( stripos( $query, 'SHOW ' ) === false ) {
-					$q[0]    = $query;
-					$encoded = $this->encodeQuery( $q );
-					if ( $encoded ) {
-						$uploads[] = $encoded;
+				if ( strpos( $query, index_wp_mysql_for_speed_querytag ) === false ) {
+					if ( stripos( $query, 'SHOW ' ) === false ) {
+						$q[0]    = $query;
+						$encoded = $this->encodeQuery( $q );
+						if ( $encoded ) {
+							$uploads[] = $encoded;
+						}
 					}
+				} else {
+					$skipped ++;
 				}
 			}
 		}
@@ -68,6 +64,7 @@ class ImfsMonitor {
 	}
 
 	/** make a JSON-encoded object containing a query's vital signs.
+	 *
 	 * @param array $q element in $wpdb->queries  array
 	 * @param bool $explain yes, run EXPLAIN on the query. no, skip it.
 	 *
@@ -80,7 +77,7 @@ class ImfsMonitor {
 			$item->q = $q[0];
 			$item->t = $q[1]; /* duration in microseconds */
 			//$item->c      = $q[2]; /* call traceback */
-			$item->s      = intval($q[3]); /* query start time */
+			$item->s = intval( $q[3] ); /* query start time */
 			$item->a = ! ! is_admin();
 			if ( $explain ) {
 				$explainer = stripos( $q[0], 'SELECT ' ) === 0 ? $this->analyzeVerb : $this->explainVerb;
@@ -121,14 +118,14 @@ class ImfsMonitor {
 			 * We can't use ON DUPLICATE KEY UPDATE col = VALUES(option_value)
 			 * because Oracle MySQL deprecated it, but MariaDB didn't. Grumble.
 			 * So we'll put it into a server variable just once; it can be fat. */
-			$wpdb->get_results( $wpdb->prepare( "SET @upload = %s", $value ) );
+			$wpdb->query( $wpdb->prepare( index_wp_mysql_for_speed_querytag . "SET @upload = %s", $value ) );
 			$query = "INSERT INTO $wpdb->options (option_name, option_value, autoload)"
 			         . "VALUES (%s, @upload, 'no')"
 			         . "ON DUPLICATE KEY UPDATE option_value ="
 			         . "IF(%d > 0 AND LENGTH(option_value) <= %d - LENGTH(@upload),"
 			         . "CONCAT(option_value, %s, @upload), option_value)";
-			$query = $wpdb->prepare( $query, $name, $maxlength, $maxlength, $separator );
-			$wpdb->get_results( $query );
+			$query = $wpdb->prepare( index_wp_mysql_for_speed_querytag . $query, $name, $maxlength, $maxlength, $separator );
+			$wpdb->query( $query );
 		} catch ( Exception $e ) {
 			/* empty, intentionally, don't crash when logging fails */
 		}
@@ -138,7 +135,7 @@ class ImfsMonitor {
 	 * process the queries gathered by imfsMonitorGather, creating / updating a queryLog
 	 */
 	function processGatheredQueries() {
-		$logName             = index_wp_mysql_for_speed_monitor . '-Log-' . $this->captureName;
+		$logName = index_wp_mysql_for_speed_monitor . '-Log-' . $this->captureName;
 		list( $queryLog, $queryLogOverflowing ) = $this->getQueryLog( $logName );
 
 		$queries = $this->getGatheredQueries();
@@ -149,15 +146,55 @@ class ImfsMonitor {
 	}
 
 	/**
-	 * process any left-over queries gathered by imfsMonitor and stop gathering.
+	 * @param $logName
+	 * @param $queryLogOverflowing
+	 * @param $now
+	 *
+	 * @return array
 	 */
-	function completeMonitoring() {
-		$this->processGatheredQueries();
-		delete_option( index_wp_mysql_for_speed_monitor . 'nextMonitorUpdate' );
+	private function getQueryLog( $logName ) {
+		$queryLog = get_option( $logName );
+		if ( ! $queryLog ) {
+			$queryLogOverflowing   = false;
+			$queryLog              = (object) array();
+			$queryLog->gathercount = 1;
+			$queryLog->querycount  = 0;
+			$queryLog->start       = PHP_INT_MAX;
+			$queryLog->end         = PHP_INT_MIN;
+			$queryLog->queries     = array();
+		} else {
+			$queryLogOverflowing = strlen( $queryLog ) > $this->queryLogSizeThreshold;
+			$queryLog            = json_decode( $queryLog );
+			$queryLog->queries   = (array) $queryLog->queries;
+			$queryLog->gathercount ++;
+		}
+
+		return array( $queryLog, $queryLogOverflowing );
+	}
+
+	/** retrieve gathered queries.
+	 * @return array query objects just gathered.
+	 */
+	private function getGatheredQueries() {
+		$queryGather = get_option( index_wp_mysql_for_speed_monitor . 'Gather' );
+		/* tiny race condition window between get and delete here. */
 		delete_option( index_wp_mysql_for_speed_monitor . 'Gather' );
+
+		$queries     = array();
+		$queryGather = explode( $this->gatherDelimiter, $queryGather );
+		foreach ( $queryGather as $q ) {
+			try {
+				$queries[] = json_decode( $q );
+			} catch ( Exception $e ) {
+				/* empty, intentionally */
+			}
+		}
+
+		return $queries;
 	}
 
 	/** Insert a query into the $queryLog
+	 *
 	 * @param object $queryLog
 	 * @param object $thisQuery
 	 * @param bool $queryLogOverflowing
@@ -218,51 +255,22 @@ class ImfsMonitor {
 		}
 	}
 
-	/**
-	 * @param $logName
-	 * @param $queryLogOverflowing
-	 * @param $now
+	/** Get a queryId, a hash, for a query fingerprint
 	 *
-	 * @return array
+	 * @param string $fingerprint query fingerprint like SELECT col, col FROM tbl WHERE col = ?i?
+	 *
+	 * @return false|string
 	 */
-	private function getQueryLog( $logName ) {
-		$queryLog = get_option( $logName );
-		if ( ! $queryLog ) {
-			$queryLogOverflowing = false;
-			$queryLog          = (object) array();
-			$queryLog->gathercount   = 1;
-			$queryLog->querycount = 0;
-			$queryLog->start   = PHP_INT_MAX;
-			$queryLog->end     = PHP_INT_MIN;
-			$queryLog->queries = array();
-		} else {
-			$queryLogOverflowing = strlen( $queryLog ) > $this->queryLogSizeThreshold;
-			$queryLog            = json_decode( $queryLog );
-			$queryLog->queries   = (array) $queryLog->queries;
-			$queryLog->gathercount ++;
-		}
+	private static function getQueryId( $fingerprint ) {
+		return substr( hash( 'md5', $fingerprint, false ), 0, 16 );
+	}
 
-		return array( $queryLog, $queryLogOverflowing );
-}
-
-	/** retrieve gathered queries.
-	 * @return array query objects just gathered.
+	/**
+	 * process any left-over queries gathered by imfsMonitor and stop gathering.
 	 */
-	private function getGatheredQueries() {
-		$queryGather = get_option( index_wp_mysql_for_speed_monitor . 'Gather' );
-		/* tiny race condition window between get and delete here. */
+	function completeMonitoring() {
+		$this->processGatheredQueries();
+		delete_option( index_wp_mysql_for_speed_monitor . 'nextMonitorUpdate' );
 		delete_option( index_wp_mysql_for_speed_monitor . 'Gather' );
-
-		$queries     = array();
-		$queryGather = explode( $this->gatherDelimiter, $queryGather );
-		foreach ( $queryGather as $q ) {
-			try {
-				$queries[] = json_decode( $q );
-			} catch ( Exception $e ) {
-				/* empty, intentionally */
-			}
-		}
-
-		return $queries;
 	}
 }

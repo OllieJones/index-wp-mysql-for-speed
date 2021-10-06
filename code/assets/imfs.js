@@ -31,6 +31,8 @@ $(document).ready(function () {
                 {searchable: false},
                 {searchable: false},
                 {searchable: false},
+                {searchable: false},
+                {searchable: false},
                 null,
                 {data: 'description', render: DataTable.render.formatQueryFingerprint()},
                 {visible: false}

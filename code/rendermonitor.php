@@ -133,6 +133,7 @@ END;
 	 */
 	public function percentile( $a, $p ) {
 		$n = count( $a );
+		sort( $a );
 		$i = floor( $n * $p );
 		if ( $i >= $n ) {
 			$i = $n - 1;
@@ -145,19 +146,33 @@ END;
 		$l   = $this->queryLog;
 		$c   = $this->classPrefix;
 		$res = '';
-		$row = $this->row( [ "Where", "Count", "Total", "Mean", "How", "Query", "Actual" ], "query header row" );
+		$row = $this->row( [
+			"Where",
+			"Count",
+			"Total",
+			"Mean",
+			"Spread",
+			"95th",
+			"How",
+			"Query",
+			"Actual"
+		], "query header row" );
 		$res .= <<<END
 		<div class="$c query table-container"><table class="$c query table"><thead>
 		<tr>$row</tr></thead><tbody>
 END;
 
 		foreach ( $l->queries as $q ) {
-			if ( $q->n > 0  && !is_null($q->f) ) {
+			if ( $q->n > 0 && ! is_null( $q->f ) ) {
 				$row   = [];
 				$row[] = $q->a ? [ "Dashboard", 1 ] : [ "Site", 0 ];
 				$row[] = [ number_format_i18n( $q->n, 0 ), $q->n ];
 				$row[] = $this->timeCell( $q->t );
-				$row[] = $this->timeStatsCell( $q->ts );
+				$mean  = $this->mean( $q->ts );
+				$unit  = $this->getTimeUnit( $mean * 0.000001 );
+				$row[] = $this->timeCell( $mean, $unit );
+				$row[] = $this->timeCell( $this->mad( $q->ts ), $unit, '±' );
+				$row[] = $this->timeCell( $this->percentile( $q->ts, 0.95 ), $unit );
 				$row[] = $this->queryPlan( $q );
 				$row[] = $q->f;
 				$row[] = $q->q;
@@ -193,13 +208,14 @@ END;
 		<td class="$c $class" data-order="$item[1]">$item[0]</td>
 END;
 		}
-		if ( is_array ($item )) {
+		if ( is_array( $item ) ) {
 			$item = htmlspecialchars( implode( '', $item ) );
 
 			return <<<END
 		<td class="$c $class">$item</td>
 END;
 		}
+
 		return <<<END
 		<td class="$c $class"></td>
 END;
@@ -213,10 +229,17 @@ END;
 	 *
 	 * @return array
 	 */
-	public function timeCell( $time ) {
-		$renderTime  = $time * 0.000001;
-		$unit        = $this->getTimeUnit( $renderTime );
-		$displayTime = number_format_i18n( $renderTime / $unit[0], $unit[2] ) . $unit[1];
+	public function timeCell( $time, $unit = null, $prefix = '' ) {
+		if ( $time === 0.0 ) {
+			$displayTime = $prefix !== '' ? '' : '0';
+
+			return [ $displayTime, '0' ];
+		}
+		$renderTime = $time * 0.000001;
+		if ( $unit === null ) {
+			$unit = $this->getTimeUnit( $renderTime );
+		}
+		$displayTime = $prefix . number_format_i18n( $renderTime / $unit[0], $unit[2] ) . $unit[1];
 
 		return [ $displayTime, - $renderTime ];
 	}
@@ -235,26 +258,10 @@ END;
 		} else if ( $timeSeconds >= 0.001 ) {
 			$unit = [ 0.001, 'ms', 2 ];
 		} else {
-			$unit = [ 0.000001, 'µs', 0 ];
+			$unit = [ 0.000001, 'μs', 0 ];
 		}
 
 		return $unit;
-	}
-
-	/** get cell data for microsecond times
-	 *
-	 * @param number $time
-	 *
-	 * @return array
-	 */
-	public function timeStatsCell( $times ) {
-		$time        = $this->mean( $times ) * 0.000001;
-		$mad         = $this->mad( $times ) * 0.000001;
-		$unit        = $this->getTimeUnit( $time );
-		$displayTime = number_format_i18n( $time / $unit[0], $unit[2] ) . '±' .
-		               number_format_i18n( $mad / $unit[0], $unit[2] ) . $unit[1];
-
-		return [ $displayTime, - $time ];
 	}
 
 	/** arithmetic mean
@@ -267,6 +274,9 @@ END;
 		$n = count( $a );
 		if ( ! $n ) {
 			return null;
+		}
+		if ( $n === 1 ) {
+			return $a[0];
 		}
 		$acc = 0;
 		foreach ( $a as $v ) {
@@ -287,6 +297,9 @@ END;
 		if ( ! $n ) {
 			return null;
 		}
+		if ( $n === 1 ) {
+			return 0.0;
+		}
 		$acc = 0;
 		foreach ( $a as $v ) {
 			$acc += $v;
@@ -298,7 +311,6 @@ END;
 		}
 
 		return $acc / $n;
-
 	}
 
 	public function queryPlan( $q ) {
@@ -326,5 +338,46 @@ END;
 	static function deleteMonitor( $monitor ) {
 		$prefix = index_wp_mysql_for_speed_monitor . '-Log-';
 		delete_option( $prefix . $monitor );
+	}
+
+	/** get cell data for microsecond times
+	 *
+	 * @param number $time
+	 *
+	 * @return array
+	 */
+	public function timeStatsCell( $times ) {
+		$time        = $this->mean( $times ) * 0.000001;
+		$mad         = $this->mad( $times ) * 0.000001;
+		$unit        = $this->getTimeUnit( $time );
+		$displayTime = number_format_i18n( $time / $unit[0], $unit[2] ) . '+/-' .
+		               number_format_i18n( $mad / $unit[0], $unit[2] ) . $unit[1];
+
+		return [ $displayTime, - $time ];
+	}
+
+	/** standard deviation
+	 *
+	 * @param array $a dataset
+	 *
+	 * @return number
+	 */
+	public function stdev( $a ) {
+		$n = count( $a );
+		if ( ! $n ) {
+			return null;
+		}
+		if ( $n === 1 ) {
+			return 0.0;
+		}
+		$sum   = 0.0;
+		$sumsq = 0.0;
+		foreach ( $a as $v ) {
+			$sum   += $v;
+			$sumsq += ( $v * $v );
+		}
+		$mean = $sum / $n;
+
+		return sqrt( ( $sumsq / $n ) - ( $mean * $mean ) );
 	}
 }
