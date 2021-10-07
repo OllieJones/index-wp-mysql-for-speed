@@ -23,11 +23,11 @@ Use this plugin with the Index MySQL Tool under the Tools menu. Or, give the she
 
 <h4>What does it do for my site?</h4>
 
-This plugin works to make your MySQL database work more efficiently, by adding high-performance keys to its tables. It also monitors your site's use of your MySQL database to detect which database operations are slowest.
+This plugin works to make your MySQL database work more efficiently by adding high-performance keys to its tables. It also monitors your site's use of your MySQL database to detect which database operations are slowest.
 
 <h4>What is this all about?</h4>
 
-Where does WordPress store all that stuff that makes your site great? Where are your pages, posts, products, media, users, custom fields, metadata, and all your valuable content? All that data is in the [MySQL](https://www.mysql.com/) relational database management system. (Some hosting providers and servers use the [MariaDB](https://mariadb.org/) fork of WordPress; it works exactly the same as MySQL itself.)
+Where does WordPress store all that stuff that makes your site great? Where are your pages, posts, products, media, users, custom fields, metadata, and all your valuable content? All that data is in the [MySQL](https://www.mysql.com/) relational database management system. (Many hosting providers and servers use the [MariaDB](https://mariadb.org/) fork of WordPress; it works exactly the same as MySQL itself.)
 
 As your site grows, your MySQL tables grow. Giant tables can make your page loads slow down, frustrate your users, and even hurt your search-engine rankings. What can you do about this?
 
@@ -48,7 +48,7 @@ Better keys allow WordPress's code to run faster _without any code changes_.  Co
 
 <h4>What tables does it add keys to?</h4>
 
-This plugin updates those keys. It works on six tables found in all WordPress installations.
+This plugin updates keys in six tables found in all WordPress installations.
 
 * wp_options
 * wp_posts
@@ -66,11 +66,11 @@ On the Index MySQL page (from your Tools menu on your dashboard), you will find 
 You can monitor
 
 * either the site (your user-visible pages) or the dashboard, or both.
-* all pageviews, or a random sample. (Random samples are useful on very busy sites.)
+* all pageviews, or a random sample. (Random samples are useful on very busy sites to reduce monitoring overhead.)
 
 Once you have gathered monitoring information, you can view the queries, and sort them by how long they take. Or you can save the monitor information to a file and show it to somebody who knows about database operations.
 
-It's a good idea to monitor for a five-minute interval when your site is busy. Once you've completed a monitor, you can examine it to determine which database operations are slowing you down the most.
+It's a good idea to monitor for a five-minute interval at a time of day when your site is busy. Once you've completed a monitor, you can examine it to determine which database operations are slowing you down the most.
 
 = Credits =
 * Michael Uno for Admin Page Framework.
@@ -84,10 +84,6 @@ It's a good idea to monitor for a five-minute interval when your site is busy. O
 = Should I back up my site before using this? =
 
 Yes. You already knew that.
-
-= It takes a long time to display the plugin's settings page. Why? =
-
-This plugin examines your MySQL database as it renders its settings page. On shared hosts that can take a while. Please be patient, and please avoid clicking the Index MySQL link more than once.
 
 = I use a nonstandard database table prefix. Will this work ? =
 
@@ -103,7 +99,7 @@ MySQL versions 5.5.62 and above, 5.6.4 and above, 8 and above. MariaDB version 5
 
 = What database Storage Engine does this support? =
 
-InnoDB only. If your tables use MyISAM (the older storage engine) this plugin offers to upgrade them for you.
+InnoDB only. If your tables use MyISAM (the older storage engine) or the COMPACT row format, this plugin offers to upgrade them for you.
 
 = Which versions of MySQL and MariaDB work best? =
 
@@ -117,7 +113,7 @@ If you have the later _Barracuda_ version of InnoDB, this plugin uses its capabi
 
 Only when you are monitoring database operations, and that is for limited periods of time.
 
-Some plugins' code runs whenever your visitors view pages. All this plugin's work happens from the WordPress Dashboard or WP-CLI. It sets up the keys in your database and then gets out of the way. You can even deactivate and delete the plugin once you've run it.
+Some plugins' code runs whenever your visitors view pages. All this plugin's work rekeying work happens from the WordPress Dashboard or WP-CLI. It sets up the keys in your database and then gets out of the way. You can even deactivate and delete the plugin once you've run it.
 
 = What happens when I deactivate this plugin? =
 
@@ -149,14 +145,8 @@ It's a large topic. Some people (often called Database Administrators--DBAs) mak
 * The [proposal](https://www.plumislandmedia.net/wordpress/speeding-up-wordpress-database-operations/) for this plugin.
 
 == Changelog ==
-= 0.1.2 =
-First publication.
-
-= 0.1.4 =
-Minor updates.
-
 = 0.9.1 =
-More complete diagnostic information upload, minor usability and documentation improvements.
+First release.
 
 = 1.0.1 =
 Works for multisite, add more user choices
@@ -176,11 +166,13 @@ Fix engine-upgrade defect, stop counting rows because it's too slow..
 = 1.2.3 =
 Fix cli defect.
 
-= 1.3.0 =
-Add monitors.
+= 1.3.2 =
+When upgrading tables, change ROW_FORMAT to DYNAMIC as well as ENGINE to InnoDB. Add monitors.
 
 == Upgrade Notice ==
-In this version you can monitor your database operations to analyze database performance.
+In this version you can monitor your database operations to analyze database performance for short periods of time and detect the slowest queries.
+
+This version changes both the ROW_FORMAT and ENGINE of legacy tables.
 
 == Screenshots ==
 
@@ -188,6 +180,6 @@ In this version you can monitor your database operations to analyze database per
 
 02 Monitoring database operations.
 
-03 Viewing a database operations monitor.
+03 Viewing a database monitor.
 
 04 Using WP CLI.

@@ -17,14 +17,14 @@ Network:           true
 */
 
 /** current version number  */
-define( 'index_wp_mysql_for_speed_VERSION_NUM', '1.2.3' );
+define( 'index_wp_mysql_for_speed_VERSION_NUM', '1.3.2' );
 
 /* set up some handy globals */
 define( 'index_wp_mysql_for_speed_PLUGIN_NAME', trim( dirname( plugin_basename( __FILE__ ) ), '/' ) );
 define( 'index_wp_mysql_for_speed_domain', index_wp_mysql_for_speed_PLUGIN_NAME );
 define( 'index_wp_mysql_for_speed_stats_endpoint', $target = 'https://lit-mesa-75588.herokuapp.com/imfsstats' );
 define( 'index_wp_mysql_for_speed_monitor', 'imfsQueryMonitor' );
-define('index_wp_mysql_for_speed_querytag', '/*imfs-query-tag*/');
+define( 'index_wp_mysql_for_speed_querytag', '/*imfs-query-tag*/' );
 
 register_activation_hook( __FILE__, 'index_wp_mysql_for_speed_activate' );
 register_deactivation_hook( __FILE__, 'index_wp_mysql_for_speed_deactivate' );
@@ -85,7 +85,7 @@ function index_wp_mysql_for_speed_deactivate() {
 	global $wpdb;
 	delete_option( 'ImfsPage' );
 	$q  = "SELECT option_name FROM {$wpdb->options} WHERE option_name LIKE '" . index_wp_mysql_for_speed_monitor . "%'";
-	$rs = $wpdb->get_results( $q );
+	$rs = $wpdb->get_results( index_wp_mysql_for_speed_querytag . $q );
 	foreach ( $rs as $r ) {
 		delete_option( $r->option_name );
 	}

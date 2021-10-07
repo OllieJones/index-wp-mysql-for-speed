@@ -82,7 +82,7 @@ class ImfsMonitor {
 			if ( $explain ) {
 				$explainer = stripos( $q[0], 'SELECT ' ) === 0 ? $this->analyzeVerb : $this->explainVerb;
 				$explainq  = $explainer . ' ' . $q[0];
-				$item->e   = $wpdb->get_results( $explainq );
+				$item->e   = $wpdb->get_results( index_wp_mysql_for_speed_querytag . $explainq );
 			}
 
 			return json_encode( $item );

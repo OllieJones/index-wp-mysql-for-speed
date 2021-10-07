@@ -46,7 +46,7 @@ function getMySQLVersion() {
             CAST(SUBSTRING_INDEX(SUBSTRING_INDEX(VERSION(), '.', 2), '.', -1) AS UNSIGNED) minor,
             CAST(SUBSTRING_INDEX(SUBSTRING_INDEX(REPLACE(VERSION(), '-', '.'), '.', 3), '.', -1) AS UNSIGNED) build,
             '' fork, '' distro";
-	$results = $wpdb->get_results( $semver );
+	$results = $wpdb->get_results( index_wp_mysql_for_speed_querytag . $semver );
 	$results = $results[0];
 
 	$results->db_host = imfsRedactHost( DB_HOST );
@@ -83,7 +83,7 @@ function getMySQLVersion() {
 		return makeNumeric( $results );
 	}
 	/* innodb_large_prefix variable is missing in MySQL 8+ */
-	$prefix = $wpdb->get_results( "SHOW VARIABLES LIKE 'innodb_large_prefix'", OBJECT_K );
+	$prefix = $wpdb->get_results( index_wp_mysql_for_speed_querytag . "SHOW VARIABLES LIKE 'innodb_large_prefix'", OBJECT_K );
 	if ( $prefix && is_array( $prefix ) && array_key_exists( 'innodb_large_prefix', $prefix ) ) {
 		$prefix = $prefix['innodb_large_prefix'];
 		if ( $prefix->Value === 'ON' ) {

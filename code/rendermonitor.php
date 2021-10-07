@@ -63,22 +63,10 @@ class renderMonitor {
 		$l     = $this->queryLog;
 		$c     = $this->classPrefix;
 		$times = $this->summary();
-		list ( $allNineFive, $avgNineFive, $maxNineFive, $allMedian, $avgMedian, $maxMedian ) = $this->stats();
-		$res = <<<END
+		$res   = <<<END
 		<h1 class="$c h1">$this->monitor</h1>
 		<div class="$c top time">$times</div>
 		<div class="$c top stats">
-		<div>
-		<span class="$c stat caption">95th percentiles:</span>
-		<span class="$c stat number">All: $allNineFive</span>
-		<span class="$c stat number">Average: $avgNineFive</span>
-		<span class="$c stat number">Max: $maxNineFive</span>
-		</div>
-		<span class="$c stat caption">Medians:</span>
-		<span class="$c stat number">All: $allMedian</span>
-		<span class="$c stat number">Average: $avgMedian</span>
-		<span class="$c stat number">Max: $maxMedian</span>
-		</div>
 END;
 
 		return $res;
@@ -94,52 +82,6 @@ END;
 		return <<<END
 		<span class="$c start">$start</span>―<span class="$c end">$end</span> <span class="$c count">$querycount</span> queries.
 END;
-	}
-
-	public function stats() {
-		$allTimes = [];
-		$avgTimes = [];
-		$maxTimes = [];
-		$queries  = $this->queryLog->queries;
-		foreach ( $queries as $qid => $q ) {
-			$maxTimes[] = $q->maxt;
-			$avgTimes[] = $q->t / $q->n;
-			foreach ( $q->ts as $t ) {
-				$allTimes[] = $t;
-			}
-		}
-
-		sort( $allTimes );
-		sort( $avgTimes );
-		sort( $maxTimes );
-
-		$allNinefive = $this->percentile( $allTimes, 0.95 );
-		$avgNinefive = $this->percentile( $avgTimes, 0.95 );
-		$maxNineFive = $this->percentile( $maxTimes, 0.95 );
-		$allMedian   = $this->percentile( $allTimes, 0.5 );
-		$avgMedian   = $this->percentile( $avgTimes, 0.5 );
-		$maxMedian   = $this->percentile( $maxTimes, 0.5 );
-
-		return [ $allNinefive, $avgNinefive, $maxNineFive, $allMedian, $avgMedian, $maxMedian ];
-
-	}
-
-	/** percentile
-	 *
-	 * @param array $a dataset
-	 * @param number $p percentile as fraction 0-1
-	 *
-	 * @return number
-	 */
-	public function percentile( $a, $p ) {
-		$n = count( $a );
-		sort( $a );
-		$i = floor( $n * $p );
-		if ( $i >= $n ) {
-			$i = $n - 1;
-		}
-
-		return $a[ $i ];
 	}
 
 	public function table() {
@@ -313,23 +255,69 @@ END;
 		return $acc / $n;
 	}
 
+	/** percentile
+	 *
+	 * @param array $a dataset
+	 * @param number $p percentile as fraction 0-1
+	 *
+	 * @return number
+	 */
+	public function percentile( $a, $p ) {
+		$n = count( $a );
+		sort( $a );
+		$i = floor( $n * $p );
+		if ( $i >= $n ) {
+			$i = $n - 1;
+		}
+
+		return $a[ $i ];
+	}
+
 	public function queryPlan( $q ) {
 		if ( ! $q->e || ! is_array( $q->e ) || count( $q->e ) === 0 ) {
 			return '';
 		}
 		$erow   = $q->e[0];
+		$extras = $erow->Extra;
+		if ( false !== stripos( $extras, 'impossible where' ) ) {
+			return $extras;
+		} else if ( false !== stripos( $extras, 'no tables' ) ) {
+			return $extras;
+		}
+
 		$expl   = array();
 		$expl[] = $erow->table;
-		$expl[] = $erow->key;
-		$expl[] = "(" . $erow->type . ":" . $erow->ref . ")";
+
+		$type = $erow->select_type;
+		if ( false === stripos( $type, 'SIMPLE' ) ) {
+			$expl[] = $type . ':';
+		}
+
+		if ( $erow->key ) {
+			$expl[] = '(' . $erow->key . ')';
+		}
+		if ( $erow->type && $erow->ref ) {
+			$expl[] = "[" . $erow->type . ":" . $erow->ref . "]";
+		} else if ( $erow->type ) {
+			$expl[] = "[" . $erow->type . "]";
+		} else if ( $erow->ref ) {
+			$expl[] = "[" . $erow->type . "]";
+		}
 		foreach ( explode( ";", $erow->Extra ) as $extra ) {
-			$extra  = strtolower( $extra );
-			$expl[] = strpos( $extra, "no tables" ) !== false ? "No Tables" : null;
-			$expl[] = strpos( $extra, "impossible where" ) !== false ? "Impossible Where" : null; // TODO after reading const tables
-			$expl[] = strpos( $extra, "using where" ) !== false ? "Filter" : null;
-			$expl[] = strpos( $extra, "using index" ) !== false ? "Index" : null;  //TODO Using Index COndition
-			$expl[] = strpos( $extra, "using temporary" ) !== false ? "Temp" : null;
-			$expl[] = strpos( $extra, "using filesort" ) !== false ? "Sort" : null;
+			$extra = trim( $extra );
+			if ( false !== stripos( $extra, "using where" ) ) {
+				$expl[] = "Where" . ';';
+			} else if ( false !== stripos( $extra, "using index condition" ) ) {
+				$expl[] = "Index Condition" . ';';
+			} else if ( false !== stripos( $extra, "using index" ) ) {
+				$expl[] = "Index" . ';';
+			} else if ( false !== stripos( $extra, "using temporary" ) ) {
+				$expl[] = "Temp" . ';';
+			} else if ( false !== stripos( $extra, "using filesort" ) ) {
+				$expl[] = "Sort" . ';';
+			} else if ( strlen( $extra ) > 0 ) {
+				$expl[] = $extra . ';';
+			}
 		}
 
 		return implode( " ", $expl );
@@ -338,6 +326,34 @@ END;
 	static function deleteMonitor( $monitor ) {
 		$prefix = index_wp_mysql_for_speed_monitor . '-Log-';
 		delete_option( $prefix . $monitor );
+	}
+
+	public function stats() {
+		$allTimes = [];
+		$avgTimes = [];
+		$maxTimes = [];
+		$queries  = $this->queryLog->queries;
+		foreach ( $queries as $qid => $q ) {
+			$maxTimes[] = $q->maxt;
+			$avgTimes[] = $q->t / $q->n;
+			foreach ( $q->ts as $t ) {
+				$allTimes[] = $t;
+			}
+		}
+
+		sort( $allTimes );
+		sort( $avgTimes );
+		sort( $maxTimes );
+
+		$allNinefive = $this->percentile( $allTimes, 0.95 );
+		$avgNinefive = $this->percentile( $avgTimes, 0.95 );
+		$maxNineFive = $this->percentile( $maxTimes, 0.95 );
+		$allMedian   = $this->percentile( $allTimes, 0.5 );
+		$avgMedian   = $this->percentile( $avgTimes, 0.5 );
+		$maxMedian   = $this->percentile( $maxTimes, 0.5 );
+
+		return [ $allNinefive, $avgNinefive, $maxNineFive, $allMedian, $avgMedian, $maxMedian ];
+
 	}
 
 	/** get cell data for microsecond times
