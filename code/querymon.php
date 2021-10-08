@@ -14,7 +14,7 @@ class ImfsMonitor {
 	public $cronInterval = 30; /* seconds, always less than $gatherExpiration */
 	public $parser;
 	public $explainVerb = "EXPLAIN";
-	public $analyzeVerb = "EXPLAIN"; /* change to EXPLAIN to avoid ANALYZE overhead */
+	public $analyzeVerb = "EXPLAIN"; /* change to EXPLAIN to avoid EXPLAIN ANALYZE overhead */
 	public $captureName;
 
 	public function __construct( $monval, $action ) {
@@ -39,8 +39,11 @@ class ImfsMonitor {
 		foreach ( $wpdb->queries as $q ) {
 			$q[1] = intval( $q[1] * 1000000 );
 			if ( $q[1] >= $this->thresholdMicroseconds ) {
-				$query = preg_replace( '/[\t\r\n]+/m', ' ', trim( $q[0] ) );
-				if ( strpos( $query, index_wp_mysql_for_speed_querytag ) === false ) {
+				$callTrace = $q[2];
+				if ( strpos( $q[0], index_wp_mysql_for_speed_querytag ) === false
+				     && strpos( $callTrace, 'index_wp_mysql_for_speed_do_everything' ) === false
+				     && strpos( $callTrace, 'Imfs_AdminPageFramework' ) === false ) {
+					$query = preg_replace( '/[\t\r\n]+/m', ' ', trim( $q[0] ) );
 					if ( stripos( $query, 'SHOW ' ) === false ) {
 						$q[0]    = $query;
 						$encoded = $this->encodeQuery( $q );
@@ -76,7 +79,7 @@ class ImfsMonitor {
 			$item    = (object) [];
 			$item->q = $q[0];
 			$item->t = $q[1]; /* duration in microseconds */
-			//$item->c      = $q[2]; /* call traceback */
+			$item->c = $q[2]; /* call traceback */
 			$item->s = intval( $q[3] ); /* query start time */
 			$item->a = ! ! is_admin();
 			if ( $explain ) {
@@ -225,6 +228,7 @@ class ImfsMonitor {
 						$qe->maxt = $thisQuery->t;
 						$qe->e    = $thisQuery->e; /* grab the longest-running query to report out */
 						$qe->q    = $thisQuery->q;
+						$qe->c    = $thisQuery->c;
 					}
 					if ( $thisQuery->t < $qe->mint ) {
 						$qe->mint = $thisQuery->t;
@@ -241,6 +245,7 @@ class ImfsMonitor {
 					$qe->e                     = $thisQuery->e;
 					$qe->ts                    = array( $thisQuery->t );
 					$qe->q                     = $thisQuery->q;
+					$qe->c                     = $thisQuery->c;
 					$queryLog->queries[ $qid ] = $qe;
 				} else {
 					if ( $queryLog->overflowed ) {

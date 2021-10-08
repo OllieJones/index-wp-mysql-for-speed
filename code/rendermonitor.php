@@ -97,7 +97,8 @@ END;
 			"95th",
 			"How",
 			"Query",
-			"Actual"
+			"Traceback",
+			"Actual",
 		], "query header row" );
 		$res .= <<<END
 		<div class="$c query table-container"><table class="$c query table"><thead>
@@ -117,6 +118,7 @@ END;
 				$row[] = $this->timeCell( $this->percentile( $q->ts, 0.95 ), $unit );
 				$row[] = $this->queryPlan( $q );
 				$row[] = $q->f;
+				$row[] = $q->c;
 				$row[] = $q->q;
 				$res   .= "</tr>" . $this->row( $row, "query data row" ) . "</tr>";
 			}
@@ -354,22 +356,6 @@ END;
 
 		return [ $allNinefive, $avgNinefive, $maxNineFive, $allMedian, $avgMedian, $maxMedian ];
 
-	}
-
-	/** get cell data for microsecond times
-	 *
-	 * @param number $time
-	 *
-	 * @return array
-	 */
-	public function timeStatsCell( $times ) {
-		$time        = $this->mean( $times ) * 0.000001;
-		$mad         = $this->mad( $times ) * 0.000001;
-		$unit        = $this->getTimeUnit( $time );
-		$displayTime = number_format_i18n( $time / $unit[0], $unit[2] ) . '+/-' .
-		               number_format_i18n( $mad / $unit[0], $unit[2] ) . $unit[1];
-
-		return [ $displayTime, - $time ];
 	}
 
 	/** standard deviation
