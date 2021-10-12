@@ -2,7 +2,7 @@
 require_once( 'litesqlparser.php' );
 
 if ( ! defined( 'SAVEQUERIES' ) ) {
-	define( 'SAVEQUERIES', 1 );
+	define( 'SAVEQUERIES', true );
 }
 
 class ImfsMonitor {
@@ -36,27 +36,29 @@ class ImfsMonitor {
 		$skipped = 0;
 
 		/* examine queries: over time threshold, not SHOW */
-		foreach ( $wpdb->queries as $q ) {
-			$q[1] = intval( $q[1] * 1000000 );
-			if ( $q[1] >= $this->thresholdMicroseconds ) {
-				$callTrace = $q[2];
-				if ( strpos( $q[0], index_wp_mysql_for_speed_querytag ) === false
-				     && strpos( $callTrace, 'index_wp_mysql_for_speed_do_everything' ) === false
-				     && strpos( $callTrace, 'Imfs_AdminPageFramework' ) === false ) {
-					$query = preg_replace( '/[\t\r\n]+/m', ' ', trim( $q[0] ) );
-					if ( stripos( $query, 'SHOW ' ) === false ) {
-						$q[0]    = $query;
-						$encoded = $this->encodeQuery( $q );
-						if ( $encoded ) {
-							$uploads[] = $encoded;
+		if ( isset( $wpdb->queries ) && is_array( $wpdb->queries ) && count( $wpdb->queries ) > 0 ) {
+			foreach ( $wpdb->queries as $q ) {
+				$q[1] = intval( $q[1] * 1000000 );
+				if ( $q[1] >= $this->thresholdMicroseconds ) {
+					$callTrace = $q[2];
+					if ( strpos( $q[0], index_wp_mysql_for_speed_querytag ) === false
+					     && strpos( $callTrace, 'index_wp_mysql_for_speed_do_everything' ) === false
+					     && strpos( $callTrace, 'Imfs_AdminPageFramework' ) === false ) {
+						$query = preg_replace( '/[\t\r\n]+/m', ' ', trim( $q[0] ) );
+						if ( stripos( $query, 'SHOW ' ) === false ) {
+							$q[0]    = $query;
+							$encoded = $this->encodeQuery( $q );
+							if ( $encoded ) {
+								$uploads[] = $encoded;
+							}
 						}
+					} else {
+						$skipped ++;
 					}
-				} else {
-					$skipped ++;
 				}
 			}
+			$this->storeGathered( $optionName, $uploads, $this->gatherDelimiter, $this->queryGatherSizeLimit );
 		}
-		$this->storeGathered( $optionName, $uploads, $this->gatherDelimiter, $this->queryGatherSizeLimit );
 
 		$nextMonitorUpdate = intval( get_option( index_wp_mysql_for_speed_monitor . 'nextMonitorUpdate' ) );
 		$now               = time();

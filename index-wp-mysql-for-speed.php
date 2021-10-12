@@ -4,7 +4,7 @@
 Plugin Name: Index WP MySQL For Speed
 Plugin URI: https://plumislandmedia.org/
 Description: Add useful indexes to your WordPress installation's MySQL database.
-Version: 1.2.3
+Version: 1.3.3
 Author: Ollie Jones
 Author URI: https://github.com/OllieJones
 Requires at least: 5.2
@@ -17,7 +17,7 @@ Network:           true
 */
 
 /** current version number  */
-define( 'index_wp_mysql_for_speed_VERSION_NUM', '1.3.2' );
+define( 'index_wp_mysql_for_speed_VERSION_NUM', '1.3.3' );
 
 /* set up some handy globals */
 define( 'index_wp_mysql_for_speed_PLUGIN_NAME', trim( dirname( plugin_basename( __FILE__ ) ), '/' ) );
@@ -41,10 +41,21 @@ function index_wp_mysql_for_speed_do_everything() {
 			add_filter( 'plugin_action_links_' . plugin_basename( __FILE__ ), 'index_wp_mysql_for_speed_action_link' );
 		}
 	}
+	/* wp-cli interface activation */
+	if ( defined( 'WP_CLI' ) && WP_CLI ) {
+		require_once( plugin_dir_path( __FILE__ ) . 'code/cli.php' );
+		requireThemAll();
+	}
+}
+
+add_action( 'init', 'index_wp_mysql_for_speed_monitor', 1 );
+
+function index_wp_mysql_for_speed_monitor() {
 	/* monitoring code ... as light as possible when not monitoring. */
 	$monval = get_option( index_wp_mysql_for_speed_monitor );
 	if ( $monval ) {
 		if ( $monval->stoptime > time() ) {
+			$admin = is_admin();
 			if ( ( ( $monval->targets & 1 ) !== 0 && $admin ) || ( ( $monval->targets & 2 ) !== 0 && ! $admin ) ) {
 				if ( $monval->samplerate === 1.0 || rand() <= $monval->samplerate * getrandmax() ) {
 					require_once( plugin_dir_path( __FILE__ ) . 'code/querymon.php' );

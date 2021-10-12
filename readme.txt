@@ -4,7 +4,7 @@ Tags: database, index, key, mysql, wp-cli
 Requires at least: 5.2
 Tested up to: 5.8.1
 Requires PHP: 7.3
-Stable tag: 1.2.3
+Stable tag: 1.3.3
 Network: true
 License: GPL v2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -83,15 +83,15 @@ It's a good idea to monitor for a five-minute interval at a time of day when you
 
 = Should I back up my site before using this? =
 
-Yes. You already knew that.
+**Yes.** You already knew that.
 
 = I use a nonstandard database table prefix. Will this work ? =
 
-Yes. Some WordPress databases have [nonstandard prefixes](https://codex.wordpress.org/Creating_Tables_with_Plugins#Database_Table_Prefix). That is, their tables are named _something_posts_, _something_postmeta_, and so forth instead of _wp_posts_ and _wp_postmeta_. This works with those databases.
+**Yes.** Some WordPress databases have [nonstandard prefixes](https://codex.wordpress.org/Creating_Tables_with_Plugins#Database_Table_Prefix). That is, their tables are named _something_posts_, _something_postmeta_, and so forth instead of _wp_posts_ and _wp_postmeta_. This works with those databases.
 
 = My WordPress host offers MariaDB, not MySQL. Can I use this plugin?
 
-Yes.
+**Yes.**
 
 = Which versions of MySQL and MariaDB does this support? =
 
@@ -99,19 +99,23 @@ MySQL versions 5.5.62 and above, 5.6.4 and above, 8 and above. MariaDB version 5
 
 = What database Storage Engine does this support? =
 
-InnoDB only. If your tables use MyISAM (the older storage engine) or the COMPACT row format, this plugin offers to upgrade them for you.
+**InnoDB only.** If your tables use MyISAM (the older storage engine) or the older COMPACT row format, this plugin offers to upgrade them for you.
 
 = Which versions of MySQL and MariaDB work best? =
 
 If at all possible upgrade to Version 8 or later of MySQL.  For MariaDB upgrade to Version 10.3 or later. The MySQL and MariaDB developers have made many performance improvements over the past few years. They have the mission of making things better for WordPress site operators: we are by far their biggest user base. So, we have a lot to gain by using their latest versions.
 
-Avoid Versions 5.5 of both MySQL and MariaDB if you can. They use the older Antelope version of InnnoDB. It has a limitation on index lengths that requires WordPress to use [prefix keys](https://dev.mysql.com/doc/refman/8.0/en/column-indexes.html#column-indexes-prefix). Those have reduced performance.
+Avoid Versions 5.5 of both MySQL and MariaDB if you can. They use the older Antelope version of InnoDB. It has a limitation on index lengths that requires WordPress to use [prefix keys](https://dev.mysql.com/doc/refman/8.0/en/column-indexes.html#column-indexes-prefix). Those have reduced performance.
 
-If you have the later _Barracuda_ version of InnoDB, this plugin uses its capability to build efficient [covering](https://dev.mysql.com/doc/refman/8.0/en/glossary.html#glos_covering_index) keys. If you have the older Antelope version it still builds keys, but they are less efficient. It must use prefix keys on that version. Those cannot be covering keys.
+If you have the later _Barracuda_ version of InnoDB, this plugin uses its capability to build efficient [covering](https://dev.mysql.com/doc/refman/8.0/en/glossary.html#glos_covering_index) keys. If you have the older Antelope version it still builds keys, but they are less efficient. The prefix keys it uses cannot be covering keys.
+
+= Is this plugin compatible with WordPress Object Cache plugins for redis and memcached? =
+
+**Yes.** This plugin only affects WordPress's queries to the database. The Object Cache plugins reduce the number of those queries, and so reduce your database's workload.
 
 = Does this plugin generate any overhead when my site is busy? =
 
-Only when you are monitoring database operations, and that is for limited periods of time.
+**No,** not unless you are using it to monitor database operations, and that is for limited periods of time.
 
 Some plugins' code runs whenever your visitors view pages. All this plugin's work rekeying work happens from the WordPress Dashboard or WP-CLI. It sets up the keys in your database and then gets out of the way. You can even deactivate and delete the plugin once you've run it.
 
@@ -123,7 +127,7 @@ Your saved monitors are removed when you deactivate the plugin.
 
 = Does this work on my multisite (network) WordPress instance?
 
-Yes. On multisite instances, you must activate the plugin from the Network Admin dashboard. The *Index MySQL* tool is available for use by the administrator on each site.
+**Yes.** On multisite instances, you must activate the plugin from the Network Admin dashboard. The *Index MySQL* tool is available for use by the administrator on each site.
 
 = Can I upgrade my WordPress instance to multisite after using this plugin?
 
@@ -132,6 +136,12 @@ Yes. On multisite instances, you must activate the plugin from the Network Admin
 = Can I restore a backup or duplicate to another server after using this plugin?
 
 Yes. But if you restore it to a server with an older version of MySQL (looking at you, GoDaddy) you should revert your keys to the WordPress standard before creating your backup or duplicate.
+
+= Will this plugin fix misconfigurations in my MySQL or MariaDB server? =
+
+**No.** This plugin only upgrades your tables to InnoDB if necessary, and updates their keys.  It does not handle any other configuration issues.
+
+Database servers have many configuration settings. Occasionally some of them are wrong and the database server software performs poorly. The [Percona Toolkit](https://www.percona.com/doc/percona-toolkit/LATEST/index.html) offers a utility called [pt-variable-advisor](https://www.percona.com/doc/percona-toolkit/LATEST/pt-variable-advisor.html). If you have command-line access to your server you can run it. It will make suggestions for better settings.
 
 = How can I learn more about this business of database keys? =
 
@@ -161,12 +171,12 @@ Add WP-CLI support. Add selective storage-enging upgrades. Add the Reset option 
 Fix require_once defect exposed by wp-cli workflow.
 
 = 1.2.2 =
-Fix engine-upgrade defect, stop counting rows because it's too slow..
+Fix engine-upgrade defect, stop counting rows because it's too slow.
 
 = 1.2.3 =
 Fix cli defect.
 
-= 1.3.2 =
+= 1.3.3 =
 When upgrading tables, change ROW_FORMAT to DYNAMIC as well as ENGINE to InnoDB. Add monitors.
 
 == Upgrade Notice ==
