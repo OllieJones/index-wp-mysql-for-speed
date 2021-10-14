@@ -42,6 +42,7 @@ class ImfsMonitor {
 				if ( $q[1] >= $this->thresholdMicroseconds ) {
 					$callTrace = $q[2];
 					if ( strpos( $q[0], index_wp_mysql_for_speed_querytag ) === false
+					     && strpos( $callTrace, 'index_wp_mysql_for_speed_monitor' ) === false
 					     && strpos( $callTrace, 'index_wp_mysql_for_speed_do_everything' ) === false
 					     && strpos( $callTrace, 'Imfs_AdminPageFramework' ) === false ) {
 						$query = preg_replace( '/[\t\r\n]+/m', ' ', trim( $q[0] ) );
