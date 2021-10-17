@@ -3,7 +3,7 @@ Contributors: OllieJones
 Tags: database, index, key, mysql, wp-cli
 Requires at least: 5.2
 Tested up to: 5.8.1
-Requires PHP: 7.3
+Requires PHP: 7.2
 Stable tag: 1.3.3
 Network: true
 License: GPL v2 or later
@@ -23,7 +23,7 @@ Use this plugin with the Index MySQL Tool under the Tools menu. Or, give the she
 
 <h4>What does it do for my site?</h4>
 
-This plugin works to make your MySQL database work more efficiently by adding high-performance keys to its tables. It also monitors your site's use of your MySQL database to detect which database operations are slowest.
+This plugin works to make your MySQL database work more efficiently by adding high-performance keys to its tables. It also monitors your site's use of your MySQL database to detect which database operations are slowest. It is most useful for large sites: sites with many users, posts, pages, and / or products.
 
 <h4>What is this all about?</h4>
 
@@ -105,7 +105,7 @@ MySQL versions 5.5.62 and above, 5.6.4 and above, 8 and above. MariaDB version 5
 
 If at all possible upgrade to Version 8 or later of MySQL.  For MariaDB upgrade to Version 10.3 or later. The MySQL and MariaDB developers have made many performance improvements over the past few years. They have the mission of making things better for WordPress site operators: we are by far their biggest user base. So, we have a lot to gain by using their latest versions.
 
-Avoid Versions 5.5 of both MySQL and MariaDB if you can. They use the older Antelope version of InnoDB. It has a limitation on index lengths that requires WordPress to use [prefix keys](https://dev.mysql.com/doc/refman/8.0/en/column-indexes.html#column-indexes-prefix). Those have reduced performance.
+Avoid Versions 5.5 of both MySQL and MariaDB if you can. And, avoid MariaDB 10.1. They use the older Antelope version of InnoDB. It has a limitation on index lengths that requires WordPress to use [prefix keys](https://dev.mysql.com/doc/refman/8.0/en/column-indexes.html#column-indexes-prefix). Those have reduced performance.
 
 If you have the later _Barracuda_ version of InnoDB, this plugin uses its capability to build efficient [covering](https://dev.mysql.com/doc/refman/8.0/en/glossary.html#glos_covering_index) keys. If you have the older Antelope version it still builds keys, but they are less efficient. The prefix keys it uses cannot be covering keys.
 
@@ -113,11 +113,13 @@ If you have the later _Barracuda_ version of InnoDB, this plugin uses its capabi
 
 **Yes.** This plugin only affects WordPress's queries to the database. The Object Cache plugins reduce the number of those queries, and so reduce your database's workload.
 
+If you have trouble with your Object Cache plugin, try flushing (removing all entries) from the cache.
+
 = Does this plugin generate any overhead when my site is busy? =
 
 **No,** not unless you are using it to monitor database operations, and that is for limited periods of time.
 
-Some plugins' code runs whenever your visitors view pages. All this plugin's work rekeying work happens from the WordPress Dashboard or WP-CLI. It sets up the keys in your database and then gets out of the way. You can even deactivate and delete the plugin once you've run it.
+Some plugins' code runs whenever your visitors view pages. All this plugin's rekeying work happens from the WordPress Dashboard or WP-CLI. It sets up the keys in your database and then gets out of the way. You can even deactivate and delete the plugin once you've run it.
 
 = What happens when I deactivate this plugin? =
 

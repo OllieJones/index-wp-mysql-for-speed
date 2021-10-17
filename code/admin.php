@@ -233,7 +233,7 @@ class ImfsPage extends Imfs_AdminPageFramework {
 						'fieldrow' => 'major',
 					),
 				)
-			),
+			)
 		);
 
 		if ( ! $this->db->canReindex ) {
@@ -624,6 +624,19 @@ class ImfsPage extends Imfs_AdminPageFramework {
 				),
 			)
 		);
+		if (!$this->db->unconstrained) {
+			$this->addSettingFields(
+				array(
+					'field_id' => 'constraint_notice',
+					'title'    => 'Notice',
+					'default'  => __( 'Upgrading your MySQL server version will give you better performance when you add high-performance keys.', $this->domain ),
+					'save'     => false,
+					'class'    => array(
+						'fieldrow' => 'warning',
+					),
+				) );
+		}
+
 		$this->uploadMetadata();
 	}
 

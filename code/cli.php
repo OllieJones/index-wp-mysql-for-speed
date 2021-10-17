@@ -323,7 +323,8 @@ class ImsfCli extends WP_CLI_Command {
 		foreach ( $row as $key => $val ) {
 			$hdrs[] = $key;
 		}
-		WP_CLI\Utils\format_items( $assoc_args['format'], $list, $hdrs );
+		$fmt = $assoc_args['format'] ?? 'table';
+		WP_CLI\Utils\format_items( $fmt, $list, $hdrs );
 
 		$list   = array();
 		$tables = $this->db->tables();

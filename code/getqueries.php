@@ -24,7 +24,7 @@ function ImfsRedactHost( $host ) {
 	return "Redacted, not localhost";
 }
 
-function makeNumeric( $ob ) {
+function makeNumeric( $ob ): object {
 	$result = array();
 	foreach ( $ob as $key => $val ) {
 		if ( is_numeric( $val ) ) {
@@ -36,7 +36,7 @@ function makeNumeric( $ob ) {
 	return (object) $result;
 }
 
-function getMySQLVersion() {
+function getMySQLVersion(): object {
 	global $wpdb;
 	$semver  = " 
 	 SELECT VERSION() version,
@@ -57,41 +57,73 @@ function getMySQLVersion() {
 	if ( count( $ver ) >= 3 ) {
 		$results->distro = $ver[2];
 	}
-	if ( $results->major >= 8 ) {
+	$isMaria = ! ! stripos( $results->version, "mariadb" );
+	/* work out whether we have Antelope or Barracuda InnoDB format */
+	/* mysql 8+ */
+	if ( ! $isMaria && $results->major >= 8 ) {
 		$results->unconstrained = 1;
 
 		return makeNumeric( $results );
 	}
+	/* work out whether we have Antelope or Barracuda InnoDB format */
+	/* mariadb 10.3 + */
+	if ( $isMaria && $results->major >= 10 && $results->minor >= 3 ) {
+		$results->unconstrained = 1;
+
+		return makeNumeric( $results );
+	}
+	/* mariadb 10.2 ar before */
+	if ( $isMaria && $results->major >= 10 ) {
+
+		$results->unconstrained = hasLargePrefix();
+
+		return makeNumeric( $results );
+	}
+
+	/* waaay too old */
 	if ( $results->major < 5 ) {
 		$results->canreindex = 0;
 
 		return makeNumeric( $results );
 	}
+	/* before 5.5 */
 	if ( $results->major == 5 && $results->minor < 5 ) {
 		$results->canreindex = 0;
 
 		return makeNumeric( $results );
 	}
+	/* older 5.5 */
 	if ( $results->major === 5 && $results->minor === 5 && $results->build < 62 ) {
 		$results->canreindex = 0;
 
 		return makeNumeric( $results );
 	}
+	/* older 5.6 */
 	if ( $results->major === 5 && $results->minor === 6 && $results->build < 4 ) {
 		$results->canreindex = 0;
 
 		return makeNumeric( $results );
 	}
+	$results->unconstrained = hasLargePrefix();
+
+	return makeNumeric( $results );
+}
+
+
+/**
+ * @return int 1 if the MySQL instance says it has innodb_large_prefix, 0 otherwise.
+ */
+function hasLargePrefix(): int {
+	global $wpdb;
 	/* innodb_large_prefix variable is missing in MySQL 8+ */
 	$prefix = $wpdb->get_results( index_wp_mysql_for_speed_querytag . "SHOW VARIABLES LIKE 'innodb_large_prefix'", OBJECT_K );
 	if ( $prefix && is_array( $prefix ) && array_key_exists( 'innodb_large_prefix', $prefix ) ) {
 		$prefix = $prefix['innodb_large_prefix'];
-		if ( $prefix->Value === 'ON' ) {
-			$results->unconstrained = 1;
-		}
+
+		return ( $prefix->Value === 'ON' || $prefix->Value === '1' ) ? 1 : 0;
 	}
 
-	return makeNumeric( $results );
+	return 0;
 }
 
 /**
@@ -99,7 +131,7 @@ function getMySQLVersion() {
  *
  * @return array
  */
-function getReindexingInstructions( $semver ) {
+function getReindexingInstructions( $semver ): array {
 	$reindexAnyway = array(
 		"posts"    => array(
 			"tablename"     => "posts",
@@ -402,7 +434,7 @@ function getReindexingInstructions( $semver ) {
 	}
 }
 
-function getStandardIndexes() {
+function getStandardIndexes(): array {
 	return array(
 		'postmeta' => array(
 			"PRIMARY KEY" => "ADD PRIMARY KEY (meta_id)",
@@ -442,7 +474,7 @@ function getStandardIndexes() {
 	);
 }
 
-function getQueries() {
+function getQueries(): array {
 	global $wpdb;
 	$p     = $wpdb->prefix;
 	$stats = array(
@@ -478,7 +510,6 @@ function getQueries() {
              GROUP BY REPLACE(t.TABLE_NAME, 'wp_', '')",
 	);
 
-	/** @var array $queryArray an array of arrays of queries for this to use */
 	$queryArray = array(
 		"indexes" => "		
         SELECT *,
