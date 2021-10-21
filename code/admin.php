@@ -624,7 +624,7 @@ class ImfsPage extends Imfs_AdminPageFramework {
 				),
 			)
 		);
-		if (!$this->db->unconstrained) {
+		if ( ! $this->db->unconstrained ) {
 			$this->addSettingFields(
 				array(
 					'field_id' => 'constraint_notice',
