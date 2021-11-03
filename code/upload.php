@@ -70,10 +70,14 @@ function imfsGetWpDescription( $db ) {
 function imfsGetAllStats( $db, $idString ) {
 	global $_SERVER;
 	$variables    = imfsToObject( $db->stats[0] );
+	$globalStatus = imfsToObject( $db->stats[3] );
 
 	$variables->hostname        = imfsRedactHost( $variables->hostname );
 	$variables->report_host     = imfsRedactHost( $variables->report_host );
 	$variables->report_password = imfsRedactHost( $variables->report_password );
+	if ($globalStatus->Rsa_public_key) {
+		$globalStatus->Rsa_public_key = 'Redacted';
+	}
 	$wordpress                  = imfsGetWpDescription( $db );
 	/** @noinspection PhpUnnecessaryLocalVariableInspection */
 	$stats = (object) array(
@@ -81,6 +85,8 @@ function imfsGetAllStats( $db, $idString ) {
 		'wordpress'    => $wordpress,
 		'mysqlVer'     => $db->semver,
 		'alltables'    => $db->stats[1],
+		//'timings'      => $db->timings,
+		'globalStatus' => $globalStatus,
 		'variables'    => $variables
 	);
 
