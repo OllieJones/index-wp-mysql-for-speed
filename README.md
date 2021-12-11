@@ -17,7 +17,7 @@ Here's the info on the repo.
 
 1. Make the changes.
 2. Be sure to update the current version number whereever it appears.
-3. Commit to github and push.
+3. Commit to GitHub and push.
 4. If it isn't done already, do 
    ```bash
    svn co https://plugins.svn.wordpress.org/index-wp-mysql-for-speed svn
@@ -143,7 +143,7 @@ For example, the wp_options table contains dozens of rows that WordPress retriev
 SELECT option_name, option_value FROM wp_options WHERE autoload = 'yes'
 ```
 
-The wp_options table has one of those automatically incrementing primary keys, where each row has a number. It's called option_id. And, it has a key on the "autoload" column of data to help speed up filtering by autoload = 'yes'.  That's a competently designed table (of course! WordPress's developers are poets). But we can do better, especially considering how often we must get all the autoload rows. We can change the table's primary key so it includes two columns rather than one: autoload and option_id. It still serves the uniqueness purpose: the option_ids are unique. But putting autoload first in the primary key means MySQL can retrieve the autoloaded rows directly from the clustered index, rather than looking in a secondary key to find the primary key. The saved milliseconds and milliwatts add up, especially on a busy site. So we change the primary key like this.
+The wp_options table has one of those automatically incrementing primary keys, where each row has a number. It's called option_id. And, it has a key on the "autoload" column of data to help speed up filtering by autoload = 'yes'.  That's a competently designed table (of course! WordPress's developers are poets). But we can do better, especially considering how often we must get all the autoload rows. We can change the table's primary key to include two columns rather than one: autoload and option_id. It still serves the uniqueness purpose: the option_ids are unique. But putting autoload first in the primary key means MySQL can retrieve the autoloaded rows directly from the clustered index, rather than looking in a secondary key to find the primary key. The saved milliseconds and milliwatts add up, especially on a busy site. So we change the primary key like this.
 
 ```sql
 ALTER TABLE wp_options ADD PRIMARY KEY (autoload, option_id)

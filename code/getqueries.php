@@ -109,7 +109,6 @@ function getMySQLVersion(): object {
 	return makeNumeric( $results );
 }
 
-
 /**
  * @return int 1 if the MySQL instance says it has innodb_large_prefix, 0 otherwise.
  */
@@ -635,8 +634,13 @@ function getQueries(): array {
                    AND t.ENGINE IS NOT NULL
                 GROUP BY c.TABLE_NAME, c.TABLE_SCHEMA, c.TABLE_CATALOG
         ",
-			"SHOW GLOBAL STATUS"
-
+			"SHOW GLOBAL STATUS",
+			/* make this match SHOW STATUS in column names */
+			"SELECT NAME Variable_name, COUNT Value
+               FROM information_schema.INNODB_METRICS
+              WHERE COMMENT NOT LIKE 'Deprecated%'
+                AND STATUS='enabled'
+              ORDER BY NAME"
 		)
 	);
 

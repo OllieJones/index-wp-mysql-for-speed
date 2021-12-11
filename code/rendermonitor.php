@@ -7,6 +7,7 @@ class renderMonitor {
 	private $prefix;
 	private $classPrefix = 'rendermon';
 	private $dateFormat;
+	private $maxStringLength = 12;
 
 	public function __construct( $monitor ) {
 		$this->monitor    = $monitor;
@@ -49,7 +50,7 @@ class renderMonitor {
 		$c      = $this->classPrefix;
 		$prefix = "<div class=\"$c index-wp-mysql-for-speed-content-container\">";
 
-		return $prefix . $this->top() . $this->table() . "</div>";
+		return $prefix . $this->top() . $this->table() . $this->statusTable() . "</div>";
 	}
 
 	public function load(): renderMonitor {
@@ -94,8 +95,8 @@ END;
 			"Total",
 			"Mean",
 			"Spread",
-			"95th",
-			"How",
+			"P95",
+			"Plan",
 			"Query",
 			"Traceback",
 			"Actual",
@@ -145,6 +146,11 @@ END;
 
 			return <<<END
 		<td class="$c $class">$item</td>
+END;
+		}
+		if ( is_numeric( $item ) ) {
+			return <<<END
+		<td class="$c $class number">$item</td>
 END;
 		}
 		if ( is_array( $item ) && count( $item ) === 2 ) {
@@ -323,6 +329,38 @@ END;
 		}
 
 		return implode( " ", $expl );
+	}
+
+	public function statusTable() {
+		$l = $this->queryLog;
+		if ( ! isset ( $l->status ) ) {
+			return;
+		}
+		$c   = $this->classPrefix;
+		$res = '';
+		$row = $this->row( [
+			"Item",
+			"Value"
+		], "status header row" );
+		$res .= <<<END
+		<div class="$c status table-container"><table class="$c status table"><thead>
+		<tr>$row</tr></thead><tbody>
+END;
+
+		foreach ( $l->status as $key => $val ) {
+			if (is_string($val) && strlen(trim($val)) === 0) continue;
+			if (is_string($val) && !is_numeric($val) && strlen(trim($val)) >= $this->maxStringLength) {
+				$val = '…' . substr($val, -$this->maxStringLength-1);
+			}
+			$row   = [];
+			$row[] = $key;
+			$row[] = $val;
+			$res   .= "</tr>" . $this->row( $row, "status data row" ) . "</tr>";
+		}
+
+		$res .= "</tbody></table></div>";
+
+		return $res;
 	}
 
 	static function deleteMonitor( $monitor ) {

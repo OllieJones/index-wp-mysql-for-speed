@@ -95,7 +95,8 @@ class ImsfCli extends WP_CLI_Command {
 	function version( $args, $assoc_args ) {
 		$this->setupCliEnvironment( $args, $assoc_args );
 		$wpDescription = imfsToResultSet( imfsGetWpDescription( $this->db ), 'Item', 'Value' );
-		WP_CLI\Utils\format_items( $assoc_args['format'], $wpDescription, array( 'Item', 'Value' ) );
+		$format = array_key_exists('format', $assoc_args) ? $assoc_args['format'] : null;
+		WP_CLI\Utils\format_items( $format, $wpDescription, array( 'Item', 'Value' ) );
 	}
 
 	/**
@@ -323,8 +324,8 @@ class ImsfCli extends WP_CLI_Command {
 		foreach ( $row as $key => $val ) {
 			$hdrs[] = $key;
 		}
-		$fmt = $assoc_args['format'] ?? 'table';
-		WP_CLI\Utils\format_items( $fmt, $list, $hdrs );
+		$format = array_key_exists('format', $assoc_args) ? $assoc_args['format'] : 'table';
+		WP_CLI\Utils\format_items( $format, $list, $hdrs );
 
 		$list   = array();
 		$tables = $this->db->tables();
@@ -343,7 +344,7 @@ class ImsfCli extends WP_CLI_Command {
 		foreach ( $row as $key => $val ) {
 			$hdrs[] = $key;
 		}
-		WP_CLI\Utils\format_items( $assoc_args['format'], $list, $hdrs );
+		WP_CLI\Utils\format_items( $format, $list, $hdrs );
 	}
 
 
