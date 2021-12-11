@@ -7,9 +7,9 @@ if ( ! defined( 'SAVEQUERIES' ) ) {
 
 class ImfsMonitor {
 
-	public $thresholdMicroseconds = 100;
-	public $queryLogSizeThreshold = 1048576; /* 1 MiB */
-	public $queryGatherSizeLimit = 524288; /* 0.5 MiB */
+	public $thresholdMicroseconds = 10;
+	public $queryLogSizeThreshold = 1048576 * 2; /* 2 MiB */
+	public $queryGatherSizeLimit = 1048576; /* 1 MiB */
 	public $gatherDelimiter = "\e\036\e"; /* unlikely oldtimey ascii esc and rs */
 	public $cronInterval = 30; /* seconds, always less than $gatherExpiration */
 	public $parser;
@@ -21,7 +21,7 @@ class ImfsMonitor {
 		$this->captureName = $monval->name;
 		$this->parser      = new LightSQLParser();
 		if ( $action === 'capture' ) {
-			add_action( 'shutdown', [ $this, 'imfsMonitorGather' ], 99 );
+			add_action( 'shutdown', [ $this, 'imfsMonitorGather' ], 9999 );
 
 			update_option( index_wp_mysql_for_speed_monitor . 'nextMonitorUpdate', time() + $this->cronInterval, true );
 		}
@@ -119,7 +119,6 @@ class ImfsMonitor {
 		}
 		try {
 			global $wpdb;
-			wp_cache_delete( $name, 'options' );
 			/* INSERT ... ON DUPLICATE KEY UPDATE requires us to mention the $value twice.
 			 * We can't use ON DUPLICATE KEY UPDATE col = VALUES(option_value)
 			 * because Oracle MySQL deprecated it, but MariaDB didn't. Grumble.
@@ -132,6 +131,7 @@ class ImfsMonitor {
 			         . "CONCAT(option_value, %s, @upload), option_value)";
 			$query = $wpdb->prepare( index_wp_mysql_for_speed_querytag . $query, $name, $maxlength, $maxlength, $separator );
 			$wpdb->query( $query );
+			wp_cache_delete( $name, 'options' );
 		} catch ( Exception $e ) {
 			/* empty, intentionally, don't crash when logging fails */
 		}
@@ -141,12 +141,18 @@ class ImfsMonitor {
 	 * process the queries gathered by imfsMonitorGather, creating / updating a queryLog
 	 */
 	function processGatheredQueries() {
+		require_once( 'getstatus.php' );
 		$logName = index_wp_mysql_for_speed_monitor . '-Log-' . $this->captureName;
 		list( $queryLog, $queryLogOverflowing ) = $this->getQueryLog( $logName );
+		$statusName       = index_wp_mysql_for_speed_monitor . '-Status-' . $this->captureName;
+		$priorStatus      = get_transient( $statusName );
+		$queryLog->status = getGlobalStatus( $priorStatus );
 
 		$queries = $this->getGatheredQueries();
 		foreach ( $queries as $thisQuery ) {
-			$this->processQuery( $queryLog, $thisQuery, $queryLogOverflowing );
+			if ( isset( $thisQuery ) ) {
+				$this->processQuery( $queryLog, $thisQuery, $queryLogOverflowing );
+			}
 		}
 		update_option( $logName, json_encode( $queryLog ), false );
 	}
@@ -181,22 +187,41 @@ class ImfsMonitor {
 	/** retrieve gathered queries.
 	 * @return array query objects just gathered.
 	 */
-	private function getGatheredQueries() {
-		$queryGather = get_option( index_wp_mysql_for_speed_monitor . 'Gather' );
-		/* tiny race condition window between get and delete here. */
-		delete_option( index_wp_mysql_for_speed_monitor . 'Gather' );
+	private function getGatheredQueries(): array {
+		$queryGather = $this->imfs_get_appended_option( index_wp_mysql_for_speed_monitor . 'Gather' );
 
-		$queries     = array();
-		$queryGather = explode( $this->gatherDelimiter, $queryGather );
-		foreach ( $queryGather as $q ) {
-			try {
-				$queries[] = json_decode( $q );
-			} catch ( Exception $e ) {
-				/* empty, intentionally */
+		$queries = array();
+		if ( isset ( $queryGather ) ) {
+			$queryGather = explode( $this->gatherDelimiter, $queryGather );
+			foreach ( $queryGather as $q ) {
+				if ( is_string( $q ) ) {
+					try {
+						$queries[] = json_decode( $q );
+					} catch ( Exception $e ) {
+						/* empty, intentionally */
+					}
+				}
 			}
 		}
 
 		return $queries;
+	}
+
+	function imfs_get_appended_option( $name ): ?string {
+		try {
+			global $wpdb;
+			$wpdb->query( index_wp_mysql_for_speed_querytag . "START TRANSACTION" );
+			$query  = index_wp_mysql_for_speed_querytag . "SELECT option_value FROM $wpdb->options WHERE option_name = %s FOR UPDATE";
+			$result = $wpdb->get_var( $wpdb->prepare( $query, $name ) );
+			$query  = index_wp_mysql_for_speed_querytag . "UPDATE $wpdb->options SET option_value = '' WHERE option_name = %s";
+			$wpdb->query( $wpdb->prepare( $query, $name ) );
+			$wpdb->query( index_wp_mysql_for_speed_querytag . "COMMIT" );
+
+			return $result;
+		} catch ( Exception $e ) {
+			/* don't crash when query logging fails */
+			return "";
+		}
 	}
 
 	/** Insert a query into the $queryLog
@@ -205,7 +230,7 @@ class ImfsMonitor {
 	 * @param object $thisQuery
 	 * @param bool $queryLogOverflowing
 	 */
-	private function processQuery( $queryLog, $thisQuery, $queryLogOverflowing ) {
+	private function processQuery( object $queryLog, object $thisQuery, bool $queryLogOverflowing ) {
 		try {
 			/* track time range of items in this queryLog */
 			if ( $queryLog->start > $thisQuery->s ) {
@@ -280,5 +305,6 @@ class ImfsMonitor {
 		$this->processGatheredQueries();
 		delete_option( index_wp_mysql_for_speed_monitor . 'nextMonitorUpdate' );
 		delete_option( index_wp_mysql_for_speed_monitor . 'Gather' );
+		delete_transient( index_wp_mysql_for_speed_monitor . '-Status-' . $this->captureName );
 	}
 }
