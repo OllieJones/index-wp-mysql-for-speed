@@ -19,6 +19,7 @@ class ImfsPage extends Imfs_AdminPageFramework {
 	private $db;
 	private $dontNavigate;
 	private $valid;
+	private $tabSuffix;
 
 	public function __construct( $slug = index_wp_mysql_for_speed_domain ) {
 		parent::__construct();
@@ -828,7 +829,7 @@ class ImfsPage extends Imfs_AdminPageFramework {
 			}
 		}
 
-		if ( is_array( $submitInfo ) && is_string( $submitInfo['field_id'] ) && $submitInfo['field_id'] === 'start_monitoring_now' ) {
+		if ( is_array( $submitInfo ) && $submitInfo['field_id'] === 'start_monitoring_now' ) {
 			$monitor = $inputs['monitor_specs']['name'];
 			if ( ctype_alnum( $monitor ) === false ) {
 				$valid                   = false;

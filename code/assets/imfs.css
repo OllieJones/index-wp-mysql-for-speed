@@ -110,6 +110,10 @@ div#wpbody > div#wpbody-content div.rendermon.table-container {
     margin-bottom: 0.5em;
 }
 
+table.rendermon.status  tr > td.number {
+    text-align: right;
+}
+
 /* lozenges for query fingerprint placeholders. */
 table.rendermon.query tbody > tr > td > span.t {
     font-size: 105%;
