@@ -27,6 +27,7 @@ function imfsToResultSet( $rows, $nameCaption = 'Item', $valueCaption = 'Value' 
 		$rsrow = array( $nameCaption => $name, $valueCaption => $value );
 		$res[] = $rsrow;
 	}
+
 	return $res;
 }
 
@@ -71,6 +72,7 @@ function imfsGetAllStats( $db, $idString ) {
 	global $_SERVER;
 	$variables    = imfsToObject( $db->stats[0] );
 	$globalStatus = imfsToObject( $db->stats[3] );
+	$innoDbMetrics = imfsToObject( $db->stats[4] );
 
 	$variables->hostname        = imfsRedactHost( $variables->hostname );
 	$variables->report_host     = imfsRedactHost( $variables->report_host );
@@ -87,6 +89,7 @@ function imfsGetAllStats( $db, $idString ) {
 		'alltables'    => $db->stats[1],
 		//'timings'      => $db->timings,
 		'globalStatus' => $globalStatus,
+		'innodbMetrics' => $innoDbMetrics,
 		'variables'    => $variables
 	);
 
