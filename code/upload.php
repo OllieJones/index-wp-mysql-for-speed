@@ -1,6 +1,6 @@
 <?php
 
-function randomString( $length ) {
+function imfsRandomString( $length ) {
 	/* some characters removed from this set to reduce confusion reading aloud */
 	$characters       = '23456789abcdefghjkmnpqrstuvwxyzABCDEFGHJKLMNPQRTUVWXYZ';
 	$charactersLength = strlen( $characters );
@@ -94,9 +94,8 @@ function imfsGetAllStats( $db, $idString ) {
 
 }
 
-function imfs_upload_stats( $db, $target = index_wp_mysql_for_speed_stats_endpoint ) {
+function imfs_upload_stats( $db, $idString, $target = index_wp_mysql_for_speed_stats_endpoint ) {
 
-	$idString = randomString( 10 );
 	try {
 		$stats = imfsGetAllStats( $db, $idString );
 		imfs_upload_post( $stats, $target );

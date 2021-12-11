@@ -52,6 +52,11 @@ fieldset.inline input.name {
     width: 12em;
 }
 
+/* width of random id field  */
+fieldset input.randomid {
+    width: 8em;
+}
+
 div#wpcontent form div > div > table.form-table > tbody > tr.failure > th {
     color: red;
 }

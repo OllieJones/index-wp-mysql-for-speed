@@ -599,7 +599,7 @@ class ImfsPage extends Imfs_AdminPageFramework {
 
 	}
 
-	/** Render the About form
+	/** Render the About form (info tab)
 	 *
 	 * @param $oAdminPage
 	 *
@@ -624,7 +624,7 @@ class ImfsPage extends Imfs_AdminPageFramework {
 				),
 			)
 		);
-		if (!$this->db->unconstrained) {
+		if ( ! $this->db->unconstrained ) {
 			$this->addSettingFields(
 				array(
 					'field_id' => 'constraint_notice',
@@ -648,31 +648,42 @@ class ImfsPage extends Imfs_AdminPageFramework {
 	function uploadMetadata() {
 		$this->addSettingFields(
 			array(
-				'field_id' => 'permission',
+				'field_id' => 'metadata',
 				'title'    => __( 'Diagnostic data', $this->domain ),
 				'label'    => __( 'With your permission we upload metadata about your WordPress site to our plugin\'s servers. We cannot identify you or your website from it, and we never sell nor give it to any third party. We use it only to improve this plugin.', $this->domain ),
 				'save'     => false,
 				'class'    => array(
 					'fieldrow' => 'info',
 				),
-				array(
-					'field_id'    => 'upload_metadata_now',
-					'type'        => 'submit',
-					'save'        => false,
-					'value'       => __( 'Upload metadata', $this->domain ),
-					'description' => $this->dontNavigate,
-					'class'       => array(
-						'fieldrow' => 'action',
-					),
+			),
+			array(
+				'field_id' => 'uploadId',
+				'title'    => __( 'Upload id', $this->domain ),
+				'label'    => __( 'If you create an issue or contact the authors, please mention this upload id.', $this->domain ),
+				'type'     => 'text',
+				'save'     => true,
+				'default'  => imfsRandomString( 8 ),
+				'class'    => array(
+					'fieldrow' => 'randomid',
 				),
-				array(
-					'label' => $this->cliMessage( 'upload_metadata', __( 'Upload metadata', $this->domain ) ),
-					'type'  => 'label',
-					'save'  => false,
-					'class' => array(
-						'fieldrow' => 'info',
-					),
-				)
+			),
+			array(
+				'field_id'    => 'upload_metadata_now',
+				'type'        => 'submit',
+				'save'        => false,
+				'value'       => __( 'Upload metadata', $this->domain ),
+				'description' => $this->dontNavigate,
+				'class'       => array(
+					'fieldrow' => 'action',
+				),
+			),
+			array(
+				'label' => $this->cliMessage( 'upload_metadata', __( 'Upload metadata', $this->domain ) ),
+				'type'  => 'label',
+				'save'  => false,
+				'class' => array(
+					'fieldrow' => 'info',
+				),
 			)
 		);
 	}
@@ -774,7 +785,7 @@ class ImfsPage extends Imfs_AdminPageFramework {
 					$this->setSettingNotice( $message, 'updated' );
 					break;
 				case 'upload_metadata_now':
-					$id = imfs_upload_stats( $this->db );
+					$id = imfs_upload_stats( $this->db, $inputs['uploadId'] );
 					$this->setSettingNotice( __( 'Metadata uploaded to id ', $this->domain ) . $id, 'updated' );
 					break;
 				case 'upgrade_now':
@@ -847,8 +858,14 @@ class ImfsPage extends Imfs_AdminPageFramework {
 	}
 
 	function validation_imfs_settings_info( $inputs, $oldInputs, $factory, $submitInfo ) {
-		$valid  = true;
+		$valid  = false;
 		$errors = array();
+		if (isset($inputs['uploadId']) && strlen($inputs['uploadId'])> 0) {
+			$valid = true;
+		} else {
+			$errors['uploadId'] = __( "Please provide an upload id.", $this->domain );
+			$valid = false;
+		}
 		if ( ! $valid ) {
 			$this->setFieldErrors( $errors );
 			$this->setSettingNotice( __( 'Make corrections and try again.', $this->domain ) );
