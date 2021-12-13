@@ -105,15 +105,15 @@ MySQL versions 5.5.62 and above, 5.6.4 and above, 8 and above. MariaDB version 5
 
 If at all possible upgrade to Version 8 or later of MySQL.  For MariaDB upgrade to Version 10.3 or later. The MySQL and MariaDB developers have made many performance improvements over the past few years. They have the mission of making things better for WordPress site operators: we are by far their biggest user base. So, we have a lot to gain by using their latest versions.
 
-Avoid Versions 5.5 of both MySQL and MariaDB if you can. And, avoid MariaDB 10.1. They use the older Antelope version of InnoDB. It has a limitation on index lengths that requires WordPress to use [prefix keys](https://dev.mysql.com/doc/refman/8.0/en/column-indexes.html#column-indexes-prefix). Those have reduced performance.
+Avoid Versions 5.5 of both MySQL and MariaDB if you can. And, avoid MariaDB 10.1. They use the older [Antelope](https://dev.mysql.com/doc/refman/5.7/en/glossary.html#glos_antelope) version of InnoDB. It has a limitation on index lengths that requires WordPress to use [prefix keys](https://dev.mysql.com/doc/refman/8.0/en/column-indexes.html#column-indexes-prefix). Those have reduced performance.
 
-If you have the later _Barracuda_ version of InnoDB, this plugin uses its capability to build efficient [covering](https://dev.mysql.com/doc/refman/8.0/en/glossary.html#glos_covering_index) keys. If you have the older Antelope version it still builds keys, but they are less efficient. The prefix keys it uses cannot be covering keys.
+If your server uses the later [Barracuda](https://dev.mysql.com/doc/refman/5.7/en/glossary.html#glos_barracuda) version of InnoDB, this plugin uses its capability to build efficient [covering](https://dev.mysql.com/doc/refman/8.0/en/glossary.html#glos_covering_index) keys. If you have the older Antelope version it still builds keys, but they are less efficient. The prefix keys it uses cannot be covering keys.
 
 = Is this plugin compatible with WordPress Object Cache plugins for redis and memcached? =
 
-**Yes.** This plugin only affects WordPress's queries to the database. The Object Cache plugins reduce the number of those queries, and so reduce your database's workload.
+**Yes.** This plugin only affects WordPress's queries to the database. The Object Cache plugins reduce the number of those queries, and so reduce your database's workload. Still, this plugin helps your performance.
 
-If you have trouble with your Object Cache plugin, try flushing (removing all entries) from the cache.
+If you have trouble with your Object Cache plugin, try flushing (removing all entries from) the cache immediately after you activate this plugin.
 
 = Does this plugin generate any overhead when my site is busy? =
 
