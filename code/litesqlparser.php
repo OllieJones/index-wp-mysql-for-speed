@@ -340,11 +340,13 @@ class LightSQLParser {
 		$result = preg_replace( '/= +\'\d+\'/', '= ?qi?', $result );
 		$result = preg_replace( '/IN +\( *\d+} *\)/', 'IN (?i?)', $result );
 		$result = preg_replace( '/IN +\( *\d+ *, *\d+ *\)/', 'IN (?i?, ?i?)', $result );
-		$result = preg_replace( '/IN\s*\((?:\s*(?:\?izero\?|\?ione\?|\d+)\s*,*?){2,9}\s*\)/', 'IN (?ilist?)', $result );
-		$result = preg_replace( '/IN\s*\((?:\s*(?:\?izero\?|\?ione\?|\d+)\s*,*?){10,}\s*\)/', 'IN (?ilonglist?)', $result );
+		$result = preg_replace( '/IN\s*\((?:\s*(?:\?izero\?|\?ione\?|\d+)\s*,*?){2,20}\s*\)/', 'IN (?ilist?)', $result );
+		$result = preg_replace( '/IN\s*\((?:\s*(?:\?izero\?|\?ione\?|\d+)\s*,*?){21,}\s*\)/', 'IN (?ilonglist?)', $result );
 		$result = preg_replace( '/([^_])\d+/', '$1?i?', $result );
 
 		/* quoted strings, with escapes processed correctly */
+		/* this regex constant may show an Unclosed Character Class error in the IDE. Ignore it.
+		 * if you figure out how to suppress the error with * @noinspection, please do! */
 		$quSt = <<<'END'
 /'(?:.*?[^\\])??(?:(?:\\\\)+)?'/
 END;
