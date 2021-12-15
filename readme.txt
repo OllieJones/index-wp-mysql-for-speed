@@ -4,7 +4,7 @@ Tags: database, index, key, mysql, wp-cli
 Requires at least: 5.2
 Tested up to: 5.8.1
 Requires PHP: 7.2
-Stable tag: 1.3.3
+Stable tag: 1.4.1
 Network: true
 License: GPL v2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -44,20 +44,21 @@ To do its second job, MySQL uses database keys. Each table has one or more keys.
 
 In a new WordPress site with a couple of users and a dozen posts, the keys don't matter very much. As the site grows the keys start to matter, a lot. Database management systems are designed to have their keys updated, adjusted, and tweaked as their tables grow. They're designed to allow the keys to evolve without changing the content of the underlying tables. In organizations with large databases adding, dropping, or altering keys doesn't change the underlying data. It is a routine maintenance task in many data centers. If changing keys caused databases to lose data, the MySQL and MariaDB developers would hear howling not just from you and me, but from many heavyweight users. (You should still back up your WordPress instance of course.)
 
-Better keys allow WordPress's code to run faster _without any code changes_.  Code is poetry, data is treasure, and database keys are grease that makes code and data work together smoothly.
+Better keys allow WordPress's code to run faster _without any code changes_.  Experience with large sites shows that many MySQL slowdowns can be improved by better keys. Code is poetry, data is treasure, and database keys are grease that makes code and data work together smoothly.
 
 <h4>Which tables does the plugin add keys to?</h4>
 
-This plugin updates keys in six tables found in all WordPress installations.
+This plugin adds and updates keys in these WordPress tables.
 
 * wp_options
 * wp_posts
+* wp_users
 * wp_postmeta
 * wp_comments
 * wp_usermeta
 * wp_termmeta
 
-Experience with large sites shows that many MySQL slowdowns can be improved by better keys. You only need run this plugin once to get its benefits.
+You only need run this plugin once to get its benefits.
 
 <h4>How can I monitor my database's operation?</h4>
 

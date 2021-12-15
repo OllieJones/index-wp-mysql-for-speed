@@ -40,6 +40,7 @@ class ImsfCli extends WP_CLI_Command {
 
 	private function setupCliEnvironment( $args, $assoc_args, $preamble = true ) {
 		global $wp_version;
+		global $wp_db_version;
 		$this->allSwitch  = ! empty( $assoc_args['all'] );
 		$this->assoc_args = $assoc_args;
 		if ( is_multisite() ) {
@@ -57,32 +58,27 @@ class ImsfCli extends WP_CLI_Command {
 		$this->db->init();
 		$this->rekeying = $this->db->getRekeying();
 
-		/* the rekeying array for `reset` is a little strange: it has error messages after table names */
-		if ( array_key_exists( 'reset', $this->rekeying ) && count( $this->rekeying['reset'] ) > 0 ) {
-			$trimmed = array();
-			foreach ( $this->rekeying['reset'] as $item ) {
-				$splits                = explode( ' ', $item, 2 );
-				$trimmed[]             = $splits[0];
-				$this->errorMessages[] = str_replace( '<br />&emsp;', PHP_EOL . '  ', $item );
-			}
-			$this->rekeying['reset'] = $trimmed;
-		}
-
 		if ( $preamble ) {
 			$wpDescription = imfsGetWpDescription( $this->db );
 			WP_CLI::log( __( 'Index WP MySQL For Speed', $this->domain ) . ' ' . index_wp_mysql_for_speed_VERSION_NUM );
-			$versions = 'MySQL:' . $wpDescription['mysqlversion'] . ' WordPress:' . $wp_version . ' php:' . phpversion();
+			$versions = 'MySQL:' . $wpDescription['mysqlversion'] . ' WordPress:' . $wp_version . ' WordPress database:' . $wp_db_version . ' php:' . phpversion();
 			WP_CLI::log( __( 'Versions', $this->domain ) . ' ' . $versions );
 		}
 
 		if ( ! $this->db->canReindex ) {
-			$fmt = __( 'Sorry, you cannot use this plugin with your version of MySQL.', $this->domain ) . ' ' .
-			       __( 'Your MySQL version is outdated. Please consider upgrading,', $this->domain );
+			if ( $wp_db_version < index_wp_mysql_for_speed_first_compatible_db_version ||
+			     $wp_db_version > index_wp_mysql_for_speed_last_compatible_db_version ) {
+				$fmt = __( 'Sorry, this plugin\'s version is not compatible with your WordPress database version.', $this->domain );
+			}
+			else {
+				$fmt = __( 'Sorry, you cannot use this plugin with your version of MySQL.', $this->domain ) . ' ' .
+				       __( 'Your MySQL version is outdated. Please consider upgrading,', $this->domain );
+			}
 			WP_CLI::exit( $fmt );
 
 		}
 		if ( $preamble && ! $this->db->unconstrained ) {
-			$fmt = __( 'Upgrading your MySQL server will give you better performance when you add high-performance keys. Please consider upgrading.', $this->domain );
+			$fmt = __( 'Upgrading your MySQL server to a later version will give you better performance when you add high-performance keys.', $this->domain );
 			WP_CLI::warning( $fmt );
 		}
 
@@ -103,18 +99,18 @@ class ImsfCli extends WP_CLI_Command {
 	 * Add high-performance keys.
 	 */
 	function enable( $args, $assoc_args ) {
-		$action = 'enable';
+		$targetAction = 1;
 		$this->setupCliEnvironment( $args, $assoc_args );
-		$this->doRekeying( $args, $assoc_args, $action );
+		$this->doRekeying( $args, $assoc_args, $targetAction );
 	}
 
-	private function doRekeying( $args, $assoc_args, $action, $alreadyPrefixed = true ) {
+	private function doRekeying( $args, $assoc_args, $targetAction, $alreadyPrefixed = true ) {
+		$action = $targetAction === 0 ? 'disable': 'enable';
 		$tbls = $this->getTablesToProcess( $args, $assoc_args, $action );
-
 		foreach ( $tbls as $tbl ) {
 			$this->db->timings = array();
 			$arr               = array( $tbl );
-			$this->db->rekeyTables( $action, $arr, $alreadyPrefixed );
+			$this->db->rekeyTables( $targetAction, $arr, $alreadyPrefixed );
 			WP_CLI::log( $this->reportCompletion( $action, $tbl ) );
 		}
 	}
@@ -127,9 +123,9 @@ class ImsfCli extends WP_CLI_Command {
 	 *
 	 * @return array list of tables
 	 */
-	private function getTablesToProcess( $args, $assoc_args, $action ) {
+	private function getTablesToProcess( $args, $assoc_args, $action ): array {
 
-		$alreadyPrefixed = ( $action === 'upgrade' || $action === 'reset' );
+		$alreadyPrefixed = ( $action === 'upgrade' );
 		$tbls            = $this->rekeying[ $action ];
 		$tbls            = $this->addPrefixes( $tbls, $alreadyPrefixed );
 		$res             = array();
@@ -153,7 +149,7 @@ class ImsfCli extends WP_CLI_Command {
 			}
 		}
 		if ( count( $err ) > 0 ) {
-			$fmt = __( 'These tables are not not found or not eligible to', $this->domain ) . ' ' . $action . ': ' . implode( ' ', $err ) . '.';
+			$fmt = __( 'These tables are not found or not eligible to', $this->domain ) . ' ' . $action . ': ' . implode( ' ', $err ) . '.';
 			WP_CLI::error( $fmt );
 		}
 		if ( count( $res ) == 0 ) {
@@ -164,7 +160,7 @@ class ImsfCli extends WP_CLI_Command {
 		return $res;
 	}
 
-	private function addPrefixes( $tbls, $alreadyPrefixed ) {
+	private function addPrefixes( $tbls, $alreadyPrefixed ): array {
 		global $wpdb;
 		if ( $alreadyPrefixed ) {
 			return $tbls;
@@ -184,7 +180,7 @@ class ImsfCli extends WP_CLI_Command {
 	 *
 	 * @return string
 	 */
-	private function reportCompletion( $action, $tbl ) {
+	private function reportCompletion( string $action, string $tbl ): string {
 		$time    = 0.0;
 		$queries = 0;
 		foreach ( $this->db->timings as $item ) {
@@ -201,9 +197,9 @@ class ImsfCli extends WP_CLI_Command {
 	 * Remove high-performance keys, reverting to WordPress standard.
 	 */
 	function disable( $args, $assoc_args ) {
-		$action = 'disable';
+		$targetAction = 0;
 		$this->setupCliEnvironment( $args, $assoc_args );
-		$this->doRekeying( $args, $assoc_args, $action );
+		$this->doRekeying( $args, $assoc_args, $targetAction );
 	}
 
 	/**
@@ -230,27 +226,6 @@ class ImsfCli extends WP_CLI_Command {
 	}
 
 	/**
-	 * Reset tables with unexpected keys to their WordPress standard key configuration.
-	 */
-	function reset( $args, $assoc_args ) {
-		$action = 'reset';
-		$this->setupCliEnvironment( $args, $assoc_args );
-		$tbls = $this->getTablesToProcess( $args, $assoc_args, $action );
-		try {
-			$this->db->lock( $tbls, true );
-			foreach ( $tbls as $tbl ) {
-				$this->db->timings = array();
-				$this->db->repairKeys( $tbl );
-				WP_CLI::log( $this->reportCompletion( $action, $tbl ) );
-			}
-		} catch ( ImfsException $ex ) {
-			WP_CLI::error( $ex->getMessage() );
-		} finally {
-			$this->db->unlock();
-		}
-	}
-
-	/**
 	 * Show indexing status.
 	 *
 	 * @param $args
@@ -258,9 +233,6 @@ class ImsfCli extends WP_CLI_Command {
 	 */
 	function status( $args, $assoc_args ) {
 		$this->setupCliEnvironment( $args, $assoc_args );
-		$fmt = __( 'You cannot rekey some tables without resetting their keys first.', $this->domain ) . ' ' .
-		       __( 'This often means they have already been rekeyed by some other plugin or workflow.', $this->domain );
-		$this->showCommandLine( 'reset', $fmt, true, true );
 		$fmt = __( 'These database tables need upgrading to InnoDB with the Dynamic row format, MySQL\'s latest storage scheme.', $this->domain );
 		$this->showCommandLine( 'upgrade', $fmt, true, true );
 		$fmt = __( 'Add high-performance keys to these tables to make your WordPress database faster.', $this->domain );
@@ -268,7 +240,6 @@ class ImsfCli extends WP_CLI_Command {
 
 		$fmt = __( 'Your WordPress tables now have high-performance keys.', $this->domain ) . ' ' .
 		       __( 'Revert the keys on these tables to restore WordPress\'s defaults.', $this->domain );
-
 		$this->showCommandLine( 'disable', $fmt, false, false );
 	}
 
@@ -302,14 +273,15 @@ class ImsfCli extends WP_CLI_Command {
 	 * @param $cmd string
 	 * @param $tbls array
 	 *
-	 * @return string|void
+	 * @return string
 	 */
-	private function getCommand( $cmd, $tbls ) {
+	private function getCommand( string $cmd, array $tbls ): string {
 		if ( count( $tbls ) > 0 ) {
 			$list = implode( ' ', $tbls );
 
 			return sprintf( "Use this command: %s %s %s", $this->cmd, $cmd, $list );
 		}
+		return '';
 	}
 
 	/**

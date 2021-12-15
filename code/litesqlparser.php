@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Light SQL Parser Class
  * @author Marco Cesarato <cesarato.developer@gmail.com>, Ollie JOnes <olliejones@gmail.com>
@@ -302,44 +303,47 @@ class LightSQLParser {
 	}
 
 	function getFingerprint() {
-		$query  = $this->getQuery();
+		$query = $this->getQuery();
 
 		$result = $query;
 		/* backticks */
-		$result = preg_replace('/\`([^\`]+)\`/', '$1', $result);
+		$result = preg_replace( '/\`([^\`]+)\`/', '$1', $result );
 
 		/* take off LIMIT and OFFSET -- we need to see pagination details */
-		$limitp = strripos($result, ' LIMIT ');
-		$offsetp = strripos($result, ' OFFSET ');
+		$limitp      = strripos( $result, ' LIMIT ' );
+		$offsetp     = strripos( $result, ' OFFSET ' );
 		$limitClause = '';
-		if ($limitp > 0 || $offsetp > 0) {
-			$limitp = $limitp === false ? PHP_INT_MAX : $limitp;
-			$offsetp = $offsetp === false ? PHP_INT_MAX : $offsetp;
-			$p = min($limitp, $offsetp);
-			$limitClause = substr($result, $p );
-			$result = substr($result, 0, $p);
+		if ( $limitp > 0 || $offsetp > 0 ) {
+			$limitp      = $limitp === false ? PHP_INT_MAX : $limitp;
+			$offsetp     = $offsetp === false ? PHP_INT_MAX : $offsetp;
+			$p           = min( $limitp, $offsetp );
+			$limitClause = substr( $result, $p );
+			$result      = substr( $result, 0, $p );
 		}
 
 		$result .= ' ';
 
 		/* date and time constants */
-		$result = preg_replace ( '/\'\d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d\'/', '?datetime?', $result);
-		$result = preg_replace ( '/\'\d\d\d\d-\d\d-\d\d\'/', '?date?', $result);
+		$result = preg_replace( '/\'\d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d\'/', '?datetime?', $result );
+		$result = preg_replace( '/\'\d\d\d\d-\d\d-\d\d\'/', '?date?', $result );
 		$result = preg_replace( '/\'[0-9]{10}\'/', '?t?', $result );
 
 		/* special case for autoload = 'yes' */
-		$result = preg_replace('/\s+autoload\s*=\s*\'yes\'/', ' ?autoloadyes? ', $result);
+		$result = preg_replace( '/\s+autoload\s*=\s*\'yes\'/', ' ?autoloadyes? ', $result );
 
 		/* integers */
-		for ($i=0; $i < 5; $i++) {
+		for ( $i = 0; $i < 5; $i ++ ) {
 			$result = preg_replace( '/([^\d_])0([^\d])/', '$1?izero?$2', $result );
 			$result = preg_replace( '/([^\d_])1([^\d])/', '$1?ione?$2', $result );
 		}
 
 		$result = preg_replace( '/= +\d+/', '= ?i?', $result );
 		$result = preg_replace( '/= +\'\d+\'/', '= ?qi?', $result );
-		$result = preg_replace( '/IN +\( *\d+} *\)/', 'IN (?i?)', $result );
+		$result = preg_replace( '/IN +\( *\d+ *\)/', 'IN (?i?)', $result );
 		$result = preg_replace( '/IN +\( *\d+ *, *\d+ *\)/', 'IN (?i?, ?i?)', $result );
+		/* This is a workaround for an apparent
+		 *  regex bug capturing {2,19} and {20,} with lots of numbers */
+		$result = preg_replace( '/[0-9, ]{90,}/', '?ilonglist?', $result );
 		$result = preg_replace( '/IN\s*\((?:\s*(?:\?izero\?|\?ione\?|\d+)\s*,*?){2,20}\s*\)/', 'IN (?ilist?)', $result );
 		$result = preg_replace( '/IN\s*\((?:\s*(?:\?izero\?|\?ione\?|\d+)\s*,*?){21,}\s*\)/', 'IN (?ilonglist?)', $result );
 		$result = preg_replace( '/([^_])\d+/', '$1?i?', $result );
@@ -347,7 +351,7 @@ class LightSQLParser {
 		/* quoted strings, with escapes processed correctly */
 		/* this regex constant may show an Unclosed Character Class error in the IDE. Ignore it.
 		 * if you figure out how to suppress the error with * @noinspection, please do! */
-		$quSt = <<<'END'
+		$quSt   = <<<'END'
 /'(?:.*?[^\\])??(?:(?:\\\\)+)?'/
 END;
 		$result = preg_replace( $quSt, '?s?', $result );
@@ -356,14 +360,21 @@ END;
 		$result = preg_replace( "/(INSERT +[^\\(]+\\([^\\)]+\\) *VALUES *)(?:.{150,}+)/", '$1 (?valuelist?)', $result );
 
 		/* replace special cases */
-		$result = preg_replace('/\?izero\?/', '0', $result);
-		$result = preg_replace('/\?ione\?/', '1', $result);
-		$result = preg_replace('/\?autoloadyes\?/', 'autoload = \'yes\' ', $result);
+		$result = preg_replace( '/\?izero\?/', '0', $result );
+		$result = preg_replace( '/\?ione\?/', '1', $result );
+		$result = preg_replace( '/\?autoloadyes\?/', 'autoload = \'yes\' ', $result );
 
-		/* put back LIMIT and OFFSET */
-		$result = strlen($limitClause) > 0 ? $result . ' ' . $limitClause : $result;
+		/* Process and put back LIMIT and OFFSET */
+		if ( strlen( $limitClause ) > 0 ) {
+			$fixedLimit = preg_replace( '/\s+0\s*,\s*/', ' ?izero?, ', $limitClause );
+			/* put ?i? fingerprint on the offset when >= 10 */
+			$fixedLimit = preg_replace( '/\s+\d{2,}\s*,\s*/', ' ?i?, ', $fixedLimit );
+			$fixedLimit = preg_replace( '/\?izero\?/', '0', $fixedLimit );
+			$result     = $result . ' ' . $fixedLimit;
+		}
 		/* extra white space */
-		$result = preg_replace('/\s+/', ' ', $result);
+		$result = preg_replace( '/\s+/', ' ', $result );
+
 		return $result;
 	}
 }
