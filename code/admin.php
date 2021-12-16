@@ -272,7 +272,8 @@ class ImfsPage extends Imfs_AdminPageFramework {
 	 */
 	private function showVersionInfo() {
 		global $wp_version;
-		$versionString = 'MySQL:' . htmlspecialchars( $this->db->semver->version ) . '&emsp;WordPress:' . $wp_version . '&emsp;php:' . phpversion();
+		global $wp_db_version;
+		$versionString = 'MySQL:' . htmlspecialchars( $this->db->semver->version ) . '&emsp;WordPress:' . $wp_version . '&emsp;WordPress database:' . $wp_db_version . '&emsp;php:' . phpversion();
 		$this->addSettingFields(
 			array(
 				'field_id' => 'version',
@@ -586,7 +587,8 @@ class ImfsPage extends Imfs_AdminPageFramework {
 			), 'imfs_settings' );
 
 		global $wp_version;
-		$versionString = 'MySQL:' . htmlspecialchars( $this->db->semver->version ) . ' WordPress:' . $wp_version . ' php:' . phpversion();
+		global $wp_db_version;
+		$versionString = 'MySQL:' . htmlspecialchars( $this->db->semver->version ) . '&emsp;WordPress:' . $wp_version . '&emsp;WordPress database:' . $wp_db_version . '&emsp;php:' . phpversion();
 		$this->addSettingFields(
 			array(
 				'field_id' => 'version',

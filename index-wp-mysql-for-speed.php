@@ -25,8 +25,9 @@ define( 'index_wp_mysql_for_speed_domain', index_wp_mysql_for_speed_PLUGIN_NAME 
 define( 'index_wp_mysql_for_speed_stats_endpoint', $target = 'https://lit-mesa-75588.herokuapp.com/imfsstats' );
 define( 'index_wp_mysql_for_speed_monitor', 'imfsQueryMonitor' );
 define( 'index_wp_mysql_for_speed_querytag', '/*imfs-query-tag*/' );
-define( 'index_wp_mysql_for_speed_first_compatible_db_version', 49752 );
-define( 'index_wp_mysql_for_speed_last_compatible_db_version', 49752 );
+/* 32814 was the advent of utfmb4 */
+define( 'index_wp_mysql_for_speed_first_compatible_db_version', 32814 );
+define( 'index_wp_mysql_for_speed_last_compatible_db_version', 51917 );
 
 register_activation_hook( __FILE__, 'index_wp_mysql_for_speed_activate' );
 register_deactivation_hook( __FILE__, 'index_wp_mysql_for_speed_deactivate' );
