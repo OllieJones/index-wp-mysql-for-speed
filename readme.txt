@@ -52,10 +52,11 @@ This plugin adds and updates keys in these WordPress tables.
 
 * wp_options
 * wp_posts
-* wp_users
 * wp_postmeta
-* wp_comments
+* wp_users
 * wp_usermeta
+* wp_comments
+* wp_commentmeta
 * wp_termmeta
 
 You only need run this plugin once to get its benefits.
@@ -189,10 +190,16 @@ When upgrading tables, change ROW_FORMAT to DYNAMIC as well as ENGINE to InnoDB.
 = 1.3.4 =
 Support MariaDB 10.1, make indexes work a little better, miscellaneous bugfixes.
 
-== Upgrade Notice ==
-In this version you can monitor your database operations to analyze database performance for short periods of time and detect the slowest queries.
+= 1.4.1 =
+* 5.9 compatibility
+* Rekeys tables in one go: allows the plugin to work when `sql_require_primary_key=ON` (typically at managed service providers).
+* Handles upgrades to high-performance keys
+* Adds prefix keys to meta_value columns to allow searching by value.
+* Adds display_name key to wp_users, and keys to wp_commentmeta.
+* Checks `$wp_db_version` number to ensure schema compatibility.
 
-This version changes both the ROW_FORMAT and ENGINE of legacy tables.
+== Upgrade Notice ==
+5.9 support, keys on user display names and metadata values, better support for managed service providers and larger WooCommerce sites, bug fixes.
 
 == Screenshots ==
 

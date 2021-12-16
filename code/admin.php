@@ -179,7 +179,7 @@ class ImfsPage extends Imfs_AdminPageFramework {
 			$action = 'enable';
 			if ( count( $rekeying[ $action ] ) > 0 ) {
 				$title        = __( 'Add keys', $this->domain );
-				$caption      = __( 'Add high-performance keys to these tables to make your WordPress database faster.', $this->domain );
+				$caption      = __( 'Add or upgrade high-performance keys for these tables to make your WordPress database faster.', $this->domain );
 				$callToAction = __( 'Add Keys Now', $this->domain );
 				$this->renderListOfTables( $rekeying[ $action ], false, $action, $title, $caption, $callToAction, true );
 			}
@@ -199,7 +199,7 @@ class ImfsPage extends Imfs_AdminPageFramework {
 					) );
 
 				$title        = __( 'Revert', $this->domain );
-				$caption      = __( 'Revert the keys on these tables to restore WordPress\'s defaults.', $this->domain );
+				$caption      = __( 'Revert the keys for these tables to restore WordPress\'s defaults.', $this->domain );
 				$callToAction = __( 'Revert Keys Now', $this->domain );
 				$this->renderListOfTables( $rekeying[ $action ], false, $action, $title, $caption, $callToAction, false );
 			}
@@ -337,11 +337,11 @@ class ImfsPage extends Imfs_AdminPageFramework {
 			}
 			if ( $rowcount > 1 ) {
 				$rowcount   = number_format_i18n( $rowcount );
-				$itemString = $rowcount . ' ' . __( 'items', $this->domain );
+				$itemString = $rowcount . ' ' . __( 'rows, approximately', $this->domain );
 			} else if ( $rowcount == 1 ) {
-				$itemString = $rowcount . ' ' . __( 'item', $this->domain );
+				$itemString = $rowcount . ' ' . __( 'row, approximately', $this->domain );
 			} else if ( $rowcount == 0 ) {
-				$itemString = __( 'no items', $this->domain );
+				$itemString = __( 'no rows', $this->domain );
 			} else {
 				$itemString = '';
 			}

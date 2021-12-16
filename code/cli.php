@@ -33,9 +33,9 @@ class ImsfCli extends WP_CLI_Command {
 	 */
 	function upload_metadata( $args, $assoc_args ) {
 		$this->setupCliEnvironment( $args, $assoc_args );
-		$id = imfs_upload_stats( $this->db );
+		$id = imfsRandomString( 8 );
+		$id = imfs_upload_stats( $this->db, $id );
 		WP_CLI::log( __( 'Metadata uploaded to id ', $this->domain ) . $id );
-		restore_current_blog();
 	}
 
 	private function setupCliEnvironment( $args, $assoc_args, $preamble = true ) {
@@ -51,8 +51,6 @@ class ImsfCli extends WP_CLI_Command {
 			} else {
 				switch_to_blog( $restoreBlogId );
 			}
-		} else {
-			$restoreBlogId = 0;
 		}
 		$this->db = new ImfsDb();
 		$this->db->init();
@@ -69,8 +67,7 @@ class ImsfCli extends WP_CLI_Command {
 			if ( $wp_db_version < index_wp_mysql_for_speed_first_compatible_db_version ||
 			     $wp_db_version > index_wp_mysql_for_speed_last_compatible_db_version ) {
 				$fmt = __( 'Sorry, this plugin\'s version is not compatible with your WordPress database version.', $this->domain );
-			}
-			else {
+			} else {
 				$fmt = __( 'Sorry, you cannot use this plugin with your version of MySQL.', $this->domain ) . ' ' .
 				       __( 'Your MySQL version is outdated. Please consider upgrading,', $this->domain );
 			}
@@ -91,7 +88,7 @@ class ImsfCli extends WP_CLI_Command {
 	function version( $args, $assoc_args ) {
 		$this->setupCliEnvironment( $args, $assoc_args );
 		$wpDescription = imfsToResultSet( imfsGetWpDescription( $this->db ), 'Item', 'Value' );
-		$format = array_key_exists('format', $assoc_args) ? $assoc_args['format'] : null;
+		$format        = array_key_exists( 'format', $assoc_args ) ? $assoc_args['format'] : null;
 		WP_CLI\Utils\format_items( $format, $wpDescription, array( 'Item', 'Value' ) );
 	}
 
@@ -105,8 +102,8 @@ class ImsfCli extends WP_CLI_Command {
 	}
 
 	private function doRekeying( $args, $assoc_args, $targetAction, $alreadyPrefixed = true ) {
-		$action = $targetAction === 0 ? 'disable': 'enable';
-		$tbls = $this->getTablesToProcess( $args, $assoc_args, $action );
+		$action = $targetAction === 0 ? 'disable' : 'enable';
+		$tbls   = $this->getTablesToProcess( $args, $assoc_args, $action );
 		foreach ( $tbls as $tbl ) {
 			$this->db->timings = array();
 			$arr               = array( $tbl );
@@ -123,7 +120,7 @@ class ImsfCli extends WP_CLI_Command {
 	 *
 	 * @return array list of tables
 	 */
-	private function getTablesToProcess( $args, $assoc_args, $action ): array {
+	private function getTablesToProcess( array $args, array $assoc_args, string $action ): array {
 
 		$alreadyPrefixed = ( $action === 'upgrade' );
 		$tbls            = $this->rekeying[ $action ];
@@ -235,11 +232,11 @@ class ImsfCli extends WP_CLI_Command {
 		$this->setupCliEnvironment( $args, $assoc_args );
 		$fmt = __( 'These database tables need upgrading to InnoDB with the Dynamic row format, MySQL\'s latest storage scheme.', $this->domain );
 		$this->showCommandLine( 'upgrade', $fmt, true, true );
-		$fmt = __( 'Add high-performance keys to these tables to make your WordPress database faster.', $this->domain );
+		$fmt = __( 'Add or upgrade high-performance keys for these tables to make your WordPress database faster.', $this->domain );
 		$this->showCommandLine( 'enable', $fmt, false );
 
 		$fmt = __( 'Your WordPress tables now have high-performance keys.', $this->domain ) . ' ' .
-		       __( 'Revert the keys on these tables to restore WordPress\'s defaults.', $this->domain );
+		       __( 'Revert the keys for these tables to restore WordPress\'s defaults.', $this->domain );
 		$this->showCommandLine( 'disable', $fmt, false, false );
 	}
 
@@ -250,7 +247,7 @@ class ImsfCli extends WP_CLI_Command {
 	 * @param $warning boolean display warning not log.
 	 * @param $alreadyPrefixed boolean  tables in list already have wp_ style prefixes.
 	 */
-	private function showCommandLine( $action, $caption, $warning = false, $alreadyPrefixed = false ) {
+	private function showCommandLine( string $action, string $caption, bool $warning, bool $alreadyPrefixed ) {
 		$array = $this->rekeying;
 		if ( array_key_exists( $action, $array ) && count( $array[ $action ] ) > 0 ) {
 			$tbls = $this->addPrefixes( $array[ $action ], $alreadyPrefixed );
@@ -281,6 +278,7 @@ class ImsfCli extends WP_CLI_Command {
 
 			return sprintf( "Use this command: %s %s %s", $this->cmd, $cmd, $list );
 		}
+
 		return '';
 	}
 
@@ -296,7 +294,7 @@ class ImsfCli extends WP_CLI_Command {
 		foreach ( $row as $key => $val ) {
 			$hdrs[] = $key;
 		}
-		$format = array_key_exists('format', $assoc_args) ? $assoc_args['format'] : 'table';
+		$format = array_key_exists( 'format', $assoc_args ) ? $assoc_args['format'] : 'table';
 		WP_CLI\Utils\format_items( $format, $list, $hdrs );
 
 		$list   = array();

@@ -34,14 +34,13 @@ function getHighPerformanceIndexes( $unconstrained ): array {
 		),
 
 		"comments" => array(
-			"PRIMARY KEY"                  => "ADD PRIMARY KEY (comment_ID)",
-			"comment_post_ID"              => "ADD KEY comment_post_ID (comment_post_ID)",
+			"comment_ID"                   => "ADD UNIQUE KEY comment_ID (comment_ID)",
+			"PRIMARY KEY"                  => "ADD PRIMARY KEY (comment_post_ID, comment_ID)",
 			"comment_approved_date_gmt"    => "ADD KEY comment_approved_date_gmt (comment_approved, comment_date_gmt)",
 			"comment_date_gmt"             => "ADD KEY comment_date_gmt (comment_date_gmt)",
 			"comment_parent"               => "ADD KEY comment_parent (comment_parent)",
 			"comment_author_email"         => "ADD KEY comment_author_email (comment_author_email(10))",
-			"woo_idx_comment_type"         => "ADD KEY woo_idx_comment_type (comment_type)",
-			"comment_post_parent_approved" => "ADD KEY comment_post_parent_approved (comment_post_ID, comment_parent, comment_approved, comment_ID)"
+			"comment_post_parent_approved" => "ADD KEY comment_post_parent_approved (comment_post_ID, comment_parent, comment_approved, comment_type, comment_date_gmt)",
 		),
 	);
 
@@ -54,19 +53,25 @@ function getHighPerformanceIndexes( $unconstrained ): array {
 			"meta_value"  => "ADD KEY meta_value (meta_value(32), meta_key, post_id)",
 		),
 
-		"usermeta" => array(
+		"usermeta"    => array(
 			"umeta_id"    => "ADD UNIQUE KEY umeta_id (umeta_id)",
 			"PRIMARY KEY" => "ADD PRIMARY KEY (user_id, meta_key, umeta_id)",
 			"meta_key"    => "ADD KEY meta_key (meta_key, meta_value(32), user_id)",
 			"meta_value"  => "ADD KEY meta_value (meta_value(32), meta_key, user_id)",
 		),
-		"termmeta" => array(
+		"termmeta"    => array(
 			"meta_id"     => "ADD UNIQUE KEY meta_id (meta_id)",
 			"PRIMARY KEY" => "ADD PRIMARY KEY (term_id, meta_key, meta_id)",
 			"meta_key"    => "ADD KEY meta_key (meta_key, meta_value(32), term_id)",
 			"meta_value"  => "ADD KEY meta_value (meta_value(32), meta_key, meta_id)",
 		),
-		"users"    => array(
+		'commentmeta' => array(
+			"meta_id"     => "ADD UNIQUE KEY meta_id (meta_id)",
+			"PRIMARY KEY" => "ADD PRIMARY KEY (meta_key, comment_id, meta_id)",
+			"comment_id"  => "ADD KEY comment_id (comment_id, meta_key, meta_value(32))",
+			"meta_value"  => "ADD KEY meta_value (meta_value(32), meta_key, comment_id)",
+		),
+		"users"       => array(
 			"PRIMARY KEY"    => "ADD PRIMARY KEY (ID)",
 			"user_login_key" => "ADD KEY user_login_key (user_login)",
 			"user_nicename"  => "ADD KEY user_nicename (user_nicename)",
@@ -86,21 +91,28 @@ function getHighPerformanceIndexes( $unconstrained ): array {
 			"meta_value"  => "ADD KEY meta_value (meta_value(32), meta_key(32), post_id)",
 		),
 
-		"usermeta" => array(
+		"usermeta"    => array(
 			"umeta_id"    => "ADD UNIQUE KEY umeta_id (umeta_id)",
 			"PRIMARY KEY" => "ADD PRIMARY KEY (user_id, umeta_id)",
 			"user_id"     => "ADD KEY user_id (user_id, meta_key(32), meta_value(32))",
 			"meta_key"    => "ADD KEY meta_key (meta_key(32), meta_value(32), user_id)",
 			"meta_value"  => "ADD KEY meta_value (meta_value(32), meta_key(32), user_id)",
 		),
-		"termmeta" => array(
+		"termmeta"    => array(
 			"meta_id"     => "ADD UNIQUE KEY meta_id (meta_id)",
 			"PRIMARY KEY" => "ADD PRIMARY KEY (term_id, meta_id)",
 			"term_id"     => "ADD KEY term_id (term_id, meta_key(32), meta_value(32))",
 			"meta_key"    => "ADD KEY meta_key (meta_key(32), meta_value(32), term_id)",
 			"meta_value"  => "ADD KEY meta_value (meta_value(32), meta_key(32), term_id)",
 		),
-		"users"    => array(
+		'commentmeta' => array(
+			"meta_id"     => "ADD UNIQUE KEY meta_id (meta_id)",
+			"PRIMARY KEY" => "ADD PRIMARY KEY (comment_id, meta_id)",
+			"comment_id"  => "ADD KEY comment_id (comment_id, meta_key(32), meta_id)",
+			"meta_key"    => "ADD KEY meta_key (meta_key(32), meta_value(32), comment_id)",
+			"meta_value"  => "ADD KEY meta_value (meta_value(32), meta_key(32), comment_id)",
+		),
+		"users"       => array(
 			"PRIMARY KEY"    => "ADD PRIMARY KEY (ID)",
 			"user_login_key" => "ADD KEY user_login_key (user_login)",
 			"user_nicename"  => "ADD KEY user_nicename (user_nicename)",
@@ -128,34 +140,34 @@ function getHighPerformanceIndexes( $unconstrained ): array {
 function getStandardIndexes( $unconstrained ): array {
 	/* these are WordPress's standard indexes. */
 	return array(
-		'postmeta' => array(
+		'postmeta'    => array(
 			"PRIMARY KEY" => "ADD PRIMARY KEY (meta_id)",
 			"post_id"     => "ADD KEY post_id (post_id)",
 			"meta_key"    => "ADD KEY meta_key (meta_key(191))",
 		),
-		'usermeta' => array(
+		'usermeta'    => array(
 			"PRIMARY KEY" => "ADD PRIMARY KEY (umeta_id)",
 			"user_id"     => "ADD KEY user_id (user_id)",
 			"meta_key"    => "ADD KEY meta_key (meta_key(191))",
 		),
-		'termmeta' => array(
+		'termmeta'    => array(
 			"PRIMARY KEY" => "ADD PRIMARY KEY (meta_id)",
 			"term_id"     => "ADD KEY term_id (term_id)",
 			"meta_key"    => "ADD KEY meta_key (meta_key(191))",
 		),
-		'options'  => array(
+		'options'     => array(
 			"PRIMARY KEY" => "ADD PRIMARY KEY (option_id)",
 			"option_name" => "ADD UNIQUE KEY option_name (option_name)",
 			"autoload"    => "ADD KEY autoload (autoload)"
 		),
-		'posts'    => array(
+		'posts'       => array(
 			"PRIMARY KEY"      => "ADD PRIMARY KEY (ID)",
 			"post_name"        => "ADD KEY post_name (post_name(191))",
 			"post_parent"      => "ADD KEY post_parent (post_parent)",
 			"type_status_date" => "ADD KEY type_status_date (post_type, post_status, post_date, ID)",
 			"post_author"      => "ADD KEY post_author (post_author)",
 		),
-		'comments' => array(
+		'comments'    => array(
 			"PRIMARY KEY"               => "ADD PRIMARY KEY (comment_ID)",
 			"comment_post_ID"           => "ADD KEY comment_post_ID (comment_post_ID)",
 			"comment_approved_date_gmt" => "ADD KEY comment_approved_date_gmt (comment_approved, comment_date_gmt)",
@@ -164,7 +176,12 @@ function getStandardIndexes( $unconstrained ): array {
 			"comment_author_email"      => "ADD KEY comment_author_email (comment_author_email(10))",
 			"woo_idx_comment_type"      => "ADD KEY woo_idx_comment_type (comment_type)",
 		),
-		"users"    => array(
+		'commentmeta' => array(
+			"PRIMARY KEY" => "ADD PRIMARY KEY (meta_id)",
+			"comment_id"  => "ADD KEY comment_id (comment_id)",
+			"meta_key"    => "ADD KEY meta_key (meta_key(191))",
+		),
+		"users"       => array(
 			"PRIMARY KEY"    => "ADD PRIMARY KEY (ID)",
 			"user_login_key" => "ADD KEY user_login_key (user_login)",
 			"user_nicename"  => "ADD KEY user_nicename (user_nicename)",

@@ -169,7 +169,7 @@ function getQueries(): array {
 				       ON t.TABLE_SCHEMA = autoload.TABLE_SCHEMA
 						AND t.TABLE_NAME = autoload.TABLE_NAME
              WHERE t.TABLE_SCHEMA = DATABASE() 
-               AND t.TABLE_NAME IN ('${p}postmeta','${p}termmeta','${p}usermeta' ,'${p}posts','${p}comments', '${p}options', '${p}users')
+               AND t.TABLE_NAME IN ('${p}postmeta','${p}termmeta','${p}usermeta' ,'${p}posts','${p}comments', '${p}options', '${p}users', '${p}commentmeta')
              GROUP BY REPLACE(t.TABLE_NAME, 'wp_', '')",
 	);
 
@@ -248,7 +248,7 @@ function getQueries(): array {
         ) q
         ORDER BY TABLE_NAME, is_primary DESC, is_unique DESC, key_name",
 
-		"dbstats" => array(
+		"dbstats"        => array(
 			"SHOW VARIABLES",
 			implode( " UNION ALL ", $stats ),
 			"SELECT c.TABLE_NAME,
@@ -299,6 +299,13 @@ function getQueries(): array {
                 GROUP BY c.TABLE_NAME, c.TABLE_SCHEMA, c.TABLE_CATALOG
         ",
 			"SHOW GLOBAL STATUS",
+		),
+		'innodb_metrics' => array(
+			/* is the table present ?*/
+			"SELECT COUNT(*) num
+			   FROM information_schema.TABLES
+			  WHERE TABLE_SCHEMA = 'INFORMATION_SCHEMA'
+			    AND TABLE_NAME = 'INNODB_METRICS'",
 			/* make this match SHOW STATUS in column names */
 			"SELECT NAME Variable_name, COUNT Value
                FROM information_schema.INNODB_METRICS
