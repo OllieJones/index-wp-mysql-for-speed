@@ -1,24 +1,25 @@
 <?php
+require_once( 'getindexes.php' );
 require_once( 'getqueries.php' );
 require_once( ABSPATH . 'wp-admin/includes/class-wp-upgrader.php' );
 
-
 class ImfsDb {
-
+	/** @var bool true if this server can support reindexing at all */
 	public $canReindex = false;
+	/** @var int 1 if we have Barracuda, 0 if we have Antelope */
 	public $unconstrained;
 	public $queries;
 	public $messages = array();
-	public $lookForMissingKeys = true;
-	public $lookForExtraKeys = false;
 	public $semver;
 	public $stats;
 	public $oldEngineTables;
 	public $newEngineTables;
 	public $timings;
 	private $initialized = false;
-	private $reindexingInstructions;
 	private $hasHrTime;
+	private $memoizedDDL = [];
+	/** @var string[] list of index prefixes to ignore. */
+	private $indexStopList = [ 'woo_' ];
 
 	/**
 	 * @throws ImfsException
@@ -32,9 +33,6 @@ class ImfsDb {
 			$this->semver        = getMySQLVersion();
 			$this->canReindex    = $this->semver->canreindex;
 			$this->unconstrained = $this->semver->unconstrained;
-			if ( $this->canReindex ) {
-				$this->reindexingInstructions = getReindexingInstructions( $this->semver );
-			}
 
 			if ( $this->canReindex ) {
 				$this->stats     = $this->getStats();
@@ -78,11 +76,11 @@ class ImfsDb {
 		}
 	}
 
-	/**
+	/** Fetch server status data
 	 * @return array server information
 	 * @throws ImfsException
 	 */
-	public function getStats() {
+	public function getStats(): array {
 		global $wpdb;
 		$wpdb->flush();
 		$output  = array();
@@ -91,6 +89,8 @@ class ImfsDb {
 			$results = $this->get_results( $q );
 			array_push( $output, $results );
 		}
+		$results = $this->getInnodbMetrics();
+		array_push( $output, $results );
 
 		return $output;
 	}
@@ -98,14 +98,16 @@ class ImfsDb {
 	/** run a SELECT
 	 *
 	 * @param $sql
+	 * @param bool $doTiming
+	 * @param string $outputFormat default OBJECT_K
 	 *
 	 * @return array|object|null
 	 * @throws ImfsException
 	 */
-	public function get_results( $sql, $doTiming = false ) {
+	public function get_results( $sql, bool $doTiming = false, string $outputFormat = OBJECT_K ) {
 		global $wpdb;
 		$thentime = $doTiming ? $this->getTime() : - 1;
-		$results  = $wpdb->get_results( index_wp_mysql_for_speed_querytag . $sql, OBJECT_K );
+		$results  = $wpdb->get_results( index_wp_mysql_for_speed_querytag . $sql, $outputFormat );
 		if ( false === $results || $wpdb->last_error ) {
 			throw new ImfsException( $wpdb->last_error, $wpdb->last_query );
 		}
@@ -127,8 +129,22 @@ class ImfsDb {
 		}
 	}
 
+	private function getInnodbMetrics(): array {
+		$r = $this->get_results( $this->queries['innodb_metrics'][0], false, OBJECT );
+		if ( is_array( $r ) && count( $r ) === 1 && $r[0]->num > 0 ) {
+			return $this->get_results( $this->queries['innodb_metrics'][1] );
+		}
+
+		return array(
+			(object) array(
+				"Variable_name" => "INNODB_METRICS",
+				"Value"         => "not present on this server version"
+			)
+		);
+	}
+
 	/**
-	 * @param $action string  'enable' or 'disable'
+	 * @param $targetAction int   0 - WordPress standard  1 -- high performance
 	 * @param $tables array  tables like ['postmeta','termmeta']
 	 * @param $alreadyPrefixed bool false if wp_ prefix needs to be added to table names
 	 *
@@ -136,23 +152,27 @@ class ImfsDb {
 	 * @throws ImfsException
 	 *
 	 */
-	public function rekeyTables( $action, array $tables, $alreadyPrefixed = false ) {
+	public function rekeyTables( int $targetAction, array $tables, bool $alreadyPrefixed = false ): string {
 		$count = 0;
 		if ( count( $tables ) > 0 ) {
 			try {
 				$this->lock( $tables, $alreadyPrefixed );
 				foreach ( $tables as $name ) {
-					$this->rekeyTable( $action, $name, $alreadyPrefixed );
+					$this->rekeyTable( $targetAction, $name, $alreadyPrefixed );
 					$count ++;
 				}
 			} finally {
 				$this->unlock();
 			}
 		}
-		if ( $action === 'enable' ) {
-			$msg = __( 'High-performance keys added to %d tables.', index_wp_mysql_for_speed_domain );
-		} else {
-			$msg = __( 'Keys on %d tables reverted to WordPress standard.', index_wp_mysql_for_speed_domain );
+		$msg = '';
+		switch ( $targetAction ) {
+			case 1:
+				$msg = __( 'High-performance keys added to %d tables.', index_wp_mysql_for_speed_domain );
+				break;
+			case 0:
+				$msg = __( 'Keys on %d tables reverted to WordPress standard.', index_wp_mysql_for_speed_domain );
+				break;
 		}
 
 		return sprintf( $msg, $count );
@@ -194,7 +214,7 @@ class ImfsDb {
 	/**
 	 * @param int $duration how many seconds until maintenance expires
 	 */
-	public function enterMaintenanceMode( $duration = 60 ) {
+	public function enterMaintenanceMode( int $duration = 60 ) {
 		$maintenanceFileName = ABSPATH . '.maintenance';
 		if ( is_writable( ABSPATH ) ) {
 			$maintain     = array();
@@ -216,11 +236,12 @@ class ImfsDb {
 	/** run a query*
 	 *
 	 * @param $sql
+	 * @param bool $doTiming
 	 *
 	 * @return bool|int
 	 * @throws ImfsException
 	 */
-	public function query( $sql, $doTiming = false ) {
+	public function query( $sql, bool $doTiming = false ) {
 		global $wpdb;
 		$thentime = $doTiming ? $this->getTime() : - 1;
 		$results  = $wpdb->query( index_wp_mysql_for_speed_querytag . $sql );
@@ -238,27 +259,115 @@ class ImfsDb {
 
 	/** Redo the keys on the selected table.
 	 *
-	 * @param string $action "enable" or "disable"
+	 * @param int $targetAction 0 -- WordPress standard.  1 -- high-perf
 	 * @param string $name table name without prefix
 	 *
 	 * @throws ImfsException
 	 */
-	public function rekeyTable( $action, $name, $alreadyPrefixed = false ) {
+	public function rekeyTable( int $targetAction, string $name, $alreadyPrefixed = false ) {
 		global $wpdb;
+
 		$unprefixedName = $alreadyPrefixed ? ImfsStripPrefix( $name ) : $name;
 		$prefixedName   = $alreadyPrefixed ? $name : $wpdb->prefix . $name;
-		$block          = $this->reindexingInstructions[ $unprefixedName ];
-		$stmts          = $block[ $action ];
-		if ( $action ) {
-			foreach ( $stmts as $fragment ) {
-				set_time_limit( 120 );
-				$q = "ALTER TABLE " . $prefixedName . " " . $fragment;
-				$this->query( $q, true );
-			}
+
+		$actions = $this->getConversionList( $targetAction, $unprefixedName );
+
+		if ( count( $actions ) === 0 ) {
+			return;
 		}
+
+		/* we're changing the ddl, so get rid of the memoization */
+		if ( array_key_exists( $prefixedName, $this->memoizedDDL ) ) {
+			unset( $this->memoizedDDL[ $prefixedName ] );
+		}
+
+		$q = 'ALTER TABLE ' . $prefixedName . ' ' . implode( ', ', $actions );
+		set_time_limit( 120 );
+		$this->query( $q, true );
 	}
 
-	/** Undo lock.  This is ideally called from a finally clause.
+	/**
+	 * @param int $targetState 0 -- WordPress default    1 -- high-performance
+	 * @param string $name table name
+	 *
+	 * @return array
+	 * @throws ImfsException
+	 */
+	public function getConversionList( int $targetState, string $name ): array {
+		$target  = $targetState === 0
+			? getStandardIndexes( $this->unconstrained )
+			: getHighPerformanceIndexes( $this->unconstrained );
+		$target  = $target[ $name ];
+		$current = $this->getKeyDDL( $name );
+
+		/* build a list of all index names, target first so UNIQUEs come first */
+		$indexes = [];
+		foreach ( $target as $key => $value ) {
+			if ( ! isset( $indexes[ $key ] ) ) {
+				$indexes[ $key ] = $key;
+			}
+		}
+		foreach ( $current as $key => $value ) {
+			if ( ! isset( $indexes[ $key ] ) ) {
+				$indexes[ $key ] = $key;
+			}
+		}
+
+		/* Ignore index names prefixed with anything in
+		 * the indexStoplist array (skip woocommerce indexs) */
+		foreach ( $this->indexStopList as $stop ) {
+			foreach ( $indexes as $index => $val ) {
+				if ( substr_compare( $index, $stop, null, true ) === 0 ) {
+					unset ( $indexes[ $index ] );
+				}
+			}
+		}
+		$actions = [];
+
+		foreach ( $indexes as $key => $value ) {
+			if ( array_key_exists( $key, $current ) && array_key_exists( $key, $target ) && $current[ $key ]->add === $target[ $key ] ) {
+				/* no action required */
+			} else if ( array_key_exists( $key, $current ) && array_key_exists( $key, $target ) && $current[ $key ]->add !== $target[ $key ] ) {
+				$actions[] = $current[ $key ]->drop;
+				$actions[] = $target[ $key ];
+			} else if ( array_key_exists( $key, $current ) && ! array_key_exists( $key, $target ) ) {
+				$actions[] = $current[ $key ]->drop;
+			} else if ( ! array_key_exists( $key, $current ) && array_key_exists( $key, $target ) ) {
+				$actions[] = $target[ $key ];
+			} else {
+				throw new ImfsException( 'weird key compare failure' );
+			}
+		}
+
+		return $actions;
+	}
+
+	/**
+	 * Retrieve DML for the keys in the named table.
+	 *
+	 * @param string $name table name (without prefix)
+	 * @param bool $addPrefix
+	 *
+	 * @return array
+	 * @throws ImfsException
+	 */
+	public function getKeyDDL( string $name, bool $addPrefix = true ) {
+		global $wpdb;
+		if ( $addPrefix ) {
+			$name = $wpdb->prefix . $name;
+		}
+		if ( array_key_exists( $name, $this->memoizedDDL ) ) {
+			return $this->memoizedDDL[ $name ];
+		}
+		$stmt = $wpdb->prepare( $this->queries['indexes'], $name );
+
+		$result                     = $this->get_results( $stmt );
+		$this->memoizedDDL[ $name ] = $result;
+
+		return $result;
+	}
+
+	/** Undo lock.  This is ideally called from a finally{} clause.
 	 * @throws ImfsException
 	 */
 	public function unlock() {
@@ -273,143 +382,10 @@ class ImfsDb {
 		}
 	}
 
-	public function repairTables( $action, $tables ) {
-		$count = 0;
-		$names = array();
-		foreach ( $tables as $table ) {
-			$splits  = explode( ' ', $table, 2 );
-			$names[] = $splits[0];
-		}
-		if ( count( $names ) > 0 ) {
-			try {
-				$this->lock( $names, true );
-				foreach ( $names as $name ) {
-					$this->repairKeys( $name );
-					$count ++;
-				}
-			} finally {
-				$this->unlock();
-			}
-		}
-		$msg = __( 'Keys on %d tables reset.', index_wp_mysql_for_speed_domain );
-
-		return sprintf( $msg, $count );
-
-	}
-
-	/** Repair a table by restoring its WordPress default indexes, removing the ones we put in.
-	 *
-	 * @param $name  string like "wp_postmeta" not "postmeta"
-	 *
-	 * @return bool
-	 */
-	public function repairKeys( $name ) {
-		$ddl             = array();
-		$before          = '';
-		$after           = '';
-		$standardIndexes = getStandardIndexes();
-		$shortName       = ImfsStripPrefix( $name );
-		if ( ! array_key_exists( $shortName, $standardIndexes ) ) {
-			return false;
-		}
-		$keydefs         = $this->getKeyDDL( $name, false );
-		$alter           = '';
-		$standardIndexes = $standardIndexes[ $shortName ];
-
-		/* get the union of the list of keynames in the two places... actual table and standard */
-		$keynames = array();
-		foreach ( $keydefs as $keyname => $_ ) {
-			$keynames[ $keyname ] = 1;
-		}
-		foreach ( $standardIndexes as $keyname => $_ ) {
-			$keynames[ $keyname ] = 1;
-		}
-
-		foreach ( $keynames as $keyname => $_ ) {
-			/* ignore indexes put in there by woocommerce. */
-			if ( strpos( $keyname, 'woo_' ) ) {
-				continue;
-			}
-			$keyinfo = null;
-			if ( array_key_exists( $keyname, $keydefs ) ) {
-				$keyinfo = $keydefs [ $keyname ];
-			}
-			if ( $keyinfo ) {
-				$alter = $keyinfo->alter;
-
-				if ( $keyinfo->is_autoincrement ) {
-					$before = sprintf( "ADD UNIQUE KEY imfsdb_unique(%s)", $keyinfo->autoincrement_column );
-					$after  = "DROP KEY imfsdb_unique";
-				}
-				if ( $keyinfo->add != $standardIndexes ) {
-					/* this index isn't in the standard list */
-					$ddl[] = $keyinfo->drop;
-				}
-			}
-			$standardIndex = '';
-			if ( array_key_exists( $keyname, $standardIndexes ) ) {
-				$standardIndex = $standardIndexes[ $keyname ];
-			}
-			if ( strlen( $standardIndex ) > 0 ) {
-				$ddl[] = $standardIndex;
-			}
-		}
-
-		if ( strlen( $before ) > 0 ) {
-			set_time_limit( 120 );
-			$this->queryIgnore( $alter . ' ' . $before, true );
-		}
-		foreach ( $ddl as $stmt ) {
-			set_time_limit( 120 );
-			$this->queryIgnore( $alter . ' ' . $stmt, true );
-		}
-
-		if ( strlen( $after ) > 0 ) {
-			set_time_limit( 120 );
-			$this->queryIgnore( $alter . ' ' . $after, true );
-		}
-
-		return true;
-	}
-
-	/**
-	 * Retrieve DML for the keys in the named table.
-	 *
-	 * @param string $name table name (without prefix)
-	 *
-	 * @return array|object|null
-	 * @throws ImfsException
-	 */
-	public function getKeyDDL( $name, $addPrefix = true ) {
-		global $wpdb;
-		if ( $addPrefix ) {
-			$name = $wpdb->prefix . $name;
-		}
-		$stmt = $wpdb->prepare( $this->queries['indexes'], $name );
-
-		return $this->get_results( $stmt );
-	}
-
-	/**
-	 * @param $sql string
-	 * @param bool $doTiming
-	 */
-	private function queryIgnore( $sql, $doTiming = false ) {
-		try {
-			$this->query( $sql, $doTiming );
-
-			return;
-		} catch ( ImfsException $ex ) {
-			return;
-			/* empty intentionally */
-		}
-	}
-
-	public function getRekeying() {
+	public function getRekeying(): array {
 		global $wpdb;
 		$enableList     = array();
 		$disableList    = array();
-		$errorList      = array();
 		$originalTables = $this->tables();
 		/* don't process tables still on old storage engins */
 		$tables = array();
@@ -420,53 +396,54 @@ class ImfsDb {
 		}
 		/* any rekeyable tables? */
 		if ( is_array( $tables ) && count( $tables ) > 0 ) {
-			try {
-				$this->lock( $tables, false );
-				foreach ( $tables as $name ) {
-					$canEnable   = $this->checkTable( 'enable', $name );
-					$enableMsgs  = $this->clearMessages();
-					$canDisable  = $this->checkTable( 'disable', $name );
-					$disableMsgs = $this->clearMessages();
-					if ( $canEnable && ! $canDisable ) {
-						$enableList[] = $name;
-					} else if ( $canDisable && ! $canEnable ) {
-						$disableList[] = $name;
-					} else {
-						$msg   = __( '%s has unexpected keys, so you cannot rekey it without resetting it first.', index_wp_mysql_for_speed_domain );
-						$msg   = sprintf( $wpdb->prefix . $msg, $name );
-						$delim = '<br />&emsp;';
-						if ( ! $canEnable ) {
-							$msg = $msg . $delim . implode( $delim, $enableMsgs );
-						}
-						$errorList[ $name ] = $msg;
-					}
+			foreach ( $tables as $name ) {
+				$canEnable  = $this->checkTable( 1, $name );
+				$canDisable = $this->checkTable( 0, $name );
+				if ( $canEnable ) {
+					$enableList[] = $name;
 				}
-			} finally {
-				$this->unlock();
+				if ( $canDisable ) {
+					$disableList[] = $name;
+				}
 			}
 		}
 
 		return array(
 			'enable'  => $enableList,
 			'disable' => $disableList,
-			'reset'   => $errorList,
 			'upgrade' => $this->oldEngineTables
 		);
 	}
 
 	/** List of tables to manipulate
+	 *
+	 * @param bool $prefixed true if you want wp_postmeta, false if you want postmeta
+	 *
 	 * @return array tables manipulated by this module
 	 */
-	public function tables( $prefixed = false ) {
-		$result = array();
+	public function tables( bool $prefixed = false ): array {
 		global $wpdb;
-		foreach ( $this->reindexingInstructions as $name => $stmts ) {
-			if ( is_array( $stmts ) && array_key_exists( 'tablename', $stmts ) && $name === $stmts['tablename'] ) {
-				$mainSiteOnly = array_key_exists( 'mainSiteOnly', $stmts ) && $stmts['mainSiteOnly'];
-				if ( is_main_site() || ! $mainSiteOnly ) {
-					$result[] = $prefixed ? $wpdb->prefix . $name : $name;
-				}
+		$avail = $wpdb->tables;
+		if ( is_main_site() ) {
+			foreach ( $wpdb->global_tables as $table ) {
+				$avail[] = $table;
 			}
+		}
+		/* match to the tables we know how to reindex */
+		$allTables = getIndexableTables( $this->unconstrained );
+		$tables    = [];
+		foreach ( $allTables as $table ) {
+			if ( array_search( $table, $avail ) !== false ) {
+				$tables[] = $table;
+			}
+		}
+		sort( $tables );
+		if ( ! $prefixed ) {
+			return $tables;
+		}
+		$result = array();
+		foreach ( $tables as $table ) {
+			$result[] = $wpdb->prefix . $table;
 		}
 
 		return $result;
@@ -474,85 +451,25 @@ class ImfsDb {
 
 	/** Check whether a table is ready to be acted upon
 	 *
-	 * @param $action "enable" or "disable"
+	 * @param int $targetAction "enable" or "disable"
 	 * @param $name
 	 *
 	 * @return bool
 	 * @throws ImfsException
 	 */
-	public function checkTable( $action, $name ) {
-		global $wpdb;
-		$block          = $this->reindexingInstructions[ $name ];
-		$checks         = $block[ 'check.' . $action ];
-		$table          = $wpdb->prefix . $name;
-		$result         = true;
-		$presentIndexes = $this->getKeyDDL( $name );
-		if ( $this->lookForMissingKeys ) {
-			foreach ( $checks as $index => $desc ) {
-				if ( ! $desc && array_key_exists( $index, $presentIndexes ) ) {
-					$msg = sprintf(
-					/* translators: %1$s is table name, %2$s is key (index) name */
-						__( 'The key %2$s exists when it should not.', index_wp_mysql_for_speed_domain ),
-						$table, $index
-					);
-					array_push( $this->messages, $msg );
-					$result = false;
-				} else if ( $desc && ! array_key_exists( $index, $presentIndexes ) ) {
-					$msg = sprintf(
-					/* translators: %1$s is table name, %2$s is key (index) name */
-						__( 'The expected key %2$s does not exist.', index_wp_mysql_for_speed_domain ),
-						$table, $index
-					);
-					array_push( $this->messages, $msg );
-					$result = false;
-				}
-			}
-		}
-		if ( $this->lookForExtraKeys ) {
-			foreach ( $presentIndexes as $index => $desc ) {
-				if ( ! array_key_exists( $index, $checks ) ) {
-					$msg = sprintf(
-					/* translators: %1$s is table name, %2$s is key (index) name */
-						__( 'Found an unexpected key %2$s.', index_wp_mysql_for_speed_domain ),
-						$table, $index
-					);
-					array_push( $this->messages, $msg );
-					$result = false;
-				}
-			}
-		}
-		foreach ( $checks as $index => $stmt ) {
-			if ( array_key_exists( $index, $presentIndexes ) ) {
-				$desc = $presentIndexes[ $index ];
-				if ( strlen( $stmt ) > 0 && $desc->add !== $stmt ) {
-					$msg = sprintf(
-					/* translators: %1$s is table name, %2$s is key (index) name, %4$s is expected key, %3$s is actual */
-						__( 'Found an unexpected definition for key %2$s. It should be %4$s, but is %3$s.', index_wp_mysql_for_speed_domain ),
-						$table, $index, $desc->add, $stmt
-					);
-					array_push( $this->messages, $msg );
-					$result = false;
-				}
-			}
-		}
+	public function checkTable( int $targetAction, $name ): bool {
+		$actions = $this->getConversionList( $targetAction, $name );
 
-		return $result;
-	}
-
-	/** Resets the messages in this class and returns the previous messages.
-	 * @return array
-	 */
-	public function clearMessages() {
-		$msgs           = $this->messages;
-		$this->messages = array();
-
-		return $msgs;
+		return count( $actions ) > 0;
 	}
 
 	/**
+	 * @param array $list of tables
+	 *
+	 * @return string
 	 * @throws ImfsException
 	 */
-	public function upgradeStorageEngine( $list ) {
+	public function upgradeStorageEngine( array $list ): string {
 		$counter = 0;
 		try {
 			$this->lock( $list, true );
@@ -574,12 +491,22 @@ class ImfsDb {
 	/**
 	 * @throws ImfsException
 	 */
-	public function upgradeTableStorageEngine( $table ) {
+	public function upgradeTableStorageEngine( $table ): bool {
 		set_time_limit( 120 );
 		$sql = 'ALTER TABLE ' . $table . ' ENGINE=InnoDb, ROW_FORMAT=DYNAMIC';
 		$this->query( $sql, true );
 
 		return true;
+	}
+
+	/** Resets the messages in this class and returns the previous messages.
+	 * @return array
+	 */
+	public function clearMessages(): array {
+		$msgs           = $this->messages;
+		$this->messages = array();
+
+		return $msgs;
 	}
 }
 

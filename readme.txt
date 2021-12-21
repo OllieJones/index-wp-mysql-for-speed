@@ -2,9 +2,9 @@
 Contributors: OllieJones
 Tags: database, index, key, mysql, wp-cli
 Requires at least: 5.2
-Tested up to: 5.8.1
+Tested up to: 5.9
 Requires PHP: 7.2
-Stable tag: 1.3.3
+Stable tag: 1.4.1
 Network: true
 License: GPL v2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -44,20 +44,22 @@ To do its second job, MySQL uses database keys. Each table has one or more keys.
 
 In a new WordPress site with a couple of users and a dozen posts, the keys don't matter very much. As the site grows the keys start to matter, a lot. Database management systems are designed to have their keys updated, adjusted, and tweaked as their tables grow. They're designed to allow the keys to evolve without changing the content of the underlying tables. In organizations with large databases adding, dropping, or altering keys doesn't change the underlying data. It is a routine maintenance task in many data centers. If changing keys caused databases to lose data, the MySQL and MariaDB developers would hear howling not just from you and me, but from many heavyweight users. (You should still back up your WordPress instance of course.)
 
-Better keys allow WordPress's code to run faster _without any code changes_.  Code is poetry, data is treasure, and database keys are grease that makes code and data work together smoothly.
+Better keys allow WordPress's code to run faster _without any code changes_.  Experience with large sites shows that many MySQL slowdowns can be improved by better keys. Code is poetry, data is treasure, and database keys are grease that makes code and data work together smoothly.
 
 <h4>Which tables does the plugin add keys to?</h4>
 
-This plugin updates keys in six tables found in all WordPress installations.
+This plugin adds and updates keys in these WordPress tables.
 
 * wp_options
 * wp_posts
 * wp_postmeta
-* wp_comments
+* wp_users
 * wp_usermeta
+* wp_comments
+* wp_commentmeta
 * wp_termmeta
 
-Experience with large sites shows that many MySQL slowdowns can be improved by better keys. You only need run this plugin once to get its benefits.
+You only need run this plugin once to get its benefits.
 
 <h4>How can I monitor my database's operation?</h4>
 
@@ -188,10 +190,16 @@ When upgrading tables, change ROW_FORMAT to DYNAMIC as well as ENGINE to InnoDB.
 = 1.3.4 =
 Support MariaDB 10.1, make indexes work a little better, miscellaneous bugfixes.
 
-== Upgrade Notice ==
-In this version you can monitor your database operations to analyze database performance for short periods of time and detect the slowest queries.
+= 1.4.1 =
+* 5.9 compatibility
+* Rekeys tables in one go: allows the plugin to work when `sql_require_primary_key=ON` (typically at managed service providers).
+* Handles upgrades to high-performance keys
+* Adds prefix keys to meta_value columns to allow searching by value.
+* Adds display_name key to wp_users, and keys to wp_commentmeta.
+* Checks `$wp_db_version` number to ensure schema compatibility.
 
-This version changes both the ROW_FORMAT and ENGINE of legacy tables.
+== Upgrade Notice ==
+5.9 support, keys on user display names and metadata values, better support for managed service providers and larger WooCommerce sites, bug fixes.
 
 == Screenshots ==
 

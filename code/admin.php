@@ -171,8 +171,6 @@ class ImfsPage extends Imfs_AdminPageFramework {
 		if ( $this->checkVersionInfo() ) {
 
 			$rekeying = $this->db->getRekeying();
-			/* errors **********************************/
-			$this->resetKeysToWPStandard( $rekeying );
 
 			/* engine upgrade ***************************/
 			$this->upgradeIndex();
@@ -181,7 +179,7 @@ class ImfsPage extends Imfs_AdminPageFramework {
 			$action = 'enable';
 			if ( count( $rekeying[ $action ] ) > 0 ) {
 				$title        = __( 'Add keys', $this->domain );
-				$caption      = __( 'Add high-performance keys to these tables to make your WordPress database faster.', $this->domain );
+				$caption      = __( 'Add or upgrade high-performance keys for these tables to make your WordPress database faster.', $this->domain );
 				$callToAction = __( 'Add Keys Now', $this->domain );
 				$this->renderListOfTables( $rekeying[ $action ], false, $action, $title, $caption, $callToAction, true );
 			}
@@ -193,7 +191,7 @@ class ImfsPage extends Imfs_AdminPageFramework {
 					array(
 						'field_id' => 'successcaption',
 						'title'    => 'Success',
-						'default'  => __( 'Your WordPress tables now have high-performance keys.', $this->domain ),
+						'default'  => __( 'These WordPress tables now have high-performance keys.', $this->domain ),
 						'save'     => false,
 						'class'    => array(
 							'fieldrow' => array( 'major', 'success' ),
@@ -201,7 +199,7 @@ class ImfsPage extends Imfs_AdminPageFramework {
 					) );
 
 				$title        = __( 'Revert', $this->domain );
-				$caption      = __( 'Revert the keys on these tables to restore WordPress\'s defaults.', $this->domain );
+				$caption      = __( 'Revert the keys for these tables to restore WordPress\'s defaults.', $this->domain );
 				$callToAction = __( 'Revert Keys Now', $this->domain );
 				$this->renderListOfTables( $rekeying[ $action ], false, $action, $title, $caption, $callToAction, false );
 			}
@@ -274,7 +272,8 @@ class ImfsPage extends Imfs_AdminPageFramework {
 	 */
 	private function showVersionInfo() {
 		global $wp_version;
-		$versionString = 'MySQL:' . htmlspecialchars( $this->db->semver->version ) . '&emsp;WordPress:' . $wp_version . '&emsp;php:' . phpversion();
+		global $wp_db_version;
+		$versionString = 'MySQL:' . htmlspecialchars( $this->db->semver->version ) . '&emsp;WordPress:' . $wp_version . '&emsp;WordPress database:' . $wp_db_version . '&emsp;php:' . phpversion();
 		$this->addSettingFields(
 			array(
 				'field_id' => 'version',
@@ -289,27 +288,15 @@ class ImfsPage extends Imfs_AdminPageFramework {
 	}
 
 	/**
-	 * @param array $rekeying
+	 * form for upgrading tables to InnoDB
 	 */
-	private function resetKeysToWPStandard( array $rekeying ) {
-		if ( count( $rekeying['reset'] ) > 0 ) {
-			$action = 'reset';
-			$this->addSettingFields(
-				array(
-					'field_id'    => 'norekeycaption',
-					'title'       => 'Problems Rekeying',
-					'default'     => __( 'You cannot rekey some tables without resetting their keys first.', $this->domain ),
-					'description' => __( 'This often means they have already been rekeyed by some other plugin or workflow.', $this->domain ),
-					'save'        => false,
-					'class'       => array(
-						'fieldrow' => array( 'warning', 'header' ),
-					),
-				) );
-			$title        = '<span class="warning header">' . __( 'Reset Keys', $this->domain ) . '</span>';
-			$caption      = __( 'Reset the keys on these tables: remove the keys set by some other plugin or workflow.', $this->domain );
-			$callToAction = __( 'Reset Keys Now', $this->domain );
-
-			$this->renderListOfTables( $rekeying[ $action ], true, $action, $title, $caption, $callToAction, false );
+	private function upgradeIndex() {
+		if ( count( $this->db->oldEngineTables ) > 0 ) {
+			$action       = 'upgrade';
+			$title        = '<span class="warning header">' . __( 'Upgrade table storage', $this->domain ) . '</span>';
+			$caption      = __( 'These database tables need upgrading to InnoDB with the Dynamic row format, MySQL\'s latest table storage.', $this->domain );
+			$callToAction = __( 'Upgrade Storage Now', $this->domain );
+			$this->renderListOfTables( $this->db->oldEngineTables, true, $action, $title, $caption, $callToAction, true );
 		}
 	}
 
@@ -350,11 +337,11 @@ class ImfsPage extends Imfs_AdminPageFramework {
 			}
 			if ( $rowcount > 1 ) {
 				$rowcount   = number_format_i18n( $rowcount );
-				$itemString = $rowcount . ' ' . __( 'items', $this->domain );
+				$itemString = $rowcount . ' ' . __( 'rows, approximately', $this->domain );
 			} else if ( $rowcount == 1 ) {
-				$itemString = $rowcount . ' ' . __( 'item', $this->domain );
+				$itemString = $rowcount . ' ' . __( 'row, approximately', $this->domain );
 			} else if ( $rowcount == 0 ) {
-				$itemString = __( 'no items', $this->domain );
+				$itemString = __( 'no rows', $this->domain );
 			} else {
 				$itemString = '';
 			}
@@ -419,19 +406,6 @@ class ImfsPage extends Imfs_AdminPageFramework {
 		$fmt = __( 'Using %1$s, %2$s: <code>%3$s %4$s</code>', $this->domain );
 
 		return sprintf( $fmt, $cliLink, $function, $wp, $command );
-	}
-
-	/**
-	 * form for upgrading tables to InnoDB
-	 */
-	private function upgradeIndex() {
-		if ( count( $this->db->oldEngineTables ) > 0 ) {
-			$action       = 'upgrade';
-			$title        = '<span class="warning header">' . __( 'Upgrade table storage', $this->domain ) . '</span>';
-			$caption      = __( 'These database tables need upgrading to InnoDB with the Dynamic row format, MySQL\'s latest table storage.', $this->domain );
-			$callToAction = __( 'Upgrade Storage Now', $this->domain );
-			$this->renderListOfTables( $this->db->oldEngineTables, true, $action, $title, $caption, $callToAction, true );
-		}
 	}
 
 	/** Render the Monitor Database Operations form
@@ -613,7 +587,8 @@ class ImfsPage extends Imfs_AdminPageFramework {
 			), 'imfs_settings' );
 
 		global $wp_version;
-		$versionString = 'MySQL:' . htmlspecialchars( $this->db->semver->version ) . ' WordPress:' . $wp_version . ' php:' . phpversion();
+		global $wp_db_version;
+		$versionString = 'MySQL:' . htmlspecialchars( $this->db->semver->version ) . '&emsp;WordPress:' . $wp_version . '&emsp;WordPress database:' . $wp_db_version . '&emsp;php:' . phpversion();
 		$this->addSettingFields(
 			array(
 				'field_id' => 'version',
@@ -794,16 +769,12 @@ class ImfsPage extends Imfs_AdminPageFramework {
 					$this->setSettingNotice( $msg, 'updated' );
 					break;
 				case 'enable_now':
-					$msg = $this->db->rekeyTables( 'enable', $this->listFromCheckboxes( $inputs['enable'] ) );
+					$msg = $this->db->rekeyTables( 1, $this->listFromCheckboxes( $inputs['enable'] ) );
 					$this->setSettingNotice( $msg, 'updated' );
 					break;
 				case 'disable_now':
-					$msg = $this->db->rekeyTables( 'disable', $this->listFromCheckboxes( $inputs['disable'] ) );
+					$msg = $this->db->rekeyTables( 0, $this->listFromCheckboxes( $inputs['disable'] ) );
 					$this->setSettingNotice( $msg, 'updated' );
-					break;
-				case 'reset_now':
-					$msg = $this->db->repairTables( 'reset', $this->listFromCheckboxes( $inputs['reset'] ) );
-					$this->setSettingNotice( $msg, 'reset' );
 					break;
 			}
 
@@ -861,11 +832,11 @@ class ImfsPage extends Imfs_AdminPageFramework {
 	function validation_imfs_settings_info( $inputs, $oldInputs, $factory, $submitInfo ) {
 		$valid  = false;
 		$errors = array();
-		if (isset($inputs['uploadId']) && strlen($inputs['uploadId'])> 0) {
+		if ( isset( $inputs['uploadId'] ) && strlen( $inputs['uploadId'] ) > 0 ) {
 			$valid = true;
 		} else {
 			$errors['uploadId'] = __( "Please provide an upload id.", $this->domain );
-			$valid = false;
+			$valid              = false;
 		}
 		if ( ! $valid ) {
 			$this->setFieldErrors( $errors );
