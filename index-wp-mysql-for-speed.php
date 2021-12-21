@@ -17,7 +17,7 @@ Network:           true
 */
 
 /** current version number  */
-define( 'index_wp_mysql_for_speed_VERSION_NUM', '1.3.3' );
+define( 'index_wp_mysql_for_speed_VERSION_NUM', '1.4.1' );
 
 /* set up some handy globals */
 define( 'index_wp_mysql_for_speed_PLUGIN_NAME', trim( dirname( plugin_basename( __FILE__ ) ), '/' ) );
@@ -25,6 +25,9 @@ define( 'index_wp_mysql_for_speed_domain', index_wp_mysql_for_speed_PLUGIN_NAME 
 define( 'index_wp_mysql_for_speed_stats_endpoint', $target = 'https://lit-mesa-75588.herokuapp.com/imfsstats' );
 define( 'index_wp_mysql_for_speed_monitor', 'imfsQueryMonitor' );
 define( 'index_wp_mysql_for_speed_querytag', '/*imfs-query-tag*/' );
+/* 32814 was the advent of utfmb4 */
+define( 'index_wp_mysql_for_speed_first_compatible_db_version', 32814 );
+define( 'index_wp_mysql_for_speed_last_compatible_db_version', 51917 );
 
 register_activation_hook( __FILE__, 'index_wp_mysql_for_speed_activate' );
 register_deactivation_hook( __FILE__, 'index_wp_mysql_for_speed_deactivate' );
