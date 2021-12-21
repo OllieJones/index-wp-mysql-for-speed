@@ -191,7 +191,7 @@ class ImfsPage extends Imfs_AdminPageFramework {
 					array(
 						'field_id' => 'successcaption',
 						'title'    => 'Success',
-						'default'  => __( 'Your WordPress tables now have high-performance keys.', $this->domain ),
+						'default'  => __( 'These WordPress tables now have high-performance keys.', $this->domain ),
 						'save'     => false,
 						'class'    => array(
 							'fieldrow' => array( 'major', 'success' ),

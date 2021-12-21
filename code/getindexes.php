@@ -39,12 +39,15 @@ function getHighPerformanceIndexes( $unconstrained ): array {
 			"comment_approved_date_gmt"    => "ADD KEY comment_approved_date_gmt (comment_approved, comment_date_gmt)",
 			"comment_date_gmt"             => "ADD KEY comment_date_gmt (comment_date_gmt)",
 			"comment_parent"               => "ADD KEY comment_parent (comment_parent)",
-			"comment_author_email"         => "ADD KEY comment_author_email (comment_author_email(10))",
+			"comment_author_email"         => "ADD KEY comment_author_email (comment_author_email(32))",
 			"comment_post_parent_approved" => "ADD KEY comment_post_parent_approved (comment_post_ID, comment_parent, comment_approved, comment_type, comment_date_gmt)",
 		),
 	);
 
-	/* these are the Barracuda-dependent (unprefixed) indexes */
+	/* These are the Barracuda-dependent (unprefixed) indexes
+	 * Notice that the indexed columns following prefix-indexed columns
+	 * [for example post_id in (meta_key, meta_value(32), post_id) ]
+	 * are intended for covering-index use, as if in an INCLUDE clause. */
 	$reindexWithoutConstraint = array(
 		"postmeta" => array(
 			"meta_id"     => "ADD UNIQUE KEY meta_id (meta_id)",
@@ -196,7 +199,7 @@ function getStandardIndexes( $unconstrained ): array {
  *
  * @return array
  */
-function getIndexableTables( $unconstrained ) {
+function getIndexableTables( $unconstrained ): array {
 	$tables = [];
 	$x      = getStandardIndexes( $unconstrained );
 	foreach ( $x as $table => $indexes ) {

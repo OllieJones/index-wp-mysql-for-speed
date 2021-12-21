@@ -300,14 +300,14 @@ class ImfsDb {
 		$target  = $target[ $name ];
 		$current = $this->getKeyDDL( $name );
 
-		/* build a list of all index names */
+		/* build a list of all index names, target first so UNIQUEs come first */
 		$indexes = [];
-		foreach ( $current as $key => $value ) {
+		foreach ( $target as $key => $value ) {
 			if ( ! isset( $indexes[ $key ] ) ) {
 				$indexes[ $key ] = $key;
 			}
 		}
-		foreach ( $target as $key => $value ) {
+		foreach ( $current as $key => $value ) {
 			if ( ! isset( $indexes[ $key ] ) ) {
 				$indexes[ $key ] = $key;
 			}
