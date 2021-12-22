@@ -232,8 +232,9 @@ class ImsfCli extends WP_CLI_Command {
 		$this->setupCliEnvironment( $args, $assoc_args );
 		$fmt = __( 'These database tables need upgrading to InnoDB with the Dynamic row format, MySQL\'s latest storage scheme.', $this->domain );
 		$this->showCommandLine( 'upgrade', $fmt, true, true );
+
 		$fmt = __( 'Add or upgrade high-performance keys for these tables to make your WordPress database faster.', $this->domain );
-		$this->showCommandLine( 'enable', $fmt, false );
+		$this->showCommandLine( 'enable', $fmt, false, false );
 
 		$fmt = __( 'Your WordPress tables now have high-performance keys.', $this->domain ) . ' ' .
 		       __( 'Revert the keys for these tables to restore WordPress\'s defaults.', $this->domain );
