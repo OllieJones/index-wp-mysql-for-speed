@@ -540,7 +540,7 @@ class ImfsPage extends Imfs_AdminPageFramework {
 
 		foreach ( $this->monitors as $monitor ) {
 			$log         = new RenderMonitor( $monitor );
-			$summary     = $log->load()->summary();
+			$summary     = $log->load()->capturedQuerySummary();
 			$monitorText = sprintf( "<a href=\"%s&tab=%s%s\">%s</a> %s",
 				admin_url( 'tools.php?page=imfs_settings' ), $monitor, $this->tabSuffix, $monitor, $summary );
 			$this->addSettingFields(

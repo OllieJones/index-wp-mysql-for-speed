@@ -7,6 +7,7 @@ class renderMonitor {
 	private $prefix;
 	private $classPrefix = 'rendermon';
 	private $dateFormat;
+	private $domain = index_wp_mysql_for_speed_domain;
 	private $maxStringLength = 12;
 
 	public function __construct( $monitor ) {
@@ -50,7 +51,7 @@ class renderMonitor {
 		$c      = $this->classPrefix;
 		$prefix = "<div class=\"$c index-wp-mysql-for-speed-content-container\">";
 
-		return $prefix . $this->top() . $this->table() . $this->statusTable() . "</div>";
+		return $prefix . $this->top() . $this->table() /*. $this->statusTable() */ . "</div>";
 	}
 
 	public function load(): renderMonitor {
@@ -61,28 +62,181 @@ class renderMonitor {
 	}
 
 	public function top() {
-		$l     = $this->queryLog;
-		$c     = $this->classPrefix;
-		$times = $this->summary();
-		$res   = <<<END
+		$c      = $this->classPrefix;
+		$times  = $this->capturedQuerySummary();
+		$dbSumm = $this->dbStatusSummary();
+		$res    = <<<END
 		<h1 class="$c h1">$this->monitor</h1>
 		<div class="$c top time">$times</div>
+		<div class="$c top time">$dbSumm</div>
 		<div class="$c top stats">
 END;
 
 		return $res;
 	}
 
-	public function summary(): string {
+	public function capturedQuerySummary(): string {
 		$l          = $this->queryLog;
 		$c          = $this->classPrefix;
 		$start      = wp_date( $this->dateFormat, $l->start );
 		$end        = wp_date( $this->dateFormat, $l->end );
+		$duration   = $this->timeCell( 1000000 * ( $l->end - $l->start ), [ 60, 'min', 0 ] );
 		$querycount = number_format_i18n( $l->querycount, 0 );
-
-		return <<<END
-		<span class="$c start">$start</span>―<span class="$c end">$end</span> <span class="$c count">$querycount</span> queries.
+		$capString  = __( 'queries captured.', $this->domain );
+		$result     = <<<END
+		<span class="$c start">$start</span>―<span class="$c end">$end</span> <span class="$c count">(${duration[0]})</span>&emsp;<span class="$c count">$querycount</span>
 END;
+
+		return $result . ' ' . $capString;
+	}
+
+	/** get cell data for microsecond times
+	 *
+	 * @param number $time
+	 *
+	 * @return array
+	 */
+	public function timeCell( $time, $unit = null, $prefix = '' ) {
+		if ( $time === 0.0 ) {
+			$displayTime = $prefix !== '' ? '' : '0';
+
+			return [ $displayTime, '0' ];
+		}
+		$renderTime = $time * 0.000001;
+		if ( $unit === null ) {
+			$unit = $this->getTimeUnit( $renderTime );
+		}
+		$displayTime = $prefix . number_format_i18n( $renderTime / $unit[0], $unit[2] ) . $unit[1];
+
+		return [ $displayTime, - $renderTime ];
+	}
+
+	public function getTimeUnit( $timeSeconds ) {
+		if ( $timeSeconds >= 86400 ) {
+			$unit = [ 86400, 'd', 1 ];
+		} else if ( $timeSeconds >= 3600 * 0.9 ) {
+			$unit = [ 3600, 'h', 1 ];
+		} else if ( $timeSeconds >= 60 * 0.9 ) {
+			$unit = [ 60, 'm', 1 ];
+		} else if ( $timeSeconds >= 0.9 ) {
+			$unit = [ 1, 's', 2 ];
+		} else if ( $timeSeconds >= 0.1 ) {
+			$unit = [ 0.001, 'ms', 0 ];
+		} else if ( $timeSeconds >= 0.01 ) {
+			$unit = [ 0.001, 'ms', 1 ];
+		} else if ( $timeSeconds >= 0.001 ) {
+			$unit = [ 0.001, 'ms', 2 ];
+		} else {
+			$unit = [ 0.000001, 'μs', 0 ];
+		}
+
+		return $unit;
+	}
+
+	public function dbStatusSummary() {
+		$l = $this->queryLog;
+		$c = $this->classPrefix;
+		if ( ! isset ( $l->status ) ) {
+			return null;
+		}
+		$dt = $l->end - $l->start;
+		if ( ! $dt ) {
+			return null;
+		}
+		$status = $l->status;
+		$result = __( 'Database server' ) . ' ' . DB_HOST . '&emsp;';
+		if ( isset( $status->UptimeSinceStart ) ) {
+			$uptime = $status->UptimeSinceStart;
+			$uptime = $uptime * 1000000;
+			$uptime = $this->timeCell( $uptime );
+			$uptime = $uptime[0];
+			$result .= __( 'Uptime', $this->domain ) . ' ';
+			$result .= "<span class=\"$c count\">$uptime</span>&emsp;";
+		}
+
+		$qps               = number_format_i18n( $status->Questions / $dt, 2 );
+		$failedConnections = 0;
+		if ( isset( $status->Connection_errors_max_connections ) ) {
+			$failedConnections = $status->Connection_errors_accept
+			                     + $status->Connection_errors_internal
+			                     + $status->Connection_errors_max_connections
+			                     + $status->Connection_errors_peer_address
+			                     + $status->Connection_errors_select
+			                     + $status->Connection_errors_tcpwrap;
+		}
+		$goodConnections = $status->Connections - $failedConnections;
+		$goodCps         = number_format_i18n( $goodConnections / $dt, 2 );
+		$failedCps       = number_format_i18n( $failedConnections / $dt, 2 );
+
+		$result .= "<span class=\"$c count\">$qps</span> ";
+		$result .= __( "Queries/s", $this->domain ) . '&emsp;';
+		$result .= "<span class=\"$c count\">$goodCps</span> ";
+		$result .= __( "Connections/s", $this->domain ) . '&emsp;';
+		if ( $failedConnections > 0 ) {
+			$result .= "<span class=\"$c count\">$failedCps</span> ";
+			$result .= __( "Failed connections/s", $this->domain ) . '&emsp;';
+		}
+
+		if ( isset ( $status->Aborted_clients ) > 0 ) {
+			$abruptDisconnects = $status->Aborted_clients;
+			$abruptDps         = number_format_i18n( $abruptDisconnects / $dt, 2 );
+			$result            .= "<span class=\"$c count\">$abruptDps</span> ";
+			$result            .= __( "Abrupt disconnections/s", $this->domain ) . '&emsp;';
+		}
+
+		$dataSent     = $this->byteCell( $status->Bytes_sent / $dt );
+		$dataReceived = $this->byteCell( $status->Bytes_received / $dt );
+		$result       .= __( 'Net:', $this->domain ) . ' ';
+		$result       .= "<span class=\"$c count\">$dataReceived/s</span> ";
+		$result       .= __( "received", $this->domain ) . ' ';
+		$result       .= "<span class=\"$c count\">$dataSent/s</span> ";
+		$result       .= __( "sent", $this->domain ) . '&emsp;';
+
+		$dataRead    = $this->byteCell( $status->Innodb_data_read / $dt );
+		$dataWritten = $this->byteCell( $status->Innodb_data_written / $dt );
+		$result      .= __( 'IO:', $this->domain ) . ' ';
+		$result      .= "<span class=\"$c count\">$dataRead/s</span> ";
+		$result      .= __( "read", $this->domain ) . ' ';
+		$result      .= "<span class=\"$c count\">$dataWritten/s</span> ";
+		$result      .= __( "written", $this->domain ) . '&emsp;';
+
+		return $result;
+	}
+
+	/** get cell data for byte counts
+	 *
+	 * @param number $bytes
+	 *
+	 * @return string
+	 */
+	public function byteCell( $bytes, $unit = null, $prefix = '' ): string {
+		if ( $bytes === 0.0 ) {
+			$displayBytes = $prefix !== '' ? '' : '0';
+
+			return $displayBytes;
+		}
+		if ( $unit === null ) {
+			$unit = $this->getByteUnit( $bytes );
+		}
+		$displayBytes = $prefix . number_format_i18n( $bytes / $unit[0], $unit[2] ) . $unit[1];
+
+		return $displayBytes;
+	}
+
+	public function getByteUnit( $bytes ): array {
+		if ( $bytes >= 1024 * 1024 * 1024 * 1024 * 0.9 ) {
+			$unit = [ 1024 * 1024 * 1024 * 1024, 'TiB', 2 ];
+		} else if ( $bytes >= 1024 * 1024 * 1024 * 0.9 ) {
+			$unit = [ 1024 * 1024 * 1024, 'GiB', 2 ];
+		} else if ( $bytes >= 1024 * 1024 * 0.9 ) {
+			$unit = [ 1024 * 1024, 'MiB', 2 ];
+		} else if ( $bytes >= 1024 * 0.1 ) {
+			$unit = [ 1024, 'KiB', 2 ];
+		} else {
+			$unit = [ 1, 'B', 0 ];
+		}
+
+		return $unit;
 	}
 
 	public function table() {
@@ -171,47 +325,6 @@ END;
 END;
 
 
-	}
-
-	/** get cell data for microsecond times
-	 *
-	 * @param number $time
-	 *
-	 * @return array
-	 */
-	public function timeCell( $time, $unit = null, $prefix = '' ) {
-		if ( $time === 0.0 ) {
-			$displayTime = $prefix !== '' ? '' : '0';
-
-			return [ $displayTime, '0' ];
-		}
-		$renderTime = $time * 0.000001;
-		if ( $unit === null ) {
-			$unit = $this->getTimeUnit( $renderTime );
-		}
-		$displayTime = $prefix . number_format_i18n( $renderTime / $unit[0], $unit[2] ) . $unit[1];
-
-		return [ $displayTime, - $renderTime ];
-	}
-
-	public function getTimeUnit( $timeSeconds ) {
-		if ( $timeSeconds >= 3600 * 0.9 ) {
-			$unit = [ 3600, 'h', 2 ];
-		} else if ( $timeSeconds >= 60 * 0.9 ) {
-			$unit = [ 60, 'm', 2 ];
-		} else if ( $timeSeconds >= 0.9 ) {
-			$unit = [ 1, 's', 2 ];
-		} else if ( $timeSeconds >= 0.1 ) {
-			$unit = [ 0.001, 'ms', 0 ];
-		} else if ( $timeSeconds >= 0.01 ) {
-			$unit = [ 0.001, 'ms', 1 ];
-		} else if ( $timeSeconds >= 0.001 ) {
-			$unit = [ 0.001, 'ms', 2 ];
-		} else {
-			$unit = [ 0.000001, 'μs', 0 ];
-		}
-
-		return $unit;
 	}
 
 	/** arithmetic mean
@@ -331,10 +444,15 @@ END;
 		return implode( " ", $expl );
 	}
 
-	public function statusTable() {
+	static function deleteMonitor( $monitor ) {
+		$prefix = index_wp_mysql_for_speed_monitor . '-Log-';
+		delete_option( $prefix . $monitor );
+	}
+
+	public function statusTable(): string {
 		$l = $this->queryLog;
 		if ( ! isset ( $l->status ) ) {
-			return;
+			return '';
 		}
 		$c   = $this->classPrefix;
 		$res = '';
@@ -348,9 +466,11 @@ END;
 END;
 
 		foreach ( $l->status as $key => $val ) {
-			if (is_string($val) && strlen(trim($val)) === 0) continue;
-			if (is_string($val) && !is_numeric($val) && strlen(trim($val)) >= $this->maxStringLength) {
-				$val = '…' . substr($val, -$this->maxStringLength-1);
+			if ( is_string( $val ) && strlen( trim( $val ) ) === 0 ) {
+				continue;
+			}
+			if ( is_string( $val ) && ! is_numeric( $val ) && strlen( trim( $val ) ) >= $this->maxStringLength ) {
+				$val = '…' . substr( $val, - $this->maxStringLength - 1 );
 			}
 			$row   = [];
 			$row[] = $key;
@@ -361,11 +481,6 @@ END;
 		$res .= "</tbody></table></div>";
 
 		return $res;
-	}
-
-	static function deleteMonitor( $monitor ) {
-		$prefix = index_wp_mysql_for_speed_monitor . '-Log-';
-		delete_option( $prefix . $monitor );
 	}
 
 	public function stats() {

@@ -1,6 +1,6 @@
 <?php
 
-require_once ('getstatus.php');
+require_once( 'getstatus.php' );
 
 class QueryMonControl {
 	function start( $specs ): string {
@@ -38,8 +38,8 @@ class QueryMonControl {
 		$status['stoptime']  = $stopTime;
 		$statusName          = index_wp_mysql_for_speed_monitor . '-Status-' . $name;
 		set_transient( $statusName, $status, $duration + 3600 );
-		delete_option(index_wp_mysql_for_speed_monitor . 'Gather');
-		add_option(index_wp_mysql_for_speed_monitor . 'Gather', '');
+		delete_option( index_wp_mysql_for_speed_monitor . 'Gather' );
+		add_option( index_wp_mysql_for_speed_monitor . 'Gather', '' );
 
 		return $stopTimeString;
 	}
