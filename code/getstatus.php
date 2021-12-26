@@ -8,19 +8,25 @@ function getGlobalStatus( $prior = false ): array {
 	global $wpdb;
 	$resultSet = $wpdb->get_results( index_wp_mysql_for_speed_querytag . "SHOW GLOBAL STATUS", ARRAY_N );
 
-	/* add in a copy of Uptime that's not a difference */
-	$uptime = - 1;
+	$result = [];
+
+
+	/* add in a copy of some items that's not a difference */
+	$uptime      = - 1;
+	$memory_used = - 1;
 	foreach ( $resultSet as $row ) {
-		if ( $row[0] === 'Uptime' ) {
-			$uptime = $row[1];
-			break;
+		$key = $row[0];
+		$val = $row[1];
+		switch ( $key ) {
+			case 'Uptime':
+				$result['UptimeSinceStart'] = $val;
+				break;
+			case 'Memory_used':
+				$result['MemorySinceStart'] = $val;
+				break;
 		}
 	}
 
-	$result = array();
-	if ( $uptime >= 0 ) {
-		$result['UptimeSinceStart'] = intval( $uptime );
-	}
 	foreach ( $resultSet as $row ) {
 		$key = $row[0];
 		$val = $row[1];

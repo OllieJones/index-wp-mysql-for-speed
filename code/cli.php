@@ -184,10 +184,11 @@ class ImsfCli extends WP_CLI_Command {
 			$time += $item['t'];
 			$queries ++;
 		}
-		$this->db->timings = array();
+		$this->db->timings = [];
+		$msg               = _n( 'MySQL statement', 'MySQL statements', $queries, $this->domain );
 
 		return sprintf( "%s %s %s (%d %s, %ss)",
-			$action, $tbl, __( "complete.", $this->domain ), $queries, __( 'MySQL commands', $this->domain ), number_format_i18n( $time, 2 ) );
+			$action, $tbl, __( "complete.", $this->domain ), $queries, $msg, number_format_i18n( $time, 2 ) );
 	}
 
 	/**

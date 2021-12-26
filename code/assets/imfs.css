@@ -115,7 +115,7 @@ div#wpbody > div#wpbody-content div.rendermon.table-container {
     margin-bottom: 0.5em;
 }
 
-table.rendermon.status  tr > td.number {
+table.rendermon.status tr > td.number {
     text-align: right;
 }
 
@@ -128,9 +128,11 @@ table.rendermon.query tbody > tr > td > span.t {
     margin-left: 2px;
     margin-right: 2px;
 }
+
 table.rendermon.query tbody > tr > td > span.ZZ {
     display: none;
 }
+
 div.rendermon.query.table-container > .dataTables_wrapper > .dataTables_info {
     padding-top: 0.5em;
     padding-right: 2em;
@@ -143,4 +145,13 @@ div#wpbody > div#wpbody-content div.rendermon.table-container table thead tr td.
 div#wpbody > div#wpbody-content div.rendermon.table-container button.dt-button span,
 div#wpbody > div#wpbody-content div.rendermon.table-container div.dataTables_filter label {
     font-size: 0.85rem;
+}
+
+div > label > span > p.longlabel {
+    width: 36em;
+    margin-bottom: 1em;
+}
+
+div > label > span > p.longlabel:last-of-type {
+    margin-bottom: 0;
 }

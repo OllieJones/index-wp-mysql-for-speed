@@ -140,7 +140,7 @@ function hasLargePrefix(): int {
 function getQueries(): array {
 	global $wpdb;
 	$p     = $wpdb->prefix;
-	$stats = array(
+	$stats = [
 		"SELECT REPLACE(t.TABLE_NAME, '${p}', '') AS 'table',
                '${p}' AS 'prefix',
                 MAX(t.TABLE_ROWS) AS 'count',
@@ -171,9 +171,9 @@ function getQueries(): array {
              WHERE t.TABLE_SCHEMA = DATABASE() 
                AND t.TABLE_NAME IN ('${p}postmeta','${p}termmeta','${p}usermeta' ,'${p}posts','${p}comments', '${p}options', '${p}users', '${p}commentmeta')
              GROUP BY REPLACE(t.TABLE_NAME, 'wp_', '')",
-	);
+	];
 
-	$queryArray = array(
+	$queryArray = [
 		"indexes" => "		
         SELECT *,
                IF(is_autoincrement = 1, columns, NULL) autoincrement_column
@@ -248,7 +248,7 @@ function getQueries(): array {
         ) q
         ORDER BY TABLE_NAME, is_primary DESC, is_unique DESC, key_name",
 
-		"dbstats"        => array(
+		"dbstats"        => [
 			"SHOW VARIABLES",
 			implode( " UNION ALL ", $stats ),
 			"SELECT c.TABLE_NAME,
@@ -299,21 +299,23 @@ function getQueries(): array {
                 GROUP BY c.TABLE_NAME, c.TABLE_SCHEMA, c.TABLE_CATALOG
         ",
 			"SHOW GLOBAL STATUS",
-		),
-		'innodb_metrics' => array(
+		],
+		'innodb_metrics' => [
 			/* is the table present ?*/
 			"SELECT COUNT(*) num
 			   FROM information_schema.TABLES
 			  WHERE TABLE_SCHEMA = 'INFORMATION_SCHEMA'
 			    AND TABLE_NAME = 'INNODB_METRICS'",
 			/* make this match SHOW STATUS in column names */
+			/* breaking change in MariaDB 10.6:
+			* drop STATUS column, add boolean TYPE column */
 			"SELECT NAME Variable_name, COUNT Value
                FROM information_schema.INNODB_METRICS
               WHERE COMMENT NOT LIKE 'Deprecated%'
-                AND STATUS='enabled'
+                AND TIME_ENABLED IS NOT NULL
               ORDER BY NAME"
-		)
-	);
+		]
+	];
 
 	return $queryArray;
 }
