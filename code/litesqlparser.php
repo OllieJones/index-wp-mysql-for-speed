@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Light SQL Parser Class
  * @author Marco Cesarato <cesarato.developer@gmail.com>, Ollie JOnes <olliejones@gmail.com>
@@ -8,7 +9,7 @@
  */
 class LightSQLParser {
   // Public
-  protected static $connectors = array(
+  protected static $connectors = [
     'OR',
     'AND',
     'ON',
@@ -27,8 +28,8 @@ class LightSQLParser {
     'VALUES',
     'SELECT',
     '\(',
-    '\)'
-  );
+    '\)',
+  ];
   // Private
   protected static $connectors_imploded = '';
   public $query = '';
@@ -52,7 +53,7 @@ class LightSQLParser {
    * @return array
    */
   public function getFields() {
-    $fields  = array();
+    $fields  = [];
     $queries = $this->getAllQueries();
     foreach ( $queries as $query ) {
       $method = $this->getMethod();
@@ -132,7 +133,7 @@ class LightSQLParser {
       $query   = preg_replace( '#[\s]*UNION([\s]+ALL)?[\s]*#', ';', $query );
       $queries = explode( ';', $query );
       foreach ( $queries as $key => $query ) {
-        $this->queries[ $key ] = str_replace( array( '`', '"', "'" ), '', $query );
+        $this->queries[ $key ] = str_replace( [ '`', '"', "'" ], '', $query );
       }
     }
 
@@ -162,7 +163,7 @@ class LightSQLParser {
    * @return string
    */
   public function getMethod() {
-    $methods = array(
+    $methods = [
       'SELECT',
       'INSERT',
       'UPDATE',
@@ -176,8 +177,8 @@ class LightSQLParser {
       'EXPLAIN',
       'DESCRIBE',
       'TRUNCATE',
-      'ALTER'
-    );
+      'ALTER',
+    ];
     $queries = $this->getAllQueries();
     foreach ( $queries as $query ) {
       foreach ( $methods as $method ) {
@@ -209,17 +210,17 @@ class LightSQLParser {
    * @return array
    */
   function getAllTables() {
-    $results = array();
+    $results = [];
     $queries = $this->getAllQueries();
     foreach ( $queries as $query ) {
-      $patterns = array(
+      $patterns = [
         '#[\s]+FROM[\s]+(([\s]*(?!' . self::$connectors_imploded . ')[\w]+([\s]+(AS[\s]+)?(?!' . self::$connectors_imploded . ')[\w]+)?[\s]*[,]?)+)#i',
         '#[\s]*INSERT[\s]+INTO[\s]+([\w]+)#i',
         '#[\s]*UPDATE[\s]+([\w]+)#i',
         '#[\s]+JOIN[\s]+([\w]+)#i',
         '#[\s]+TABLE[\s]+([\w]+)#i',
         '#[\s]+TABLESPACE[\s]+([\w]+)#i',
-      );
+      ];
       foreach ( $patterns as $pattern ) {
         preg_match_all( $pattern, $query, $matches, PREG_SET_ORDER );
         foreach ( $matches as $val ) {
@@ -240,7 +241,7 @@ class LightSQLParser {
    * @return array
    */
   function getJoinTables() {
-    $results = array();
+    $results = [];
     $queries = $this->getAllQueries();
     foreach ( $queries as $query ) {
       preg_match_all( '#[\s]+JOIN[\s]+([\w]+)#i', $query, $matches, PREG_SET_ORDER );
@@ -291,7 +292,7 @@ class LightSQLParser {
    * @return array
    */
   function getSubQueries() {
-    $results = array();
+    $results = [];
     $query   = $this->getQuery();
     preg_match_all( '#\([\s]*(SELECT[^)]+)\)#i', $query, $matches, PREG_SET_ORDER );
     foreach ( $matches as $match ) {
@@ -302,36 +303,36 @@ class LightSQLParser {
   }
 
   function getFingerprint() {
-    $query  = $this->getQuery();
+    $query = $this->getQuery();
 
     $result = $query;
     /* backticks */
-    $result = preg_replace('/\`([^\`]+)\`/', '$1', $result);
+    $result = preg_replace( '/\`([^\`]+)\`/', '$1', $result );
 
     /* take off LIMIT and OFFSET -- we need to see pagination details */
-    $limitp = strripos($result, ' LIMIT ');
-    $offsetp = strripos($result, ' OFFSET ');
+    $limitp      = strripos( $result, ' LIMIT ' );
+    $offsetp     = strripos( $result, ' OFFSET ' );
     $limitClause = '';
-    if ($limitp > 0 || $offsetp > 0) {
-      $limitp = $limitp === false ? PHP_INT_MAX : $limitp;
-      $offsetp = $offsetp === false ? PHP_INT_MAX : $offsetp;
-      $p = min($limitp, $offsetp);
-      $limitClause = substr($result, $p );
-      $result = substr($result, 0, $p);
+    if ( $limitp > 0 || $offsetp > 0 ) {
+      $limitp      = $limitp === false ? PHP_INT_MAX : $limitp;
+      $offsetp     = $offsetp === false ? PHP_INT_MAX : $offsetp;
+      $p           = min( $limitp, $offsetp );
+      $limitClause = substr( $result, $p );
+      $result      = substr( $result, 0, $p );
     }
 
     $result .= ' ';
 
     /* date and time constants */
-    $result = preg_replace ( '/\'\d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d\'/', '?datetime?', $result);
-    $result = preg_replace ( '/\'\d\d\d\d-\d\d-\d\d\'/', '?date?', $result);
+    $result = preg_replace( '/\'\d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d\'/', '?datetime?', $result );
+    $result = preg_replace( '/\'\d\d\d\d-\d\d-\d\d\'/', '?date?', $result );
     $result = preg_replace( '/\'[0-9]{10}\'/', '?t?', $result );
 
     /* special case for autoload = 'yes' */
-    $result = preg_replace('/\s+autoload\s*=\s*\'yes\'/', ' ?autoloadyes? ', $result);
+    $result = preg_replace( '/\s+autoload\s*=\s*\'yes\'/', ' ?autoloadyes? ', $result );
 
     /* integers */
-    for ($i=0; $i < 5; $i++) {
+    for ( $i = 0; $i < 5; $i ++ ) {
       $result = preg_replace( '/([^\d_])0([^\d])/', '$1?izero?$2', $result );
       $result = preg_replace( '/([^\d_])1([^\d])/', '$1?ione?$2', $result );
     }
@@ -348,7 +349,7 @@ class LightSQLParser {
     $result = preg_replace( '/([^_])\d+/', '$1?i?', $result );
 
     /* quoted strings, with escapes processed correctly */
-    $quSt = <<<'END'
+    $quSt   = <<<'END'
 /'(?:.*?[^\\])??(?:(?:\\\\)+)?'/
 END;
     $result = preg_replace( $quSt, '?s?', $result );
@@ -358,19 +359,20 @@ END;
     $result = preg_replace( "/(INSERT +[^\\(]+\\([^\\)]+\\) *VALUES *)(?:.{150,}+)/", '$1 (?valuelist?)', $result );
 
     /* replace special cases */
-    $result = preg_replace('/\?izero\?/', '0', $result);
-    $result = preg_replace('/\?ione\?/', '1', $result);
-    $result = preg_replace('/\?autoloadyes\?/', 'autoload = \'yes\' ', $result);
+    $result = preg_replace( '/\?izero\?/', '0', $result );
+    $result = preg_replace( '/\?ione\?/', '1', $result );
+    $result = preg_replace( '/\?autoloadyes\?/', 'autoload = \'yes\' ', $result );
 
     /* Process and put back LIMIT and OFFSET */
-    if (strlen($limitClause) > 0) {
-      $fixedLimit = preg_replace('/\s+0\s*,\s*/', ' ?izero?, ', $limitClause);
-      $fixedLimit = preg_replace('/\s+\d{2,}\s*,\s*/', ' ?i?, ', $fixedLimit);
-      $fixedLimit = preg_replace('/\?izero\?/', '0', $fixedLimit);
-      $result = $result . ' ' . $fixedLimit;
+    if ( strlen( $limitClause ) > 0 ) {
+      $fixedLimit = preg_replace( '/\s+0\s*,\s*/', ' ?izero?, ', $limitClause );
+      $fixedLimit = preg_replace( '/\s+\d{2,}\s*,\s*/', ' ?i?, ', $fixedLimit );
+      $fixedLimit = preg_replace( '/\?izero\?/', '0', $fixedLimit );
+      $result     = $result . ' ' . $fixedLimit;
     }
     /* extra white space */
-    $result = preg_replace('/\s+/', ' ', $result);
+    $result = preg_replace( '/\s+/', ' ', $result );
+
     return $result;
   }
 }
