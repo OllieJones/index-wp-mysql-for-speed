@@ -1,45 +1,45 @@
 <?php
 
 function ImfsStripPrefix( $name ) {
-	global $wpdb;
-	$pattern = '/^' . $wpdb->prefix . '/';
+  global $wpdb;
+  $pattern = '/^' . $wpdb->prefix . '/';
 
-	return preg_replace( $pattern, '', $name );
+  return preg_replace( $pattern, '', $name );
 }
 
 function ImfsRedactHost( $host ) {
-	if ( trim( $host ) === '' ) {
-		return $host;
-	}
-	if ( trim( $host ) === '127.0.0.1' ) {
-		return $host;
-	}
-	if ( trim( $host ) === 'localhost' ) {
-		return $host;
-	}
-	if ( trim( $host ) === '::1' ) {
-		return $host;
-	}
+  if ( trim( $host ) === '' ) {
+    return $host;
+  }
+  if ( trim( $host ) === '127.0.0.1' ) {
+    return $host;
+  }
+  if ( trim( $host ) === 'localhost' ) {
+    return $host;
+  }
+  if ( trim( $host ) === '::1' ) {
+    return $host;
+  }
 
-	return "Redacted, not localhost";
+  return "Redacted, not localhost";
 }
 
 function makeNumeric( $ob ): object {
-	$result = array();
-	foreach ( $ob as $key => $val ) {
-		if ( is_numeric( $val ) ) {
-			$val = intval( $val );
-		}
-		$result[ $key ] = $val;
-	}
+  $result = [];
+  foreach ( $ob as $key => $val ) {
+    if ( is_numeric( $val ) ) {
+      $val = intval( $val );
+    }
+    $result[ $key ] = $val;
+  }
 
-	return (object) $result;
+  return (object) $result;
 }
 
 function getMySQLVersion(): object {
-	global $wpdb;
-	global $wp_db_version;
-	$semver  = " 
+  global $wpdb;
+  global $wp_db_version;
+  $semver  = " 
 	 SELECT VERSION() version,
 	        1 canreindex,
 	        0 unconstrained,
@@ -47,101 +47,101 @@ function getMySQLVersion(): object {
             CAST(SUBSTRING_INDEX(SUBSTRING_INDEX(VERSION(), '.', 2), '.', -1) AS UNSIGNED) minor,
             CAST(SUBSTRING_INDEX(SUBSTRING_INDEX(REPLACE(VERSION(), '-', '.'), '.', 3), '.', -1) AS UNSIGNED) build,
             '' fork, '' distro";
-	$results = $wpdb->get_results( index_wp_mysql_for_speed_querytag . $semver );
-	$results = $results[0];
+  $results = $wpdb->get_results( index_wp_mysql_for_speed_querytag . $semver );
+  $results = $results[0];
 
-	$results->db_host = imfsRedactHost( DB_HOST );
-	$ver              = explode( '-', $results->version, 3 );
-	if ( count( $ver ) >= 2 ) {
-		$results->fork = $ver[1];
-	}
-	if ( count( $ver ) >= 3 ) {
-		$results->distro = $ver[2];
-	}
+  $results->db_host = imfsRedactHost( DB_HOST );
+  $ver              = explode( '-', $results->version, 3 );
+  if ( count( $ver ) >= 2 ) {
+    $results->fork = $ver[1];
+  }
+  if ( count( $ver ) >= 3 ) {
+    $results->distro = $ver[2];
+  }
 
-	/* check db version ... TODO with new db versions, test again */
-	if ( $wp_db_version < index_wp_mysql_for_speed_first_compatible_db_version ||
-	     $wp_db_version > index_wp_mysql_for_speed_last_compatible_db_version ) {
-		/* fail if we don't have an expected version */
-		$results->canreindex = 0;
+  /* check db version ... TODO with new db versions, test again */
+  if ( $wp_db_version < index_wp_mysql_for_speed_first_compatible_db_version ||
+       $wp_db_version > index_wp_mysql_for_speed_last_compatible_db_version ) {
+    /* fail if we don't have an expected version */
+    $results->canreindex = 0;
 
-		return makeNumeric( $results );
-	}
+    return makeNumeric( $results );
+  }
 
 
-	$isMaria = ! ! stripos( $results->version, "mariadb" );
-	/* work out whether we have Antelope or Barracuda InnoDB format */
-	/* mysql 8+ */
-	if ( ! $isMaria && $results->major >= 8 ) {
-		$results->unconstrained = 1;
+  $isMaria = ! ! stripos( $results->version, "mariadb" );
+  /* work out whether we have Antelope or Barracuda InnoDB format */
+  /* mysql 8+ */
+  if ( ! $isMaria && $results->major >= 8 ) {
+    $results->unconstrained = 1;
 
-		return makeNumeric( $results );
-	}
-	/* work out whether we have Antelope or Barracuda InnoDB format */
-	/* mariadb 10.3 + */
-	if ( $isMaria && $results->major >= 10 && $results->minor >= 3 ) {
-		$results->unconstrained = 1;
+    return makeNumeric( $results );
+  }
+  /* work out whether we have Antelope or Barracuda InnoDB format */
+  /* mariadb 10.3 + */
+  if ( $isMaria && $results->major >= 10 && $results->minor >= 3 ) {
+    $results->unconstrained = 1;
 
-		return makeNumeric( $results );
-	}
-	/* mariadb 10.2 ar before */
-	if ( $isMaria && $results->major >= 10 ) {
+    return makeNumeric( $results );
+  }
+  /* mariadb 10.2 ar before */
+  if ( $isMaria && $results->major >= 10 ) {
 
-		$results->unconstrained = hasLargePrefix();
+    $results->unconstrained = hasLargePrefix();
 
-		return makeNumeric( $results );
-	}
+    return makeNumeric( $results );
+  }
 
-	/* waaay too old */
-	if ( $results->major < 5 ) {
-		$results->canreindex = 0;
+  /* waaay too old */
+  if ( $results->major < 5 ) {
+    $results->canreindex = 0;
 
-		return makeNumeric( $results );
-	}
-	/* before 5.5 */
-	if ( $results->major == 5 && $results->minor < 5 ) {
-		$results->canreindex = 0;
+    return makeNumeric( $results );
+  }
+  /* before 5.5 */
+  if ( $results->major == 5 && $results->minor < 5 ) {
+    $results->canreindex = 0;
 
-		return makeNumeric( $results );
-	}
-	/* older 5.5 */
-	if ( $results->major === 5 && $results->minor === 5 && $results->build < 62 ) {
-		$results->canreindex = 0;
+    return makeNumeric( $results );
+  }
+  /* older 5.5 */
+  if ( $results->major === 5 && $results->minor === 5 && $results->build < 62 ) {
+    $results->canreindex = 0;
 
-		return makeNumeric( $results );
-	}
-	/* older 5.6 */
-	if ( $results->major === 5 && $results->minor === 6 && $results->build < 4 ) {
-		$results->canreindex = 0;
+    return makeNumeric( $results );
+  }
+  /* older 5.6 */
+  if ( $results->major === 5 && $results->minor === 6 && $results->build < 4 ) {
+    $results->canreindex = 0;
 
-		return makeNumeric( $results );
-	}
-	$results->unconstrained = hasLargePrefix();
+    return makeNumeric( $results );
+  }
+  $results->unconstrained = hasLargePrefix();
 
-	return makeNumeric( $results );
+  return makeNumeric( $results );
 }
 
 /**
  * @return int 1 if the MySQL instance says it has innodb_large_prefix, 0 otherwise.
  */
 function hasLargePrefix(): int {
-	global $wpdb;
-	/* innodb_large_prefix variable is missing in MySQL 8+ */
-	$prefix = $wpdb->get_results( index_wp_mysql_for_speed_querytag . "SHOW VARIABLES LIKE 'innodb_large_prefix'", OBJECT_K );
-	if ( $prefix && is_array( $prefix ) && array_key_exists( 'innodb_large_prefix', $prefix ) ) {
-		$prefix = $prefix['innodb_large_prefix'];
+  global $wpdb;
+  /* innodb_large_prefix variable is missing in MySQL 8+ */
+  $prefix = $wpdb->get_results( index_wp_mysql_for_speed_querytag . "SHOW VARIABLES LIKE 'innodb_large_prefix'", OBJECT_K );
+  if ( $prefix && is_array( $prefix ) && array_key_exists( 'innodb_large_prefix', $prefix ) ) {
+    $prefix = $prefix['innodb_large_prefix'];
 
-		return ( $prefix->Value === 'ON' || $prefix->Value === '1' ) ? 1 : 0;
-	}
+    return ( $prefix->Value === 'ON' || $prefix->Value === '1' ) ? 1 : 0;
+  }
 
-	return 0;
+  return 0;
 }
 
 function getQueries(): array {
-	global $wpdb;
-	$p     = $wpdb->prefix;
-	$stats = [
-		"SELECT REPLACE(t.TABLE_NAME, '${p}', '') AS 'table',
+  global $wpdb;
+  $p     = $wpdb->prefix;
+  $stats = [
+    "SELECT REPLACE(t.TABLE_NAME, '${p}', '') AS 'table',
                '${p}' AS 'prefix',
                 MAX(t.TABLE_ROWS) AS 'count',
                 MAX(p.CARDINALITY) AS distinct_id,
@@ -171,10 +171,10 @@ function getQueries(): array {
              WHERE t.TABLE_SCHEMA = DATABASE() 
                AND t.TABLE_NAME IN ('${p}postmeta','${p}termmeta','${p}usermeta' ,'${p}posts','${p}comments', '${p}options', '${p}users', '${p}commentmeta')
              GROUP BY REPLACE(t.TABLE_NAME, 'wp_', '')",
-	];
+  ];
 
-	$queryArray = [
-		"indexes" => "		
+  $queryArray = [
+    "indexes" => "		
         SELECT *,
                IF(is_autoincrement = 1, columns, NULL) autoincrement_column
          FROM (
@@ -248,10 +248,10 @@ function getQueries(): array {
         ) q
         ORDER BY TABLE_NAME, is_primary DESC, is_unique DESC, key_name",
 
-		"dbstats"        => [
-			"SHOW VARIABLES",
-			implode( " UNION ALL ", $stats ),
-			"SELECT c.TABLE_NAME,
+    "dbstats"        => [
+      "SHOW VARIABLES",
+      implode( " UNION ALL ", $stats ),
+      "SELECT c.TABLE_NAME,
                    t.ENGINE,
                    t.ROW_FORMAT,
                    COUNT(*) column_count,
@@ -298,25 +298,25 @@ function getQueries(): array {
                    AND t.ENGINE IS NOT NULL
                 GROUP BY c.TABLE_NAME, c.TABLE_SCHEMA, c.TABLE_CATALOG
         ",
-			"SHOW GLOBAL STATUS",
-		],
-		'innodb_metrics' => [
-			/* is the table present ?*/
-			"SELECT COUNT(*) num
+      "SHOW GLOBAL STATUS",
+    ],
+    'innodb_metrics' => [
+      /* is the table present ?*/
+      "SELECT COUNT(*) num
 			   FROM information_schema.TABLES
 			  WHERE TABLE_SCHEMA = 'INFORMATION_SCHEMA'
 			    AND TABLE_NAME = 'INNODB_METRICS'",
-			/* make this match SHOW STATUS in column names */
-			/* breaking change in MariaDB 10.6:
-			* drop STATUS column, add boolean TYPE column */
-			"SELECT NAME Variable_name, COUNT Value
+      /* make this match SHOW STATUS in column names */
+      /* breaking change in MariaDB 10.6:
+      * drop STATUS column, add boolean TYPE column */
+      "SELECT NAME Variable_name, COUNT Value
                FROM information_schema.INNODB_METRICS
               WHERE COMMENT NOT LIKE 'Deprecated%'
                 AND TIME_ENABLED IS NOT NULL
-              ORDER BY NAME"
-		]
-	];
+              ORDER BY NAME",
+    ],
+  ];
 
-	return $queryArray;
+  return $queryArray;
 }
 

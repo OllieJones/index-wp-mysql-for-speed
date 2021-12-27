@@ -25,7 +25,7 @@ $(document).ready(function () {
             order: [[0, 'asc'], [2, 'asc']],
             orderClasses: false,
             dom: 'iBfrtilp',
-            buttons: [{extend: 'csv', text: 'Save as .csv', bom:true }],
+            buttons: [{extend: 'csv', text: 'Save as .csv', bom: true}],
             columns: [
                 {searchable: false},
                 {searchable: false},

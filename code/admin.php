@@ -126,7 +126,7 @@ class ImfsPage extends Imfs_AdminPageFramework {
         plugins_url( 'assets/imfs.js', __FILE__ ),
       ], 'imfs_settings' );
 
-    return RenderMonitor::renderMonitors( $monitor );
+    return RenderMonitor::renderMonitors( $monitor, $this->db );
   }
 
   /** render informational content at the top of the About tab
@@ -552,7 +552,7 @@ class ImfsPage extends Imfs_AdminPageFramework {
 
 
     foreach ( $this->monitors as $monitor ) {
-      $log         = new RenderMonitor( $monitor );
+      $log         = new RenderMonitor( $monitor, $this->db );
       $summary     = $log->load()->capturedQuerySummary();
       $monitorText = sprintf( "<a href=\"%s&tab=%s%s\">%s</a> %s",
         admin_url( 'tools.php?page=imfs_settings' ), $monitor, $this->tabSuffix, $monitor, $summary );

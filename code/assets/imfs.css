@@ -108,11 +108,23 @@ p.topinfo:last-of-type {
 div#wpbody > div#wpbody-content h1.rendermon {
     padding-top: 0;
     font-weight: 600;
+    margin-bottom: 0.2em;
 }
 
 div#wpbody > div#wpbody-content div.rendermon.table-container {
     margin-top: 0.5em;
     margin-bottom: 0.5em;
+}
+
+div.rendermon > div.rendermon.top.summary > div.rendermon.top.line.indent {
+    margin-left: 1em;
+}
+div.rendermon > div.rendermon.top.summary > div.rendermon.top.line {
+    margin-bottom: 0.2em;
+}
+div.rendermon > div.rendermon.top.time {
+    font-weight: 600;
+    margin-bottom: 0.2em;
 }
 
 table.rendermon.status tr > td.number {
