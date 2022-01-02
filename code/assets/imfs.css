@@ -20,6 +20,11 @@ div#wpcontent form div > div > table.form-table > tbody > tr > th span.warning {
 div#wpcontent form div > div > table.form-table > tbody > tr.success > th {
     color: #10a010;
 }
+div#wpcontent form div > div > table.form-table > tbody > tr.header > th ,
+div#wpcontent form div > div > table.form-table > tbody > tr.header > td  {
+    padding-top: 0.75em;
+    padding-bottom: 0;
+}
 
 /* inline fields layout */
 fieldset div.with-child-fields > fieldset.inline > div.index-wp-mysql-for-speed-fields > div.index-wp-mysql-for-speed-field > div > label > input {
@@ -62,7 +67,7 @@ div#wpcontent form div > div > table.form-table > tbody > tr.failure > th {
 }
 
 div#wpcontent form div > div > table.form-table > tbody > tr.detail {
-    padding-top: 0.25px;
+    padding-top: 3px;
     padding-bottom: 0
 }
 
@@ -84,6 +89,10 @@ div#wpcontent form div > div > table.form-table > tbody > tr.warning.detail > th
     font-weight: 400;
 }
 
+div#wpcontent form div > div > table.form-table > tbody > tr > td {
+    padding-left: 0;
+}
+
 div#wpcontent form div > div > table.form-table > tbody > tr > td,
 div#wpcontent form div > div > table.form-table > tbody > tr > th {
     padding-bottom: 0.5em;
@@ -92,7 +101,11 @@ div#wpcontent form div > div > table.form-table > tbody > tr > th {
 }
 
 div#wpcontent form div > div > table.form-table > tbody > tr > th:first-child {
-    width: 7rem;
+    width: 8rem;
+}
+div#wpcontent form div > div > table.form-table > tbody > tr > th > label {
+    margin-right: 0;
+    width: 8rem;
 }
 
 p.topinfo {
@@ -101,9 +114,6 @@ p.topinfo {
     margin-bottom: 0.5em;
 }
 
-p.topinfo:last-of-type {
-    margin-bottom: 2em;
-}
 
 div#wpbody > div#wpbody-content h1.rendermon {
     padding-top: 0;
@@ -164,6 +174,15 @@ div > label > span > p.longlabel {
     margin-bottom: 1em;
 }
 
+div > div > label > p.tablelist {
+    font-size: 95%;
+    font-weight: 600;
+}
+
 div > label > span > p.longlabel:last-of-type {
     margin-bottom: 0;
+}
+
+div.select_none_button_container {
+    margin-left: 0.5em;
 }

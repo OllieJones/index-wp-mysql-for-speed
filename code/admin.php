@@ -18,7 +18,6 @@ class ImfsPage extends Imfs_AdminPageFramework {
   public $unconstrained = false;
   private $db;
   private $dontNavigate;
-  private $valid;
   private $tabSuffix;
 
   public function __construct( $slug = index_wp_mysql_for_speed_domain ) {
@@ -78,8 +77,9 @@ class ImfsPage extends Imfs_AdminPageFramework {
    * @param string $sHTML
    *
    * @return string
+   * @noinspection PhpUnused
    */
-  public function content_imfs_settings( $sHTML ) {
+  public function content_imfs_settings( string $sHTML ): string {
     $this->enqueueStyles(
       [
         plugins_url( 'assets/imfs.css', __FILE__ ),
@@ -88,24 +88,32 @@ class ImfsPage extends Imfs_AdminPageFramework {
     return $sHTML;
   }
 
-  /** If the current tab is a monitor, render the data
+  /** Render stuff at the bottom as needed. if the current tab is a monitor, render the data
    *
    * @param string $sHTML
    *
    * @return string
+   * @noinspection PhpUnused
    */
-  public function content_bottom_imfs_settings( $sHTML ) {
-    return $sHTML . $this->renderMonitor();
+  public
+  function content_bottom_imfs_settings(
+    string $sHTML
+  ): string {
+    $s = '';
+    /* renderMointor doesn't return anything unless we're on a monitor tab */
+    $s .= $this->renderMonitor();
+
+    return $sHTML . $s;
   }
 
   /** @noinspection PhpUnused */
 
   /**
-   * @param string $sHTML
-   *
+   * present a captured monitor
    * @return string
    */
-  private function renderMonitor(): string {
+  private
+  function renderMonitor(): string {
     /* See https://wordpress.org/support/topic/when-naming-inpagetabs-with-variables-how-can-i-use-content_pageslug/#post-14924022 */
     $tab = $this->oProp->getCurrentTabSlug();
     $pos = strrpos( $tab, $this->tabSuffix );
@@ -134,8 +142,12 @@ class ImfsPage extends Imfs_AdminPageFramework {
    * @param string $sHTML
    *
    * @return string
+   * @noinspection PhpUnused
    */
-  public function content_top_imfs_settings_info( $sHTML ) {
+  public
+  function content_top_imfs_settings_info(
+    string $sHTML
+  ): string {
     /** @noinspection HtmlUnknownTarget */
     $hyperlink     = '<a href="%s" target="_blank">%s</a>';
     $supportUrl    = "https://wordpress.org/support/plugin/index-wp-mysql-for-speed/";
@@ -146,12 +158,13 @@ class ImfsPage extends Imfs_AdminPageFramework {
     $support       = sprintf( $hyperlink, $supportUrl, $clickHere );
     $review        = sprintf( $hyperlink, $reviewUrl, $clickHere );
     $details       = sprintf( $hyperlink, $detailsUrl, $clickHere );
-    $supportString = '<p class="topinfo">' . __( 'For support please %s. If you create a topic in the support forum, please upload your diagnostic metadata, and mention the id of your upload.  Please %s to rate this plugin.', $this->domain ) . '</p>';
+    $supportString = '<p class="topinfo">' . __( 'For support please %s. If you create an issue in the support forum, please upload your diagnostic metadata, and mention the id of your upload.  Please %s to rate this plugin.', $this->domain ) . '</p>';
     $supportString = sprintf( $supportString, $support, $review );
     $detailsString = '<p class="topinfo">' . __( 'For detailed information about this plugin\'s actions on your database, please %s.', $this->domain ) . '</p>';
     $detailsString = sprintf( $detailsString, $details );
-    $wpCliString   = '<p class="topinfo">' . __( 'This plugin supports %s. You may run its operations that way if your hosting machine is set up for it. If your tables are large, using WP-CLI may be a good choice to avoid timeouts.', $this->domain ) . '</p>';
+    $wpCliString   = '<p class="topinfo">' . __( 'This plugin supports %s. You may run its operations that way if your hosting machine is set up for it. Using WP-CLI is a good choice as it avoids web server timeouts for large tables.', $this->domain );
     $wpCliString   = sprintf( $wpCliString, $wpCliUrl );
+    $wpCliString   .= ' ' . __( 'To learn more, type', $this->domain ) . ' ' . '<code>wp help index-mysql</code>' . __( 'into your command shell.', $this->domain ) . '</p>';
 
     return $sHTML . '<div class="index-wp-mysql-for-speed-content-container">' . $supportString . $detailsString . $wpCliString . '</div>';
   }
@@ -162,7 +175,10 @@ class ImfsPage extends Imfs_AdminPageFramework {
    *
    * @noinspection PhpUnusedParameterInspection PhpUnused
    */
-  public function load_imfs_settings_rekey( $oAdminPage ) {
+  public
+  function load_imfs_settings_rekey(
+    object $oAdminPage
+  ) {
     $this->enqueueStyles(
       [
         plugins_url( 'assets/imfs.css', __FILE__ ),
@@ -172,6 +188,41 @@ class ImfsPage extends Imfs_AdminPageFramework {
 
       $rekeying = $this->db->getRekeying();
 
+      $this->showIndexStatus( $rekeying );
+
+      $this->addSettingFields(
+        [
+          'field_id' => 'actionmessage',
+          'title'    => __( 'Actions', $this->domain ),
+          'default'  => __( 'Actions you can take on your tables.', $this->domain ),
+          'save'     => false,
+          'class'    => [
+            'fieldrow' => [ 'major', 'header' ],
+          ],
+        ] );
+
+
+      $this->addSettingFields(
+        [
+          'field_id' => 'backup',
+          'title'    => __( 'Backup', $this->domain ),
+          'label'    => __( 'This plugin modifies your WordPress database. Make a backup before you proceed.', $this->domain ),
+          'save'     => false,
+          'class'    => [
+            'fieldrow' => 'info',
+          ],
+          [
+            'field_id' => 'backup_done',
+            'type'     => 'checkbox',
+            'label'    => __( 'I have made a backup', $this->domain ),
+            'default'  => 0,
+            'save'     => false,
+            'class'    => [
+              'fieldrow' => 'major',
+            ],
+          ],
+        ]
+      );
       /* engine upgrade ***************************/
       $this->upgradeIndex();
 
@@ -179,64 +230,48 @@ class ImfsPage extends Imfs_AdminPageFramework {
       $action = 'enable';
       if ( count( $rekeying[ $action ] ) > 0 ) {
         $title        = __( 'Add keys', $this->domain );
-        $caption      = __( 'Add or upgrade high-performance keys for these tables to make your WordPress database faster.', $this->domain );
+        $caption      = __( 'Add high-performance keys', $this->domain );
         $callToAction = __( 'Add Keys Now', $this->domain );
-        $this->renderListOfTables( $rekeying[ $action ], false, $action, $title, $caption, $callToAction, true );
+        $this->renderListOfTables( $rekeying[ $action ], false, $action, $action, $title, $caption, $callToAction, true );
+      }
+      /* updating old versions of keys  ***************************/
+      $action = 'old';
+      if ( count( $rekeying[$action] ) > 0 ) {
+
+        $title        = __( 'Update keys', $this->domain );
+        $caption      = __( 'Update keys to this plugin\'s latest version', $this->domain );
+        $callToAction = __( 'Update Keys Now', $this->domain );
+        $this->renderListOfTables( $rekeying[ $action ], false, $action, 'enable', $title, $caption, $callToAction, true );
+      }
+      /* converting nonstandard keys  ***************************/
+      $action = 'nonstandard';
+      if ( count( $rekeying[$action] ) > 0 ) {
+
+        $title        = __( 'Convert keys', $this->domain );
+        $caption      = __( 'Convert to this plugin\'s high-performance keys', $this->domain );
+        $callToAction = __( 'Convert Keys Now', $this->domain );
+        $this->renderListOfTables( $rekeying[ $action ], false, $action, 'enable', $title, $caption, $callToAction, true );
       }
       /* disabling  ***************************/
       $action = 'disable';
       if ( count( $rekeying[ $action ] ) > 0 ) {
 
-        $this->addSettingFields(
-          [
-            'field_id' => 'successcaption',
-            'title'    => 'Success',
-            'default'  => __( 'These WordPress tables now have high-performance keys.', $this->domain ),
-            'save'     => false,
-            'class'    => [
-              'fieldrow' => [ 'major', 'success' ],
-            ],
-          ] );
-
-        $title        = __( 'Revert', $this->domain );
-        $caption      = __( 'Revert the keys for these tables to restore WordPress\'s defaults.', $this->domain );
+        $title        = __( 'Revert keys', $this->domain );
+        $caption      = __( 'Revert to WordPress\'s default keys', $this->domain );
         $callToAction = __( 'Revert Keys Now', $this->domain );
-        $this->renderListOfTables( $rekeying[ $action ], false, $action, $title, $caption, $callToAction, false );
+        $this->renderListOfTables( $rekeying[ $action ], false, $action, $action, $title, $caption, $callToAction, false );
       }
-
     }
+    $this->showVersionInfo();
   }
 
   /** Make sure our MySQL version is sufficient to do all this.
    * @return bool
    */
-  private function checkVersionInfo(): bool {
-
-    $this->addSettingFields(
-      [
-        'field_id' => 'backup',
-        'title'    => __( 'Backup', $this->domain ),
-        'label'    => __( 'This plugin modifies your WordPress database. Make a backup before you proceed.', $this->domain ),
-        'save'     => false,
-        'class'    => [
-          'fieldrow' => 'info',
-        ],
-
-        [
-          'field_id' => 'backup_done',
-          'type'     => 'checkbox',
-          'label'    => __( 'I have made a backup', $this->domain ),
-          'default'  => 0,
-          'save'     => false,
-          'class'    => [
-            'fieldrow' => 'major',
-          ],
-        ],
-      ]
-    );
+  private
+  function checkVersionInfo(): bool {
 
     if ( ! $this->db->canReindex ) {
-      $this->showVersionInfo();
       $this->addSettingFields(
         [
           'field_id'    => 'version_error',
@@ -250,7 +285,6 @@ class ImfsPage extends Imfs_AdminPageFramework {
         ] );
     } else {
       if ( ! $this->db->unconstrained ) {
-        $this->showVersionInfo();
         $this->addSettingFields(
           [
             'field_id' => 'constraint_notice',
@@ -267,36 +301,128 @@ class ImfsPage extends Imfs_AdminPageFramework {
     return $this->db->canReindex;
   }
 
-  /**
-   * text field showing versions
+  /** present a list of tables with their indexing status.
+   *
+   * @param array $rekeying
    */
-  private function showVersionInfo() {
-    global $wp_version;
-    global $wp_db_version;
-    $versionString = 'MySQL:' . htmlspecialchars( $this->db->semver->version ) . '&emsp;WordPress:' . $wp_version . '&emsp;WordPress database:' . $wp_db_version . '&emsp;php:' . phpversion();
-    $this->addSettingFields(
-      [
-        'field_id' => 'version',
-        'title'    => __( 'Versions', $this->domain ),
-        'default'  => $versionString,
-        'save'     => false,
-        'class'    => [
-          'fieldrow' => 'info',
-        ],
-      ]
-    );
+  private
+  function showIndexStatus(
+    array $rekeying
+  ) {
+    global $wpdb;
+    $messageNumber = 0;
+    /* display current status */
+    if ( count( $rekeying['upgrade'] ) > 0 ) {
+      $list  = implode( ', ', $rekeying['upgrade'] );
+      $label = __( 'These database tables need upgrading to MySQL\'s latest table storage format, InnoDB with dynamic rows.', $this->domain );
+      $label .= '<p class="tablelist">' . $list . '</p>';
+      $this->addSettingFields(
+        [
+          'field_id' => 'message' . $messageNumber ++,
+          'title'    => __( 'Tables to upgrade', $this->domain ),
+          'default'  => $label,
+          'save'     => false,
+          'class'    => [
+            'fieldrow' => [ 'major', 'warning' ],
+          ],
+        ] );
+    }
+    if ( count( $rekeying['disable'] ) > 0 ) {
+      $list = [];
+      foreach ( $rekeying['disable'] as $tbl ) {
+        $list[] = $wpdb->prefix . $tbl;
+      }
+      $list  = implode( ', ', $list );
+      $label = __( 'You have added high-performance keys to these tables. You can revert them to WordPress\'s standard keys.', $this->domain );
+      $label .= '<p class="tablelist">' . $list . '</p>';
+      $this->addSettingFields(
+        [
+          'field_id' => 'message' . $messageNumber ++,
+          'title'    => __( 'Success', $this->domain ),
+          'default'  => $label,
+          'save'     => false,
+          'class'    => [
+            'fieldrow' => [ 'major', 'success', 'header' ],
+          ],
+        ] );
+    }
+    if ( count( $rekeying['old'] ) > 0 ) {
+      $list = [];
+      foreach ( $rekeying['old'] as $tbl ) {
+        $list[] = $wpdb->prefix . $tbl;
+      }
+      $list  = implode( ', ', $list );
+      $label = __( 'You have added high-performance keys to these tables using an earlier version of this plugin. You can revert them to WordPress\'s standard keys, or update them to the latest high-performance keys.', $this->domain );
+      $label .= '<p class="tablelist">' . $list . '</p>';
+
+      $this->addSettingFields(
+        [
+          'field_id' => 'message' . $messageNumber ++,
+          'title'    => __( 'Keys to update', $this->domain ),
+          'default'  => $label,
+          'save'     => false,
+          'class'    => [
+            'fieldrow' => [ 'major', 'header' ],
+          ],
+        ] );
+    }
+    if ( count( $rekeying['enable'] ) > 0 ) {
+      $list = [];
+      foreach ( $rekeying['enable'] as $tbl ) {
+        $list[] = $wpdb->prefix . $tbl;
+      }
+      $list  = implode( ', ', $list );
+      $label = __( 'These tables have WordPress\'s standard keys. You can add high-performance keys to these tables to make your WordPress database faster.', $this->domain );
+      $label .= '<p class="tablelist">' . $list . '</p>';
+
+      /** @noinspection PhpUnusedLocalVariableInspection */
+      $this->addSettingFields(
+        [
+          'field_id' => 'message' . $messageNumber ++,
+          'title'    => __( 'Keys to add', $this->domain ),
+          'default'  => $label,
+          'save'     => false,
+          'class'    => [
+            'fieldrow' => [ 'major', 'header' ],
+          ],
+        ] );
+    }
+
+    if ( count( $rekeying['nonstandard'] ) > 0 ) {
+      $list = [];
+      foreach ( $rekeying['nonstandard'] as $tbl ) {
+        $list[] = $wpdb->prefix . $tbl;
+      }
+      $list  = implode( ', ', $list );
+      $label = __( 'These tables have keys set some way other than this plugin. You can convert them to this plugin\'s latest high-performance keys or revert them to WordPress\'s standard keys.', $this->domain );
+      $label .= '<p class="tablelist">' . $list . '</p>';
+
+      /** @noinspection PhpUnusedLocalVariableInspection */
+      $this->addSettingFields(
+        [
+          'field_id' => 'message' . $messageNumber ++,
+          'title'    => __( 'Keys to convert', $this->domain ),
+          'default'  => $label,
+          'save'     => false,
+          'class'    => [
+            'fieldrow' => [ 'major', 'header' ],
+          ],
+        ] );
+    }
+
   }
 
   /**
    * form for upgrading tables to InnoDB
    */
-  private function upgradeIndex() {
+  private
+  function upgradeIndex() {
     if ( count( $this->db->oldEngineTables ) > 0 ) {
       $action       = 'upgrade';
-      $title        = '<span class="warning header">' . __( 'Upgrade table storage', $this->domain ) . '</span>';
-      $caption      = __( 'These database tables need upgrading to InnoDB with the Dynamic row format, MySQL\'s latest table storage.', $this->domain );
+      $title        = '<span class="warning header">' . __( 'Upgrade tables', $this->domain ) . '</span>';
+      $caption      = __( 'Upgrade table storage format', $this->domain );
       $callToAction = __( 'Upgrade Storage Now', $this->domain );
-      $this->renderListOfTables( $this->db->oldEngineTables, true, $action, $title, $caption, $callToAction, true );
+      $this->renderListOfTables( $this->db->oldEngineTables, true, $action, $action, $title, $caption, $callToAction, true );
     }
   }
 
@@ -394,7 +520,10 @@ class ImfsPage extends Imfs_AdminPageFramework {
    *
    * @return string
    */
-  private function cliMessage( $command, $function ) {
+  private
+  function cliMessage(
+    string $command, string $function
+  ): string {
     //$cliLink = ' <a href="https://make.wordpress.org/cli/handbook/" target="_blank">WP-CLI</a>';
     $cliLink = ' WP-CLI';
     $wp      = 'wp index-mysql';
@@ -552,8 +681,9 @@ class ImfsPage extends Imfs_AdminPageFramework {
 
 
     foreach ( $this->monitors as $monitor ) {
-      $log         = new RenderMonitor( $monitor, $this->db );
-      $summary     = $log->load()->capturedQuerySummary();
+      $log     = new RenderMonitor( $monitor, $this->db );
+      $summary = $log->load()->capturedQuerySummary();
+      /** @noinspection HtmlUnknownTarget */
       $monitorText = sprintf( "<a href=\"%s&tab=%s%s\">%s</a> %s",
         admin_url( 'tools.php?page=imfs_settings' ), $monitor, $this->tabSuffix, $monitor, $summary );
       $this->addSettingFields(
@@ -587,13 +717,18 @@ class ImfsPage extends Imfs_AdminPageFramework {
 
   }
 
+  /** @noinspection PhpUnused */
+
   /** Render the About form (info tab)
    *
    * @param $oAdminPage
    *
    * @noinspection PhpUnusedParameterInspection PhpUnused
    */
-  public function load_imfs_settings_info( $oAdminPage ) {
+  public
+  function load_imfs_settings_info(
+    $oAdminPage
+  ) {
     $this->enqueueStyles(
       [
         plugins_url( 'assets/imfs.css', __FILE__ ),
@@ -626,7 +761,9 @@ class ImfsPage extends Imfs_AdminPageFramework {
         ] );
     }
 
+    $this->showIndexStatus( $this->db->getRekeying() );
     $this->uploadMetadata();
+    $this->showVersionInfo();
   }
 
   /** @noinspection PhpUnused */
@@ -682,8 +819,13 @@ class ImfsPage extends Imfs_AdminPageFramework {
   /** load overall page
    *
    * @param $oAdminPage
+   *
+   * @noinspection PhpUnusedParameterInspection
    */
-  public function load_imfs_settings( $oAdminPage ) {
+  public
+  function load_imfs_settings(
+    $oAdminPage
+  ) {
     try {
       $this->populate();
     } catch ( ImfsException $ex ) {
@@ -699,7 +841,8 @@ class ImfsPage extends Imfs_AdminPageFramework {
   /**
    * @throws ImfsException
    */
-  private function populate() {
+  private
+  function populate() {
 
     $this->db->init();
     $this->canReindex    = $this->db->canReindex;
@@ -738,8 +881,6 @@ class ImfsPage extends Imfs_AdminPageFramework {
       }
     }
 
-    $this->valid = $valid;
-
     if ( ! $valid ) {
       $this->setFieldErrors( $errors );
       $this->setSettingNotice( __( 'Make corrections and try again.', $this->domain ) );
@@ -750,9 +891,12 @@ class ImfsPage extends Imfs_AdminPageFramework {
     return $this->action( $submitInfo['field_id'], $inputs, $oldInputs, $factory, $submitInfo );
   }
 
-  /** @noinspection PhpUnused */
+  /** @noinspection PhpUnusedParameterInspection */
 
-  private function listFromCheckboxes( $cbs ) {
+  private
+  function listFromCheckboxes(
+    $cbs
+  ): array {
     $result = [];
     foreach ( $cbs as $name => $val ) {
       if ( $val ) {
@@ -765,7 +909,10 @@ class ImfsPage extends Imfs_AdminPageFramework {
 
   /** @noinspection PhpUnusedParameterInspection */
 
-  private function action( $button, $inputs, $oldInputs, $factory, $submitInfo ) {
+  private
+  function action(
+    $button, $inputs, $oldInputs, $factory, $submitInfo
+  ) {
     try {
       switch ( $button ) {
         case 'start_monitoring_now':
@@ -782,11 +929,19 @@ class ImfsPage extends Imfs_AdminPageFramework {
           $this->setSettingNotice( $msg, 'updated' );
           break;
         case 'enable_now':
-          $msg = $this->db->rekeyTables( 1, $this->listFromCheckboxes( $inputs['enable'] ) );
+          $msg = $this->db->rekeyTables( 1, $this->listFromCheckboxes( $inputs['enable'] ), index_mysql_for_speed_major_version );
+          $this->setSettingNotice( $msg, 'updated' );
+          break;
+        case 'old_now':
+          $msg = $this->db->rekeyTables( 1, $this->listFromCheckboxes( $inputs['old'] ), index_mysql_for_speed_major_version );
+          $this->setSettingNotice( $msg, 'updated' );
+          break;
+        case 'nonstandard_now':
+          $msg = $this->db->rekeyTables( 1, $this->listFromCheckboxes( $inputs['nonstandard'] ), index_mysql_for_speed_major_version );
           $this->setSettingNotice( $msg, 'updated' );
           break;
         case 'disable_now':
-          $msg = $this->db->rekeyTables( 0, $this->listFromCheckboxes( $inputs['disable'] ) );
+          $msg = $this->db->rekeyTables( 0, $this->listFromCheckboxes( $inputs['disable'] ), index_mysql_for_speed_major_version );
           $this->setSettingNotice( $msg, 'updated' );
           break;
       }
@@ -800,8 +955,15 @@ class ImfsPage extends Imfs_AdminPageFramework {
     }
   }
 
-  /** @noinspection PhpUnusedParameterInspection */
-
+  /**
+   * @param $inputs
+   * @param $oldInputs
+   * @param $factory
+   * @param $submitInfo
+   *
+   * @return mixed
+   * @noinspection PhpUnused
+   */
   function validation_imfs_settings_monitor( $inputs, $oldInputs, $factory, $submitInfo ) {
     $valid  = true;
     $errors = [];
@@ -816,7 +978,6 @@ class ImfsPage extends Imfs_AdminPageFramework {
             $message        = __( 'Monitor %s deleted.', $this->domain );
             $message        = sprintf( $message, $monitor );
             $this->setSettingNotice( $message, 'updated' );
-            $this->valid = true;
 
             return $oldInputs;
           }
@@ -842,8 +1003,16 @@ class ImfsPage extends Imfs_AdminPageFramework {
     return $this->action( $submitInfo['field_id'], $inputs, $oldInputs, $factory, $submitInfo );
   }
 
+  /**
+   * @param $inputs
+   * @param $oldInputs
+   * @param $factory
+   * @param $submitInfo
+   *
+   * @return mixed
+   * @noinspection PhpUnused
+   */
   function validation_imfs_settings_info( $inputs, $oldInputs, $factory, $submitInfo ) {
-    $valid  = false;
     $errors = [];
     if ( isset( $inputs['uploadId'] ) && strlen( $inputs['uploadId'] ) > 0 ) {
       $valid = true;
@@ -860,7 +1029,6 @@ class ImfsPage extends Imfs_AdminPageFramework {
 
     return $this->action( $submitInfo['field_id'], $inputs, $oldInputs, $factory, $submitInfo );
   }
-
 }
 
 new ImfsPage;
