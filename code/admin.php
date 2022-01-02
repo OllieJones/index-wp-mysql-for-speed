@@ -6,7 +6,7 @@ class ImfsPage extends Imfs_AdminPageFramework {
 
   public $pluginName;
   public $pluginSlug;
-  public $domain;
+  public $domain;   //TODO this is kludgey for just one old version.
   public $monitors;
   /**
    * @var bool true if the dbms allows reindexing at all.
@@ -25,7 +25,7 @@ class ImfsPage extends Imfs_AdminPageFramework {
     $this->domain       = $slug;
     $this->pluginName   = __( 'Index WP MySQL For Speed', $this->domain );
     $this->pluginSlug   = $slug;
-    $this->db           = new ImfsDb();
+    $this->db           = new ImfsDb( index_mysql_for_speed_major_version, index_mysql_for_speed_previous_major_version );
     $this->dontNavigate = __( 'This may take a few minutes. <em>Please do not navigate away from this page while you wait</em>.', $this->domain );
     $this->tabSuffix    = "_m";
   }
@@ -426,17 +426,23 @@ class ImfsPage extends Imfs_AdminPageFramework {
     }
   }
 
-  /** list of tables
+  /** draw a list of tables with checkboxes and controls
    *
    * @param array $tablesToRekey
-   * @param bool $prefixed true if $tablesToRekey ar wp_foometa not just foometa
-   * @param string $action "rekey" or "revert"
+   * @param bool $prefixed true if $tablesToRekey contains wp_foometa not just foometa
+   * @param string $action "enable", "disable", "old" or "revert"
+   * @param string $actionToDisplay "enable", "disable", "revert"
    * @param string $title
    * @param string $caption
    * @param string $callToAction button caption
    * @param bool $prechecked items should be prechecked
    */
-  private function renderListOfTables( $tablesToRekey, $prefixed, $action, $title, $caption, $callToAction, $prechecked ) {
+  private
+  function renderListOfTables(
+    array $tablesToRekey, bool $prefixed, string $action, string $actionToDisplay, string $title,
+    string $caption, string $callToAction, bool $prechecked
+  ) {
+
     global $wpdb;
     $this->addSettingFields(
       [
@@ -450,9 +456,10 @@ class ImfsPage extends Imfs_AdminPageFramework {
       ]
     );
 
-    $labels   = [];
-    $defaults = [];
-    $prefix   = $prefixed ? '' : $wpdb->prefix;
+    $labels    = [];
+    $defaults  = [];
+    $tableList = [];
+    $prefix    = $prefixed ? '' : $wpdb->prefix;
     foreach ( $tablesToRekey as $tbl ) {
       $unprefixed = ImfsStripPrefix( $tbl );
       $rowcount   = - 1;
@@ -474,6 +481,7 @@ class ImfsPage extends Imfs_AdminPageFramework {
       if ( strlen( $itemString ) > 0 ) {
         $itemString = ' (' . $itemString . ')';
       }
+      $tableList[]      = $prefix . $tbl;
       $labels[ $tbl ]   = $prefix . $tbl . $itemString;
       $defaults[ $tbl ] = $prechecked;
     }
@@ -504,7 +512,9 @@ class ImfsPage extends Imfs_AdminPageFramework {
       ],
       [
         'field_id' => $action . '_wp',
-        'label'    => $this->cliMessage( $action . ' --all', __( $title, $this->domain ) ),
+        'label'    => $this->cliMessage(
+          $actionToDisplay . ' ' . implode( ' ', $tableList ),
+          __( $title, $this->domain ) ),
         'save'     => false,
         'class'    => [
           'fieldrow' => 'info',
@@ -537,13 +547,41 @@ class ImfsPage extends Imfs_AdminPageFramework {
     return sprintf( $fmt, $cliLink, $function, $wp, $command );
   }
 
+  /**
+   * text field showing versions
+   */
+  private
+  function showVersionInfo() {
+    global $wp_version;
+    global $wp_db_version;
+    $versionString = 'Plugin:' . index_wp_mysql_for_speed_VERSION_NUM
+                     . '&ensp;MySQL:' . htmlspecialchars( $this->db->semver->version )
+                     . '&ensp;WordPress:' . $wp_version
+                     . '&ensp;WordPress database:' . $wp_db_version
+                     . '&ensp;php:' . phpversion();
+    $this->addSettingFields(
+      [
+        'field_id' => 'version',
+        'title'    => __( 'Versions', $this->domain ),
+        'default'  => $versionString,
+        'save'     => false,
+        'class'    => [
+          'fieldrow' => 'info',
+        ],
+      ]
+    );
+  }
+
   /** Render the Monitor Database Operations form
    *
    * @param $oAdminPage
    *
    * @noinspection PhpUnusedParameterInspection PhpUnused
    */
-  public function load_imfs_settings_monitor( $oAdminPage ) {
+  public
+  function load_imfs_settings_monitor(
+    $oAdminPage
+  ) {
     $this->enqueueStyles(
       [
         plugins_url( 'assets/imfs.css', __FILE__ ),
@@ -714,7 +752,7 @@ class ImfsPage extends Imfs_AdminPageFramework {
           ],
         ] );
     }
-
+    $this->showVersionInfo();
   }
 
   /** @noinspection PhpUnused */
@@ -734,20 +772,6 @@ class ImfsPage extends Imfs_AdminPageFramework {
         plugins_url( 'assets/imfs.css', __FILE__ ),
       ], 'imfs_settings' );
 
-    global $wp_version;
-    global $wp_db_version;
-    $versionString = 'MySQL:' . htmlspecialchars( $this->db->semver->version ) . '&emsp;WordPress:' . $wp_version . '&emsp;WordPress database:' . $wp_db_version . '&emsp;php:' . phpversion();
-    $this->addSettingFields(
-      [
-        'field_id' => 'version',
-        'title'    => __( 'Versions', $this->domain ),
-        'default'  => $versionString,
-        'save'     => false,
-        'class'    => [
-          'fieldrow' => 'info',
-        ],
-      ]
-    );
     if ( ! $this->db->unconstrained ) {
       $this->addSettingFields(
         [
