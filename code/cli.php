@@ -1,4 +1,7 @@
-<?php
+<?php /** @noinspection PhpUnused */
+/** @noinspection PhpUndefinedFunctionInspection */
+/** @noinspection PhpUndefinedNamespaceInspection */
+/** @noinspection PhpUndefinedClassInspection */
 
 /**
  * Index WP MySQL For Speed plugin
@@ -29,16 +32,18 @@ class ImsfCli extends WP_CLI_Command {
   public $errorMessages = [];
 
   /**
-   * Upload diagnostic metadata to plugin developers' site.
+   * Display version information.
+   *
    */
-  function upload_metadata( $args, $assoc_args ) {
+  function version( $args, $assoc_args ) {
     $this->setupCliEnvironment( $args, $assoc_args );
-    $id = imfsRandomString( 8 );
-    $id = imfs_upload_stats( $this->db, $id );
-    WP_CLI::log( __( 'Metadata uploaded to id ', $this->domain ) . $id );
+    $wpDescription = imfsToResultSet( imfsGetWpDescription( $this->db ) );
+    $format        = array_key_exists( 'format', $assoc_args ) ? $assoc_args['format'] : null;
+    WP_CLI\Utils\format_items( $format, $wpDescription, [ 'Item', 'Value' ] );
   }
 
-  private function setupCliEnvironment( $args, $assoc_args, $preamble = true ) {
+  /** @noinspection PhpUnusedParameterInspection */
+  private function setupCliEnvironment( $args, $assoc_args ) {
     global $wp_version;
     global $wp_db_version;
     $this->allSwitch  = ! empty( $assoc_args['all'] );
@@ -56,10 +61,10 @@ class ImsfCli extends WP_CLI_Command {
     $this->db->init();
     $this->rekeying = $this->db->getRekeying();
 
-    if ( $preamble ) {
+    if ( true ) {
       $wpDescription = imfsGetWpDescription( $this->db );
       WP_CLI::log( __( 'Index WP MySQL For Speed', $this->domain ) . ' ' . index_wp_mysql_for_speed_VERSION_NUM );
-      $versions = 'MySQL:' . $wpDescription['mysqlversion'] . ' WordPress:' . $wp_version . ' WordPress database:' . $wp_db_version . ' php:' . phpversion();
+      $versions = ' Plugin:' . $wpDescription['pluginversion'] . ' MySQL:' . $wpDescription['mysqlversion'] . ' WordPress:' . $wp_version . ' WordPress database:' . $wp_db_version . ' php:' . phpversion();
       WP_CLI::log( __( 'Versions', $this->domain ) . ' ' . $versions );
     }
 
@@ -74,7 +79,7 @@ class ImsfCli extends WP_CLI_Command {
       WP_CLI::exit( $fmt );
 
     }
-    if ( $preamble && ! $this->db->unconstrained ) {
+    if ( ! $this->db->unconstrained ) {
       $fmt = __( 'Upgrading your MySQL server to a later version will give you better performance when you add high-performance keys.', $this->domain );
       WP_CLI::warning( $fmt );
     }
@@ -82,14 +87,94 @@ class ImsfCli extends WP_CLI_Command {
   }
 
   /**
-   * Display version information.
+   * Show indexing status.
    *
+   * @param $args
+   * @param $assoc_args
    */
-  function version( $args, $assoc_args ) {
+  function status( $args, $assoc_args ) {
     $this->setupCliEnvironment( $args, $assoc_args );
-    $wpDescription = imfsToResultSet( imfsGetWpDescription( $this->db ), 'Item', 'Value' );
-    $format        = array_key_exists( 'format', $assoc_args ) ? $assoc_args['format'] : null;
-    WP_CLI\Utils\format_items( $format, $wpDescription, [ 'Item', 'Value' ] );
+
+    $fmt = __( 'Database tables need upgrading to MySQL\'s latest table storage format, InnoDB with dynamic rows.', $this->domain );
+    $this->showCommandLine( 'upgrade', 'upgrade', $fmt, true, true );
+
+    $fmt = __( 'Add or upgrade high-performance keys to make your WordPress database faster.', $this->domain );
+    $this->showCommandLine( 'enable', 'enable', $fmt, false, false );
+    WP_CLI::log( '' );
+
+    $fmt = __( 'You set some keys from outside this plugin. You can convert them to this plugin\'s  high-performance keys.', $this->domain );
+    $this->showCommandLine( 'nonstandard', 'enable', $fmt, false, false );
+    $fmt = __( 'Or, you can revert them to WordPress\'s standard keys.', $this->domain );
+    $this->showCommandLine( 'nonstandard', 'disable', $fmt, false, false );
+    WP_CLI::log( '' );
+
+    $fmt = __( 'You added high-performance keys using an earlier version of this plugin. You can update them to the latest high-performance keys.', $this->domain );
+    $this->showCommandLine( 'old', 'enable', $fmt, false, false );
+    $fmt = __( 'Or, you can revert them to WordPress\'s standard keys.', $this->domain );
+    $this->showCommandLine( 'old', 'disable', $fmt, false, false );
+    WP_CLI::log( '' );
+
+    $fmt = __( 'You successfully added high-performance keys.', $this->domain ) . ' ' .
+           __( 'You can revert them to WordPress\'s standard keys.', $this->domain );
+    $this->showCommandLine( 'disable', 'disable', $fmt, false, false );
+  }
+
+  /** display  sample command line to user.
+   *
+   * @param $actionKey string  enable/disable/rekey/reset.
+   * @param $action string command to display
+   * @param $caption string prefix text.
+   * @param $warning boolean display warning not log.
+   * @param $alreadyPrefixed boolean  tables in list already have wp_ style prefixes.
+   */
+  private function showCommandLine( string $actionKey, string $action, string $caption, bool $warning, bool $alreadyPrefixed ) {
+    $array = $this->rekeying;
+    if ( array_key_exists( $actionKey, $array ) && count( $array[ $actionKey ] ) > 0 ) {
+      $msg  = $caption . ' ' . __( 'Use this command:', $this->domain );
+      $tbls = $this->addPrefixes( $array[ $actionKey ], $alreadyPrefixed );
+      if ( $warning ) {
+        WP_CLI::warning( $msg );
+      } else {
+        WP_CLI::log( $msg );
+      }
+      WP_CLI::log( $this->getCommand( $action, $tbls ) );
+      if ( count( $this->errorMessages ) > 0 ) {
+        WP_CLI::log( implode( PHP_EOL, $this->errorMessages ) );
+        $this->errorMessages = [];
+      }
+    }
+  }
+
+  private function addPrefixes( $tbls, $alreadyPrefixed ): array {
+    global $wpdb;
+    if ( $alreadyPrefixed ) {
+      return $tbls;
+    }
+    $res = [];
+    foreach ( $tbls as $tbl ) {
+      $res[] = $wpdb->prefix . $tbl;
+    }
+
+    return $res;
+  }
+
+  /** format actual cmd
+   *
+   * @param $cmd string
+   * @param $tbls array
+   *
+   * @return string
+   */
+  private function getCommand( string $cmd, array $tbls ): string {
+    if ( count( $tbls ) > 0 ) {
+      $list = implode( ' ', $tbls );
+
+      $fmt = __( "%s %s %s", $this->domain );
+
+      return sprintf( '  ' . $fmt, $this->cmd, $cmd, $list );
+    }
+
+    return '';
   }
 
   /**
@@ -101,13 +186,14 @@ class ImsfCli extends WP_CLI_Command {
     $this->doRekeying( $args, $assoc_args, $targetAction );
   }
 
+  /** @noinspection PhpSameParameterValueInspection */
   private function doRekeying( $args, $assoc_args, $targetAction, $alreadyPrefixed = true ) {
     $action = $targetAction === 0 ? 'disable' : 'enable';
     $tbls   = $this->getTablesToProcess( $args, $assoc_args, $action );
     foreach ( $tbls as $tbl ) {
       $this->db->timings = [];
       $arr               = [ $tbl ];
-      $this->db->rekeyTables( $targetAction, $arr, $alreadyPrefixed );
+      $this->db->rekeyTables( $targetAction, $arr, index_mysql_for_speed_major_version, $alreadyPrefixed );
       WP_CLI::log( $this->reportCompletion( $action, $tbl ) );
     }
   }
@@ -124,9 +210,12 @@ class ImsfCli extends WP_CLI_Command {
 
     $alreadyPrefixed = ( $action === 'upgrade' );
     $tbls            = $this->rekeying[ $action ];
-    $tbls            = $this->addPrefixes( $tbls, $alreadyPrefixed );
-    $res             = [];
-    $exclude         = [];
+    if ( $action === 'enable' ) {
+      $tbls = array_merge( $tbls, $this->rekeying['old'], $this->rekeying['nonstandard'] );
+    }
+    $tbls    = $this->addPrefixes( $tbls, $alreadyPrefixed );
+    $res     = [];
+    $exclude = [];
     if ( ! empty( $assoc_args['exclude'] ) ) {
       $exclude = explode( ',', $assoc_args['exclude'] );
     }
@@ -152,19 +241,6 @@ class ImsfCli extends WP_CLI_Command {
     if ( count( $res ) == 0 ) {
       $fmt = __( 'No tables are eligible to', $this->domain ) . ' ' . $action . '.';
       WP_CLI::error( $fmt );
-    }
-
-    return $res;
-  }
-
-  private function addPrefixes( $tbls, $alreadyPrefixed ): array {
-    global $wpdb;
-    if ( $alreadyPrefixed ) {
-      return $tbls;
-    }
-    $res = [];
-    foreach ( $tbls as $tbl ) {
-      $res[] = $wpdb->prefix . $tbl;
     }
 
     return $res;
@@ -201,7 +277,7 @@ class ImsfCli extends WP_CLI_Command {
   }
 
   /**
-   * Upgrade the storage engine for a list of tables.
+   * Upgrade the storage engine and row format to InnoDB and Dynamic
    */
   function upgrade( $args, $assoc_args ) {
     $action = 'upgrade';
@@ -221,67 +297,6 @@ class ImsfCli extends WP_CLI_Command {
     } finally {
       $this->db->unlock();
     }
-  }
-
-  /**
-   * Show indexing status.
-   *
-   * @param $args
-   * @param $assoc_args
-   */
-  function status( $args, $assoc_args ) {
-    $this->setupCliEnvironment( $args, $assoc_args );
-    $fmt = __( 'These database tables need upgrading to InnoDB with the Dynamic row format, MySQL\'s latest storage scheme.', $this->domain );
-    $this->showCommandLine( 'upgrade', $fmt, true, true );
-
-    $fmt = __( 'Add or upgrade high-performance keys for these tables to make your WordPress database faster.', $this->domain );
-    $this->showCommandLine( 'enable', $fmt, false, false );
-
-    $fmt = __( 'Your WordPress tables now have high-performance keys.', $this->domain ) . ' ' .
-           __( 'Revert the keys for these tables to restore WordPress\'s defaults.', $this->domain );
-    $this->showCommandLine( 'disable', $fmt, false, false );
-  }
-
-  /** display  sample command line to user.
-   *
-   * @param $action string  enable/disable/rekey/reset.
-   * @param $caption string prefix text.
-   * @param $warning boolean display warning not log.
-   * @param $alreadyPrefixed boolean  tables in list already have wp_ style prefixes.
-   */
-  private function showCommandLine( string $action, string $caption, bool $warning, bool $alreadyPrefixed ) {
-    $array = $this->rekeying;
-    if ( array_key_exists( $action, $array ) && count( $array[ $action ] ) > 0 ) {
-      $tbls = $this->addPrefixes( $array[ $action ], $alreadyPrefixed );
-      if ( $warning ) {
-        WP_CLI::warning( $caption );
-      } else {
-        WP_CLI::log( $caption );
-      }
-      WP_CLI::log( $this->getCommand( $action, $tbls ) );
-      if ( count( $this->errorMessages ) > 0 ) {
-        WP_CLI::log( implode( PHP_EOL, $this->errorMessages ) );
-        $this->errorMessages = [];
-      }
-      WP_CLI::log( '' );
-    }
-  }
-
-  /** format actual cmd
-   *
-   * @param $cmd string
-   * @param $tbls array
-   *
-   * @return string
-   */
-  private function getCommand( string $cmd, array $tbls ): string {
-    if ( count( $tbls ) > 0 ) {
-      $list = implode( ' ', $tbls );
-
-      return sprintf( "Use this command: %s %s %s", $this->cmd, $cmd, $list );
-    }
-
-    return '';
   }
 
   /**
@@ -317,6 +332,18 @@ class ImsfCli extends WP_CLI_Command {
       $hdrs[] = $key;
     }
     WP_CLI\Utils\format_items( $format, $list, $hdrs );
+  }
+
+  /**
+   * Upload diagnostic metadata to plugin developers' site.
+   * Uploads are anonymous. We use your data only to help with support issues
+   * and improve the plugin. We never sell or give it to any third party.
+   */
+  function upload_metadata( $args, $assoc_args ) {
+    $this->setupCliEnvironment( $args, $assoc_args );
+    $id = imfsRandomString( 8 );
+    $id = imfs_upload_stats( $this->db, $id );
+    WP_CLI::log( __( 'Metadata uploaded to id ', $this->domain ) . $id );
   }
 
 
