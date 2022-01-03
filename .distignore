@@ -1,0 +1,9 @@
+/.wordpress-org
+/.git
+/.github
+/.idea
+/node_modules
+
+README.md
+.distignore
+.gitignore
