@@ -327,9 +327,9 @@ class ImfsPage extends Imfs_AdminPageFramework {
           ],
         ] );
     }
-    if ( count( $rekeying['disable'] ) > 0 ) {
+    if ( count( $rekeying['fast'] ) > 0 ) {
       $list = [];
-      foreach ( $rekeying['disable'] as $tbl ) {
+      foreach ( $rekeying['fast'] as $tbl ) {
         $list[] = $wpdb->prefix . $tbl;
       }
       $list  = implode( ', ', $list );

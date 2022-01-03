@@ -203,7 +203,7 @@ class ImfsDb {
       return;
     }
 
-    $q                          = 'ALTER TABLE ' . $prefixedName . ' ' . implode( ', ', $actions );
+    $q = 'ALTER TABLE ' . $prefixedName . ' ' . implode( ', ', $actions );
     set_time_limit( 120 );
     $this->query( $q, true );
   }
@@ -248,7 +248,7 @@ class ImfsDb {
     $actions = [];
 
     $curDexes = 'current indexes ' . $name . ':';
-    foreach ($current as $value) {
+    foreach ( $current as $value ) {
       $curDexes .= $value->add . ' ';
     }
 
@@ -285,7 +285,7 @@ class ImfsDb {
       $name = $wpdb->prefix . $name;
     }
 
-    $stmt   = $wpdb->prepare( $this->queries['indexes'], $name );
+    $stmt = $wpdb->prepare( $this->queries['indexes'], $name );
 
     return $this->get_results( $stmt );
   }
@@ -317,6 +317,7 @@ class ImfsDb {
   public function getRekeying(): array {
     global $wpdb;
     $enableList      = [];
+    $fastList        = [];
     $disableList     = [];
     $oldList         = [];
     $nonStandardList = [];
@@ -330,7 +331,7 @@ class ImfsDb {
     }
     /* any rekeyable tables? */
     if ( is_array( $tables ) && count( $tables ) > 0 ) {
-      sort ($tables);
+      sort( $tables );
       foreach ( $tables as $name ) {
         try {
           $hasFastIndexes     = ! $this->anyIndexChangesNeededForAction( 1, $name, $this->pluginVersion );
@@ -338,16 +339,14 @@ class ImfsDb {
           $hasOldIndexes      = ! $this->anyIndexChangesNeededForAction( 1, $name, $this->pluginOldVersion );
           if ( $hasStandardIndexes ) {
             $enableList[] = $name;
-          }
-          else if ($hasFastIndexes) {
+          } else if ( $hasFastIndexes ) {
+            $fastList[]    = $name;
             $disableList[] = $name;
-          }
-          else {
+          } else {
             $disableList[] = $name;
-            if ($hasOldIndexes) {
+            if ( $hasOldIndexes ) {
               $oldList[] = $name;
-            }
-            else {
+            } else {
               $nonStandardList[] = $name;
             }
           }
@@ -358,11 +357,12 @@ class ImfsDb {
     }
 
     return [
-      'enable'  => $enableList,
-      'disable' => $disableList,
-      'old'     => $oldList,
+      'enable'      => $enableList,
+      'disable'     => $disableList,
+      'old'         => $oldList,
+      'fast'        => $fastList,
       'nonstandard' => $nonStandardList,
-      'upgrade' => $this->oldEngineTables,
+      'upgrade'     => $this->oldEngineTables,
     ];
   }
 
@@ -526,7 +526,7 @@ class ImfsDb {
 
   public function leaveMaintenanceMode() {
     $maintenanceFileName = ABSPATH . '.maintenance';
-    if ( is_writable( ABSPATH ) ) {
+    if ( is_writable( ABSPATH  ) && file_exists($maintenanceFileName) ) {
       unlink( $maintenanceFileName );
     }
   }

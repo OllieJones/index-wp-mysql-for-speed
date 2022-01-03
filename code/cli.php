@@ -100,23 +100,20 @@ class ImsfCli extends WP_CLI_Command {
 
     $fmt = __( 'Add or upgrade high-performance keys to make your WordPress database faster.', $this->domain );
     $this->showCommandLine( 'enable', 'enable', $fmt, false, false );
-    WP_CLI::log( '' );
 
-    $fmt = __( 'You set some keys from outside this plugin. You can convert them to this plugin\'s  high-performance keys.', $this->domain );
+    $fmt = __( 'You set some keys from outside this plugin. You can convert them to this plugin\'s high-performance keys.', $this->domain );
     $this->showCommandLine( 'nonstandard', 'enable', $fmt, false, false );
     $fmt = __( 'Or, you can revert them to WordPress\'s standard keys.', $this->domain );
     $this->showCommandLine( 'nonstandard', 'disable', $fmt, false, false );
-    WP_CLI::log( '' );
 
     $fmt = __( 'You added high-performance keys using an earlier version of this plugin. You can update them to the latest high-performance keys.', $this->domain );
     $this->showCommandLine( 'old', 'enable', $fmt, false, false );
     $fmt = __( 'Or, you can revert them to WordPress\'s standard keys.', $this->domain );
     $this->showCommandLine( 'old', 'disable', $fmt, false, false );
-    WP_CLI::log( '' );
 
     $fmt = __( 'You successfully added high-performance keys.', $this->domain ) . ' ' .
            __( 'You can revert them to WordPress\'s standard keys.', $this->domain );
-    $this->showCommandLine( 'disable', 'disable', $fmt, false, false );
+    $this->showCommandLine( 'fast', 'disable', $fmt, false, false );
   }
 
   /** display  sample command line to user.
@@ -286,7 +283,6 @@ class ImsfCli extends WP_CLI_Command {
     try {
       $this->db->lock( $tbls, true );
       foreach ( $tbls as $tbl ) {
-        $this->db->lock( [ $tbl ], true );
         $this->db->timings = [];
         $arr               = [ $tbl ];
         $this->db->upgradeStorageEngine( $arr );
