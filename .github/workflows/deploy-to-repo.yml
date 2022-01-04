@@ -18,7 +18,7 @@ jobs:
         env:
           SVN_USERNAME: ${{ secrets.SVN_USERNAME }}
           SVN_PASSWORD: ${{ secrets.SVN_PASSWORD }}
-          ASSETS_DIR: assets
+          ASSETS_DIR: .wordpress-org
           SLUG: index-wp-mysql-for-speed
       - name: Upload release assets
         uses: actions/upload-release-asset@v1

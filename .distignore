@@ -1,9 +1,9 @@
 # Directories and files to omit from the wordpress.org svn repo.
 .distignore
 .gitignore
-assets
 .wordpress-org
 .git
+.github
 .editorconfig
 .idea
 .gitlab-ci.yml
@@ -11,7 +11,7 @@ assets
 .DS_Store
 Thumbs.db
 behat.yml
-bin
+/bin
 circle.yml
 composer.json
 composer.lock
