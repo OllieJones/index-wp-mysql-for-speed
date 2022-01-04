@@ -2,7 +2,7 @@ name: Deploy to WordPress.org
 # see https://github.com/marketplace/actions/wordpress-plugin-deploy#deploy-on-publishing-a-new-release-and-attach-a-zip-file-to-the-release
 on:
   release:
-    types: [published]
+    types: [ published ]
 jobs:
   tag:
     name: New release
@@ -10,18 +10,18 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
-      - name: Build
-        run: |
-          npm install
-          npm run build
-#      - name: WordPress Plugin Deploy
-#        id: deploy
-#        uses: 10up/action-wordpress-plugin-deploy@stable
-#        with:
-#          generate-zip: true
-#        env:
-#          SVN_USERNAME: ${{ secrets.SVN_USERNAME }}
-#          SVN_PASSWORD: ${{ secrets.SVN_PASSWORD }}
+          #      - name: Build
+          #        run: |
+          #          npm install
+          #          npm run build
+          - name: WordPress Plugin Deploy
+              id: deploy
+              uses: 10up/action-wordpress-plugin-deploy@stable
+              with:
+                generate-zip: true
+              env:
+                SVN_USERNAME: ${{ secrets.SVN_USERNAME }}
+                SVN_PASSWORD: ${{ secrets.SVN_PASSWORD }}
       - name: Upload release asset
         uses: actions/upload-release-asset@v1
         env:

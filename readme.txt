@@ -4,7 +4,7 @@ Tags: database, index, key, mysql, wp-cli
 Requires at least: 5.2
 Tested up to: 5.9
 Requires PHP: 7.2
-Stable tag: 1.4.0
+Stable tag: 1.3.3
 Network: true
 License: GPL v2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
