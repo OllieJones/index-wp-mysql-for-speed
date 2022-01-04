@@ -40,7 +40,7 @@ Here's the info on the repo.
 
 ## Description
 
-* Version: 1.4.1
+* Version: 1.4.0
 * Author: Ollie Jones
 * Author URI: https://github.com/OllieJones
 * Requires at least: 5.2

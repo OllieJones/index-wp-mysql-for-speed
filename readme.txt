@@ -4,7 +4,7 @@ Tags: database, index, key, mysql, wp-cli
 Requires at least: 5.2
 Tested up to: 5.9
 Requires PHP: 7.2
-Stable tag: 1.4.1
+Stable tag: 1.4.0
 Network: true
 License: GPL v2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -188,7 +188,7 @@ When upgrading tables, change ROW_FORMAT to DYNAMIC as well as ENGINE to InnoDB.
 = 1.3.4 =
 Support MariaDB 10.1, make indexes work a little better, miscellaneous bugfixes.
 
-= 1.4.1 =
+= 1.4.0 =
 * 5.9 compatibility
 * Rekeys tables in one go: allows the plugin to work when `sql_require_primary_key=ON` (typically at managed service providers).
 * Handles upgrades to high-performance keys

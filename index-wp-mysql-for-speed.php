@@ -17,7 +17,7 @@ Network:           true
 */
 
 /** current version number  */
-define( 'index_wp_mysql_for_speed_VERSION_NUM', '1.4.1' );
+define( 'index_wp_mysql_for_speed_VERSION_NUM', '1.4.0' );
 define( 'index_mysql_for_speed_major_version', 1.4 );
 define( 'index_mysql_for_speed_previous_major_version', 1.3 );
 
