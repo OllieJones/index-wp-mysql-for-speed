@@ -88,6 +88,22 @@ class ImfsPage extends Imfs_AdminPageFramework {
     return $sHTML;
   }
 
+  /** Render stuff at the top as needed. if the current tab is a monitor, render the header information
+   * @param string $sHTML
+   *
+   * @return string
+   */
+  public function content_top_imfs_settings( string $sHTML) {
+    $s = '';
+    /* renderMointor doesn't return anything unless we're on a monitor tab */
+    $monitor = $this->getMonitorName();
+    if ( $monitor !== false ) {
+      $s .= $this->renderMonitor( $monitor, 'top' );
+    }
+
+    return $sHTML . $s;
+  }
+
   /** Render stuff at the bottom as needed. if the current tab is a monitor, render the data
    *
    * @param string $sHTML
@@ -103,7 +119,7 @@ class ImfsPage extends Imfs_AdminPageFramework {
     /* renderMointor doesn't return anything unless we're on a monitor tab */
     $monitor = $this->getMonitorName();
     if ( $monitor !== false ) {
-      $s .= $this->renderMonitor( $monitor );
+      $s .= $this->renderMonitor( $monitor, 'bottom' );
     }
 
     return $sHTML . $s;
@@ -132,10 +148,11 @@ class ImfsPage extends Imfs_AdminPageFramework {
    * present a captured monitor
    *
    * @param string $monitor
+   * @param string $part  'top'   or 'bottom'
    *
    * @return string
    */
-  private function renderMonitor( string $monitor ): string {
+  private function renderMonitor( string $monitor, string $part ): string {
     $this->enqueueStyles(
       [
         plugins_url( 'assets/datatables/datatables.min.css', __FILE__ ),
@@ -146,7 +163,7 @@ class ImfsPage extends Imfs_AdminPageFramework {
         plugins_url( 'assets/imfs.js', __FILE__ ),
       ], 'imfs_settings' );
 
-    return RenderMonitor::renderMonitors( $monitor, $this->db );
+    return RenderMonitor::renderMonitors( $monitor, $part, $this->db );
   }
 
   /** render informational content at the top of the About tab

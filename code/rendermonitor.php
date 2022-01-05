@@ -21,7 +21,7 @@ class renderMonitor {
     $this->dateFormat = get_option( 'date_format' ) . ' ' . get_option( 'time_format' );
   }
 
-  static function renderMonitors( $list, $db ): string {
+  static function renderMonitors( $list, $part, $db ): string {
     $renders  = [];
     $monitors = RenderMonitor::getMonitors();
 
@@ -30,7 +30,7 @@ class renderMonitor {
            || ( is_string( $list ) && $monitor === $list )
            || ( is_array( $list ) && array_search( $monitor, $list ) !== false ) ) {
         $rm        = new RenderMonitor( $monitor, $db );
-        $renders[] = $rm->render();
+        $renders[] = $rm->render($part);
       }
     }
 
@@ -44,7 +44,7 @@ class renderMonitor {
     global $wpdb;
     $prefix = index_wp_mysql_for_speed_monitor . '-Log-';
     $result = [];
-    $q      = "SELECT option_name FROM {$wpdb->options} WHERE option_name LIKE '" . $prefix . "%' AND LENGTH(option_value) > 0";
+    $q      = "SELECT option_name FROM $wpdb->options WHERE option_name LIKE '" . $prefix . "%' AND LENGTH(option_value) > 0";
     $rs     = $wpdb->get_results( $q );
     foreach ( $rs as $r ) {
       $name     = str_replace( $prefix, '', $r->option_name );
@@ -55,14 +55,22 @@ class renderMonitor {
   }
 
   /** Render the monitor to a string
+   *
+   * @param string $part  'top' or 'bottom'
+   *
    * @return string
    */
-  function render(): string {
+  function render( string $part ): string {
     $this->load();
     $c      = $this->classPrefix;
     $prefix = "<div class=\"$c index-wp-mysql-for-speed-content-container\">";
-
-    return $prefix . $this->top() . $this->table() /*. $this->statusTable() */ . "</div>";
+    $suffix = "</div>";
+    if ($part === 'top') {
+      return $prefix . "<div>" . $this->top() . "</div>" ;
+    } else if ($part === 'bottom' ) {
+      return $this->table() . $suffix;
+    }
+    return '';
   }
 
   /** Load the monitor
@@ -82,10 +90,11 @@ class renderMonitor {
     $times  = $this->capturedQuerySummary();
     $dbSumm = $this->dbStatusSummary();
     $res    = <<<END
+    <div class="$c capture-header">
 		<h1 class="$c h1">$this->monitor</h1>
 		<div class="$c top time">$times</div>
 		<div class="$c top summary">$dbSumm</div>
-		<div class="$c top stats">
+    </div>
 END;
 
     return $res;
@@ -154,7 +163,6 @@ END;
   public function dbStatusSummary(): ?string {
     $l      = $this->queryLog;
     $c      = $this->classPrefix;
-    $result = '';
     if ( ! isset ( $l->status ) ) {
       return null;
     }
@@ -272,21 +280,20 @@ END;
   /** get cell data for byte counts
    *
    * @param number $bytes
+   * @param null $unit
+   * @param string $prefix
    *
    * @return string
    */
-  public function byteCell( $bytes, $unit = null, $prefix = '' ): string {
+  public function byteCell( $bytes, $unit = null, string $prefix = '' ): string {
     if ( $bytes === 0.0 ) {
-      $displayBytes = $prefix !== '' ? '' : '0';
-
-      return $displayBytes;
+      return $prefix !== '' ? '' : '0';
     }
     if ( $unit === null ) {
       $unit = $this->getByteUnit( $bytes );
     }
-    $displayBytes = $prefix . number_format_i18n( $bytes / $unit[0], $unit[2] ) . $unit[1];
 
-    return $displayBytes;
+    return $prefix . number_format_i18n( $bytes / $unit[0], $unit[2] ) . $unit[1];
   }
 
   public function getByteUnit( $bytes ): array {
@@ -324,8 +331,8 @@ END;
       "Mean",
       "Spread",
       "P95",
+      "Query Pattern",
       "Plan",
-      "Query",
       "Traceback",
       "Actual",
     ], "query header row" );
@@ -345,8 +352,8 @@ END;
         $row[] = $this->timeCell( $mean, $unit );
         $row[] = $this->timeCell( $this->mad( $q->ts ), $unit, '±' );
         $row[] = $this->timeCell( $this->percentile( $q->ts, 0.95 ), $unit );
-        $row[] = $this->queryPlan( $q );
         $row[] = $q->f;
+        $row[] = $this->queryPlan( $q );
         $row[] = $q->c;
         $row[] = $q->q;
         $res   .= "</tr>" . $this->row( $row, "query data row" ) . "</tr>";
@@ -367,7 +374,7 @@ END;
     return $res;
   }
 
-  public function cell( $item, $class ) {
+  public function cell( $item, $class ): string {
     $c = $this->classPrefix;
     if ( is_string( $item ) ) {
       $item = htmlspecialchars( $item );
@@ -562,6 +569,7 @@ END;
    * @param array $a dataset
    *
    * @return number
+   * @noinspection PhpUnused
    */
   public function stdev( $a ): ?float {
     $n = count( $a );

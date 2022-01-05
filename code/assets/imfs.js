@@ -25,7 +25,7 @@ $(document).ready(function () {
             order: [[0, 'asc'], [2, 'asc']],
             orderClasses: false,
             dom: 'iBfrtilp',
-            buttons: [{extend: 'csv', text: 'Save as .csv', bom: true}],
+            buttons: [{extend: 'csv', text: 'Save this table as .csv', bom: true}],
             columns: [
                 {searchable: false},
                 {searchable: false},
@@ -33,8 +33,8 @@ $(document).ready(function () {
                 {searchable: false},
                 {searchable: false},
                 {searchable: false},
-                null,
                 {data: 'description', render: DataTable.render.formatQueryFingerprint()},
+                null,
                 null,
                 {visible: false}
             ]

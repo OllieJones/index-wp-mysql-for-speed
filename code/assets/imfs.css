@@ -36,12 +36,17 @@ fieldset div.with-child-fields > fieldset.inline > div.index-wp-mysql-for-speed-
 
 /* layout of fields on monitor pages */
 fieldset div.with-child-fields > fieldset.inline-buttons-and-text {
-    height: 3em;
+    height: 2em;
 }
 
-div#poststuff div#post-body > div.index-wp-mysql-for-speed-content,
-div#poststuff div#post-body > div.index-wp-mysql-for-speed-content > div.index-wp-mysql-for-speed-sctionsets > div.index-wp-mysql-for-speed-sectionset,
-div#poststuff div#post-body > div.index-wp-mysql-for-speed-content > div.index-wp-mysql-for-speed-sctionsets > div.index-wp-mysql-for-speed-sectionset > div.index-wp-mysql-for-speed-sections > div.index-wp-mysql-for-speed-section  {
+div.index-wp-mysql-for-speed-content-container > div.index-wp-mysql-for-speed-container > form > div#poststuff > div#post-body {
+    margin-top: 0;
+    margin-bottom: 1.7rem;
+}
+
+div#poststuff > div#post-body > div.index-wp-mysql-for-speed-content,
+div#poststuff > div#post-body > div.index-wp-mysql-for-speed-content > div.index-wp-mysql-for-speed-sctionsets > div.index-wp-mysql-for-speed-sectionset,
+div#poststuff > div#post-body > div.index-wp-mysql-for-speed-content > div.index-wp-mysql-for-speed-sctionsets > div.index-wp-mysql-for-speed-sectionset > div.index-wp-mysql-for-speed-sections > div.index-wp-mysql-for-speed-section  {
     margin-bottom: -2px;
 }
 
