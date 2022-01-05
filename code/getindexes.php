@@ -6,7 +6,8 @@ class imfsGetIndexes {
 
   /** @noinspection PhpUnusedParameterInspection */
   static function getStandardIndexes( $unconstrained, $version = 51917 ): array {
-    /* these are WordPress's standard indexes for database version 51917 and before */
+    /* these are WordPress's standard indexes for database version 51917 and before.
+     * see the end of this file for their definitions */
     return imfsGetIndexes::$imfsStandardIndexes;
   }
 
@@ -42,7 +43,7 @@ class imfsGetIndexes {
      * to hold the autoincrementing column.
      * Put that UNIQUE KEY first in the list of keys to add.
      * That makes sure we always have some sort of
-     * no-duplicates constraint on the autoincrementing ID.
+     * no-duplicate constraint on the autoincrementing ID.
      */
 
 
@@ -50,8 +51,8 @@ class imfsGetIndexes {
     $reindexAnyway = [
       "options"  => [
         "option_id"   => "ADD UNIQUE KEY option_id (option_id)",
-        "PRIMARY KEY" => "ADD PRIMARY KEY (autoload, option_id)",
-        "option_name" => "ADD UNIQUE KEY option_name (option_name)",
+        "PRIMARY KEY" => "ADD PRIMARY KEY (option_name)",
+        "autoload" => "ADD KEY autoload (autoload)",
       ],
       "comments" => [
         "comment_ID"                   => "ADD UNIQUE KEY comment_ID (comment_ID)",
