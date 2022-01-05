@@ -101,29 +101,41 @@ class ImfsPage extends Imfs_AdminPageFramework {
   ): string {
     $s = '';
     /* renderMointor doesn't return anything unless we're on a monitor tab */
-    $s .= $this->renderMonitor();
+    $monitor = $this->getMonitorName();
+    if ( $monitor !== false ) {
+      $s .= $this->renderMonitor( $monitor );
+    }
 
     return $sHTML . $s;
   }
 
-  /** @noinspection PhpUnused */
-
-  /**
-   * present a captured monitor
-   * @return string
+  /** retrieve the current monitor name from the active tab name.
+   * @return false|string
    */
-  private
-  function renderMonitor(): string {
+  private function getMonitorName() {
     /* See https://wordpress.org/support/topic/when-naming-inpagetabs-with-variables-how-can-i-use-content_pageslug/#post-14924022 */
     $tab = $this->oProp->getCurrentTabSlug();
     $pos = strrpos( $tab, $this->tabSuffix );
     if ( $pos !== strlen( $tab ) - strlen( $this->tabSuffix ) ) {
-      return '';
+      return false;
     }
     $monitor = substr( $tab, 0, $pos );
     if ( array_search( $monitor, $this->monitors ) === false ) {
-      return '';
+      return false;
     }
+
+    return $monitor;
+  }
+
+
+  /**
+   * present a captured monitor
+   *
+   * @param string $monitor
+   *
+   * @return string
+   */
+  private function renderMonitor( string $monitor ): string {
     $this->enqueueStyles(
       [
         plugins_url( 'assets/datatables/datatables.min.css', __FILE__ ),
@@ -236,7 +248,7 @@ class ImfsPage extends Imfs_AdminPageFramework {
       }
       /* updating old versions of keys  ***************************/
       $action = 'old';
-      if ( count( $rekeying[$action] ) > 0 ) {
+      if ( count( $rekeying[ $action ] ) > 0 ) {
 
         $title        = __( 'Update keys', $this->domain );
         $caption      = __( 'Update keys to this plugin\'s latest version', $this->domain );
@@ -245,7 +257,7 @@ class ImfsPage extends Imfs_AdminPageFramework {
       }
       /* converting nonstandard keys  ***************************/
       $action = 'nonstandard';
-      if ( count( $rekeying[$action] ) > 0 ) {
+      if ( count( $rekeying[ $action ] ) > 0 ) {
 
         $title        = __( 'Convert keys', $this->domain );
         $caption      = __( 'Convert to this plugin\'s high-performance keys', $this->domain );
@@ -736,7 +748,7 @@ class ImfsPage extends Imfs_AdminPageFramework {
               'value'      => 'X',
               'tip'        => __( 'Delete', $this->domain ) . ' ' . $monitor,
               'attributes' => [
-                'class' => 'button button_secondary button_delete',
+                'class' => 'button button_secondary button_delete button_round',
                 'title' => __( 'Delete', $this->domain ) . ' ' . $monitor,
               ],
             ],
@@ -858,6 +870,12 @@ class ImfsPage extends Imfs_AdminPageFramework {
 
       return;
     }
+
+    $monitor = $this->getMonitorName();
+    if ( $monitor === false ) {
+      return;
+    }
+    $this->populate_monitor_fields($monitor);
   }
 
   /** @noinspection PhpUnused */
@@ -873,8 +891,16 @@ class ImfsPage extends Imfs_AdminPageFramework {
     $this->unconstrained = $this->db->unconstrained;
   }
 
-  /** @noinspection PhpUnused */
-
+  /** Admin Page Framework validation for rekey tab
+   *
+   * @param $inputs
+   * @param $oldInputs
+   * @param $factory
+   * @param $submitInfo
+   *
+   * @return mixed
+   * @noinspection PhpUnused
+   */
   function validation_imfs_settings_rekey( $inputs, $oldInputs, $factory, $submitInfo ) {
     $valid  = true;
     $errors = [];
@@ -915,7 +941,7 @@ class ImfsPage extends Imfs_AdminPageFramework {
     return $this->action( $submitInfo['field_id'], $inputs, $oldInputs, $factory, $submitInfo );
   }
 
-  /** @noinspection PhpUnusedParameterInspection */
+  /** @noinspection PhpUnused */
 
   private
   function listFromCheckboxes(
@@ -978,6 +1004,8 @@ class ImfsPage extends Imfs_AdminPageFramework {
       return $oldInputs;
     }
   }
+
+  /** @noinspection PhpUnusedParameterInspection */
 
   /**
    * @param $inputs
@@ -1052,6 +1080,55 @@ class ImfsPage extends Imfs_AdminPageFramework {
     }
 
     return $this->action( $submitInfo['field_id'], $inputs, $oldInputs, $factory, $submitInfo );
+  }
+
+  private function populate_monitor_fields($monitor) {
+    $this->addSettingFields(
+      [
+        'field_id' => 'monitor_actions',
+        'type'     => 'inline_mixed',
+        'content'  => [
+          [
+            'field_id'   => 'delete_' . $monitor . '_now',
+            'type'       => 'submit',
+            'save'       => false,
+            'value'      => __( 'Delete', $this->domain ),
+            'tip'        => __( 'Delete this monitor', $this->domain ),
+            'attributes' => [
+              'class' => 'button button_secondary button_delete',
+              'title' => __( 'Delete this monitor', $this->domain ),
+            ],
+            'class'    => [
+              'fieldset' => 'inline-buttons-and-text',
+            ],
+          ],
+          [
+            'field_id' => 'upload_' . $monitor . '_now',
+            'type'       => 'submit',
+            'save'       => false,
+            'value'      => __( 'Upload ', $this->domain ),
+            'tip'        => __( 'Upload', $this->domain ) . ' ' . $monitor,
+            'attributes' => [
+              'class' => 'button button_secondary',
+              'title' => __( 'Upload this monitor to our plugin\'s servers', $this->domain ),
+            ],
+            'class'    => [
+              'fieldset' => 'inline-buttons-and-text',
+            ],
+          ],
+          [
+            'field_id' => 'uploadId',
+            'type'     => 'text',
+            'save'     => true,
+            'label'    => __( 'Upload to', $this->domain ),
+            'default'  => imfsRandomString( 8 ),
+            'class'    => [
+              'fieldset' => 'inline-buttons-and-text',
+              'fieldrow' => 'randomid',
+            ],
+          ],
+        ],
+      ] );
   }
 }
 

@@ -26,7 +26,6 @@ div#wpcontent form div > div > table.form-table > tbody > tr.header > td  {
     padding-bottom: 0;
 }
 
-/* inline fields layout */
 fieldset div.with-child-fields > fieldset.inline > div.index-wp-mysql-for-speed-fields > div.index-wp-mysql-for-speed-field > div > label > input {
     min-width: auto;
 }
@@ -35,14 +34,27 @@ fieldset div.with-child-fields > fieldset.inline > div.index-wp-mysql-for-speed-
     width: 5em;
 }
 
-/* alignment of text fields */
-#fieldset-monitor_specs_Array {
-    /* https://github.com/michaeluno/admin-page-framework/issues/293 vertical-align: initial !important; */
+/* layout of fields on monitor pages */
+fieldset div.with-child-fields > fieldset.inline-buttons-and-text {
+    height: 3em;
 }
 
+div#poststuff div#post-body > div.index-wp-mysql-for-speed-content,
+div#poststuff div#post-body > div.index-wp-mysql-for-speed-content > div.index-wp-mysql-for-speed-sctionsets > div.index-wp-mysql-for-speed-sectionset,
+div#poststuff div#post-body > div.index-wp-mysql-for-speed-content > div.index-wp-mysql-for-speed-sctionsets > div.index-wp-mysql-for-speed-sectionset > div.index-wp-mysql-for-speed-sections > div.index-wp-mysql-for-speed-section  {
+    margin-bottom: -2px;
+}
+
+div#wpcontent form div > div > table.form-table > tbody > tr#fieldrow-monitor_actions > th {
+    width: 0;
+}
+div#wpcontent form div > div > table.form-table > tbody > tr#fieldrow-monitor_actions > td {
+    padding-bottom: 0;
+}
 
 /* space after labels on inline fields */
-fieldset div.with-child-fields > fieldset.inline > div > div.index-wp-mysql-for-speed-field > div > label > span.index-wp-mysql-for-speed-input-label-string {
+fieldset div.with-child-fields > fieldset.inline > div > div.index-wp-mysql-for-speed-field > div > label > span.index-wp-mysql-for-speed-input-label-string,
+div#fields-monitor_actions_uploadId label > span.index-wp-mysql-for-speed-input-label-string {
     padding-right: 0.5em;
 }
 
@@ -72,8 +84,10 @@ div#wpcontent form div > div > table.form-table > tbody > tr.detail {
 }
 
 div.index-wp-mysql-for-speed-input-button-container > label > input.button.button_delete {
-    background-color: red;
     color: white;
+    background-color: red;
+}
+div.index-wp-mysql-for-speed-input-button-container > label > input.button.button_delete.button_round {
     font-weight: 900;
     border-radius: 2em;
     height: 0.6rem;
