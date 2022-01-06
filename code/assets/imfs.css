@@ -6,97 +6,96 @@
     display: none;
 }
 
-form div#poststuff div#post-body,
-div#wpbody > div#wpbody-content div.index-wp-mysql-for-speed-content-container {
-    margin-top: 1em;
-    margin-left: 1em;
+div > div > label > p.tablelist {
+    font-size: 95%;
+    font-weight: 600;
 }
 
-div#wpcontent form div > div > table.form-table > tbody > tr.warning > th,
-div#wpcontent form div > div > table.form-table > tbody > tr > th span.warning {
-    color: #cc9900;
+div > label > span > p.longlabel {
+    margin-bottom: 1em;
+    width: 60em;
 }
 
-div#wpcontent form div > div > table.form-table > tbody > tr.success > th {
-    color: #10a010;
-}
-div#wpcontent form div > div > table.form-table > tbody > tr.header > th ,
-div#wpcontent form div > div > table.form-table > tbody > tr.header > td  {
-    padding-top: 0.75em;
-    padding-bottom: 0;
-}
-
-fieldset div.with-child-fields > fieldset.inline > div.index-wp-mysql-for-speed-fields > div.index-wp-mysql-for-speed-field > div > label > input {
-    min-width: auto;
-}
-
-fieldset div.with-child-fields > fieldset.inline > div.index-wp-mysql-for-speed-fields > div.index-wp-mysql-for-speed-field > div > label > input[type=number] {
-    width: 5em;
-}
-
-/* layout of fields on monitor pages */
-fieldset div.with-child-fields > fieldset.inline-buttons-and-text {
-    height: 2em;
-}
-
-div.index-wp-mysql-for-speed-content-container > div.index-wp-mysql-for-speed-container > form > div#poststuff > div#post-body {
-    margin-top: 0;
-    margin-bottom: 1.7rem;
+div > label > span > p.longlabel:last-of-type {
+    margin-bottom: 0;
 }
 
 div#poststuff > div#post-body > div.index-wp-mysql-for-speed-content,
 div#poststuff > div#post-body > div.index-wp-mysql-for-speed-content > div.index-wp-mysql-for-speed-sctionsets > div.index-wp-mysql-for-speed-sectionset,
-div#poststuff > div#post-body > div.index-wp-mysql-for-speed-content > div.index-wp-mysql-for-speed-sctionsets > div.index-wp-mysql-for-speed-sectionset > div.index-wp-mysql-for-speed-sections > div.index-wp-mysql-for-speed-section  {
+div#poststuff > div#post-body > div.index-wp-mysql-for-speed-content > div.index-wp-mysql-for-speed-sctionsets > div.index-wp-mysql-for-speed-sectionset > div.index-wp-mysql-for-speed-sections > div.index-wp-mysql-for-speed-section {
     margin-bottom: -2px;
+}
+
+div#wpbody > div#wpbody-content div.rendermon.table-container {
+    margin-bottom: 0.5em;
+    margin-top: 0.5em;
+}
+
+div#wpbody > div#wpbody-content div.rendermon.table-container button.dt-button span,
+div#wpbody > div#wpbody-content div.rendermon.table-container div.dataTables_filter label {
+    font-size: 0.85rem;
+}
+
+div#wpbody > div#wpbody-content div.rendermon.table-container table thead tr td.rendermon.query.header {
+    font-weight: 600;
+}
+
+div#wpbody > div#wpbody-content h1.rendermon {
+    font-weight: 600;
+    margin-bottom: 0.2em;
+    padding-top: 0;
+}
+
+div#wpcontent form div > div > table.form-table > tbody > tr > td {
+    padding-left: 0;
+}
+
+div#wpcontent form div > div > table.form-table > tbody > tr > td,
+div#wpcontent form div > div > table.form-table > tbody > tr > th {
+    padding-bottom: 0.5em;
+    padding-right: 0.25em;
+    padding-top: 0.25em;
+}
+
+div#wpcontent form div > div > table.form-table > tbody > tr > th > label {
+    margin-right: 0;
+    width: 8rem;
+}
+
+div#wpcontent form div > div > table.form-table > tbody > tr > th:first-child {
+    width: 8rem;
+}
+
+div#wpcontent form div > div > table.form-table > tbody > tr#fieldrow-monitor_actions > td {
+    padding-bottom: 0;
 }
 
 div#wpcontent form div > div > table.form-table > tbody > tr#fieldrow-monitor_actions > th {
     width: 0;
 }
-div#wpcontent form div > div > table.form-table > tbody > tr#fieldrow-monitor_actions > td {
+
+div#wpcontent form div > div > table.form-table > tbody > tr.detail {
     padding-bottom: 0;
-}
-
-/* space after labels on inline fields */
-fieldset div.with-child-fields > fieldset.inline > div > div.index-wp-mysql-for-speed-field > div > label > span.index-wp-mysql-for-speed-input-label-string,
-div#fields-monitor_actions_uploadId label > span.index-wp-mysql-for-speed-input-label-string {
-    padding-right: 0.5em;
-}
-
-/* width of inline number entry field */
-fieldset.inline input.number {
-    width: 4em;
-}
-
-
-/* width of inline text entry field */
-fieldset.inline input.name {
-    width: 12em;
-}
-
-/* width of random id field  */
-fieldset input.randomid {
-    width: 8em;
+    padding-top: 3px;
 }
 
 div#wpcontent form div > div > table.form-table > tbody > tr.failure > th {
     color: red;
 }
 
-div#wpcontent form div > div > table.form-table > tbody > tr.detail {
-    padding-top: 3px;
-    padding-bottom: 0
+div#wpcontent form div > div > table.form-table > tbody > tr.header > th,
+div#wpcontent form div > div > table.form-table > tbody > tr.header > td {
+    padding-bottom: 0;
+    padding-top: 0.75em;
 }
 
-div.index-wp-mysql-for-speed-input-button-container > label > input.button.button_delete {
-    color: white;
-    background-color: red;
+div#wpcontent form div > div > table.form-table > tbody > tr.success > th {
+    color: #10a010;
 }
-div.index-wp-mysql-for-speed-input-button-container > label > input.button.button_delete.button_round {
-    font-weight: 900;
-    border-radius: 2em;
-    height: 0.6rem;
-    min-width: unset !important;
+
+div#wpcontent form div > div > table.form-table > tbody > tr.warning > th,
+div#wpcontent form div > div > table.form-table > tbody > tr > th span.warning {
+    color: #cc9900;
 }
 
 div#wpcontent form div > div > table.form-table > tbody > tr.warning.detail > th {
@@ -108,100 +107,106 @@ div#wpcontent form div > div > table.form-table > tbody > tr.warning.detail > th
     font-weight: 400;
 }
 
-div#wpcontent form div > div > table.form-table > tbody > tr > td {
-    padding-left: 0;
+div.index-wp-mysql-for-speed-content-container > div.index-wp-mysql-for-speed-container > form > div#poststuff > div#post-body {
+    margin-bottom: 1.7rem;
+    margin-top: 0;
 }
 
-div#wpcontent form div > div > table.form-table > tbody > tr > td,
-div#wpcontent form div > div > table.form-table > tbody > tr > th {
-    padding-bottom: 0.5em;
-    padding-top: 0.25em;
-    padding-right: 0.25em;
+div.index-wp-mysql-for-speed-input-button-container > label > input.button.button_delete {
+    background-color: red;
+    color: white;
 }
 
-div#wpcontent form div > div > table.form-table > tbody > tr > th:first-child {
-    width: 8rem;
-}
-div#wpcontent form div > div > table.form-table > tbody > tr > th > label {
-    margin-right: 0;
-    width: 8rem;
-}
-
-p.topinfo {
-    font-size: 14px;
-    margin-top: 0.5em;
-    margin-bottom: 0.5em;
+div.index-wp-mysql-for-speed-input-button-container > label > input.button.button_delete.button_round {
+    border-radius: 2em;
+    font-weight: 900;
+    height: 0.6rem;
+    min-width: unset !important;
 }
 
-
-div#wpbody > div#wpbody-content h1.rendermon {
-    padding-top: 0;
-    font-weight: 600;
+div.rendermon > div.rendermon.top.summary > div.rendermon.top.line {
     margin-bottom: 0.2em;
-}
-
-div#wpbody > div#wpbody-content div.rendermon.table-container {
-    margin-top: 0.5em;
-    margin-bottom: 0.5em;
 }
 
 div.rendermon > div.rendermon.top.summary > div.rendermon.top.line.indent {
     margin-left: 1em;
 }
-div.rendermon > div.rendermon.top.summary > div.rendermon.top.line {
-    margin-bottom: 0.2em;
-}
+
 div.rendermon > div.rendermon.top.time {
     font-weight: 600;
     margin-bottom: 0.2em;
 }
 
-table.rendermon.status tr > td.number {
-    text-align: right;
+div.rendermon.query.table-container > .dataTables_wrapper > .dataTables_info {
+    padding-right: 2em;
+    padding-top: 0.5em;
 }
 
-/* lozenges for query fingerprint placeholders. */
+div.select_none_button_container {
+    margin-left: 0.5em;
+}
+
+fieldset div.with-child-fields > fieldset.inline > div > div.index-wp-mysql-for-speed-field > div > label > span.index-wp-mysql-for-speed-input-label-string,
+div#fields-monitor_actions_uploadId label > span.index-wp-mysql-for-speed-input-label-string {
+    padding-right: 0.5em;
+}
+
+fieldset div.with-child-fields > fieldset.inline > div.index-wp-mysql-for-speed-fields > div.index-wp-mysql-for-speed-field > div > label > input {
+    min-width: auto;
+}
+
+fieldset div.with-child-fields > fieldset.inline > div.index-wp-mysql-for-speed-fields > div.index-wp-mysql-for-speed-field > div > label > input[type=text] {
+    width: 8em;
+}
+
+fieldset div.with-child-fields > fieldset.inline > div.index-wp-mysql-for-speed-fields > div.index-wp-mysql-for-speed-field > div > label > input[type=number] {
+    width: 5em;
+}
+
+fieldset div.with-child-fields > fieldset.inline-buttons-and-text {
+    height: 2em;
+}
+
+fieldset.inline-buttons-and-text input.randomid,
+input#monitor_actions_uploadId__0,
+input#uploadId_0 {
+    min-width: unset;
+    width: 12em;
+}
+
+fieldset.inline input.name {
+    width: 12em;
+}
+
+fieldset.inline input.number {
+    width: 4em;
+}
+
+form div#poststuff div#post-body,
+div#wpbody > div#wpbody-content div.index-wp-mysql-for-speed-content-container {
+    margin-left: 1em;
+    margin-top: 1em;
+}
+
+p.topinfo {
+    font-size: 14px;
+    margin-bottom: 0.5em;
+    margin-top: 0.5em;
+}
+
 table.rendermon.query tbody > tr > td > span.t {
-    font-size: 105%;
     border: 0.05em #a0a0a0 solid;
-    padding-left: 2px;
-    padding-right: 2px;
+    font-size: 105%;
     margin-left: 2px;
     margin-right: 2px;
+    padding-left: 2px;
+    padding-right: 2px;
 }
 
 table.rendermon.query tbody > tr > td > span.ZZ {
     display: none;
 }
 
-div.rendermon.query.table-container > .dataTables_wrapper > .dataTables_info {
-    padding-top: 0.5em;
-    padding-right: 2em;
-}
-
-div#wpbody > div#wpbody-content div.rendermon.table-container table thead tr td.rendermon.query.header {
-    font-weight: 600;
-}
-
-div#wpbody > div#wpbody-content div.rendermon.table-container button.dt-button span,
-div#wpbody > div#wpbody-content div.rendermon.table-container div.dataTables_filter label {
-    font-size: 0.85rem;
-}
-
-div > label > span > p.longlabel {
-    width: 36em;
-    margin-bottom: 1em;
-}
-
-div > div > label > p.tablelist {
-    font-size: 95%;
-    font-weight: 600;
-}
-
-div > label > span > p.longlabel:last-of-type {
-    margin-bottom: 0;
-}
-
-div.select_none_button_container {
-    margin-left: 0.5em;
+table.rendermon.status tr > td.number {
+    text-align: right;
 }

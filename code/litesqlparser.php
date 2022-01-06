@@ -302,6 +302,31 @@ class LightSQLParser {
     return array_unique( $results );
   }
 
+  function getShortened() {
+    $query = $this->getQuery();
+    if ( strlen( $query ) <= 200 ) {
+      return $query;
+    }
+    $result = $query;
+    /* quoted strings, with escapes processed correctly */
+    $quSt   = <<<'END'
+/'(?:.*?[^\\])??(?:(?:\\\\)+)?'/
+END;
+    $result = preg_replace_callback( $quSt, function ( $matches ) {
+      $s = $matches[0];
+      if ( strlen( $s ) > 32 ) {
+        $s = substr( $s, 0, 20 ) . '...' . substr( $s, - 9 );
+      }
+
+      return $s;
+    }, $result );
+
+    /* extra white space */
+    $result = preg_replace( '/\s+/', ' ', $result );
+
+    return $result;
+  }
+
   function getFingerprint() {
     $query = $this->getQuery();
 
@@ -343,7 +368,7 @@ class LightSQLParser {
     $result = preg_replace( '/IN +\( *\d+ *, *\d+ *\)/', 'IN (?i?, ?i?)', $result );
     /* This is a workaround for an apparent
      *  regex bug capturing {2,19} and {20,} with lots of numbers */
-    $result = preg_replace( '/[0-9, ]{90,}/', '?ilonglist?', $result );
+    $result = preg_replace( '/[0-9, ]{64,}/', '?ilonglist?', $result );
     $result = preg_replace( '/IN\s*\((?:\s*(?:\?izero\?|\?ione\?|\d+)\s*,*?){2,19}\s*\)/', 'IN (?ilist?)', $result );
     $result = preg_replace( '/IN\s*\((?:\s*(?:\?izero\?|\?ione\?|\d+)\s*,*?){20,}\s*\)/', 'IN (?ilonglist?)', $result );
     $result = preg_replace( '/([^_])\d+/', '$1?i?', $result );

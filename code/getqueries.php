@@ -61,7 +61,8 @@ function getMySQLVersion(): object {
 
   /* check db version ... TODO with new db versions, test again */
   if ( $wp_db_version < index_wp_mysql_for_speed_first_compatible_db_version ||
-       $wp_db_version > index_wp_mysql_for_speed_last_compatible_db_version ) {
+       (index_wp_mysql_for_speed_last_compatible_db_version &&
+        $wp_db_version > index_wp_mysql_for_speed_last_compatible_db_version ) ) {
     /* fail if we don't have an expected version */
     $results->canreindex = 0;
 

@@ -6,7 +6,7 @@ class ImfsPage extends Imfs_AdminPageFramework {
 
   public $pluginName;
   public $pluginSlug;
-  public $domain;   //TODO this is kludgey for just one old version.
+  public $domain;
   public $monitors;
   /**
    * @var bool true if the dbms allows reindexing at all.
@@ -50,11 +50,11 @@ class ImfsPage extends Imfs_AdminPageFramework {
     );
     $tabs           = [];
     $tabs[]         = [
-      'tab_slug' => 'rekey',
+      'tab_slug' => 'high_performance_keys',
       'title'    => __( 'High-Performance Keys', $this->domain ),
     ];
     $tabs[]         = [
-      'tab_slug' => 'monitor',
+      'tab_slug' => 'monitor_database_operations',
       'title'    => __( 'Monitor Database Operations', $this->domain ),
     ];
     $this->monitors = RenderMonitor::getMonitors();
@@ -65,7 +65,7 @@ class ImfsPage extends Imfs_AdminPageFramework {
       ];
     }
     $tabs[] = [
-      'tab_slug' => 'info',
+      'tab_slug' => 'about',
       'title'    => __( 'About', $this->domain ),
     ];
     $this->addInPageTabs( 'imfs_settings', ...$tabs );
@@ -77,7 +77,7 @@ class ImfsPage extends Imfs_AdminPageFramework {
    * @param string $sHTML
    *
    * @return string
-   * @noinspection PhpUnused
+   * @callback  action content_{page slug}
    */
   public function content_imfs_settings( string $sHTML ): string {
     $this->enqueueStyles(
@@ -89,37 +89,21 @@ class ImfsPage extends Imfs_AdminPageFramework {
   }
 
   /** Render stuff at the top as needed. if the current tab is a monitor, render the header information
+   *
    * @param string $sHTML
    *
    * @return string
+   * @callback  action content_{position}_{page slug}
    */
-  public function content_top_imfs_settings( string $sHTML) {
-    $s = '';
-    /* renderMointor doesn't return anything unless we're on a monitor tab */
+  public function content_top_imfs_settings( string $sHTML ): string {
+    $s       = '';
     $monitor = $this->getMonitorName();
+
+    $sHTML = $this->insertHelpTab( $monitor, $sHTML );
+
+    /* renderMonitor doesn't return anything unless we're on a monitor tab */
     if ( $monitor !== false ) {
       $s .= $this->renderMonitor( $monitor, 'top' );
-    }
-
-    return $sHTML . $s;
-  }
-
-  /** Render stuff at the bottom as needed. if the current tab is a monitor, render the data
-   *
-   * @param string $sHTML
-   *
-   * @return string
-   * @noinspection PhpUnused
-   */
-  public
-  function content_bottom_imfs_settings(
-    string $sHTML
-  ): string {
-    $s = '';
-    /* renderMointor doesn't return anything unless we're on a monitor tab */
-    $monitor = $this->getMonitorName();
-    if ( $monitor !== false ) {
-      $s .= $this->renderMonitor( $monitor, 'bottom' );
     }
 
     return $sHTML . $s;
@@ -136,19 +120,40 @@ class ImfsPage extends Imfs_AdminPageFramework {
       return false;
     }
     $monitor = substr( $tab, 0, $pos );
-    if ( array_search( $monitor, $this->monitors ) === false ) {
+    if ( ! in_array( $monitor, $this->monitors ) ) {
       return false;
     }
 
     return $monitor;
   }
 
+  /** Edit the APF header HTML to stick in a HELP tab.
+   *
+   * @param $monitor
+   * @param string $sHTML
+   *
+   * @return string
+   */
+  private function insertHelpTab( $monitor, string $sHTML ): string {
+    $tabSlug = $monitor ? 'monitor' : $this->oProp->getCurrentTabSlug();
+    $helpUrl = index_wp_mysql_for_speed_help_site . $tabSlug;
+    $help    = __( 'Help', $this->domain );
+    /** @noinspection HtmlUnknownTarget */
+    $helpTag = '<a class="helpbutton nav-tab" target="_blank" href="%s">%s</a>';
+    $helpTag = sprintf( $helpTag, $helpUrl, $help );
+
+    $delimiter = '<a class=';
+    $splits    = explode( $delimiter, $sHTML, 2 );
+    $sHTML     = $splits[0] . $helpTag . $delimiter . $splits[1];
+
+    return $sHTML;
+  }
 
   /**
-   * present a captured monitor
+   * present a saved monitor
    *
    * @param string $monitor
-   * @param string $part  'top'   or 'bottom'
+   * @param string $part 'top'   or 'bottom'
    *
    * @return string
    */
@@ -166,15 +171,36 @@ class ImfsPage extends Imfs_AdminPageFramework {
     return RenderMonitor::renderMonitors( $monitor, $part, $this->db );
   }
 
+  /** Render stuff at the bottom as needed. if the current tab is a monitor, render the data
+   *
+   * @param string $sHTML
+   *
+   * @return string
+   * @callback  action content_{position}_{page slug}_{tab_slug}
+   */
+  public
+  function content_bottom_imfs_settings(
+    string $sHTML
+  ): string {
+    $s = '';
+    /* renderMointor doesn't return anything unless we're on a monitor tab */
+    $monitor = $this->getMonitorName();
+    if ( $monitor !== false ) {
+      $s .= $this->renderMonitor( $monitor, 'bottom' );
+    }
+
+    return $sHTML . $s;
+  }
+
   /** render informational content at the top of the About tab
    *
    * @param string $sHTML
    *
    * @return string
-   * @noinspection PhpUnused
+   * @callback  action content_{position}_{page slug}_{tab_slug}
    */
   public
-  function content_top_imfs_settings_info(
+  function content_top_imfs_settings_about(
     string $sHTML
   ): string {
     /** @noinspection HtmlUnknownTarget */
@@ -202,16 +228,10 @@ class ImfsPage extends Imfs_AdminPageFramework {
    *
    * @param object $oAdminPage
    *
-   * @noinspection PhpUnusedParameterInspection PhpUnused
+   * @callback  action validation_{page slug}_{tab_slug}
+   * @noinspection PhpUnusedParameterInspection
    */
-  public
-  function load_imfs_settings_rekey(
-    object $oAdminPage
-  ) {
-    $this->enqueueStyles(
-      [
-        plugins_url( 'assets/imfs.css', __FILE__ ),
-      ], 'imfs_settings' );
+  public function load_imfs_settings_high_performance_keys( object $oAdminPage ) {
 
     if ( $this->checkVersionInfo() ) {
 
@@ -232,6 +252,7 @@ class ImfsPage extends Imfs_AdminPageFramework {
 
 
       $this->addSettingFields(
+
         [
           'field_id' => 'backup',
           'title'    => __( 'Backup', $this->domain ),
@@ -249,6 +270,7 @@ class ImfsPage extends Imfs_AdminPageFramework {
             'class'    => [
               'fieldrow' => 'major',
             ],
+
           ],
         ]
       );
@@ -605,16 +627,13 @@ class ImfsPage extends Imfs_AdminPageFramework {
    *
    * @param $oAdminPage
    *
-   * @noinspection PhpUnusedParameterInspection PhpUnused
+   * @callback  action validation_{page slug}_{tab_slug}
+   * @noinspection PhpUnusedParameterInspection
    */
   public
-  function load_imfs_settings_monitor(
+  function load_imfs_settings_monitor_database_operations(
     $oAdminPage
   ) {
-    $this->enqueueStyles(
-      [
-        plugins_url( 'assets/imfs.css', __FILE__ ),
-      ], 'imfs_settings' );
 
     $sampleText  = __( 'sampling %d%% of pageviews.', $this->domain );
     $labelText   = [];
@@ -622,9 +641,10 @@ class ImfsPage extends Imfs_AdminPageFramework {
     $labelText[] = __( 'To capture monitoring from your site, push the', $this->domain );
     $labelText[] = __( 'Start Monitoring', $this->domain );
     $labelText[] = __( 'button after choosing  a name for your monitor and the options you need.</p>', $this->domain );
-    $labelText[] = __( '<p class="longlabel">While your monitor is active, the plugin captures activity on your site,', $this->domain );
+    $labelText[] = __( '<p class="longlabel">Then use your site and dashboard to do things that may be slow so the plugin can capture them.', $this->domain );
+    $labelText[] = __( 'While your monitor is active, the plugin captures database activity on your site,', $this->domain );
     $labelText[] = __( 'both yours and other users\'.</p>', $this->domain );
-    $labelText[] = __( '<p class="longlabel">At the end of the monitoring time you may view it to see your site\'s MySQL traffic.</p>', $this->domain );
+    $labelText[] = __( '<p class="longlabel">When the monitoring time ends, view your saved monitor to see your site\'s MySQL traffic and identify the slowest operations.</p>', $this->domain );
     $labelText   = implode( ' ', $labelText );
 
     $this->addSettingFields(
@@ -659,6 +679,9 @@ class ImfsPage extends Imfs_AdminPageFramework {
             'label'           => __( 'for', $this->domain ),
             'save'            => true,
             'default'         => 5,
+            'attributes'      => [
+              'min' => 1,
+            ],
             'class'           => [
               'fieldset' => 'inline',
               'fieldrow' => 'number',
@@ -732,8 +755,8 @@ class ImfsPage extends Imfs_AdminPageFramework {
     );
 
     $monLabel = count( $this->monitors ) > 0
-      ? __( 'Captured monitors', $this->domain )
-      : __( 'No monitors have been captured.', $this->domain );
+      ? __( 'Saved monitors', $this->domain )
+      : __( 'No monitors are saved. ', $this->domain );
 
     $this->addSettingFields(
       [
@@ -790,17 +813,13 @@ class ImfsPage extends Imfs_AdminPageFramework {
    *
    * @param $oAdminPage
    *
-   * @noinspection PhpUnusedParameterInspection PhpUnused
+   * @callback  action load_{page slug}_{tab_slug}
+   * @noinspection PhpUnusedParameterInspection
    */
   public
-  function load_imfs_settings_info(
+  function load_imfs_settings_about(
     $oAdminPage
   ) {
-    $this->enqueueStyles(
-      [
-        plugins_url( 'assets/imfs.css', __FILE__ ),
-      ], 'imfs_settings' );
-
     if ( ! $this->db->unconstrained ) {
       $this->addSettingFields(
         [
@@ -869,10 +888,11 @@ class ImfsPage extends Imfs_AdminPageFramework {
 
   /** @noinspection PhpUnused */
 
-  /** load overall page
+  /** load overall page, used to load monitor items (with variable slug names)
    *
    * @param $oAdminPage
    *
+   * @callback  action load_{page slug}
    * @noinspection PhpUnusedParameterInspection
    */
   public
@@ -892,10 +912,8 @@ class ImfsPage extends Imfs_AdminPageFramework {
     if ( $monitor === false ) {
       return;
     }
-    $this->populate_monitor_fields($monitor);
+    $this->populate_monitor_fields( $monitor );
   }
-
-  /** @noinspection PhpUnused */
 
   /**
    * @throws ImfsException
@@ -908,6 +926,157 @@ class ImfsPage extends Imfs_AdminPageFramework {
     $this->unconstrained = $this->db->unconstrained;
   }
 
+  private function populate_monitor_fields( $monitor ) {
+
+    $uploadId = Imfs_AdminPageFramework::getOption( get_class( $this ), 'uploadId', imfsRandomString( 8 ) );
+    $this->addSettingFields(
+      [
+        'field_id' => 'monitor_actions',
+        'type'     => 'inline_mixed',
+        'content'  => [
+          [
+            'field_id'   => 'upload_' . $monitor . '_now',
+            'type'       => 'submit',
+            'save'       => false,
+            'value'      => __( 'Upload ', $this->domain ),
+            'attributes' => [
+              'class' => 'button button_secondary',
+              'title' => __( 'Upload this monitor to the plugin\'s servers', $this->domain ),
+            ],
+            'class'      => [
+              'fieldset' => 'inline-buttons-and-text',
+            ],
+          ],
+          [
+            'field_id' => 'uploadId',
+            'type'     => 'text',
+            'save'     => true,
+            'label'    => __( 'this saved monitor to the plugin\'s servers using upload id', $this->domain ),
+            'default'  => $uploadId,
+            'class'    => [
+              'fieldset' => 'inline-buttons-and-text',
+            ],
+          ],
+        ],
+      ] );
+  }
+
+  /** Generic validation routine, only used for monitor tabs with varying names
+   *
+   * @param $inputs
+   * @param $oldInputs
+   * @param $oAdminPage
+   * @param $submitInfo
+   *
+   * @return mixed  updated $inputs
+   * @callback  filter validation_{page slug}
+   * @noinspection PhpUnusedParameterInspection
+   */
+  function validation_imfs_settings( $inputs, $oldInputs, $oAdminPage, $submitInfo ) {
+    $errors  = [];
+    $monitor = $this->getMonitorName();
+
+    /* submit from monitor tab? */
+    if ( $monitor !== false && isset( $inputs['monitor_actions'] ) ) {
+      $button = $submitInfo ['field_id'];
+      if ( $button === 'upload_' . $monitor . '_now' ) {
+        /* It's the upload button. Check the uploadId */
+        if ( ! isset( $inputs['monitor_actions']['uploadId'] ) || strlen( $inputs['monitor_actions']['uploadId'] ) === 0 ) {
+          /* reject the bogus uploadId */
+          $errors['monitor_actions']['uploadId'] = __( "Please provide an upload id.", $this->domain );
+          $this->setFieldErrors( $errors );
+          $this->setSettingNotice( __( 'Make corrections and try again.', $this->domain ) );
+
+          return $oldInputs;
+        }
+        /* put the uploadId at the top level of the stored options */
+        $uploadId = $inputs['monitor_actions']['uploadId'];
+        unset ( $inputs['monitor_actions'] );
+        $inputs ['uploadId'] = $uploadId;
+
+        return $this->action( $submitInfo['field_id'], $inputs, $oldInputs, $oAdminPage, $submitInfo );
+
+      }
+    }
+
+    return $inputs;
+  }
+
+  private
+  function action(
+    $button, $inputs, $oldInputs, $factory, $submitInfo
+  ) {
+
+    $monitor = $this->getMonitorName();
+    if ( $monitor !== false && $button === 'upload_' . $monitor . '_now' ) {
+      $button = 'upload_monitor_now';
+    }
+    try {
+      switch ( $button ) {
+        case 'start_monitoring_now':
+          $qmc     = new QueryMonControl();
+          $message = $qmc->start( $inputs['monitor_specs'] );
+          $this->setSettingNotice( $message, 'updated' );
+          break;
+        case 'upgrade_now':
+          $msg = $this->db->upgradeStorageEngine( $this->listFromCheckboxes( $inputs['upgrade'] ) );
+          $this->setSettingNotice( $msg, 'updated' );
+          break;
+        case 'enable_now':
+          $msg = $this->db->rekeyTables( 1, $this->listFromCheckboxes( $inputs['enable'] ), index_mysql_for_speed_major_version );
+          $this->setSettingNotice( $msg, 'updated' );
+          break;
+        case 'old_now':
+          $msg = $this->db->rekeyTables( 1, $this->listFromCheckboxes( $inputs['old'] ), index_mysql_for_speed_major_version );
+          $this->setSettingNotice( $msg, 'updated' );
+          break;
+        case 'nonstandard_now':
+          $msg = $this->db->rekeyTables( 1, $this->listFromCheckboxes( $inputs['nonstandard'] ), index_mysql_for_speed_major_version );
+          $this->setSettingNotice( $msg, 'updated' );
+          break;
+        case 'disable_now':
+          $msg = $this->db->rekeyTables( 0, $this->listFromCheckboxes( $inputs['disable'] ), index_mysql_for_speed_major_version );
+          $this->setSettingNotice( $msg, 'updated' );
+          break;
+        case 'upload_metadata_now':
+          $id = imfs_upload_stats( $this->db, $inputs['uploadId'] );
+          $this->setSettingNotice( __( 'Metadata uploaded to id ', $this->domain ) . $id, 'updated' );
+          break;
+        case 'upload_monitor_now':
+          $mon  = new renderMonitor( $monitor, $this->db );
+          $data = $mon->load()->makeUpload();
+          $id   = imfs_upload_monitor( $this->db, $inputs['uploadId'], $monitor, $data );
+          $msg  = __( 'Monitor %1$s uploaded to id %2$s', $this->domain );
+          $msg  = sprintf( $msg, $monitor, $id );
+          $this->setSettingNotice( $msg, 'updated' );
+          break;
+      }
+
+      return $inputs;
+    } catch ( ImfsException $ex ) {
+      $msg = $ex->getMessage();
+      $this->setSettingNotice( $msg );
+
+      return $oldInputs;
+    }
+  }
+
+  /** @noinspection PhpUnusedParameterInspection */
+
+  private
+  function listFromCheckboxes(
+    $cbs
+  ): array {
+    $result = [];
+    foreach ( $cbs as $name => $val ) {
+      if ( $val ) {
+        $result[] = $name;
+      }
+    }
+
+    return $result;
+  }
+
   /** Admin Page Framework validation for rekey tab
    *
    * @param $inputs
@@ -916,9 +1085,9 @@ class ImfsPage extends Imfs_AdminPageFramework {
    * @param $submitInfo
    *
    * @return mixed
-   * @noinspection PhpUnused
+   * @callback  action validation_{page slug}_{tab_slug}
    */
-  function validation_imfs_settings_rekey( $inputs, $oldInputs, $factory, $submitInfo ) {
+  function validation_imfs_settings_high_performance_keys( $inputs, $oldInputs, $factory, $submitInfo ) {
     $valid  = true;
     $errors = [];
 
@@ -958,72 +1127,6 @@ class ImfsPage extends Imfs_AdminPageFramework {
     return $this->action( $submitInfo['field_id'], $inputs, $oldInputs, $factory, $submitInfo );
   }
 
-  /** @noinspection PhpUnused */
-
-  private
-  function listFromCheckboxes(
-    $cbs
-  ): array {
-    $result = [];
-    foreach ( $cbs as $name => $val ) {
-      if ( $val ) {
-        $result[] = $name;
-      }
-    }
-
-    return $result;
-  }
-
-  /** @noinspection PhpUnusedParameterInspection */
-
-  private
-  function action(
-    $button, $inputs, $oldInputs, $factory, $submitInfo
-  ) {
-    try {
-      switch ( $button ) {
-        case 'start_monitoring_now':
-          $qmc     = new QueryMonControl();
-          $message = $qmc->start( $inputs['monitor_specs'] );
-          $this->setSettingNotice( $message, 'updated' );
-          break;
-        case 'upload_metadata_now':
-          $id = imfs_upload_stats( $this->db, $inputs['uploadId'] );
-          $this->setSettingNotice( __( 'Metadata uploaded to id ', $this->domain ) . $id, 'updated' );
-          break;
-        case 'upgrade_now':
-          $msg = $this->db->upgradeStorageEngine( $this->listFromCheckboxes( $inputs['upgrade'] ) );
-          $this->setSettingNotice( $msg, 'updated' );
-          break;
-        case 'enable_now':
-          $msg = $this->db->rekeyTables( 1, $this->listFromCheckboxes( $inputs['enable'] ), index_mysql_for_speed_major_version );
-          $this->setSettingNotice( $msg, 'updated' );
-          break;
-        case 'old_now':
-          $msg = $this->db->rekeyTables( 1, $this->listFromCheckboxes( $inputs['old'] ), index_mysql_for_speed_major_version );
-          $this->setSettingNotice( $msg, 'updated' );
-          break;
-        case 'nonstandard_now':
-          $msg = $this->db->rekeyTables( 1, $this->listFromCheckboxes( $inputs['nonstandard'] ), index_mysql_for_speed_major_version );
-          $this->setSettingNotice( $msg, 'updated' );
-          break;
-        case 'disable_now':
-          $msg = $this->db->rekeyTables( 0, $this->listFromCheckboxes( $inputs['disable'] ), index_mysql_for_speed_major_version );
-          $this->setSettingNotice( $msg, 'updated' );
-          break;
-      }
-
-      return $inputs;
-    } catch ( ImfsException $ex ) {
-      $msg = $ex->getMessage();
-      $this->setSettingNotice( $msg );
-
-      return $oldInputs;
-    }
-  }
-
-  /** @noinspection PhpUnusedParameterInspection */
-
   /**
    * @param $inputs
    * @param $oldInputs
@@ -1032,8 +1135,9 @@ class ImfsPage extends Imfs_AdminPageFramework {
    *
    * @return mixed
    * @noinspection PhpUnused
+   * @callback  action validation_{page slug}_{tab_slug}
    */
-  function validation_imfs_settings_monitor( $inputs, $oldInputs, $factory, $submitInfo ) {
+  function validation_imfs_settings_monitor_database_operations( $inputs, $oldInputs, $factory, $submitInfo ) {
     $valid  = true;
     $errors = [];
 
@@ -1041,7 +1145,7 @@ class ImfsPage extends Imfs_AdminPageFramework {
       if ( 0 === strpos( $key, "monitor_row_" ) ) {
         foreach ( $value as $rowkey => $button ) {
           $monitor = preg_replace( "/^delete_(.+)_now$/", "$1", $rowkey );
-          if ( array_search( $monitor, $this->monitors ) !== false ) {
+          if ( in_array( $monitor, $this->monitors ) ) {
             RenderMonitor::deleteMonitor( $monitor );
             $this->monitors = RenderMonitor::getMonitors();
             $message        = __( 'Monitor %s deleted.', $this->domain );
@@ -1079,9 +1183,9 @@ class ImfsPage extends Imfs_AdminPageFramework {
    * @param $submitInfo
    *
    * @return mixed
-   * @noinspection PhpUnused
+   * @callback  action validation_{page slug}_{tab_slug}
    */
-  function validation_imfs_settings_info( $inputs, $oldInputs, $factory, $submitInfo ) {
+  function validation_imfs_settings_about( $inputs, $oldInputs, $factory, $submitInfo ) {
     $errors = [];
     if ( isset( $inputs['uploadId'] ) && strlen( $inputs['uploadId'] ) > 0 ) {
       $valid = true;
@@ -1097,55 +1201,6 @@ class ImfsPage extends Imfs_AdminPageFramework {
     }
 
     return $this->action( $submitInfo['field_id'], $inputs, $oldInputs, $factory, $submitInfo );
-  }
-
-  private function populate_monitor_fields($monitor) {
-    $this->addSettingFields(
-      [
-        'field_id' => 'monitor_actions',
-        'type'     => 'inline_mixed',
-        'content'  => [
-          [
-            'field_id'   => 'delete_' . $monitor . '_now',
-            'type'       => 'submit',
-            'save'       => false,
-            'value'      => __( 'Delete', $this->domain ),
-            'tip'        => __( 'Delete this monitor', $this->domain ),
-            'attributes' => [
-              'class' => 'button button_secondary button_delete',
-              'title' => __( 'Delete this monitor', $this->domain ),
-            ],
-            'class'    => [
-              'fieldset' => 'inline-buttons-and-text',
-            ],
-          ],
-          [
-            'field_id' => 'upload_' . $monitor . '_now',
-            'type'       => 'submit',
-            'save'       => false,
-            'value'      => __( 'Upload ', $this->domain ),
-            'tip'        => __( 'Upload', $this->domain ) . ' ' . $monitor,
-            'attributes' => [
-              'class' => 'button button_secondary',
-              'title' => __( 'Upload this monitor to our plugin\'s servers', $this->domain ),
-            ],
-            'class'    => [
-              'fieldset' => 'inline-buttons-and-text',
-            ],
-          ],
-          [
-            'field_id' => 'uploadId',
-            'type'     => 'text',
-            'save'     => true,
-            'label'    => __( 'Upload to', $this->domain ),
-            'default'  => imfsRandomString( 8 ),
-            'class'    => [
-              'fieldset' => 'inline-buttons-and-text',
-              'fieldrow' => 'randomid',
-            ],
-          ],
-        ],
-      ] );
   }
 }
 

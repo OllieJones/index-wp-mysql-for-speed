@@ -28,9 +28,9 @@ class renderMonitor {
     foreach ( $monitors as $monitor ) {
       if ( is_null( $list )
            || ( is_string( $list ) && $monitor === $list )
-           || ( is_array( $list ) && array_search( $monitor, $list ) !== false ) ) {
+           || ( is_array( $list ) && in_array( $monitor, $list ) ) ) {
         $rm        = new RenderMonitor( $monitor, $db );
-        $renders[] = $rm->render($part);
+        $renders[] = $rm->render( $part );
       }
     }
 
@@ -56,7 +56,7 @@ class renderMonitor {
 
   /** Render the monitor to a string
    *
-   * @param string $part  'top' or 'bottom'
+   * @param string $part 'top' or 'bottom'
    *
    * @return string
    */
@@ -65,11 +65,12 @@ class renderMonitor {
     $c      = $this->classPrefix;
     $prefix = "<div class=\"$c index-wp-mysql-for-speed-content-container\">";
     $suffix = "</div>";
-    if ($part === 'top') {
-      return $prefix . "<div>" . $this->top() . "</div>" ;
-    } else if ($part === 'bottom' ) {
+    if ( $part === 'top' ) {
+      return $prefix . "<div>" . $this->top() . "</div>";
+    } else if ( $part === 'bottom' ) {
       return $this->table() . $suffix;
     }
+
     return '';
   }
 
@@ -161,8 +162,8 @@ END;
   }
 
   public function dbStatusSummary(): ?string {
-    $l      = $this->queryLog;
-    $c      = $this->classPrefix;
+    $l = $this->queryLog;
+    $c = $this->classPrefix;
     if ( ! isset ( $l->status ) ) {
       return null;
     }
@@ -201,12 +202,7 @@ END;
 
     $result .= "</div><div class=\"$c top line indent\">";
 
-    $failedConnections = ( $status->Connection_errors_accept ?? 0 )
-                         + ( $status->Connection_errors_internal ?? 0 )
-                         + ( $status->Connection_errors_max_connections ?? 0 )
-                         + ( $status->Connection_errors_peer_address ?? 0 )
-                         + ( $status->Connection_errors_select ?? 0 )
-                         + ( $status->Connection_errors_tcpwrap ?? 0 );
+    $failedConnections = $this->getFailed_connections( $status );
     $goodConnections   = ( $status->Connections ?? 0 ) - $failedConnections;
     $goodCps           = number_format_i18n( $goodConnections / $dt, 2 );
     $failedCps         = number_format_i18n( $failedConnections / $dt, 2 );
@@ -264,10 +260,7 @@ END;
     $result   .= "<span class=\"$c count\">$rowsRead/s</span> ";
     $result   .= __( "retrieved", $this->domain ) . ' ';
 
-    $rowcount      = 0;
-    $rowcount      += $status->Innodb_rows_deleted ?? 0;
-    $rowcount      += $status->Innodb_rows_inserted ?? 0;
-    $rowcount      += $status->Innodb_rows_updated ?? 0;
+    $rowcount      = $this->getRowsStored( $status );
     $rowsProcessed = round( $rowcount / $dt, 2 ) . ' ' . $rows;
     $result        .= "<span class=\"$c count\">$rowsProcessed/s</span> ";
     $result        .= __( "stored", $this->domain ) . ' ';
@@ -318,6 +311,34 @@ END;
     }
 
     return $unit;
+  }
+
+  /**
+   * @param $status
+   *
+   * @return int
+   */
+  private function getFailed_connections( $status ): int {
+    return ( $status->Connection_errors_accept ?? 0 )
+           + ( $status->Connection_errors_internal ?? 0 )
+           + ( $status->Connection_errors_max_connections ?? 0 )
+           + ( $status->Connection_errors_peer_address ?? 0 )
+           + ( $status->Connection_errors_select ?? 0 )
+           + ( $status->Connection_errors_tcpwrap ?? 0 );
+  }
+
+  /**
+   * @param $status
+   *
+   * @return int
+   */
+  private function getRowsStored( $status ): int {
+    $rowcount = 0;
+    $rowcount += $status->Innodb_rows_deleted ?? 0;
+    $rowcount += $status->Innodb_rows_inserted ?? 0;
+    $rowcount += $status->Innodb_rows_updated ?? 0;
+
+    return $rowcount;
   }
 
   public function table(): string {
@@ -512,7 +533,7 @@ END;
       } else if ( false !== stripos( $extra, "using index condition" ) ) {
         $expl[] = "Index Condition" . ';';
       } else if ( false !== stripos( $extra, "using index" ) ) {
-        $expl[] = "Index" . ';';
+        $expl[] = "Covering index" . ';';
       } else if ( false !== stripos( $extra, "using temporary" ) ) {
         $expl[] = "Temp" . ';';
       } else if ( false !== stripos( $extra, "using filesort" ) ) {
@@ -528,6 +549,141 @@ END;
   static function deleteMonitor( $monitor ) {
     $prefix = index_wp_mysql_for_speed_monitor . '-Log-';
     delete_option( $prefix . $monitor );
+  }
+
+  public function makeUpload(): array {
+    require_once( 'litesqlparser.php' );
+    $parser  = new LightSQLParser();
+    $l       = $this->queryLog;
+    $qs      = [];
+    $queries = $l->queries;
+
+    /* sort queries in descending order of total time */
+    uasort( $queries, function ( $a, $b ) {
+      $a = $a->t;
+      $b = $b->t;
+      if ( $a === $b ) {
+        return 0;
+      }
+
+      return $a < $b ? 1 : - 1;
+
+    } );
+    $counter = 0;
+    foreach ( $queries as $query ) {
+      /* only 100 slowest queries */
+      if ( $counter ++ >= 20 ) {
+        $qs[] = 'Slowest ' . ( count( $queries ) - $counter ) . ' queries omitted.';
+        break;
+      }
+      $parser->setQuery( $query->q );
+      $shortened = $parser->getShortened();
+      $traceback = $query->c;
+      $traceback = preg_replace( '/\s+/', '', $traceback );
+      if ( strlen( $traceback ) > 140 ) {
+        $traceback = substr( $traceback, 0, 80 ) . '...' . substr( $traceback, - 87 );
+      }
+
+      $q = [
+        'f' => $query->f,
+        'a' => $query->a,
+        'n' => $query->n,
+        't' => $query->t,
+        'q' => $shortened,
+        'c' => $traceback,
+      ];
+      if ( $query->n > 1 ) {
+        $q['avg'] = round( $query->t / $query->n, 0 );
+        $q['p95'] = round( $this->percentile( $query->ts, 0.95 ), 0 );
+        $q['mad'] = round( $this->mad( $query->ts ), 0 );
+        $q['std'] = round( $this->stdev( $query->ts ), 0 );
+      }
+      $qs[] = $q;
+    }
+
+    return [
+      'id'      => '',
+      'monitor' => $this->monitor,
+      'start'   => $l->start,
+      'end'     => $l->end,
+      'stats'   => $this->getDbStatistics(),
+      'queries' => $qs,
+    ];
+  }
+
+  /** standard deviation
+   *
+   * @param array $a dataset
+   *
+   * @return number
+   * @noinspection PhpUnused
+   */
+  public function stdev( $a ): ?float {
+    $n = count( $a );
+    if ( ! $n ) {
+      return null;
+    }
+    if ( $n === 1 ) {
+      return 0.0;
+    }
+    $sum   = 0.0;
+    $sumsq = 0.0;
+    foreach ( $a as $v ) {
+      $sum   += $v;
+      $sumsq += ( $v * $v );
+    }
+    $mean = $sum / $n;
+
+    return sqrt( ( $sumsq / $n ) - ( $mean * $mean ) );
+  }
+
+  public function getDbStatistics(): array {
+    $status = $this->queryLog->status;
+    if ( ! isset ( $status ) ) {
+      return [];
+    }
+    $dt             = $this->queryLog->end - $this->queryLog->start;
+    $res            = [];
+    $res['version'] = $this->db->semver->version;
+    $res['duration'] = $dt;
+    if ( $status->Uptime_state ) {
+      $res['uptime'] = $status->Uptime_state;
+    }
+    if ( $status->Memory_used_state ) {
+      $res['ram'] = $status->Memory_used_state;
+    }
+    if ( $status->Threads_running_state ) {
+      $res['threads'] = $status->Threads_running_state;
+    }
+    $failedConnections = $this->getFailed_connections( $status );
+    $goodConnections   = ( $status->Connections ?? 0 ) - $failedConnections;
+    $res['connRate']   = round( $goodConnections / $dt, 2 );
+    if ( $failedConnections ) {
+      $res['failedConnRate'] = round( $failedConnections / $dt, 2 );
+    }
+    if ( $status->Aborted_clients ) {
+      $res['abortedConnRate'] = round( $status->Aborted_clients / $dt, 2 );
+    }
+    $res['queryRate'] = round( ( $status->Questions ?? 0 ) / $dt, 2 );
+
+    $res['mbytesSentRate'] = round( ( $status->Bytes_sent ?? 0 ) / ( $dt * 1024 * 1024 ), 2 );
+    $res['mbytesRecvRate'] = round( ( $status->Bytes_received ?? 0 ) / ( $dt * 1024 * 1024 ), 2 );
+
+    if ( ( $status->Innodb_rows_sent ?? 0 ) > 0 ) {
+      $res['rowsSentRate'] = round( $status->Innodb_rows_sent / $dt, 2 );
+    }
+    if ( ( $status->Innodb_data_written ?? 0 ) > 0 ) {
+      $res['mbytesWrittenRate'] = round( $status->Innodb_data_written / ( $dt * 1024 * 1024 ), 2 );
+    }
+    if ( ( $status->Innodb_rows_read ?? 0 ) > 0 ) {
+      $res['rowsReadRate'] = round( $status->Innodb_rows_read / $dt, 2 );
+    }
+    $rowsStored = $this->getRowsStored( $status );
+    if ( $rowsStored ) {
+      $res['rowsStoredRate'] = round( $rowsStored / $dt, 2 );
+    }
+
+    return $res;
   }
 
   public function statusTable(): string {
@@ -562,31 +718,5 @@ END;
     $res .= "</tbody></table></div>";
 
     return $res;
-  }
-
-  /** standard deviation
-   *
-   * @param array $a dataset
-   *
-   * @return number
-   * @noinspection PhpUnused
-   */
-  public function stdev( $a ): ?float {
-    $n = count( $a );
-    if ( ! $n ) {
-      return null;
-    }
-    if ( $n === 1 ) {
-      return 0.0;
-    }
-    $sum   = 0.0;
-    $sumsq = 0.0;
-    foreach ( $a as $v ) {
-      $sum   += $v;
-      $sumsq += ( $v * $v );
-    }
-    $mean = $sum / $n;
-
-    return sqrt( ( $sumsq / $n ) - ( $mean * $mean ) );
   }
 }

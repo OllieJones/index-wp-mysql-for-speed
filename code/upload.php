@@ -97,6 +97,18 @@ function imfsGetAllStats( $db ): array {
 
 }
 
+function imfs_upload_monitor( $db, $idString, $name, $monitor ) {
+
+  try {
+    $monitor['id'] = $idString;
+    imfs_upload_post( (object) $monitor );
+  } catch ( Exception $e ) {
+    /* empty, intentionally. don't croak on uploading */
+  }
+
+  return $idString;
+}
+
 function imfs_upload_stats( $db, $idString, $target = index_wp_mysql_for_speed_stats_endpoint ) {
 
   try {
@@ -130,5 +142,5 @@ function imfs_upload_post( $stats, $target = index_wp_mysql_for_speed_stats_endp
     'data_format' => 'body',
   ];
 
-  wp_remote_post( $target, $options );
+  $result = wp_remote_post( $target, $options );
 }
