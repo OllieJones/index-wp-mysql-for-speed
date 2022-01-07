@@ -13,11 +13,15 @@ div > div > label > p.tablelist {
 
 div > label > span > p.longlabel {
     margin-bottom: 1em;
-    width: 60em;
 }
 
 div > label > span > p.longlabel:last-of-type {
     margin-bottom: 0;
+}
+
+div#wpbody > div#wpbody-content > div.wrap div.index-wp-mysql-for-speed-content-container,
+div#wpbody > div#wpbody-content > div.wrap div.index-wp-mysql-for-speed-container {
+    max-width: 70em;
 }
 
 div#poststuff > div#post-body > div.index-wp-mysql-for-speed-content,
