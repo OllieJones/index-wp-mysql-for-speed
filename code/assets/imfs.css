@@ -160,11 +160,11 @@ fieldset div.with-child-fields > fieldset.inline > div.index-wp-mysql-for-speed-
 }
 
 fieldset div.with-child-fields > fieldset.inline > div.index-wp-mysql-for-speed-fields > div.index-wp-mysql-for-speed-field > div > label > input[type=text] {
-    width: 8em;
+    width: 7em;
 }
 
 fieldset div.with-child-fields > fieldset.inline > div.index-wp-mysql-for-speed-fields > div.index-wp-mysql-for-speed-field > div > label > input[type=number] {
-    width: 5em;
+    width: 4.5em;
 }
 
 fieldset div.with-child-fields > fieldset.inline-buttons-and-text {
