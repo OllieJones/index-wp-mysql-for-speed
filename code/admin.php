@@ -206,13 +206,18 @@ class ImfsPage extends Imfs_AdminPageFramework {
     /** @noinspection HtmlUnknownTarget */
     $hyperlink     = '<a href="%s" target="_blank">%s</a>';
     $supportUrl    = "https://wordpress.org/support/plugin/index-wp-mysql-for-speed/";
+    $helpUrl       = index_wp_mysql_for_speed_help_site;
     $reviewUrl     = "https://wordpress.org/support/plugin/index-wp-mysql-for-speed/reviews/";
-    $detailsUrl    = "https://www.plumislandmedia.net/wordpress/speeding-up-wordpress-database-operations/#what-specific-key-changes-do-we-make-even-wonkier";
+    $detailsUrl    = index_wp_mysql_for_speed_help_site . "tables_and_keys/";
     $wpCliUrl      = '<a href="https://make.wordpress.org/cli/handbook/">WP-CLI</a>';
     $clickHere     = __( 'click here', $this->domain );
+    $orUseHelpTab  = __( 'or use the Help tab in the upper left corner of this page.' );
+    $help          = sprintf( $hyperlink, $helpUrl, $clickHere ) . ' ' . $orUseHelpTab;
     $support       = sprintf( $hyperlink, $supportUrl, $clickHere );
     $review        = sprintf( $hyperlink, $reviewUrl, $clickHere );
     $details       = sprintf( $hyperlink, $detailsUrl, $clickHere );
+    $helpString    = '<p class="topinfo">' . __( 'For help please %s.', $this->domain ) . '</p>';
+    $helpString    = sprintf( $helpString, $help );
     $supportString = '<p class="topinfo">' . __( 'For support please %s. If you create an issue in the support forum, please upload your diagnostic metadata, and mention the id of your upload.  Please %s to rate this plugin.', $this->domain ) . '</p>';
     $supportString = sprintf( $supportString, $support, $review );
     $detailsString = '<p class="topinfo">' . __( 'For detailed information about this plugin\'s actions on your database, please %s.', $this->domain ) . '</p>';
@@ -221,7 +226,7 @@ class ImfsPage extends Imfs_AdminPageFramework {
     $wpCliString   = sprintf( $wpCliString, $wpCliUrl );
     $wpCliString   .= ' ' . __( 'To learn more, type', $this->domain ) . ' ' . '<code>wp help index-mysql</code>' . __( 'into your command shell.', $this->domain ) . '</p>';
 
-    return $sHTML . '<div class="index-wp-mysql-for-speed-content-container">' . $supportString . $detailsString . $wpCliString . '</div>';
+    return $sHTML . '<div class="index-wp-mysql-for-speed-content-container">' . $helpString . $supportString . $detailsString . $wpCliString . '</div>';
   }
 
   /** Render the form in the rekey tab

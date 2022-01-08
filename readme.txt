@@ -9,7 +9,7 @@ Network: true
 License: GPL v2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 Author URI: http://mysql.rjweb.org/
-Plugin URI: https://www.plumislandmedia.net/wordpress/speeding-up-wordpress-database-operations/
+Plugin URI: https://plumislandmedia.net/index-wp-mysql-for-speed/
 Text Domain: index-wp-mysql-for-speed
 Domain Path: /languages
 
@@ -158,8 +158,7 @@ It's a large topic. Some people (often called Database Administrators--DBAs) mak
 * StackOverflow's [Why are references to wp_postmeta so slow?](https://stackoverflow.com/questions/43859351/why-are-references-to-wp-postmeta-so-slow) is useful.
 * [wordpress.stackexchange.com](https://wordpress.stackexchange.com)'s article [Simple SQL query on wp_postmeta very slow](https://wordpress.stackexchange.com/questions/248207/simple-sql-query-on-wp-postmeta-very-slow).
 * Good [advice about the wp_options table](https://10up.com/blog/2017/wp-options-table/) from web agency [10up.com](https://10up.com/). This plugin puts a key on that table to optimize options loading.
-* The [proposal](https://www.plumislandmedia.net/wordpress/speeding-up-wordpress-database-operations/) for this plugin.
-
+* The [description](https://www.plumislandmedia.net/index-wp-mysql-for-speed/tables_and_keys/) of this plugin's actions.
 == Changelog ==
 = 0.9.1 =
 First release.
@@ -188,16 +187,19 @@ When upgrading tables, change ROW_FORMAT to DYNAMIC as well as ENGINE to InnoDB.
 = 1.3.4 =
 Support MariaDB 10.1, make indexes work a little better, miscellaneous bugfixes.
 
-= 1.4.0 =
-* 5.9 compatibility
-* Rekeys tables in one go: allows the plugin to work when `sql_require_primary_key=ON` (typically at managed service providers).
-* Handles upgrades to high-performance keys
-* Adds prefix keys to meta_value columns to allow searching by value.
-* Adds display_name key to wp_users, and keys to wp_commentmeta.
+= 1.4.1 =
+* WordPress 5.9 compatibility
+* Rekeys tables in one go: allows the plugin to work more quickly, and when `sql_require_primary_key=ON` (typically at managed service providers).
+* Adds high-performance keys to wp_users and wp_commentmeta tables.
+* Adds high-performance key for looking up meta values quickly in wp_postmeta, wp_termmeta, and wp_usermeta.
+* Handles upgrades to high-performance keys, from previous plugin versions.
 * Checks `$wp_db_version` number to ensure schema compatibility.
+* Monitor captures include overall database server metrics, and can be uploaded.
+* Help pages for each tab of the plugin's Dashboard panel.
+* Clearer Dashboard panel displays.
 
 == Upgrade Notice ==
-5.9 support, keys on user display names and metadata values, better support for managed service providers and larger WooCommerce sites, bug fixes.
+Many performance improvements, especially for larger WooCommerce sites. Better help pages. Several bug fixes.
 
 == Screenshots ==
 

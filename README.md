@@ -2,7 +2,7 @@
 
 A plugin to add useful indexes to your WordPress installation's MySQL database.
 
-For more information [see here](https://www.plumislandmedia.net/wordpress/speeding-up-wordpress-database-operations/).
+For more information [see here](https://plumislandmedia.net/index-wp-mysql-for-speed/).
 
 ## Plugin repo stuff
 
