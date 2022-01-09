@@ -316,12 +316,7 @@ class ImfsDb {
 
   public function getRekeying(): array {
     global $wpdb;
-    $enableList      = [];
-    $fastList        = [];
-    $disableList     = [];
-    $oldList         = [];
-    $nonStandardList = [];
-    $originalTables  = $this->tables();
+    $originalTables = $this->tables();
     /* don't process tables still on old storage engines */
     $tables = [];
     foreach ( $originalTables as $name ) {
@@ -330,38 +325,58 @@ class ImfsDb {
       }
     }
     /* any rekeyable tables? */
+    $updatable    = [];
+    $newToThisVer = [];
+
+    $addable    = [];
+    $revertable = [];
+    $repairable = [];
+    $enableList = [];
+    $oldList    = [];
+    $fastList   = [];
+
     if ( is_array( $tables ) && count( $tables ) > 0 ) {
       sort( $tables );
       foreach ( $tables as $name ) {
-        try {
-          $hasFastIndexes     = ! $this->anyIndexChangesNeededForAction( 1, $name, $this->pluginVersion );
-          $hasStandardIndexes = ! $this->anyIndexChangesNeededForAction( 0, $name, $this->pluginVersion );
-          $hasOldIndexes      = ! $this->anyIndexChangesNeededForAction( 1, $name, $this->pluginOldVersion );
-          if ( $hasStandardIndexes ) {
-            $enableList[] = $name;
-          } else if ( $hasFastIndexes ) {
-            $fastList[]    = $name;
-            $disableList[] = $name;
-          } else {
-            $disableList[] = $name;
-            if ( $hasOldIndexes ) {
-              $oldList[] = $name;
-            } else {
-              $nonStandardList[] = $name;
-            }
-          }
-        } catch ( Exception $e ) {
-          /* empty, intentionally. Skip tables with faults */
+        $hasFastIndexes     = ! $this->anyIndexChangesNeededForAction( 1, $name, $this->pluginVersion );
+        $hasStandardIndexes = ! $this->anyIndexChangesNeededForAction( 0, $name, $this->pluginVersion );
+        $hasOldIndexes      = ! $this->anyIndexChangesNeededForAction( 1, $name, $this->pluginOldVersion );
+
+        if ( ! $hasFastIndexes && ! $hasStandardIndexes && ! $hasOldIndexes ) {
+          /* some index config we don't recognize */
+          $repairable[] = $name;
+        } else if ( ! $hasFastIndexes && ! $hasStandardIndexes && $hasOldIndexes ) {
+          $updatable[]  = $name;
+          $revertable[] = $name;
+        } else if ( ! $hasFastIndexes && $hasStandardIndexes && ! $hasOldIndexes ) {
+          $addable[] = $name;
+        } else if ( ! $hasFastIndexes && $hasStandardIndexes && $hasOldIndexes ) {
+          $newToThisVer[] = $name;
+        } else if ( $hasFastIndexes && ! $hasStandardIndexes && ! $hasOldIndexes ) {
+          $revertable[] = $name;
+          $fastList[]   = $name;
+        } else {
+          throw new Exception( "Table $name invalid state $hasFastIndexes $hasStandardIndexes $hasOldIndexes" );
         }
       }
+      /* handle version update logic */
+      if ( count( $updatable ) > 0 ) {
+        /* version update time: offer to update both new and upd */
+        $oldList    = array_merge( $newToThisVer, $updatable );
+        $enableList = $addable;
+      } else {
+        $enableList = array_merge( $newToThisVer, $addable );
+      }
     }
+    sort( $enableList );
+    sort( $oldList );
 
     return [
       'enable'      => $enableList,
-      'disable'     => $disableList,
       'old'         => $oldList,
+      'disable'     => $revertable,
       'fast'        => $fastList,
-      'nonstandard' => $nonStandardList,
+      'nonstandard' => $repairable,
       'upgrade'     => $this->oldEngineTables,
     ];
   }
@@ -526,7 +541,7 @@ class ImfsDb {
 
   public function leaveMaintenanceMode() {
     $maintenanceFileName = ABSPATH . '.maintenance';
-    if ( is_writable( ABSPATH  ) && file_exists($maintenanceFileName) ) {
+    if ( is_writable( ABSPATH ) && file_exists( $maintenanceFileName ) ) {
       unlink( $maintenanceFileName );
     }
   }

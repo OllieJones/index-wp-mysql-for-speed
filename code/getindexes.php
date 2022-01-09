@@ -231,16 +231,15 @@ class imfsGetIndexes {
         "PRIMARY KEY" => "ADD PRIMARY KEY (post_id, meta_key, meta_id)",
         "meta_key"    => "ADD KEY meta_key (meta_key, post_id)",
       ],
-
-      "usermeta" => [
-        "umeta_id"    => "ADD UNIQUE KEY umeta_id (umeta_id)",
-        "PRIMARY KEY" => "ADD PRIMARY KEY (user_id, meta_key, umeta_id)",
-        "meta_key"    => "ADD KEY meta_key (meta_key, user_id)",
-      ],
       "termmeta" => [
         "meta_id"     => "ADD UNIQUE KEY meta_id (meta_id)",
         "PRIMARY KEY" => "ADD PRIMARY KEY (term_id, meta_key, meta_id)",
         "meta_key"    => "ADD KEY meta_key (meta_key, term_id)",
+      ],
+      "usermeta" => [
+        "umeta_id"    => "ADD UNIQUE KEY umeta_id (umeta_id)",
+        "PRIMARY KEY" => "ADD PRIMARY KEY (user_id, meta_key, umeta_id)",
+        "meta_key"    => "ADD KEY meta_key (meta_key, user_id)",
       ],
     ];
 
@@ -253,20 +252,18 @@ class imfsGetIndexes {
         "post_id"     => "ADD KEY post_id (post_id, meta_key(191))",
         "meta_key"    => "ADD KEY meta_key (meta_key(191), post_id)",
       ],
-
+      "termmeta" => [
+        "meta_id"     => "ADD UNIQUE KEY meta_id (meta_id)",
+        "PRIMARY KEY" => "ADD PRIMARY KEY (term_id, meta_id)",
+        "term_id"     => "ADD KEY term_id (term_id, meta_key(191))",
+        "meta_key"    => "ADD KEY meta_key (meta_key(191), term_id)",
+      ],
       "usermeta" => [
         "umeta_id"    => "ADD UNIQUE KEY umeta_id (umeta_id)",
         "PRIMARY KEY" => "ADD PRIMARY KEY (user_id, umeta_id)",
         "user_id"     => "ADD KEY user_id (user_id, meta_key(191))",
         "meta_key"    => "ADD KEY meta_key (meta_key(191), user_id)",
       ],
-      "termmeta" => [
-        "meta_id"     => "ADD UNIQUE KEY meta_id (meta_id)",
-        "PRIMARY KEY" => "ADD PRIMARY KEY (term_id, meta_id)",
-        "term_id"     => "ADD KEY term_id (term_id, meta_key(191))",
-        "meta_key"    => "ADD KEY meta_key (meta_key(191), user_id)",
-      ],
-
     ];
     switch ( $unconstrained ) {
       case 1: /* barracuda */

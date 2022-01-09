@@ -408,7 +408,7 @@ class ImfsPage extends Imfs_AdminPageFramework {
         $list[] = $wpdb->prefix . $tbl;
       }
       $list  = implode( ', ', $list );
-      $label = __( 'You have added high-performance keys to these tables using an earlier version of this plugin. You can revert them to WordPress\'s standard keys, or update them to the latest high-performance keys.', $this->domain );
+      $label = __( 'You have added high-performance keys to your tables using an earlier version of this plugin. You can revert them to WordPress\'s standard keys, or update them to the latest high-performance keys.', $this->domain );
       $label .= '<p class="tablelist">' . $list . '</p>';
 
       $this->addSettingFields(
