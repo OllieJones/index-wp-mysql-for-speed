@@ -1,0 +1,39 @@
+== Changelog ==
+= 0.9.1 =
+First release.
+
+= 1.0.1 =
+Works for multisite, add more user choices
+
+= 1.0.2 =
+Do not upgrade the storage engine for views or for non-WordPress tables.
+
+= 1.2.0 =
+Add WP-CLI support. Add selective storage-enging upgrades. Add the Reset option to put back WordPress standard keys on tables with unrecognized combinations of keys.
+
+= 1.2.1 =
+Fix require_once defect exposed by wp-cli workflow.
+
+= 1.2.2 =
+Fix engine-upgrade defect, stop counting rows because it's too slow.
+
+= 1.2.3 =
+Fix cli defect.
+
+= 1.3.3 =
+When upgrading tables, change ROW_FORMAT to DYNAMIC as well as ENGINE to InnoDB. Add monitors.
+
+= 1.3.4 =
+Support MariaDB 10.1, make indexes work a little better, miscellaneous bugfixes.
+
+= 1.4.1 =
+* WordPress 5.9 compatibility
+* Rekeys tables in one go: allows the plugin to work more quickly, and when `sql_require_primary_key=ON` (typically at managed service providers).
+* Adds high-performance keys to wp_users and wp_commentmeta tables.
+* Adds high-performance key for looking up meta values quickly in wp_postmeta, wp_termmeta, and wp_usermeta.
+* Handles upgrades to high-performance keys, from previous plugin versions.
+* Checks `$wp_db_version` number to ensure schema compatibility.
+* Monitor captures include overall database server metrics, and can be uploaded.
+* Help pages for each tab of the plugin's Dashboard panel.
+* Clearer Dashboard panel displays.
+

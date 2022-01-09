@@ -1,23 +1,32 @@
 <?php
 
-/*
-Plugin Name: Index WP MySQL For Speed
-Plugin URI: https://plumislandmedia.org/
-Description: Add useful indexes to your WordPress installation's MySQL database.
-Version: 1.4,1
-Author: Ollie Jones
-Author URI: https://github.com/OllieJones
-Requires at least: 5.2
-Requires PHP:      7.2
-License:           GPL v2 or later
-License URI:       https://www.gnu.org/licenses/gpl-2.0.html
-Text Domain:       index-wp-mysql-for-speed
-Domain Path:       /languages
-Network:           true
+/**
+ * Index WP MySQL For Speed
+ *
+ * @author: Oliver Jones, Rick James
+ * @copyright: 2022 Oliver Jones
+ * @license GPL-2.0-or-later
+ *
+ * @wordpress-plugin0
+ * Plugin Name: Index WP MySQL For Speed
+ * Plugin URI:  https://plumislandmedia.org/index-wp-mysql-for-speed/
+ * Description: Speed up your WordPress site by adding high-performance keys (database indexes) to your MySQL database tables.
+ * Version:           1.4.1
+ * Requires at least: 5.2
+ * Tested up to:      5.9
+ * Requires PHP:      7.2
+ * Author:       OllieJones, rjasdfiii
+ * Author URI:   https://github.com/OllieJones
+ * License:      GPL v2 or later
+ * License URI:  https://www.gnu.org/licenses/gpl-2.0.html
+ * Text Domain:  index-wp-mysql-for-speed
+ * Domain Path:  /languages
+ * Network:      true
+ * Tags:         database, index, key, mysql, wp-cli
 */
 
 /** current version number  */
-define( 'index_wp_mysql_for_speed_VERSION_NUM', '1.4.0' );
+define( 'index_wp_mysql_for_speed_VERSION_NUM', '1.4.1' );
 define( 'index_mysql_for_speed_major_version', 1.4 );
 define( 'index_mysql_for_speed_previous_major_version', 1.3 );
 

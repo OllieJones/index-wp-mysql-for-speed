@@ -1,14 +1,14 @@
 === Index WP MySQL For Speed ===
-Contributors: OllieJones
+Contributors: OllieJones, rjasdfiii
 Tags: database, index, key, mysql, wp-cli
 Requires at least: 5.2
 Tested up to: 5.9
 Requires PHP: 7.2
-Stable tag: 1.3.3
+Stable tag: 1.4.1
 Network: true
 License: GPL v2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
-Author URI: http://mysql.rjweb.org/
+Author URI: https://github.com/OllieJones
 Plugin URI: https://plumislandmedia.net/index-wp-mysql-for-speed/
 Text Domain: index-wp-mysql-for-speed
 Domain Path: /languages
@@ -95,91 +95,17 @@ It's a good idea to monitor for a five-minute interval at a time of day when you
 
 = Which versions of MySQL and MariaDB does this support? =
 
-MySQL versions 5.5.62 and above, 5.6.4 and above, 8 and above. MariaDB version 5.5 and above.
+MySQL versions 5.5.62 and above, 5.6.4 and above, 8 and above. MariaDB versions 5.5 and above.
 
 = What database Storage Engine does this support? =
 
 **InnoDB only.** If your tables use MyISAM (the older storage engine) or the older COMPACT row format, this plugin offers to upgrade them for you.
 
-= Which versions of MySQL and MariaDB work best? =
+= How do I get an answer to another question? ==
 
-If at all possible upgrade to Version 8 or later of MySQL.  For MariaDB upgrade to Version 10.3 or later. The MySQL and MariaDB developers have made many performance improvements over the past few years. They have the mission of making things better for WordPress site operators: we are by far their biggest user base. So, we have a lot to gain by using their latest versions.
+Please see more questions and answers [here](https://plumislandmedia.net/index-wp-mysql-for-speed/faq/).
 
-Avoid Versions 5.5 of both MySQL and MariaDB if you can. And, avoid MariaDB 10.1. They use the older [Antelope](https://dev.mysql.com/doc/refman/5.7/en/glossary.html#glos_antelope) version of InnoDB. It has a limitation on index lengths that requires WordPress to use [prefix keys](https://dev.mysql.com/doc/refman/8.0/en/column-indexes.html#column-indexes-prefix). Those have reduced performance.
-
-If your server uses the later [Barracuda](https://dev.mysql.com/doc/refman/5.7/en/glossary.html#glos_barracuda) version of InnoDB, this plugin uses its capability to build efficient [covering](https://dev.mysql.com/doc/refman/8.0/en/glossary.html#glos_covering_index) keys. If you have the older Antelope version it still builds keys, but they are less efficient. The prefix keys it uses cannot be covering keys.
-
-= Is this plugin compatible with WordPress Object Cache plugins for redis and memcached? =
-
-**Yes.** This plugin only affects WordPress's queries to the database. The Object Cache plugins reduce the number of those queries, and so reduce your database's workload. Still, this plugin helps your performance.
-
-If you have trouble with your Object Cache plugin, try flushing (removing all entries from) the cache immediately after you activate this plugin.
-
-= Does this plugin generate any overhead when my site is busy? =
-
-**No,** not unless you are using it to monitor database operations, and that is for limited periods of time.
-
-Some plugins' code runs whenever your visitors view pages. All this plugin's rekeying work happens from the WordPress Dashboard or WP-CLI. It sets up the keys in your database and then gets out of the way. You can even deactivate and delete the plugin once you've run it.
-
-= What happens when I deactivate this plugin? =
-
-Its high-performance keys remain in place. You can always re-add it and reactivate the plugin if you need to revert your keys to the WordPress standard.
-
-Your saved monitors are removed when you deactivate the plugin.
-
-= Does this work on my multisite (network) WordPress instance?
-
-**Yes.** On multisite instances, you must activate the plugin from the Network Admin dashboard. The *Index MySQL* tool is available for use by the administrator on each site.
-
-= Can I upgrade my WordPress instance to multisite after using this plugin?
-
-**No**. if you upgrade your WordPress instance to multisite (a network) following [these instructions](https://wordpress.org/support/article/create-a-network/), **revert your high-performance keys first.** After you complete your upgrade you can add back the high-performance keys.
-
-= Can I restore a backup or duplicate to another server after using this plugin?
-
-Yes. But if you restore it to a server with an older version of MySQL (looking at you, GoDaddy) you should revert your keys to the WordPress standard before creating your backup or duplicate.
-
-= Will this plugin fix misconfigurations in my MySQL or MariaDB server? =
-
-**No.** This plugin only upgrades your tables to InnoDB if necessary, and updates their keys.  It does not handle any other configuration issues.
-
-Database servers have many configuration settings. Occasionally some of them are wrong and the database server software performs poorly. The [Percona Toolkit](https://www.percona.com/doc/percona-toolkit/LATEST/index.html) offers a utility called [pt-variable-advisor](https://www.percona.com/doc/percona-toolkit/LATEST/pt-variable-advisor.html). If you have command-line access to your server you can run it. It will make suggestions for better settings.
-
-= I get a "Temporary file write failure" error. What do I do about this?
-
-Your database server machine has a file system partition for [temporary files](https://dev.mysql.com/doc/refman/8.0/en/temporary-files.html). If that partition is not big enough to hold a copy of the largest of your tables, the rekeying operation won't work.  This is most often the case on Linux or FreeBSD file systems with a separate `/tmp` partition. You can ask the person who operates your database server to change the startup option from `tmpdir = /tmp` to `tmpdir = /var/tmp` to resolve this problem.
-
-= How can I learn more about this business of database keys? =
-
-It's a large topic. Some people (often called Database Administrators--DBAs) make entire careers out of this kind of work. Where can you look to get started?
-
-* Marcus Winand's great book [Use The Index, Luke](https://use-the-index-luke.com).
-* Rick James, a contributor to this plugin, has a good article [Building the best INDEX for a given SELECT](http://mysql.rjweb.org/doc.php/index_cookbook_mysql).
-* StackOverflow's [Why are references to wp_postmeta so slow?](https://stackoverflow.com/questions/43859351/why-are-references-to-wp-postmeta-so-slow) is useful.
-* [wordpress.stackexchange.com](https://wordpress.stackexchange.com)'s article [Simple SQL query on wp_postmeta very slow](https://wordpress.stackexchange.com/questions/248207/simple-sql-query-on-wp-postmeta-very-slow).
-* Good [advice about the wp_options table](https://10up.com/blog/2017/wp-options-table/) from web agency [10up.com](https://10up.com/). This plugin puts a key on that table to optimize options loading.
-* The [description](https://www.plumislandmedia.net/index-wp-mysql-for-speed/tables_and_keys/) of this plugin's actions.
 == Changelog ==
-= 0.9.1 =
-First release.
-
-= 1.0.1 =
-Works for multisite, add more user choices
-
-= 1.0.2 =
-Do not upgrade the storage engine for views or for non-WordPress tables.
-
-= 1.2.0 =
-Add WP-CLI support. Add selective storage-enging upgrades. Add the Reset option to put back WordPress standard keys on tables with unrecognized combinations of keys.
-
-= 1.2.1 =
-Fix require_once defect exposed by wp-cli workflow.
-
-= 1.2.2 =
-Fix engine-upgrade defect, stop counting rows because it's too slow.
-
-= 1.2.3 =
-Fix cli defect.
 
 = 1.3.3 =
 When upgrading tables, change ROW_FORMAT to DYNAMIC as well as ENGINE to InnoDB. Add monitors.
@@ -188,12 +114,12 @@ When upgrading tables, change ROW_FORMAT to DYNAMIC as well as ENGINE to InnoDB.
 Support MariaDB 10.1, make indexes work a little better, miscellaneous bugfixes.
 
 = 1.4.1 =
-* WordPress 5.9 compatibility
-* Rekeys tables in one go: allows the plugin to work more quickly, and when `sql_require_primary_key=ON` (typically at managed service providers).
+* WordPress 5.9 and database version 51917 version compatibility tested.
+* Rekeys tables in one go: allows the plugin to work more quickly, and when sql_require_primary_key=ON (typically at managed service providers).
 * Adds high-performance keys to wp_users and wp_commentmeta tables.
 * Adds high-performance key for looking up meta values quickly in wp_postmeta, wp_termmeta, and wp_usermeta.
 * Handles upgrades to high-performance keys, from previous plugin versions.
-* Checks `$wp_db_version` number to ensure schema compatibility.
+* Checks $wp_db_version number to ensure schema compatibility.
 * Monitor captures include overall database server metrics, and can be uploaded.
 * Help pages for each tab of the plugin's Dashboard panel.
 * Clearer Dashboard panel displays.
@@ -203,10 +129,9 @@ Many performance improvements, especially for larger WooCommerce sites. Better h
 
 == Screenshots ==
 
-01 Adding high-performance keys.
-
-02 Monitoring database operations.
-
-03 Viewing a database monitor.
-
-04 Using WP CLI.
+1. Use Tools > Index MySQL to view the Dashboard panel.
+2. Choose tables and add High-Performance Keys.
+3. Start Monitoring Database Operations, and see saved monitors.
+4. View a saved monitor to see slow database queries.
+5. About the plugin.
+6. Use WP CLI to run the plugin's operations.
