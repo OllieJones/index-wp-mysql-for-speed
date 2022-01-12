@@ -6,33 +6,41 @@ For more information [see here](https://plumislandmedia.net/index-wp-mysql-for-s
 
 ## Plugin repo stuff
 
-See [this](https://developer.wordpress.org/plugins/wordpress-org/how-to-use-subversion/).
-
 Here's the info on the repo.
 
 * SVN URL: https://plugins.svn.wordpress.org/index-wp-mysql-for-speed
 * Public URL: https://wordpress.org/plugins/index-wp-mysql-for-speed
+* Github source code URL: https://github.com/OllieJones/index-wp-mysql-for-speed
 
 ### Repo update notes.
 
 1. Make the changes.
 2. Be sure to update the current version number whereever it appears.
 3. Commit to GitHub and push.
-4. If it isn't done already, do 
+
+To automatically release the plugin to the WordPress repo, we're using a Github Action with the workflow called [WordPress Plugin Deploy](https://github.com/marketplace/actions/wordpress-plugin-deploy). The act of publishing a release on Github now deploys the plugin to the WordPress repo. More information [here](https://www.plumislandmedia.net/wordpress/wordpress-plugin-tools/).
+
+### Pre-automation plugin release
+
+See [this](https://developer.wordpress.org/plugins/wordpress-org/how-to-use-subversion/).
+
+This is here for archive purposes only. Use the automated process, please.
+
+1. If it isn't done already, do 
    ```bash
    svn co https://plugins.svn.wordpress.org/index-wp-mysql-for-speed svn
    ```
-5. Copy the files to be released into the `svn/trunk` directory.
-6. From the `svn` directory add any new files:
+2. Copy the files to be released into the `svn/trunk` directory.
+3. From the `svn` directory add any new files:
    ```bash
    svn add svn/trunk/code/whatever.ext
     ```
-8. From the `svn` directory do
+4. From the `svn` directory do
    ```bash
    svn cp trunk tags/xx.yy.zz
    ```
    where `xx.yy.zz` is the version to release
-9. Do this
+5. Do this
    ```bash
    svn ci -m "vxx.yy.zz commit message"
    ```
