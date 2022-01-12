@@ -125,7 +125,10 @@ Support MariaDB 10.1, make indexes work a little better, miscellaneous bugfixes.
 * Clearer Dashboard panel displays.
 
 == Upgrade Notice ==
-Many performance improvements, especially for larger WooCommerce sites. Better help pages. Several bug fixes.
+This version offers performance improvements, especially for larger sites and sites using
+managed service providers. It also offers help pages.
+
+After you update the plugin, please go to [Tools / Index MySQL](/wp-admin/tools.php?page=imfs_settings) to update your high-performance keys to the latest version.
 
 == Screenshots ==
 

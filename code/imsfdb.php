@@ -314,6 +314,12 @@ class ImfsDb {
 
   }
 
+  /** figure out, based on current DDL and target DDL,
+   * what tables need to change, and how they could change.
+   *
+   * @return array
+   * @throws ImfsException
+   */
   public function getRekeying(): array {
     global $wpdb;
     $originalTables = $this->tables();
@@ -345,14 +351,19 @@ class ImfsDb {
         if ( ! $hasFastIndexes && ! $hasStandardIndexes && ! $hasOldIndexes ) {
           /* some index config we don't recognize */
           $repairable[] = $name;
+          $revertable[] = $name;
         } else if ( ! $hasFastIndexes && ! $hasStandardIndexes && $hasOldIndexes ) {
+          /* indexes from old version of plugin */
           $updatable[]  = $name;
           $revertable[] = $name;
         } else if ( ! $hasFastIndexes && $hasStandardIndexes && ! $hasOldIndexes ) {
+          /* standard indexes, not rekeyed by this or older plugin version */
           $addable[] = $name;
         } else if ( ! $hasFastIndexes && $hasStandardIndexes && $hasOldIndexes ) {
+          /* not rekeyed in older version, but rekeyed in this version */
           $newToThisVer[] = $name;
         } else if ( $hasFastIndexes && ! $hasStandardIndexes && ! $hasOldIndexes ) {
+          /* already rekeyed by this version */
           $revertable[] = $name;
           $fastList[]   = $name;
         } else {
@@ -371,6 +382,17 @@ class ImfsDb {
     sort( $enableList );
     sort( $oldList );
 
+    /* What do we return here?
+     * enable: list of tables that can have fast keys added.
+     * old: list of tables that have previous-version fast keys,
+     *      including tables the previous version did not touch.
+     * disable: list of tables that have indexes that can be
+     *          restored to the default.
+     * fast: list of tables that have this plugin version's fast indexes.
+     * nonstandard:  list of tables with indexes this plugin doesn't recognize.
+     * upgrade: list of MyISAM and / or COMPACT row-format tables
+     *          needing upgrading.
+     */
     return [
       'enable'      => $enableList,
       'old'         => $oldList,

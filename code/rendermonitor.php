@@ -562,18 +562,21 @@ END;
     uasort( $queries, function ( $a, $b ) {
       $a = $a->t;
       $b = $b->t;
+      /* don't forget, in php these compare functions
+       * must return -1, 0, or 1, not any signed number */
       if ( $a === $b ) {
         return 0;
       }
 
+      /* descending order sort */
       return $a < $b ? 1 : - 1;
 
     } );
     $counter = 0;
     foreach ( $queries as $query ) {
-      /* only 100 slowest queries */
+      /* only the slowest queries */
       if ( $counter ++ >= 20 ) {
-        $qs[] = 'Slowest ' . ( count( $queries ) - $counter ) . ' queries omitted.';
+        $qs[] = 'Fastest ' . ( count( $queries ) - $counter ) . ' queries omitted.';
         break;
       }
       $parser->setQuery( $query->q );
