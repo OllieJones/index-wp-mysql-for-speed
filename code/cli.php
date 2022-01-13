@@ -174,6 +174,22 @@ class ImsfCli extends WP_CLI_Command {
     return '';
   }
 
+  /** set the current majorVersion into the options structure.
+   * (The UI checks this to see whether it should nag the user a bit
+   * about adding / updating keys.
+   * @param $optName
+   *
+   * @return void
+   */
+  private function setCurrentVersion ($optName = 'ImfsPage') {
+    $opts    = get_option( $optName );
+    if (!$opts) {
+      $opts = [];
+    }
+    $opts['majorVersion'] = index_mysql_for_speed_major_version;
+    update_option( $optName, $opts );
+  }
+
   /**
    * Add high-performance keys.
    */
@@ -193,6 +209,8 @@ class ImsfCli extends WP_CLI_Command {
       $this->db->rekeyTables( $targetAction, $arr, index_mysql_for_speed_major_version, $alreadyPrefixed );
       WP_CLI::log( $this->reportCompletion( $action, $tbl ) );
     }
+    /* store current version of schema to suppress nag in UI */
+    $this->setCurrentVersion();
   }
 
   /** Filter and validate the list of tables.

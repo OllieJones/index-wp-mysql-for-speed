@@ -23,7 +23,7 @@
  * Domain Path:  /languages
  * Network:      true
  * Tags:         database, index, key, mysql, wp-cli
-*/
+ */
 
 /** current version number  */
 define( 'index_wp_mysql_for_speed_VERSION_NUM', '1.4.1' );
@@ -53,7 +53,9 @@ function index_wp_mysql_for_speed_do_everything() {
   if ( $admin ) {
     $userCanLoad = is_multisite() ? is_super_admin() : current_user_can( 'activate_plugins' );
     if ( $userCanLoad ) {
-      requireThemAll();
+      /* recent install or upgrade ? */
+      $nag = updateNag();
+      requireThemAll( $nag );
       add_filter( 'plugin_action_links_' . plugin_basename( __FILE__ ), 'index_wp_mysql_for_speed_action_link' );
     }
   }
@@ -62,6 +64,27 @@ function index_wp_mysql_for_speed_do_everything() {
     require_once( plugin_dir_path( __FILE__ ) . 'code/cli.php' );
     requireThemAll();
   }
+}
+
+/**
+ * Figure out whether user hasn't yet added or updated indexes.
+ * Doing anything on the highperf index page clears this.
+ * @return string|bool
+ */
+function updateNag() {
+  $result       = null;
+  if (!wp_doing_ajax()) {
+    $imfsPage     = get_option( 'ImfsPage' );
+    $majorVersion = ( $imfsPage !== false && isset( $imfsPage['majorVersion'] ) && is_numeric( $imfsPage['majorVersion'] ) )
+      ? floatval( $imfsPage['majorVersion'] ) : index_mysql_for_speed_previous_major_version;
+    if ( ! $imfsPage ) {
+      $result = 'add';
+    } else if ( $majorVersion !== index_mysql_for_speed_major_version ) {
+      $result = 'update';
+    }
+  }
+
+  return $result;
 }
 
 add_action( 'init', 'index_wp_mysql_for_speed_monitor', 0 );
@@ -93,12 +116,16 @@ function index_wp_mysql_for_speed_monitor() {
   }
 }
 
-function requireThemAll() {
+function requireThemAll( $nag = false ) {
   require_once( plugin_dir_path( __FILE__ ) . 'code/imsfdb.php' );
   require_once( plugin_dir_path( __FILE__ ) . 'afp/admin-page-framework.php' );
   require_once( plugin_dir_path( __FILE__ ) . 'code/admin.php' );
   require_once( plugin_dir_path( __FILE__ ) . 'code/upload.php' );
   require_once( plugin_dir_path( __FILE__ ) . 'code/querymoncontrol.php' );
+  if ( $nag ) {
+    require_once( plugin_dir_path( __FILE__ ) . 'code/notice.php' );
+    new ImfsNotice ( $nag );
+  }
 }
 
 function index_wp_mysql_for_speed_activate() {

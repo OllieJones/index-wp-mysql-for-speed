@@ -102,6 +102,10 @@ div#wpcontent form div > div > table.form-table > tbody > tr > th span.warning {
     color: #cc9900;
 }
 
+tr#fieldrow-majorVersion {
+    display: none;
+}
+
 div#wpcontent form div > div > table.form-table > tbody > tr.warning.detail > th {
     padding-left: 2em;
     padding-right: 2em;

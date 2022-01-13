@@ -70,6 +70,7 @@ class ImfsPage extends Imfs_AdminPageFramework {
     ];
     $this->addInPageTabs( 'imfs_settings', ...$tabs );
     $this->setPageHeadingTabsVisibility( false );
+
   }
 
   /** Enqueue css for all tabs.
@@ -238,11 +239,29 @@ class ImfsPage extends Imfs_AdminPageFramework {
    */
   public function load_imfs_settings_high_performance_keys( object $oAdminPage ) {
 
+    $optName = $oAdminPage->oProp->sOptionKey;
+    $opts    = get_option( $optName );
+    if (!$opts) {
+      $opts = [];
+    }
+    $opts['majorVersion'] = index_mysql_for_speed_major_version;
+    update_option( $optName, $opts );
+
     if ( $this->checkVersionInfo() ) {
 
       $rekeying = $this->db->getRekeying();
 
       $this->showIndexStatus( $rekeying );
+
+      /* stash the major version to help with updates */
+      $this->addSettingFields(
+        [
+          'field_id' => 'majorVersion',
+          'value'    => index_mysql_for_speed_major_version,
+          'type'     => 'hidden',
+          'save'     => true,
+        ] );
+
 
       $this->addSettingFields(
         [
@@ -1093,6 +1112,7 @@ class ImfsPage extends Imfs_AdminPageFramework {
    * @callback  action validation_{page slug}_{tab_slug}
    */
   function validation_imfs_settings_high_performance_keys( $inputs, $oldInputs, $factory, $submitInfo ) {
+
     $valid  = true;
     $errors = [];
 
