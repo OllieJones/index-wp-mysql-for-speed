@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Light SQL Parser Class
  * @author Marco Cesarato <cesarato.developer@gmail.com>, Ollie JOnes <olliejones@gmail.com>
@@ -34,6 +33,12 @@ class LightSQLParser {
   protected static $connectors_imploded = '';
   public $query = '';
   protected $queries = [];
+  private $stash;
+  private $symbolizedStringDelimiter = "\e\036\e";
+  private $quotedStringRe = <<<'END'
+/'(?:.*?[^\\])??(?:(?:\\\\)+)?'/
+END;
+  private $stringLengthThreshold = 64;
 
   /**
    * Constructor
@@ -48,11 +53,9 @@ class LightSQLParser {
   /**
    * Get Query fields (at the moment only SELECT/INSERT/UPDATE)
    *
-   * @param $query
-   *
    * @return array
    */
-  public function getFields() {
+  public function getFields(): array {
     $fields  = [];
     $queries = $this->getAllQueries();
     foreach ( $queries as $query ) {
@@ -124,7 +127,7 @@ class LightSQLParser {
    * Get all queries
    * @return array
    */
-  public function getAllQueries() {
+  public function getAllQueries(): array {
     if ( empty( $this->queries ) ) {
       // TODO: fix issues when on a subquery exists a UNION expression
       $query   = $this->getQuery();
@@ -144,16 +147,17 @@ class LightSQLParser {
    * Get SQL Query string
    * @return string
    */
-  public function getQuery() {
+  public function getQuery(): string {
     return $this->query;
   }
 
   /**
    * Set SQL Query string
    */
-  public function setQuery( $query ) {
+  public function setQuery( $query ): LightSQLParser {
     $this->query   = $query;
     $this->queries = [];
+    $this->stash   = [];
 
     return $this;
   }
@@ -162,7 +166,7 @@ class LightSQLParser {
    * Get SQL Query method
    * @return string
    */
-  public function getMethod() {
+  public function getMethod(): string {
     $methods = [
       'SELECT',
       'INSERT',
@@ -195,11 +199,9 @@ class LightSQLParser {
   /**
    * Get SQL Query First Table
    *
-   * @param $query
-   *
    * @return string
    */
-  public function getTable() {
+  public function getTable(): ?string {
     $tables = $this->getAllTables();
 
     return ( isset( $tables[0] ) ) ? $tables[0] : null;
@@ -261,7 +263,7 @@ class LightSQLParser {
    * Has join tables.
    * @return bool
    */
-  function hasJoin() {
+  function hasJoin(): bool {
     $queries = $this->getAllQueries();
     foreach ( $queries as $query ) {
       preg_match( '#[\s]+JOIN[\s]+([\w]+)#i', $query, $matches );
@@ -277,7 +279,7 @@ class LightSQLParser {
    * Has SubQueries.
    * @return bool
    */
-  function hasSubQuery() {
+  function hasSubQuery(): bool {
     $query = $this->getQuery();
     preg_match( '#\([\s]*(SELECT[^)]+)\)#i', $query, $matches );
     if ( ! empty( $matches[1] ) ) {
@@ -286,12 +288,13 @@ class LightSQLParser {
 
     return false;
   }
+  /* quoted strings, with escapes processed correctly */
 
   /**
    * Join tables.
    * @return array
    */
-  function getSubQueries() {
+  function getSubQueries(): array {
     $results = [];
     $query   = $this->getQuery();
     preg_match_all( '#\([\s]*(SELECT[^)]+)\)#i', $query, $matches, PREG_SET_ORDER );
@@ -309,10 +312,7 @@ class LightSQLParser {
     }
     $result = $query;
     /* quoted strings, with escapes processed correctly */
-    $quSt   = <<<'END'
-/'(?:.*?[^\\])??(?:(?:\\\\)+)?'/
-END;
-    $result = preg_replace_callback( $quSt, function ( $matches ) {
+    $result = preg_replace_callback( $this->quotedStringRe, function ( $matches ) {
       $s = $matches[0];
       if ( strlen( $s ) > 32 ) {
         $s = substr( $s, 0, 20 ) . '...' . substr( $s, - 9 );
@@ -327,12 +327,17 @@ END;
     return $result;
   }
 
+  /** get the fingerprinted query.
+   * @return array|string|string[]|null
+   */
   function getFingerprint() {
     $query = $this->getQuery();
 
     $result = $query;
+    $result = preg_replace_callback( $this->quotedStringRe, [ $this, 'stripStrings' ], $result );
+
     /* backticks */
-    $result = preg_replace( '/\`([^\`]+)\`/', '$1', $result );
+    $result = preg_replace( '/\`([_$A-Za-z0-9]+)\`/', '$1', $result );
 
     /* take off LIMIT and OFFSET -- we need to see pagination details */
     $limitp      = strripos( $result, ' LIMIT ' );
@@ -345,6 +350,10 @@ END;
       $limitClause = substr( $result, $p );
       $result      = substr( $result, 0, $p );
     }
+
+    $stringNumRe = '/' . $this->symbolizedStringDelimiter . '\d+' . $this->symbolizedStringDelimiter . '/';
+    $result      = preg_replace_callback( $stringNumRe, [ $this, 'restoreStrings' ], $result );
+
 
     $result .= ' ';
 
@@ -373,12 +382,7 @@ END;
     $result = preg_replace( '/IN\s*\((?:\s*(?:\?izero\?|\?ione\?|\d+)\s*,*?){20,}\s*\)/', 'IN (?ilonglist?)', $result );
     $result = preg_replace( '/([^_])\d+/', '$1?i?', $result );
 
-    /* quoted strings, with escapes processed correctly */
-    $quSt   = <<<'END'
-/'(?:.*?[^\\])??(?:(?:\\\\)+)?'/
-END;
-    $result = preg_replace( $quSt, '?s?', $result );
-    //$result = preg_replace( '/IN\s*\((?:\s*(?:\?izero\?|\?ione\?|\d+)\s*,*?){2,20}\s*\)/', 'IN (?ilist?)', $result ); //todo
+    $result = preg_replace( $this->quotedStringRe, '?s?', $result );
 
     /* giant inserts */
     $result = preg_replace( "/(INSERT +[^\\(]+\\([^\\)]+\\) *VALUES *)(?:.{150,}+)/", '$1 (?valuelist?)', $result );
@@ -399,5 +403,54 @@ END;
     $result = preg_replace( '/\s+/', ' ', $result );
 
     return $result;
+  }
+
+  /** match callback function for symbolizing strings
+   *
+   * @param array $matches
+   *
+   * @return string
+   */
+  private function stripStrings( array $matches ): string {
+    $s             = $matches[0];
+    $stashNum      = count( $this->stash );
+    $this->stash[] = $s;
+
+    return $this->symbolizedStringDelimiter . $stashNum . $this->symbolizedStringDelimiter;
+  }
+
+  /** restore symbolized strings
+   *
+   * @param array $matches
+   *
+   * @return string
+   */
+  private function restoreStrings( array $matches ): string {
+    $s        = $matches[0];
+    if (!is_string($s)) {
+      return '';
+    }
+    $s        = substr( $s, 3 );
+    $stashNum = intval( substr( $s, 0, strlen( $s ) - 3 ) );
+    if ($stashNum >= count($this->stash)) {
+      return '';
+    }
+    $s        = $this->stash[ $stashNum ];
+
+    return $this->shortenString( $s );
+  }
+
+  /** shorten a long string
+   *
+   * @param string $s
+   *
+   * @return string
+   */
+  private function shortenString( string $s ): string {
+    if ( $this->stringLengthThreshold > 0 && strlen( $s ) > $this->stringLengthThreshold ) {
+      $s = substr( $s, 0, 20 ) . '... --original string length ' . strlen( $s ) . '-- ...' . substr( $s, - 20 );
+    }
+
+    return $s;
   }
 }
