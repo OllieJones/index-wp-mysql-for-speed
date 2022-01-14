@@ -174,22 +174,6 @@ class ImsfCli extends WP_CLI_Command {
     return '';
   }
 
-  /** set the current majorVersion into the options structure.
-   * (The UI checks this to see whether it should nag the user a bit
-   * about adding / updating keys.
-   * @param $optName
-   *
-   * @return void
-   */
-  private function setCurrentVersion ($optName = 'ImfsPage') {
-    $opts    = get_option( $optName );
-    if (!$opts) {
-      $opts = [];
-    }
-    $opts['majorVersion'] = index_mysql_for_speed_major_version;
-    update_option( $optName, $opts );
-  }
-
   /**
    * Add high-performance keys.
    */
@@ -280,6 +264,23 @@ class ImsfCli extends WP_CLI_Command {
 
     return sprintf( "%s %s %s (%d %s, %ss)",
       $action, $tbl, __( "complete.", $this->domain ), $queries, $msg, number_format_i18n( $time, 2 ) );
+  }
+
+  /** set the current majorVersion into the options structure.
+   * (The UI checks this to see whether it should nag the user a bit
+   * about adding / updating keys.
+   *
+   * @param $optName
+   *
+   * @return void
+   */
+  private function setCurrentVersion( $optName = 'ImfsPage' ) {
+    $opts = get_option( $optName );
+    if ( ! $opts ) {
+      $opts = [];
+    }
+    $opts['majorVersion'] = index_mysql_for_speed_major_version;
+    update_option( $optName, $opts );
   }
 
   /**

@@ -11,7 +11,7 @@ class ImfsNotice {
     $this->notice = $notice;
   }
 
-  /** hook to display the nag.  
+  /** hook to display the nag.
    * @noinspection HtmlUnknownTarget
    */
   public function display_update_notice() {

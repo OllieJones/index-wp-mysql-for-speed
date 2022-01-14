@@ -72,8 +72,8 @@ function index_wp_mysql_for_speed_do_everything() {
  * @return string|bool
  */
 function updateNag() {
-  $result       = null;
-  if (!wp_doing_ajax()) {
+  $result = null;
+  if ( ! wp_doing_ajax() ) {
     $imfsPage     = get_option( 'ImfsPage' );
     $majorVersion = ( $imfsPage !== false && isset( $imfsPage['majorVersion'] ) && is_numeric( $imfsPage['majorVersion'] ) )
       ? floatval( $imfsPage['majorVersion'] ) : index_mysql_for_speed_previous_major_version;

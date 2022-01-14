@@ -205,8 +205,7 @@ function getQueries(): array {
                 ) `drop`,
                CONCAT ('ALTER TABLE ', s.TABLE_SCHEMA, '.', s.TABLE_NAME, ' ') `alter`,	
                MAX(t.ENGINE) 'engine',
-               MAX(t.ROW_FORMAT) 'row_format',
-            r.rowlength
+               MAX(t.ROW_FORMAT) 'row_format'
           FROM information_schema.STATISTICS s
           LEFT JOIN information_schema.TABLE_CONSTRAINTS tc
                   ON s.TABLE_NAME = tc.TABLE_NAME
@@ -222,27 +221,6 @@ function getQueries(): array {
                   ON s.TABLE_NAME = t.TABLE_NAME
                  AND s.TABLE_SCHEMA = t.TABLE_SCHEMA
                  AND s.TABLE_CATALOG = t.TABLE_CATALOG
-      LEFT JOIN (
-        SELECT c.TABLE_NAME,
-               c.TABLE_SCHEMA,
-               c.TABLE_CATALOG,
-               SUM(
-                   CASE WHEN c.DATA_TYPE IN ('varchar', 'char') THEN c.CHARACTER_OCTET_LENGTH
-                        WHEN c.DATA_TYPE = 'int' THEN 4
-                        WHEN c.DATA_TYPE = 'bigint' THEN 8
-                        WHEN c.DATA_TYPE = 'float' THEN 4
-                        WHEN c.DATA_TYPE = 'double' THEN 8
-                        WHEN c.DATA_TYPE = 'date' THEN 3
-                        WHEN c.DATA_TYPE = 'time' THEN 3
-                        WHEN c.DATA_TYPE = 'timestamp' THEN 4
-                        WHEN c.DATA_TYPE = 'datetime' THEN 5
-                        ELSE 0 END                
-                   ) rowlength
-         FROM information_schema.COLUMNS c
-        GROUP BY c.TABLE_NAME, c.TABLE_SCHEMA, c.TABLE_CATALOG
-        ) r   ON s.TABLE_NAME = r.TABLE_NAME
-                 AND s.TABLE_SCHEMA = r.TABLE_SCHEMA
-                 AND s.TABLE_CATALOG = r.TABLE_CATALOG
          WHERE s.TABLE_SCHEMA = DATABASE()
            AND s.TABLE_NAME = %s
          GROUP BY TABLE_NAME, INDEX_NAME
@@ -314,7 +292,8 @@ function getQueries(): array {
                FROM information_schema.INNODB_METRICS
               WHERE COMMENT NOT LIKE 'Deprecated%'
                 AND TIME_ENABLED IS NOT NULL
-              ORDER BY NAME",
+              ORDER BY NAME 
+              /* no harm done if this query fails */",
     ],
   ];
 

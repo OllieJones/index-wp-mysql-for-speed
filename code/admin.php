@@ -241,7 +241,7 @@ class ImfsPage extends Imfs_AdminPageFramework {
 
     $optName = $oAdminPage->oProp->sOptionKey;
     $opts    = get_option( $optName );
-    if (!$opts) {
+    if ( ! $opts ) {
       $opts = [];
     }
     $opts['majorVersion'] = index_mysql_for_speed_major_version;
@@ -387,7 +387,7 @@ class ImfsPage extends Imfs_AdminPageFramework {
     global $wpdb;
     $messageNumber = 0;
     /* display current status */
-    if ( count( $rekeying['upgrade'] ) > 0 ) {
+    if ( is_array( $rekeying['upgrade'] ) && count( $rekeying['upgrade'] ) > 0 ) {
       $list  = implode( ', ', $rekeying['upgrade'] );
       $label = __( 'These database tables need upgrading to MySQL\'s latest table storage format, InnoDB with dynamic rows.', $this->domain );
       $label .= '<p class="tablelist">' . $list . '</p>';

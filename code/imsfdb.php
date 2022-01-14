@@ -140,17 +140,27 @@ class ImfsDb {
   }
 
   private function getInnodbMetrics(): array {
-    $r = $this->get_results( $this->queries['innodb_metrics'][0], false, OBJECT );
-    if ( is_array( $r ) && count( $r ) === 1 && $r[0]->num > 0 ) {
-      return $this->get_results( $this->queries['innodb_metrics'][1] );
-    }
+    try {
+      $r = $this->get_results( $this->queries['innodb_metrics'][0], false, OBJECT );
+      if ( is_array( $r ) && count( $r ) === 1 && $r[0]->num > 0 ) {
+        return $this->get_results( $this->queries['innodb_metrics'][1] );
+      }
 
-    return [
-      (object) [
-        "Variable_name" => "INNODB_METRICS",
-        "Value"         => "not present on this server version",
-      ],
-    ];
+      return [
+        (object) [
+          "Variable_name" => "INNODB_METRICS",
+          "Value"         => "not present on this server version",
+        ],
+      ];
+    } catch ( ImfsException $ex ) {
+      /* this INNODB_METRICS lookup sometimes fails */
+      return [
+        (object) [
+          "Variable_name" => "INNODB_METRICS",
+          "Value"         => $ex->getMessage(),
+        ],
+      ];
+    }
   }
 
   /**
@@ -325,9 +335,11 @@ class ImfsDb {
     $originalTables = $this->tables();
     /* don't process tables still on old storage engines */
     $tables = [];
-    foreach ( $originalTables as $name ) {
-      if ( ! in_array( $wpdb->prefix . $name, $this->oldEngineTables ) ) {
-        $tables[] = $name;
+    if ( is_array( $this->oldEngineTables ) ) {
+      foreach ( $originalTables as $name ) {
+        if ( ! in_array( $wpdb->prefix . $name, $this->oldEngineTables ) ) {
+          $tables[] = $name;
+        }
       }
     }
     /* any rekeyable tables? */
@@ -393,6 +405,7 @@ class ImfsDb {
      * upgrade: list of MyISAM and / or COMPACT row-format tables
      *          needing upgrading.
      */
+
     return [
       'enable'      => $enableList,
       'old'         => $oldList,
