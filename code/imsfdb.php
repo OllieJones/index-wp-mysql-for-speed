@@ -140,6 +140,8 @@ class ImfsDb {
   }
 
   private function getInnodbMetrics(): array {
+    global $wpdb;
+    $suppressing = $wpdb->suppress_errors(true);
     try {
       $r = $this->get_results( $this->queries['innodb_metrics'][0], false, OBJECT );
       if ( is_array( $r ) && count( $r ) === 1 && $r[0]->num > 0 ) {
@@ -160,6 +162,8 @@ class ImfsDb {
           "Value"         => $ex->getMessage(),
         ],
       ];
+    } finally {
+      $wpdb->suppress_errors($suppressing);
     }
   }
 

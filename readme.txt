@@ -19,9 +19,13 @@ Speed up your WordPress site by adding high-performance keys (database indexes) 
 
 == Description ==
 
+<h4>What's new in version 1.4.1?</h4>
+
+Since the first release, our users have told us about several more opportunities to speed up their WooCommerce and core WordPress operations. We've added keys to the `meta` tables to help with searching for content, and to the `users` table to look people up by their display names. And, you can now upload saved Monitors so we can see your slowest queries. We'll use that information to impprove future versions. Thanks, dear users!
+
 <h4>How do I use this plugin?</h4>
 
-Use this plugin with the Index MySQL Tool under the Tools menu. Or, give the shell command _wp help index-mysql_ to learn how to use it with [WP-CLI](https://wp-cli.org/).
+After you install this plugin, use it with the Index MySQL Tool under the Tools menu. Or, give the shell command _wp help index-mysql_ to learn how to use it with [WP-CLI](https://wp-cli.org/).
 
 <h4>What does it do for my site?</h4>
 
@@ -29,9 +33,9 @@ This plugin works to make your MySQL database work more efficiently by adding hi
 
 <h4>What is this all about?</h4>
 
-Where does WordPress store all that stuff that makes your site great? Where are your pages, posts, products, media, users, custom fields, metadata, and all your valuable content? All that data is in the [MySQL](https://www.mysql.com/) relational database management system. (Many hosting providers and servers use the [MariaDB](https://mariadb.org/) fork of the MySQL software; it works exactly the same as MySQL itself.)
+Where does WordPress store all that stuff that makes your site great? Where are your pages, posts, products, media, users, custom fields, metadata, and all your valuable content? All that data is in the [MySQL](https://www.mysql.com/) relational database management system. (Many hosting providers and servers use the [MariaDB](https://mariadb.org/) fork of the MySQL software; it works exactly the same way as MySQL itself.)
 
-As your site grows, your MySQL tables grow. Giant tables can make your page loads slow down, frustrate your users, and even hurt your search-engine rankings. What can you do about this?
+As your site grows, your MySQL tables grow. Giant tables can make your page loads slow down, frustrate your users, and even hurt your search-engine rankings. And, bulk imports can take absurd amounts of time. What can you do about this?
 
 You can install and use a database cleaner plugin to get rid of old unwanted data and reorganize your tables. That makes them smaller, and therefore faster. That is a good and necessary task. That is not the task of this plugin. You can, if your hosting provider supports it, install and use a [Persistent Object Cache plugin](https://developer.wordpress.org/reference/classes/wp_object_cache/#persistent-cache-plugins) to reduce traffic to your database. That is not the task of this plugin either.
 
