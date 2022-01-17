@@ -60,7 +60,7 @@ class imfsGetIndexes {
         "comment_approved_date_gmt"    => "ADD KEY comment_approved_date_gmt (comment_approved, comment_date_gmt)",
         "comment_date_gmt"             => "ADD KEY comment_date_gmt (comment_date_gmt)",
         "comment_parent"               => "ADD KEY comment_parent (comment_parent)",
-        "comment_author_email"         => "ADD KEY comment_author_email (comment_author_email, comment_post_ID, comment_ID)",
+        "comment_author_email"         => "ADD KEY comment_author_email (comment_author_email, comment_post_ID)",
         "comment_post_parent_approved" => "ADD KEY comment_post_parent_approved (comment_post_ID, comment_parent, comment_approved, comment_type, comment_date_gmt)",
       ],
     ];
@@ -213,7 +213,7 @@ class imfsGetIndexes {
         "comment_date_gmt"             => "ADD KEY comment_date_gmt (comment_date_gmt)",
         "comment_parent"               => "ADD KEY comment_parent (comment_parent)",
         "comment_author_email"         => "ADD KEY comment_author_email (comment_author_email(10))",
-        "comment_post_parent_approved" => "ADD KEY comment_post_parent_approved (comment_post_ID, comment_parent, comment_approved, comment_ID)",
+        "comment_post_parent_approved" => "ADD KEY comment_post_parent_approved (comment_post_ID, comment_parent, comment_approved)",
       ],
       /* the target indexes for previous version are the same as the standard indexes here,
        * because we did not reindex these tables at all in the previous version. */

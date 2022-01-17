@@ -54,14 +54,14 @@ Better keys allow WordPress's code to run faster _without any code changes_.  Ex
 
 This plugin adds and updates keys in these WordPress tables.
 
-* wp_options
-* wp_posts
-* wp_postmeta
-* wp_users
-* wp_usermeta
 * wp_comments
 * wp_commentmeta
+* wp_posts
+* wp_postmeta
 * wp_termmeta
+* wp_users
+* wp_usermeta
+* wp_options
 
 You only need run this plugin once to get its benefits.
 
@@ -74,7 +74,7 @@ You can monitor
 * either the site (your user-visible pages) or the dashboard, or both.
 * all pageviews, or a random sample. (Random samples are useful on very busy sites to reduce monitoring overhead.)
 
-Once you have gathered monitoring information, you can view the queries, and sort them by how long they take. Or you can save the monitor information to a file and show it to somebody who knows about database operations.
+Once you have gathered monitoring information, you can view the queries, and sort them by how long they take. Or you can save the monitor information to a file and show it to somebody who knows about database operations. Or you can upload the monitor to the plugin's servers so the authors can look at it.
 
 It's a good idea to monitor for a five-minute interval at a time of day when your site is busy. Once you've completed a monitor, you can examine it to determine which database operations are slowing you down the most.
 
@@ -106,6 +106,10 @@ MySQL versions 5.5.62 and above, 5.6.4 and above, 8 and above. MariaDB versions 
 = What database Storage Engine does this support? =
 
 **InnoDB only.** If your tables use MyISAM (the older storage engine) or the older COMPACT row format, this plugin offers to upgrade them for you.
+
+= What tables and keys does the plugin change? =
+
+[Please read this](https://www.plumislandmedia.net/index-wp-mysql-for-speed/tables_and_keys/).
 
 = How do I get an answer to another question? ==
 
