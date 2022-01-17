@@ -86,6 +86,7 @@ function imfsGetAllStats( $db ): array {
     'id'            => '', /* id should be first */
     'wordpress'     => $wordpress,
     'mysqlVer'      => $db->semver,
+    'keys'          => $db->getIndexList(),
     'alltables'     => $db->stats[1],
     //'timings'      => $db->timings,
     'globalStatus'  => $globalStatus,

@@ -173,6 +173,10 @@ class ImfsMonitor {
       $queryLog->start       = PHP_INT_MAX;
       $queryLog->end         = PHP_INT_MIN;
       $queryLog->queries     = [];
+      /* get the key status from when the monitor storted. */
+      $monval                = get_option( index_wp_mysql_for_speed_monitor );
+      $queryLog->keys        = $monval->keys;
+
     } else {
       $queryLogOverflowing = strlen( $queryLog ) > $this->queryLogSizeThreshold;
       $queryLog            = json_decode( $queryLog );

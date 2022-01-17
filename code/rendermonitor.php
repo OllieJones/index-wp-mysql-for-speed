@@ -496,6 +496,12 @@ END;
     return $a[ $i ];
   }
 
+  /** retrieve a short summary query plan
+   *
+   * @param $q object the query
+   *
+   * @return mixed|string
+   */
   public function queryPlan( $q ) {
     if ( ! $q->e || ! is_array( $q->e ) || count( $q->e ) === 0 ) {
       return '';
@@ -569,6 +575,7 @@ END;
       }
 
       /* descending order sort */
+
       return $a < $b ? 1 : - 1;
 
     } );
@@ -590,6 +597,7 @@ END;
       $q = [
         'f' => $query->f,
         'a' => $query->a,
+        'p' => $this->queryPlan( $query ),
         'n' => $query->n,
         't' => $query->t,
         'q' => $shortened,
@@ -610,6 +618,7 @@ END;
       'start'   => $l->start,
       'end'     => $l->end,
       'stats'   => $this->getDbStatistics(),
+      'keys'    => $l->keys,
       'queries' => $qs,
     ];
   }
@@ -645,9 +654,9 @@ END;
     if ( ! isset ( $status ) ) {
       return [];
     }
-    $dt             = $this->queryLog->end - $this->queryLog->start;
-    $res            = [];
-    $res['version'] = $this->db->semver->version;
+    $dt              = $this->queryLog->end - $this->queryLog->start;
+    $res             = [];
+    $res['version']  = $this->db->semver->version;
     $res['duration'] = $dt;
     if ( $status->Uptime_state ) {
       $res['uptime'] = $status->Uptime_state;

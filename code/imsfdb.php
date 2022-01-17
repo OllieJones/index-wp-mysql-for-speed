@@ -141,7 +141,7 @@ class ImfsDb {
 
   private function getInnodbMetrics(): array {
     global $wpdb;
-    $suppressing = $wpdb->suppress_errors(true);
+    $suppressing = $wpdb->suppress_errors( true );
     try {
       $r = $this->get_results( $this->queries['innodb_metrics'][0], false, OBJECT );
       if ( is_array( $r ) && count( $r ) === 1 && $r[0]->num > 0 ) {
@@ -163,7 +163,7 @@ class ImfsDb {
         ],
       ];
     } finally {
-      $wpdb->suppress_errors($suppressing);
+      $wpdb->suppress_errors( $suppressing );
     }
   }
 
@@ -328,6 +328,43 @@ class ImfsDb {
 
   }
 
+  /** get the current index situation
+   * @return array
+   */
+  public function getIndexList(): array {
+
+    $results = [];
+    try {
+      $rekeying = $this->getRekeying();
+      foreach ( $rekeying as $key => $list ) {
+        if ( is_array( $list ) && count( $list ) > 0 ) {
+          if ( $key === 'standard' || $key === 'old' || $key === 'fast' || $key === 'upgrade' ) {
+            $results[ $key ] = $list;
+          }
+        }
+      }
+      /* nonstandard? show the actual keys */
+      $nonstandard = $rekeying['nonstandard'];
+      if ( is_array( $nonstandard ) && count( $nonstandard ) > 0 ) {
+        $tables = [];
+        foreach ( $nonstandard as $table ) {
+          $keys    = [];
+          $current = $this->getKeyDDL( $table );
+          foreach ( $current as $key => $value ) {
+            $dex    = preg_replace( '/^ADD +/', '', $value->add, 1 );
+            $keys[] = $dex;
+          }
+          $tables[ $table ] = $keys;
+        }
+        $results['nonstandard'] = $tables;
+      }
+    } catch ( ImfsException $ex ) {
+      $results[] = $ex->getMessage();
+    }
+
+    return $results;
+  }
+
   /** figure out, based on current DDL and target DDL,
    * what tables need to change, and how they could change.
    *
@@ -406,6 +443,7 @@ class ImfsDb {
      *          restored to the default.
      * fast: list of tables that have this plugin version's fast indexes.
      * nonstandard:  list of tables with indexes this plugin doesn't recognize.
+     * standard: list of tables with WordPress standard keys
      * upgrade: list of MyISAM and / or COMPACT row-format tables
      *          needing upgrading.
      */
@@ -416,6 +454,7 @@ class ImfsDb {
       'disable'     => $revertable,
       'fast'        => $fastList,
       'nonstandard' => $repairable,
+      'standard'    => $addable,
       'upgrade'     => $this->oldEngineTables,
     ];
   }

@@ -1039,7 +1039,7 @@ class ImfsPage extends Imfs_AdminPageFramework {
       switch ( $button ) {
         case 'start_monitoring_now':
           $qmc     = new QueryMonControl();
-          $message = $qmc->start( $inputs['monitor_specs'] );
+          $message = $qmc->start( $inputs['monitor_specs'], $this->db );
           $this->setSettingNotice( $message, 'updated' );
           break;
         case 'upgrade_now':
