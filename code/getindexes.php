@@ -1,11 +1,44 @@
 <?php
+
 class imfsGetIndexes {
 
   public static $imfsStandardIndexes;
 
 
-  /** @noinspection PhpUnusedParameterInspection */
-  static function getStandardIndexes( $unconstrained, $version = 51917 ): array {
+
+  /** the list of tables we can handle
+   *
+   * @param $unconstrained
+   *
+   * @return array
+   * @throws ImfsException
+   */
+  static function getIndexableTables( $unconstrained ): array {
+    $tables = [];
+    $x      = imfsGetIndexes::getStandardIndexes( $unconstrained );
+    foreach ( $x as $table => $indexes ) {
+      $tables[ $table ] = 1;
+    }
+    $x = imfsGetIndexes::getHighPerformanceIndexes( $unconstrained );
+    foreach ( $x as $table => $indexes ) {
+      $tables[ $table ] = 1;
+    }
+    $result = [];
+    foreach ( $tables as $table => $z ) {
+      $result[] = $table;
+    }
+
+    return $result;
+  }
+
+  /**
+   * @param $unconstrained bool false if Antelope
+   * @param int $version WordPress database version.
+   *
+   * @return array
+   * @noinspection PhpUnusedParameterInspection
+   */
+  static function getStandardIndexes( bool $unconstrained, int $version = 51917 ): array {
     /* these are WordPress's standard indexes for database version 51917 and before.
      * see the end of this file for their definitions */
     return imfsGetIndexes::$imfsStandardIndexes;
@@ -52,7 +85,7 @@ class imfsGetIndexes {
       "options"  => [
         "option_id"   => "ADD UNIQUE KEY option_id (option_id)",
         "PRIMARY KEY" => "ADD PRIMARY KEY (option_name)",
-        "autoload" => "ADD KEY autoload (autoload)",
+        "autoload"    => "ADD KEY autoload (autoload)",
       ],
       "comments" => [
         "comment_ID"                   => "ADD UNIQUE KEY comment_ID (comment_ID)",
@@ -278,31 +311,6 @@ class imfsGetIndexes {
     }
 
     return $reindexes;
-  }
-
-  /** the list of tables we can handle
-   *
-   * @param $unconstrained
-   *
-   * @return array
-   * @throws ImfsException
-   */
-  static function getIndexableTables( $unconstrained ): array {
-    $tables = [];
-    $x      = imfsGetIndexes::getStandardIndexes( $unconstrained );
-    foreach ( $x as $table => $indexes ) {
-      $tables[ $table ] = 1;
-    }
-    $x = imfsGetIndexes::getHighPerformanceIndexes( $unconstrained );
-    foreach ( $x as $table => $indexes ) {
-      $tables[ $table ] = 1;
-    }
-    $result = [];
-    foreach ( $tables as $table => $z ) {
-      $result[] = $table;
-    }
-
-    return $result;
   }
 }
 

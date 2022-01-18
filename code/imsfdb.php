@@ -117,7 +117,7 @@ class ImfsDb {
   public function get_results( $sql, bool $doTiming = false, string $outputFormat = OBJECT_K ) {
     global $wpdb;
     $thentime = $doTiming ? $this->getTime() : - 1;
-    $results  = $wpdb->get_results( index_wp_mysql_for_speed_querytag . $sql, $outputFormat );
+    $results  = $wpdb->get_results( $this->tagQuery( $sql ), $outputFormat );
     if ( false === $results || $wpdb->last_error ) {
       throw new ImfsException( $wpdb->last_error, $wpdb->last_query );
     }
@@ -137,6 +137,19 @@ class ImfsDb {
     } catch ( Exception $ex ) {
       return time();
     }
+  }
+
+  /** place a tag comment at the end of a SQL statement,
+   * including text to recognize our queries and
+   * a random cache-busting number.
+   * (So WP Total Cache and others won't cache.)
+   *
+   * @param $q
+   *
+   * @return string
+   */
+  private function tagQuery( $q ): string {
+    return $q . '/*' . index_wp_mysql_for_speed_querytag . strval( rand( 0, 999999999 ) ) . '*/';
   }
 
   private function getInnodbMetrics(): array {
@@ -315,7 +328,7 @@ class ImfsDb {
   public function query( $sql, bool $doTiming = false ) {
     global $wpdb;
     $thentime = $doTiming ? $this->getTime() : - 1;
-    $results  = $wpdb->query( index_wp_mysql_for_speed_querytag . $sql );
+    $results  = $wpdb->query( $this->tagQuery( $sql ) );
     if ( false === $results || $wpdb->last_error ) {
       throw new ImfsException( $wpdb->last_error, $wpdb->last_query );
     }

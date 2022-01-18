@@ -1,5 +1,11 @@
 <?php
 
+/** get a random text string from letters and numbers.
+ *
+ * @param $length
+ *
+ * @return string
+ */
 function imfsRandomString( $length ): string {
   /* some characters removed from this set to reduce confusion reading aloud */
   $characters       = '23456789abcdefghjkmnpqrstuvwxyzABCDEFGHJKLMNPQRTUVWXYZ';

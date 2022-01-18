@@ -35,7 +35,7 @@ define( 'index_wp_mysql_for_speed_PLUGIN_NAME', trim( dirname( plugin_basename( 
 define( 'index_wp_mysql_for_speed_domain', index_wp_mysql_for_speed_PLUGIN_NAME );
 define( 'index_wp_mysql_for_speed_stats_endpoint', $target = 'https://lit-mesa-75588.herokuapp.com/imfsstats' );
 define( 'index_wp_mysql_for_speed_monitor', 'imfsQueryMonitor' );
-define( 'index_wp_mysql_for_speed_querytag', '/*imfs-query-tag*/' );
+define( 'index_wp_mysql_for_speed_querytag', '*imfs-query-tag*' );
 /* version 32814 was the advent of utfmb4 */
 define( 'index_wp_mysql_for_speed_first_compatible_db_version', 32814 );
 define( 'index_wp_mysql_for_speed_last_compatible_db_version', 0 ); /*tested up to 51917 */
@@ -139,12 +139,12 @@ function index_wp_mysql_for_speed_deactivate() {
   global $wpdb;
   delete_option( 'ImfsPage' );
   $q  = "SELECT option_name FROM {$wpdb->options} WHERE option_name LIKE '" . index_wp_mysql_for_speed_monitor . "%'";
-  $rs = $wpdb->get_results( index_wp_mysql_for_speed_querytag . $q );
+  $rs = $wpdb->get_results( $q );
   foreach ( $rs as $r ) {
     delete_option( $r->option_name );
   }
   $q  = "SELECT option_name FROM {$wpdb->options} WHERE option_name LIKE '_transient_" . index_wp_mysql_for_speed_monitor . "%'";
-  $rs = $wpdb->get_results( index_wp_mysql_for_speed_querytag . $q );
+  $rs = $wpdb->get_results( $q );
   foreach ( $rs as $r ) {
     delete_transient( $r->option_name );
   }

@@ -16,8 +16,7 @@ class ImfsNotice {
    */
   public function display_update_notice() {
     global $_REQUEST;
-    $page = $_REQUEST['page'];
-    if ( $page === 'imfs_settings' ) {
+    if ( is_array( $_REQUEST ) && array_key_exists( 'page', $_REQUEST ) && $_REQUEST['page'] === 'imfs_settings' ) {
       return;
     }
 

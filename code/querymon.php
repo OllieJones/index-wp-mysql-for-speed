@@ -77,7 +77,7 @@ class ImfsMonitor {
    *
    * @return string|null
    */
-  function encodeQuery( $q, bool $explain = true ): ?string {
+  function encodeQuery( array $q, bool $explain = true ): ?string {
     global $wpdb;
     try {
       $item    = (object) [];
@@ -89,13 +89,19 @@ class ImfsMonitor {
       if ( $explain ) {
         $explainer = stripos( $q[0], 'SELECT ' ) === 0 ? $this->analyzeVerb : $this->explainVerb;
         $explainq  = $explainer . ' ' . $q[0];
-        $item->e   = $wpdb->get_results( index_wp_mysql_for_speed_querytag . $explainq );
+        $item->e   = $wpdb->get_results( $this->tagQuery( $explainq ) );
       }
 
       return json_encode( $item );
     } catch ( Exception $e ) {
       return null;/*  no crash on query parse fail */
     }
+  }
+
+  private function tagQuery( $q ): string {
+    $r = strval( rand( 1000000000, 9999999999 ) );
+
+    return $q . '/*' . index_wp_mysql_for_speed_querytag . $r . '*/';
   }
 
   function storeGathered( $name, $uploadArray, $separator, $maxlength ) {
@@ -111,7 +117,7 @@ class ImfsMonitor {
    * @param string $separator Separator between appended values (default '|||').
    * @param int $maxlength Stop appending when value reaches this length to avoid bloat (default 512 KiB).
    */
-  function imfs_append_to_option( $name, $value, $separator = '|||', $maxlength = 524288 ) {
+  function imfs_append_to_option( string $name, string $value, string $separator = '|||', int $maxlength = 524288 ) {
     if ( ! $name || strlen( $name ) === 0 ) {
       return;
     }
@@ -124,13 +130,13 @@ class ImfsMonitor {
        * We can't use ON DUPLICATE KEY UPDATE col = VALUES(option_value)
        * because Oracle MySQL deprecated it, but MariaDB didn't. Grumble.
        * So we'll put it into a server variable just once; it can be fat. */
-      $wpdb->query( $wpdb->prepare( index_wp_mysql_for_speed_querytag . "SET @upload = %s", $value ) );
+      $wpdb->query( $wpdb->prepare( $this->tagQuery( "SET @upload = %s" ), $value ) );
       $query = "INSERT INTO $wpdb->options (option_name, option_value, autoload)"
                . "VALUES (%s, @upload, 'no')"
                . "ON DUPLICATE KEY UPDATE option_value ="
                . "IF(%d > 0 AND LENGTH(option_value) <= %d - LENGTH(@upload),"
                . "CONCAT(option_value, %s, @upload), option_value)";
-      $query = $wpdb->prepare( index_wp_mysql_for_speed_querytag . $query, $name, $maxlength, $maxlength, $separator );
+      $query = $wpdb->prepare( $this->tagQuery( $query ), $name, $maxlength, $maxlength, $separator );
       $wpdb->query( $query );
       wp_cache_delete( $name, 'options' );
     } catch ( Exception $e ) {
@@ -174,8 +180,8 @@ class ImfsMonitor {
       $queryLog->end         = PHP_INT_MIN;
       $queryLog->queries     = [];
       /* get the key status from when the monitor storted. */
-      $monval                = get_option( index_wp_mysql_for_speed_monitor );
-      $queryLog->keys        = $monval->keys;
+      $monval         = get_option( index_wp_mysql_for_speed_monitor );
+      $queryLog->keys = $monval->keys;
 
     } else {
       $queryLogOverflowing = strlen( $queryLog ) > $this->queryLogSizeThreshold;
@@ -219,12 +225,12 @@ class ImfsMonitor {
   function imfs_get_appended_option( string $name ): ?string {
     try {
       global $wpdb;
-      $wpdb->query( index_wp_mysql_for_speed_querytag . "START TRANSACTION" );
-      $query  = index_wp_mysql_for_speed_querytag . "SELECT option_value FROM $wpdb->options WHERE option_name = %s FOR UPDATE";
-      $result = $wpdb->get_var( $wpdb->prepare( $query, $name ) );
-      $query  = index_wp_mysql_for_speed_querytag . "UPDATE $wpdb->options SET option_value = '' WHERE option_name = %s";
-      $wpdb->query( $wpdb->prepare( $query, $name ) );
-      $wpdb->query( index_wp_mysql_for_speed_querytag . "COMMIT" );
+      $wpdb->query( $this->tagQuery( "START TRANSACTION" ) );
+      $query  = "SELECT option_value FROM $wpdb->options WHERE option_name = %s FOR UPDATE";
+      $result = $wpdb->get_var( $wpdb->prepare( $this->tagQuery( $query ), $name ) );
+      $query  = "UPDATE $wpdb->options SET option_value = '' WHERE option_name = %s";
+      $wpdb->query( $wpdb->prepare( $this->tagQuery( $query ), $name ) );
+      $wpdb->query( $this->tagQuery( "COMMIT" ) );
 
       return $result;
     } catch ( Exception $e ) {
@@ -305,7 +311,7 @@ class ImfsMonitor {
    * @return false|string
    */
   private static function getQueryId( string $fingerprint ) {
-    return substr( hash( 'md5', $fingerprint, false ), 0, 16 );
+    return substr( hash( 'md5', $fingerprint ), 0, 16 );
   }
 
   /**

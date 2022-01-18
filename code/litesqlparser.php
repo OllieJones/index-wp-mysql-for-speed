@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Light SQL Parser Class
  * @author Marco Cesarato <cesarato.developer@gmail.com>, Ollie JOnes <olliejones@gmail.com>
@@ -426,16 +427,16 @@ END;
    * @return string
    */
   private function restoreStrings( array $matches ): string {
-    $s        = $matches[0];
-    if (!is_string($s)) {
+    $s = $matches[0];
+    if ( ! is_string( $s ) ) {
       return '';
     }
     $s        = substr( $s, 3 );
     $stashNum = intval( substr( $s, 0, strlen( $s ) - 3 ) );
-    if ($stashNum >= count($this->stash)) {
+    if ( $stashNum >= count( $this->stash ) ) {
       return '';
     }
-    $s        = $this->stash[ $stashNum ];
+    $s = $this->stash[ $stashNum ];
 
     return $this->shortenString( $s );
   }

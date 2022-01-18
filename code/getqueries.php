@@ -1,5 +1,9 @@
 <?php
 
+function IfmsTagQuery( $q ): string {
+  return $q . '/*' . index_wp_mysql_for_speed_querytag . strval( rand( 0, 999999999 ) ) . '*/';
+}
+
 function ImfsStripPrefix( $name ) {
   global $wpdb;
   $pattern = '/^' . $wpdb->prefix . '/';
@@ -47,7 +51,7 @@ function getMySQLVersion(): object {
             CAST(SUBSTRING_INDEX(SUBSTRING_INDEX(VERSION(), '.', 2), '.', -1) AS UNSIGNED) minor,
             CAST(SUBSTRING_INDEX(SUBSTRING_INDEX(REPLACE(VERSION(), '-', '.'), '.', 3), '.', -1) AS UNSIGNED) build,
             '' fork, '' distro";
-  $results = $wpdb->get_results( index_wp_mysql_for_speed_querytag . $semver );
+  $results = $wpdb->get_results( IfmsTagQuery( $semver ) );
   $results = $results[0];
 
   $results->db_host = imfsRedactHost( DB_HOST );
@@ -61,8 +65,8 @@ function getMySQLVersion(): object {
 
   /* check db version ... TODO with new db versions, test again */
   if ( $wp_db_version < index_wp_mysql_for_speed_first_compatible_db_version ||
-       (index_wp_mysql_for_speed_last_compatible_db_version &&
-        $wp_db_version > index_wp_mysql_for_speed_last_compatible_db_version ) ) {
+       ( index_wp_mysql_for_speed_last_compatible_db_version &&
+         $wp_db_version > index_wp_mysql_for_speed_last_compatible_db_version ) ) {
     /* fail if we don't have an expected version */
     $results->canreindex = 0;
 
@@ -128,7 +132,7 @@ function getMySQLVersion(): object {
 function hasLargePrefix(): int {
   global $wpdb;
   /* innodb_large_prefix variable is missing in MySQL 8+ */
-  $prefix = $wpdb->get_results( index_wp_mysql_for_speed_querytag . "SHOW VARIABLES LIKE 'innodb_large_prefix'", OBJECT_K );
+  $prefix = $wpdb->get_results( IfmsTagQuery( "SHOW VARIABLES LIKE 'innodb_large_prefix'" ), OBJECT_K );
   if ( $prefix && is_array( $prefix ) && array_key_exists( 'innodb_large_prefix', $prefix ) ) {
     $prefix = $prefix['innodb_large_prefix'];
 
