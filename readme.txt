@@ -21,7 +21,7 @@ Speed up your WordPress site by adding high-performance keys (database indexes) 
 
 <h4>What's new in version 1.4.1?</h4>
 
-Since the first release, our users have told us about several more opportunities to speed up their WooCommerce and core WordPress operations. We've added keys to the `meta` tables to help with searching for content, and to the `users` table to look people up by their display names. And, you can now upload saved Monitors so we can see your slowest queries. We'll use that information to impprove future versions. Thanks, dear users!
+Since the first release, our users have told us about several more opportunities to speed up their WooCommerce and core WordPress operations. We've added keys to the `meta` tables to help with searching for content, and to the `users` table to look people up by their display names. And, you can now upload saved Monitors so we can see your slowest queries. We'll use that information to improve future versions. Thanks, dear users!
 
 <h4>How do I use this plugin?</h4>
 
@@ -29,7 +29,9 @@ After you install this plugin, use it with the Index MySQL Tool under the Tools 
 
 <h4>What does it do for my site?</h4>
 
-This plugin works to make your MySQL database work more efficiently by adding high-performance keys to its tables. It also monitors your site's use of your MySQL database to detect which database operations are slowest. It is most useful for large sites: sites with many users, posts, pages, and / or products.
+This plugin works to make your MySQL database work more efficiently by adding high-performance keys to the tables you choose. On request it monitors your site's use of your MySQL database to detect which database operations are slowest. It is most useful for large sites: sites with many users, posts, pages, and / or products.
+
+You can use it to restore WordPress's default keys if need be.
 
 <h4>What is this all about?</h4>
 
@@ -74,7 +76,7 @@ You can monitor
 * either the site (your user-visible pages) or the dashboard, or both.
 * all pageviews, or a random sample. (Random samples are useful on very busy sites to reduce monitoring overhead.)
 
-Once you have gathered monitoring information, you can view the queries, and sort them by how long they take. Or you can save the monitor information to a file and show it to somebody who knows about database operations. Or you can upload the monitor to the plugin's servers so the authors can look at it.
+Once you have gathered monitoring information, you can view the captured queries, and sort them by how long they take. Or you can save the monitor information to a file and show it to somebody who knows about database operations. Or you can upload the monitor to the plugin's servers so the authors can look at it.
 
 It's a good idea to monitor for a five-minute interval at a time of day when your site is busy. Once you've completed a monitor, you can examine it to determine which database operations are slowing you down the most.
 
@@ -121,17 +123,17 @@ Please see more questions and answers [here](https://plumislandmedia.net/index-w
 When upgrading tables, change ROW_FORMAT to DYNAMIC as well as ENGINE to InnoDB. Add monitors.
 
 = 1.3.4 =
-Support MariaDB 10.1, make indexes work a little better, miscellaneous bugfixes.
+Support MariaDB 10.1, make keys work a little better, miscellaneous bugfixes.
 
 = 1.4.1 =
 * WordPress 5.9 and database version 51917 version compatibility tested.
 * Rekeys tables in one go: allows the plugin to work more quickly, and when sql_require_primary_key=ON (typically at managed service providers).
 * Adds high-performance keys to wp_users and wp_commentmeta tables.
-* Adds high-performance key for looking up meta values quickly in wp_postmeta, wp_termmeta, and wp_usermeta.
-* Handles upgrades to high-performance keys, from previous plugin versions.
+* Adds high-performance keys for filtering on meta_value data quickly in wp_postmeta, wp_termmeta, and wp_usermeta.
+* Handles updates to high-performance keys from previous plugin versions.
 * Checks $wp_db_version number to ensure schema compatibility.
-* Monitor captures include overall database server metrics, and can be uploaded.
-* Help pages for each tab of the plugin's Dashboard panel.
+* Monitor captures include overall database server metrics. Monitor captures can be uploaded.
+* Help pages for each tab of the plugin's Dashboard panel are available.
 * Clearer Dashboard panel displays.
 
 == Upgrade Notice ==
