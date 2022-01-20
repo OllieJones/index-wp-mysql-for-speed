@@ -1,0 +1,19 @@
+name: Deploy updated readme.txt and assets to WordPress.org
+# see https://github.com/10up/action-wordpress-plugin-asset-update
+
+on:
+  push:
+      branches:
+        - release
+
+jobs:
+  release:
+    name: Push assets to release branch
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@master
+      - name: WordPress.org plugin asset/readme update
+        uses: 10up/action-wordpress-plugin-asset-update@stable
+        env:
+          SVN_PASSWORD: ${{ secrets.SVN_PASSWORD }}
+          SVN_USERNAME: ${{ secrets.SVN_USERNAME }}
