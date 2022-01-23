@@ -56,7 +56,7 @@ END;
    *
    * @return array
    */
-  public function getFields(): array {
+  public function getFields() {
     $fields  = [];
     $queries = $this->getAllQueries();
     foreach ( $queries as $query ) {
@@ -128,7 +128,7 @@ END;
    * Get all queries
    * @return array
    */
-  public function getAllQueries(): array {
+  public function getAllQueries() {
     if ( empty( $this->queries ) ) {
       // TODO: fix issues when on a subquery exists a UNION expression
       $query   = $this->getQuery();
@@ -148,14 +148,14 @@ END;
    * Get SQL Query string
    * @return string
    */
-  public function getQuery(): string {
+  public function getQuery() {
     return $this->query;
   }
 
   /**
    * Set SQL Query string
    */
-  public function setQuery( $query ): LightSQLParser {
+  public function setQuery( $query ) {
     $this->query   = $query;
     $this->queries = [];
     $this->stash   = [];
@@ -167,7 +167,7 @@ END;
    * Get SQL Query method
    * @return string
    */
-  public function getMethod(): string {
+  public function getMethod() {
     $methods = [
       'SELECT',
       'INSERT',
@@ -202,7 +202,7 @@ END;
    *
    * @return string
    */
-  public function getTable(): ?string {
+  public function getTable() {
     $tables = $this->getAllTables();
 
     return ( isset( $tables[0] ) ) ? $tables[0] : null;
@@ -264,7 +264,7 @@ END;
    * Has join tables.
    * @return bool
    */
-  function hasJoin(): bool {
+  function hasJoin() {
     $queries = $this->getAllQueries();
     foreach ( $queries as $query ) {
       preg_match( '#[\s]+JOIN[\s]+([\w]+)#i', $query, $matches );
@@ -280,7 +280,7 @@ END;
    * Has SubQueries.
    * @return bool
    */
-  function hasSubQuery(): bool {
+  function hasSubQuery() {
     $query = $this->getQuery();
     preg_match( '#\([\s]*(SELECT[^)]+)\)#i', $query, $matches );
     if ( ! empty( $matches[1] ) ) {
@@ -295,7 +295,7 @@ END;
    * Join tables.
    * @return array
    */
-  function getSubQueries(): array {
+  function getSubQueries() {
     $results = [];
     $query   = $this->getQuery();
     preg_match_all( '#\([\s]*(SELECT[^)]+)\)#i', $query, $matches, PREG_SET_ORDER );
@@ -306,6 +306,7 @@ END;
     return array_unique( $results );
   }
 
+  /** @noinspection PhpUnnecessaryLocalVariableInspection */
   function getShortened() {
     $query = $this->getQuery();
     if ( strlen( $query ) <= 200 ) {
@@ -330,6 +331,7 @@ END;
 
   /** get the fingerprinted query.
    * @return array|string|string[]|null
+   * @noinspection PhpUnnecessaryLocalVariableInspection
    */
   function getFingerprint() {
     $query = $this->getQuery();
@@ -412,7 +414,7 @@ END;
    *
    * @return string
    */
-  private function stripStrings( array $matches ): string {
+  private function stripStrings( array $matches ) {
     $s             = $matches[0];
     $stashNum      = count( $this->stash );
     $this->stash[] = $s;
@@ -426,7 +428,7 @@ END;
    *
    * @return string
    */
-  private function restoreStrings( array $matches ): string {
+  private function restoreStrings( array $matches ) {
     $s = $matches[0];
     if ( ! is_string( $s ) ) {
       return '';
@@ -447,7 +449,7 @@ END;
    *
    * @return string
    */
-  private function shortenString( string $s ): string {
+  private function shortenString( $s ) {
     if ( $this->stringLengthThreshold > 0 && strlen( $s ) > $this->stringLengthThreshold ) {
       $s = substr( $s, 0, 20 ) . '... --original string length ' . strlen( $s ) . '-- ...' . substr( $s, - 20 );
     }

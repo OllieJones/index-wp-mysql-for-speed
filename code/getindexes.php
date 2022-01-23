@@ -5,7 +5,6 @@ class imfsGetIndexes {
   public static $imfsStandardIndexes;
 
 
-
   /** the list of tables we can handle
    *
    * @param $unconstrained
@@ -13,7 +12,7 @@ class imfsGetIndexes {
    * @return array
    * @throws ImfsException
    */
-  static function getIndexableTables( $unconstrained ): array {
+  static function getIndexableTables( $unconstrained ) {
     $tables = [];
     $x      = imfsGetIndexes::getStandardIndexes( $unconstrained );
     foreach ( $x as $table => $indexes ) {
@@ -38,7 +37,7 @@ class imfsGetIndexes {
    * @return array
    * @noinspection PhpUnusedParameterInspection
    */
-  static function getStandardIndexes( bool $unconstrained, int $version = 51917 ): array {
+  static function getStandardIndexes( $unconstrained, $version = 51917 ) {
     /* these are WordPress's standard indexes for database version 51917 and before.
      * see the end of this file for their definitions */
     return imfsGetIndexes::$imfsStandardIndexes;
@@ -52,7 +51,7 @@ class imfsGetIndexes {
    * @return array
    * @throws ImfsException
    */
-  static function getHighPerformanceIndexes( $unconstrained, float $version = 1.4 ): array {
+  static function getHighPerformanceIndexes( $unconstrained, $version = 1.4 ) {
     if ( $version === 1.4 ) {
       return imfsGetIndexes::getHighPerformanceIndexes1_4( $unconstrained );
     }
@@ -68,7 +67,7 @@ class imfsGetIndexes {
    *
    * @return array
    */
-  static function getHighPerformanceIndexes1_4( $unconstrained ): array {
+  static function getHighPerformanceIndexes1_4( $unconstrained ) {
 
     /* When changing a PRIMARY KEY,
      * for example to a compound clustered index
@@ -212,7 +211,7 @@ class imfsGetIndexes {
    *
    * @return array
    */
-  static function getHighPerformanceIndexes1_3( $unconstrained ): array {
+  static function getHighPerformanceIndexes1_3( $unconstrained ) {
 
     /* When changing a PRIMARY KEY,
      * for example to a compound clustered index

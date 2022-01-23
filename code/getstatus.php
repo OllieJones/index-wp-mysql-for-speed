@@ -5,10 +5,10 @@
  *
  * @return array MySQL's global status with zero values removed.
  */
-function getGlobalStatus( $prior = false ): array {
+function getGlobalStatus( $prior = false ) {
   global $wpdb;
 
-  $q         = "SHOW GLOBAL STATUS" . '/*' . index_wp_mysql_for_speed_querytag . strval( rand( 0, 999999999 ) ) . '*/';
+  $q         = "SHOW GLOBAL STATUS" . '/*' . index_wp_mysql_for_speed_querytag . rand( 0, 999999999 ) . '*/';
   $resultSet = $wpdb->get_results( $q, ARRAY_N );
 
   $result = [];

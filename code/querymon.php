@@ -77,7 +77,7 @@ class ImfsMonitor {
    *
    * @return string|null
    */
-  function encodeQuery( array $q, bool $explain = true ): ?string {
+  function encodeQuery( array $q, $explain = true ) {
     global $wpdb;
     try {
       $item    = (object) [];
@@ -98,7 +98,7 @@ class ImfsMonitor {
     }
   }
 
-  private function tagQuery( $q ): string {
+  private function tagQuery( $q ) {
     $r = strval( rand( 1000000000, 9999999999 ) );
 
     return $q . '/*' . index_wp_mysql_for_speed_querytag . $r . '*/';
@@ -117,7 +117,7 @@ class ImfsMonitor {
    * @param string $separator Separator between appended values (default '|||').
    * @param int $maxlength Stop appending when value reaches this length to avoid bloat (default 512 KiB).
    */
-  function imfs_append_to_option( string $name, string $value, string $separator = '|||', int $maxlength = 524288 ) {
+  function imfs_append_to_option( $name, $value, $separator = '|||', $maxlength = 524288 ) {
     if ( ! $name || strlen( $name ) === 0 ) {
       return;
     }
@@ -149,11 +149,13 @@ class ImfsMonitor {
    */
   function processGatheredQueries() {
     require_once( 'getstatus.php' );
-    $logName = index_wp_mysql_for_speed_monitor . '-Log-' . $this->captureName;
-    [ $queryLog, $queryLogOverflowing ] = $this->getQueryLog( $logName );
-    $statusName       = index_wp_mysql_for_speed_monitor . '-Status-' . $this->captureName;
-    $priorStatus      = get_transient( $statusName );
-    $queryLog->status = getGlobalStatus( $priorStatus );
+    $logName             = index_wp_mysql_for_speed_monitor . '-Log-' . $this->captureName;
+    $r                   = $this->getQueryLog( $logName );
+    $queryLog            = $r[0];
+    $queryLogOverflowing = $r[1];
+    $statusName          = index_wp_mysql_for_speed_monitor . '-Status-' . $this->captureName;
+    $priorStatus         = get_transient( $statusName );
+    $queryLog->status    = getGlobalStatus( $priorStatus );
 
     $queries = $this->getGatheredQueries();
     foreach ( $queries as $thisQuery ) {
@@ -169,7 +171,7 @@ class ImfsMonitor {
    *
    * @return array
    */
-  private function getQueryLog( $logName ): array {
+  private function getQueryLog( $logName ) {
     $queryLog = get_option( $logName );
     if ( ! $queryLog ) {
       $queryLogOverflowing   = false;
@@ -196,7 +198,7 @@ class ImfsMonitor {
   /** retrieve gathered queries.
    * @return array query objects just gathered.
    */
-  private function getGatheredQueries(): array {
+  private function getGatheredQueries() {
     $queryGather = $this->imfs_get_appended_option( index_wp_mysql_for_speed_monitor . 'Gather' );
 
     $queries = [];
@@ -222,7 +224,7 @@ class ImfsMonitor {
    *
    * @return string|null
    */
-  function imfs_get_appended_option( string $name ): ?string {
+  function imfs_get_appended_option( $name ) {
     try {
       global $wpdb;
       $wpdb->query( $this->tagQuery( "START TRANSACTION" ) );
@@ -245,7 +247,7 @@ class ImfsMonitor {
    * @param object $thisQuery
    * @param bool $queryLogOverflowing
    */
-  private function processQuery( object $queryLog, object $thisQuery, bool $queryLogOverflowing ) {
+  private function processQuery( $queryLog, $thisQuery, $queryLogOverflowing ) {
     try {
       /* track time range of items in this queryLog */
       if ( $queryLog->start > $thisQuery->s ) {
@@ -310,7 +312,7 @@ class ImfsMonitor {
    *
    * @return false|string
    */
-  private static function getQueryId( string $fingerprint ) {
+  private static function getQueryId( $fingerprint ) {
     return substr( hash( 'md5', $fingerprint ), 0, 16 );
   }
 

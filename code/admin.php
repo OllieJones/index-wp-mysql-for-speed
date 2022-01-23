@@ -80,7 +80,7 @@ class ImfsPage extends Imfs_AdminPageFramework {
    * @return string
    * @callback  action content_{page slug}
    */
-  public function content_imfs_settings( string $sHTML ): string {
+  public function content_imfs_settings( $sHTML ) {
     $this->enqueueStyles(
       [
         plugins_url( 'assets/imfs.css', __FILE__ ),
@@ -96,7 +96,7 @@ class ImfsPage extends Imfs_AdminPageFramework {
    * @return string
    * @callback  action content_{position}_{page slug}
    */
-  public function content_top_imfs_settings( string $sHTML ): string {
+  public function content_top_imfs_settings( $sHTML ) {
     $s       = '';
     $monitor = $this->getMonitorName();
 
@@ -135,7 +135,7 @@ class ImfsPage extends Imfs_AdminPageFramework {
    *
    * @return string
    */
-  private function insertHelpTab( $monitor, string $sHTML ): string {
+  private function insertHelpTab( $monitor, $sHTML ) {
     $tabSlug = $monitor ? 'monitor' : $this->oProp->getCurrentTabSlug();
     $helpUrl = index_wp_mysql_for_speed_help_site . $tabSlug;
     $help    = __( 'Help', $this->domain );
@@ -145,9 +145,8 @@ class ImfsPage extends Imfs_AdminPageFramework {
 
     $delimiter = '<a class=';
     $splits    = explode( $delimiter, $sHTML, 2 );
-    $sHTML     = $splits[0] . $helpTag . $delimiter . $splits[1];
 
-    return $sHTML;
+    return $splits[0] . $helpTag . $delimiter . $splits[1];
   }
 
   /**
@@ -158,7 +157,7 @@ class ImfsPage extends Imfs_AdminPageFramework {
    *
    * @return string
    */
-  private function renderMonitor( string $monitor, string $part ): string {
+  private function renderMonitor( $monitor, $part ) {
     $this->enqueueStyles(
       [
         plugins_url( 'assets/datatables/datatables.min.css', __FILE__ ),
@@ -181,8 +180,8 @@ class ImfsPage extends Imfs_AdminPageFramework {
    */
   public
   function content_bottom_imfs_settings(
-    string $sHTML
-  ): string {
+    $sHTML
+  ) {
     $s = '';
     /* renderMointor doesn't return anything unless we're on a monitor tab */
     $monitor = $this->getMonitorName();
@@ -202,8 +201,8 @@ class ImfsPage extends Imfs_AdminPageFramework {
    */
   public
   function content_top_imfs_settings_about(
-    string $sHTML
-  ): string {
+    $sHTML
+  ) {
     /** @noinspection HtmlUnknownTarget */
     $hyperlink     = '<a href="%s" target="_blank">%s</a>';
     $supportUrl    = "https://wordpress.org/support/plugin/index-wp-mysql-for-speed/";
@@ -237,7 +236,7 @@ class ImfsPage extends Imfs_AdminPageFramework {
    * @callback  action validation_{page slug}_{tab_slug}
    * @noinspection PhpUnusedParameterInspection
    */
-  public function load_imfs_settings_high_performance_keys( object $oAdminPage ) {
+  public function load_imfs_settings_high_performance_keys( $oAdminPage ) {
 
     $optName = $oAdminPage->oProp->sOptionKey;
     $opts    = get_option( $optName );
@@ -344,7 +343,7 @@ class ImfsPage extends Imfs_AdminPageFramework {
    * @return bool
    */
   private
-  function checkVersionInfo(): bool {
+  function checkVersionInfo() {
 
     if ( ! $this->db->canReindex ) {
       $this->addSettingFields(
@@ -514,8 +513,8 @@ class ImfsPage extends Imfs_AdminPageFramework {
    */
   private
   function renderListOfTables(
-    array $tablesToRekey, bool $prefixed, string $action, string $actionToDisplay, string $title,
-    string $caption, string $callToAction, bool $prechecked
+    array $tablesToRekey, $prefixed, $action, $actionToDisplay, $title,
+    $caption, $callToAction, $prechecked
   ) {
 
     global $wpdb;
@@ -607,8 +606,8 @@ class ImfsPage extends Imfs_AdminPageFramework {
    */
   private
   function cliMessage(
-    string $command, string $function
-  ): string {
+    $command, $function
+  ) {
     //$cliLink = ' <a href="https://make.wordpress.org/cli/handbook/" target="_blank">WP-CLI</a>';
     $cliLink = ' WP-CLI';
     $wp      = 'wp index-mysql';
@@ -1090,7 +1089,7 @@ class ImfsPage extends Imfs_AdminPageFramework {
   private
   function listFromCheckboxes(
     $cbs
-  ): array {
+  ) {
     $result = [];
     foreach ( $cbs as $name => $val ) {
       if ( $val ) {

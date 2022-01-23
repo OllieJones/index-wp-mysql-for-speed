@@ -3,7 +3,7 @@
 require_once( 'getstatus.php' );
 
 class QueryMonControl {
-  function start( $specs, $db ): string {
+  function start( $specs, $db ) {
 
     $duration = $specs['duration'] * 60;
     $now      = time();
@@ -14,7 +14,7 @@ class QueryMonControl {
     $monval->starttime  = $now;
     $monval->stoptime   = $stopTime;
     $monval->name       = $specs['name'];
-    $monval->samplerate = floatval( $specs['samplerate'] * 0.01 );
+    $monval->samplerate = $specs['samplerate'] * 0.01;
     $monval->keys       = $db->getIndexList();
 
     $monval->targets = intval( $specs['targets'] );
@@ -40,6 +40,7 @@ class QueryMonControl {
     $statusName          = index_wp_mysql_for_speed_monitor . '-Status-' . $name;
     set_transient( $statusName, $status, $duration + 3600 );
     delete_option( index_wp_mysql_for_speed_monitor . 'Gather' );
+    /** @noinspection PhpRedundantOptionalArgumentInspection */
     add_option( index_wp_mysql_for_speed_monitor . 'Gather', '' );
 
     return $stopTimeString;

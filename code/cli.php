@@ -124,7 +124,7 @@ class ImsfCli extends WP_CLI_Command {
    * @param $warning boolean display warning not log.
    * @param $alreadyPrefixed boolean  tables in list already have wp_ style prefixes.
    */
-  private function showCommandLine( string $actionKey, string $action, string $caption, bool $warning, bool $alreadyPrefixed ) {
+  private function showCommandLine( $actionKey, $action, $caption, $warning, $alreadyPrefixed ) {
     $array = $this->rekeying;
     if ( array_key_exists( $actionKey, $array ) && count( $array[ $actionKey ] ) > 0 ) {
       $msg  = $caption . ' ' . __( 'Use this command:', $this->domain );
@@ -142,7 +142,7 @@ class ImsfCli extends WP_CLI_Command {
     }
   }
 
-  private function addPrefixes( $tbls, $alreadyPrefixed ): array {
+  private function addPrefixes( $tbls, $alreadyPrefixed ) {
     global $wpdb;
     if ( $alreadyPrefixed ) {
       return $tbls;
@@ -162,7 +162,7 @@ class ImsfCli extends WP_CLI_Command {
    *
    * @return string
    */
-  private function getCommand( string $cmd, array $tbls ): string {
+  private function getCommand( $cmd, $tbls ) {
     if ( count( $tbls ) > 0 ) {
       $list = implode( ' ', $tbls );
 
@@ -205,7 +205,7 @@ class ImsfCli extends WP_CLI_Command {
    *
    * @return array list of tables
    */
-  private function getTablesToProcess( array $args, array $assoc_args, string $action ): array {
+  private function getTablesToProcess( array $args, array $assoc_args, $action ) {
 
     $alreadyPrefixed = ( $action === 'upgrade' );
     $tbls            = $this->rekeying[ $action ];
@@ -252,7 +252,7 @@ class ImsfCli extends WP_CLI_Command {
    *
    * @return string
    */
-  private function reportCompletion( string $action, string $tbl ): string {
+  private function reportCompletion( $action, $tbl ) {
     $time    = 0.0;
     $queries = 0;
     foreach ( $this->db->timings as $item ) {

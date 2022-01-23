@@ -3,7 +3,7 @@ Contributors: OllieJones, rjasdfiii
 Tags: database, index, key, mysql, wp-cli
 Requires at least: 5.2
 Tested up to: 5.9
-Requires PHP: 7.2
+Requires PHP: 5.6
 Stable tag: 1.4.1
 Network: true
 License: GPL v2 or later

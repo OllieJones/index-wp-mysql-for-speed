@@ -1,4 +1,4 @@
-<?php
+<?php /** @noinspection PhpRedundantOptionalArgumentInspection */
 
 /**
  * Draws the contents of a captured monitor
@@ -21,7 +21,7 @@ class renderMonitor {
     $this->dateFormat = get_option( 'date_format' ) . ' ' . get_option( 'time_format' );
   }
 
-  static function renderMonitors( $list, $part, $db ): string {
+  static function renderMonitors( $list, $part, $db ) {
     $renders  = [];
     $monitors = RenderMonitor::getMonitors();
 
@@ -40,7 +40,7 @@ class renderMonitor {
   /** Retrieve a list of saved monitors
    * @return array
    */
-  static function getMonitors(): array {
+  static function getMonitors() {
     global $wpdb;
     $prefix = index_wp_mysql_for_speed_monitor . '-Log-';
     $result = [];
@@ -60,7 +60,7 @@ class renderMonitor {
    *
    * @return string
    */
-  function render( string $part ): string {
+  function render( $part ) {
     $this->load();
     $c      = $this->classPrefix;
     $prefix = "<div class=\"$c index-wp-mysql-for-speed-content-container\">";
@@ -76,7 +76,7 @@ class renderMonitor {
 
   /** Load the monitor
    */
-  public function load(): renderMonitor {
+  public function load() {
     $this->queryLog          = json_decode( get_option( $this->prefix . $this->monitor ) );
     $this->queryLog->queries = (array) $this->queryLog->queries;
 
@@ -86,7 +86,7 @@ class renderMonitor {
   /** Render the header part of the monitor
    * @return string
    */
-  public function top(): string {
+  public function top() {
     $c      = $this->classPrefix;
     $times  = $this->capturedQuerySummary();
     $dbSumm = $this->dbStatusSummary();
@@ -101,7 +101,7 @@ END;
     return $res;
   }
 
-  public function capturedQuerySummary(): string {
+  public function capturedQuerySummary() {
     $l          = $this->queryLog;
     $c          = $this->classPrefix;
     $start      = wp_date( $this->dateFormat, $l->start );
@@ -124,7 +124,7 @@ END;
    *
    * @return array
    */
-  public function timeCell( $time, $unit = null, string $prefix = '' ): array {
+  public function timeCell( $time, $unit = null, $prefix = '' ) {
     if ( $time === 0.0 ) {
       $displayTime = $prefix !== '' ? '' : '0';
 
@@ -139,7 +139,7 @@ END;
     return [ $displayTime, - $renderTime ];
   }
 
-  public function getTimeUnit( $timeSeconds ): array {
+  public function getTimeUnit( $timeSeconds ) {
     if ( $timeSeconds >= 86400 ) {
       $unit = [ 86400, 'd', 1 ];
     } else if ( $timeSeconds >= 3600 * 0.9 ) {
@@ -161,7 +161,7 @@ END;
     return $unit;
   }
 
-  public function dbStatusSummary(): ?string {
+  public function dbStatusSummary() {
     $l = $this->queryLog;
     $c = $this->classPrefix;
     if ( ! isset ( $l->status ) ) {
@@ -176,7 +176,7 @@ END;
     /* server state */
     $result = "<div class=\"$c top line\">";
     $result .= __( 'Database server' ) . ' ' . DB_HOST . '&ensp;';
-    if ( ( $status->Uptime_state ?? 0 ) > 0 ) {
+    if ( ( isset( $status->Uptime_state ) ? $status->Uptime_state : 0 ) > 0 ) {
       $uptime = $status->Uptime_state * 1000000;
       $uptime = $this->timeCell( $uptime );
       $uptime = $uptime[0];
@@ -184,14 +184,14 @@ END;
       $result .= "<span class=\"$c count\">$uptime</span>&ensp;";
     }
     /* RAM: MariaDB only */
-    $memUsedTotal = $status->Memory_used_state ?? 0;
+    $memUsedTotal = isset( $status->Memory_used_state ) ? $status->Memory_used_state : 0;
     if ( $memUsedTotal > 0 ) {
       $result  .= __( 'RAM:', $this->domain ) . ' ';
       $ramUsed = $this->byteCell( $memUsedTotal );
       $result  .= "<span class=\"$c count\">$ramUsed</span>" . '&ensp;';
     }
 
-    $threads = $status->Threads_running_state ?? 0;
+    $threads = isset( $status->Threads_running_state ) ? $status->Threads_running_state : 0;
     if ( $threads > 0 ) {
       $result .= __( 'Threads:', $this->domain ) . ' ';
       $result .= "<span class=\"$c count\">$threads</span>" . '&ensp;';
@@ -203,7 +203,7 @@ END;
     $result .= "</div><div class=\"$c top line indent\">";
 
     $failedConnections = $this->getFailed_connections( $status );
-    $goodConnections   = ( $status->Connections ?? 0 ) - $failedConnections;
+    $goodConnections   = ( isset( $status->Connections ) ? $status->Connections : 0 ) - $failedConnections;
     $goodCps           = number_format_i18n( $goodConnections / $dt, 2 );
     $failedCps         = number_format_i18n( $failedConnections / $dt, 2 );
 
@@ -214,7 +214,7 @@ END;
       $result .= __( "Failed connections/s", $this->domain ) . '&ensp;';
     }
 
-    if ( ( $status->Aborted_clients ?? 0 ) > 0 ) {
+    if ( ( isset( $status->Aborted_clients ) ? $status->Aborted_clients : 0 ) > 0 ) {
       $abruptDisconnects = $status->Aborted_clients;
       $abruptDps         = number_format_i18n( $abruptDisconnects / $dt, 2 );
       $result            .= "<span class=\"$c count\">$abruptDps</span> ";
@@ -222,15 +222,15 @@ END;
     }
 
     /* Queries from clients (not counting those within stored code */
-    $qps    = number_format_i18n( ( $status->Questions ?? 0 ) / $dt, 2 );
+    $qps    = number_format_i18n( ( isset( $status->Questions ) ? $status->Questions : 0 ) / $dt, 2 );
     $result .= "<span class=\"$c count\">$qps</span> ";
     $result .= __( "Queries/s", $this->domain ) . '&ensp;';
 
     $result .= "</div><div class=\"$c top line indent\">";
 
     /* net traffic to and from database server */
-    $dataSent     = $this->byteCell( ( $status->Bytes_sent ?? 0 ) / $dt );
-    $dataReceived = $this->byteCell( ( $status->Bytes_received ?? 0 ) / $dt );
+    $dataSent     = $this->byteCell( ( isset( $status->Bytes_sent ) ? $status->Bytes_sent : 0 ) / $dt );
+    $dataReceived = $this->byteCell( ( isset( $status->Bytes_received ) ? $status->Bytes_received : 0 ) / $dt );
     $result       .= __( 'Net:', $this->domain ) . ' ';
     $result       .= "<span class=\"$c count\">$dataReceived/s</span> ";
     $result       .= __( "received", $this->domain ) . ' ';
@@ -239,23 +239,23 @@ END;
 
     $result .= "</div><div class=\"$c top line indent\">";
 
-    $dataRead = $this->byteCell( ( $status->Innodb_data_read ?? 0 ) / $dt );
+    $dataRead = $this->byteCell( ( isset( $status->Innodb_data_read ) ? $status->Innodb_data_read : 0 ) / $dt );
     $result   .= __( 'IO:', $this->domain ) . ' ';
     $result   .= "<span class=\"$c count\">$dataRead/s</span> ";
     $result   .= __( "read", $this->domain ) . ' ';
 
     $rows = __( "rows", $this->domain );
-    if ( ( $status->Innodb_rows_sent ?? 0 ) > 0 ) {
+    if ( ( isset( $status->Innodb_rows_sent ) ? $status->Innodb_rows_sent : 0 ) > 0 ) {
       $rowsSent = number_format_i18n( $status->Innodb_rows_sent / $dt, 2 ) . ' ' . $rows;
       $result   .= "<span class=\"$c count\">$rowsSent/s</span> ";
       $result   .= __( "fetched", $this->domain ) . ' ';
     }
-    if ( ( $status->Innodb_data_written ?? 0 ) > 0 ) {
+    if ( ( isset( $status->Innodb_data_written ) ? $status->Innodb_data_written : 0 ) > 0 ) {
       $dataWritten = $this->byteCell( $status->Innodb_data_written / $dt );
       $result      .= "<span class=\"$c count\">$dataWritten/s</span> ";
       $result      .= __( "written", $this->domain ) . '&ensp;';
     }
-    $rowsRead = $status->Innodb_rows_read ?? 0;
+    $rowsRead = isset( $status->Innodb_rows_read ) ? $status->Innodb_rows_read : 0;
     $rowsRead = number_format_i18n( $rowsRead / $dt, 2 ) . ' ' . $rows;
     $result   .= "<span class=\"$c count\">$rowsRead/s</span> ";
     $result   .= __( "retrieved", $this->domain ) . ' ';
@@ -278,7 +278,7 @@ END;
    *
    * @return string
    */
-  public function byteCell( $bytes, $unit = null, string $prefix = '' ): string {
+  public function byteCell( $bytes, $unit = null, $prefix = '' ) {
     if ( $bytes === 0.0 ) {
       return $prefix !== '' ? '' : '0';
     }
@@ -289,7 +289,7 @@ END;
     return $prefix . number_format_i18n( $bytes / $unit[0], $unit[2] ) . $unit[1];
   }
 
-  public function getByteUnit( $bytes ): array {
+  public function getByteUnit( $bytes ) {
     if ( $bytes >= 1024 * 1024 * 1024 * 1024 ) {
       $unit = [ 1024 * 1024 * 1024 * 1024, 'TiB', 0 ];
     } else if ( $bytes >= 1024 * 1024 * 1024 * 1024 * 0.5 ) {
@@ -318,13 +318,13 @@ END;
    *
    * @return int
    */
-  private function getFailed_connections( $status ): int {
-    return ( $status->Connection_errors_accept ?? 0 )
-           + ( $status->Connection_errors_internal ?? 0 )
-           + ( $status->Connection_errors_max_connections ?? 0 )
-           + ( $status->Connection_errors_peer_address ?? 0 )
-           + ( $status->Connection_errors_select ?? 0 )
-           + ( $status->Connection_errors_tcpwrap ?? 0 );
+  private function getFailed_connections( $status ) {
+    return ( isset( $status->Connection_errors_accept ) ? $status->Connection_errors_accept : 0 )
+           + ( isset( $status->Connection_errors_internal ) ? $status->Connection_errors_internal : 0 )
+           + ( isset( $status->Connection_errors_max_connections ) ? $status->Connection_errors_max_connections : 0 )
+           + ( isset( $status->Connection_errors_peer_address ) ? $status->Connection_errors_peer_address : 0 )
+           + ( isset( $status->Connection_errors_select ) ? $status->Connection_errors_select : 0 )
+           + ( isset( $status->Connection_errors_tcpwrap ) ? $status->Connection_errors_tcpwrap : 0 );
   }
 
   /**
@@ -332,16 +332,16 @@ END;
    *
    * @return int
    */
-  private function getRowsStored( $status ): int {
+  private function getRowsStored( $status ) {
     $rowcount = 0;
-    $rowcount += $status->Innodb_rows_deleted ?? 0;
-    $rowcount += $status->Innodb_rows_inserted ?? 0;
-    $rowcount += $status->Innodb_rows_updated ?? 0;
+    $rowcount += isset( $status->Innodb_rows_deleted ) ? $status->Innodb_rows_deleted : 0;
+    $rowcount += isset( $status->Innodb_rows_inserted ) ? $status->Innodb_rows_inserted : 0;
+    $rowcount += isset( $status->Innodb_rows_updated ) ? $status->Innodb_rows_updated : 0;
 
     return $rowcount;
   }
 
-  public function table(): string {
+  public function table() {
     $l   = $this->queryLog;
     $c   = $this->classPrefix;
     $res = '';
@@ -386,7 +386,7 @@ END;
     return $res;
   }
 
-  public function row( $a, $class = 'row' ): string {
+  public function row( $a, $class = 'row' ) {
     $res = '';
     foreach ( $a as $item ) {
       $res .= $this->cell( $item, $class );
@@ -395,7 +395,7 @@ END;
     return $res;
   }
 
-  public function cell( $item, $class ): string {
+  public function cell( $item, $class ) {
     $c = $this->classPrefix;
     if ( is_string( $item ) ) {
       $item = htmlspecialchars( $item );
@@ -485,7 +485,7 @@ END;
    *
    * @return float
    */
-  public function percentile( array $a, $p ): float {
+  public function percentile( array $a, $p ) {
     $n = count( $a );
     sort( $a );
     $i = floor( $n * $p );
@@ -557,7 +557,7 @@ END;
     delete_option( $prefix . $monitor );
   }
 
-  public function makeUpload(): array {
+  public function makeUpload() {
     require_once( 'litesqlparser.php' );
     $parser  = new LightSQLParser();
     $l       = $this->queryLog;
@@ -627,10 +627,10 @@ END;
    *
    * @param array $a dataset
    *
-   * @return number
+   * @return float|null
    * @noinspection PhpUnused
    */
-  public function stdev( $a ): ?float {
+  public function stdev( $a ) {
     $n = count( $a );
     if ( ! $n ) {
       return null;
@@ -649,7 +649,7 @@ END;
     return sqrt( ( $sumsq / $n ) - ( $mean * $mean ) );
   }
 
-  public function getDbStatistics(): array {
+  public function getDbStatistics() {
     $status = $this->queryLog->status;
     if ( ! isset ( $status ) ) {
       return [];
@@ -668,7 +668,7 @@ END;
       $res['threads'] = $status->Threads_running_state;
     }
     $failedConnections = $this->getFailed_connections( $status );
-    $goodConnections   = ( $status->Connections ?? 0 ) - $failedConnections;
+    $goodConnections   = ( isset( $status->Connections ) ? $status->Connections : 0 ) - $failedConnections;
     $res['connRate']   = round( $goodConnections / $dt, 2 );
     if ( $failedConnections ) {
       $res['failedConnRate'] = round( $failedConnections / $dt, 2 );
@@ -676,18 +676,18 @@ END;
     if ( $status->Aborted_clients ) {
       $res['abortedConnRate'] = round( $status->Aborted_clients / $dt, 2 );
     }
-    $res['queryRate'] = round( ( $status->Questions ?? 0 ) / $dt, 2 );
+    $res['queryRate'] = round( ( isset( $status->Questions ) ? $status->Questions : 0 ) / $dt, 2 );
 
-    $res['mbytesSentRate'] = round( ( $status->Bytes_sent ?? 0 ) / ( $dt * 1024 * 1024 ), 2 );
-    $res['mbytesRecvRate'] = round( ( $status->Bytes_received ?? 0 ) / ( $dt * 1024 * 1024 ), 2 );
+    $res['mbytesSentRate'] = round( ( isset( $status->Bytes_sent ) ? $status->Bytes_sent : 0 ) / ( $dt * 1024 * 1024 ), 2 );
+    $res['mbytesRecvRate'] = round( ( isset( $status->Bytes_received ) ? $status->Bytes_received : 0 ) / ( $dt * 1024 * 1024 ), 2 );
 
-    if ( ( $status->Innodb_rows_sent ?? 0 ) > 0 ) {
+    if ( ( isset( $status->Innodb_rows_sent ) ? $status->Innodb_rows_sent : 0 ) > 0 ) {
       $res['rowsSentRate'] = round( $status->Innodb_rows_sent / $dt, 2 );
     }
-    if ( ( $status->Innodb_data_written ?? 0 ) > 0 ) {
+    if ( ( isset( $status->Innodb_data_written ) ? $status->Innodb_data_written : 0 ) > 0 ) {
       $res['mbytesWrittenRate'] = round( $status->Innodb_data_written / ( $dt * 1024 * 1024 ), 2 );
     }
-    if ( ( $status->Innodb_rows_read ?? 0 ) > 0 ) {
+    if ( ( isset( $status->Innodb_rows_read ) ? $status->Innodb_rows_read : 0 ) > 0 ) {
       $res['rowsReadRate'] = round( $status->Innodb_rows_read / $dt, 2 );
     }
     $rowsStored = $this->getRowsStored( $status );
@@ -698,7 +698,7 @@ END;
     return $res;
   }
 
-  public function statusTable(): string {
+  public function statusTable() {
     $l = $this->queryLog;
     if ( ! isset ( $l->status ) ) {
       return '';

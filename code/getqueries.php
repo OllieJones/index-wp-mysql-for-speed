@@ -1,7 +1,7 @@
 <?php
 
-function IfmsTagQuery( $q ): string {
-  return $q . '/*' . index_wp_mysql_for_speed_querytag . strval( rand( 0, 999999999 ) ) . '*/';
+function IfmsTagQuery( $q ) {
+  return $q . '/*' . index_wp_mysql_for_speed_querytag . rand( 0, 999999999 ) . '*/';
 }
 
 function ImfsStripPrefix( $name ) {
@@ -28,7 +28,7 @@ function ImfsRedactHost( $host ) {
   return "Redacted, not localhost";
 }
 
-function makeNumeric( $ob ): object {
+function makeNumeric( $ob ) {
   $result = [];
   foreach ( $ob as $key => $val ) {
     if ( is_numeric( $val ) ) {
@@ -40,7 +40,10 @@ function makeNumeric( $ob ): object {
   return (object) $result;
 }
 
-function getMySQLVersion(): object {
+/** Get version information from the database server
+ * @return object
+ */
+function getMySQLVersion() {
   global $wpdb;
   global $wp_db_version;
   $semver  = " 
@@ -129,7 +132,7 @@ function getMySQLVersion(): object {
 /**
  * @return int 1 if the MySQL instance says it has innodb_large_prefix, 0 otherwise.
  */
-function hasLargePrefix(): int {
+function hasLargePrefix() {
   global $wpdb;
   /* innodb_large_prefix variable is missing in MySQL 8+ */
   $prefix = $wpdb->get_results( IfmsTagQuery( "SHOW VARIABLES LIKE 'innodb_large_prefix'" ), OBJECT_K );
@@ -142,7 +145,7 @@ function hasLargePrefix(): int {
   return 0;
 }
 
-function getQueries(): array {
+function getQueries() {
   global $wpdb;
   $p     = $wpdb->prefix;
   $stats = [
@@ -178,7 +181,7 @@ function getQueries(): array {
              GROUP BY REPLACE(t.TABLE_NAME, 'wp_', '')",
   ];
 
-  $queryArray = [
+  return [
     "indexes" => "		
         SELECT *,
                IF(is_autoincrement = 1, columns, NULL) autoincrement_column
@@ -284,11 +287,16 @@ function getQueries(): array {
       "SHOW GLOBAL STATUS",
     ],
     'innodb_metrics' => [
-      /* is the table present ?*/
+      /* nonzero if the table is present */
       "SELECT COUNT(*) num
 			   FROM information_schema.TABLES
 			  WHERE TABLE_SCHEMA = 'INFORMATION_SCHEMA'
 			    AND TABLE_NAME = 'INNODB_METRICS'",
+      /* nonzero if the current MySQL user does not have the PROCESS privilege. */
+      "SELECT COUNT(*)  num 
+        FROM mysql.user 
+       WHERE CONCAT_WS('@', User, Host) = USER()
+         AND Process_priv <> 'Y'",
       /* make this match SHOW STATUS in column names */
       /* breaking change in MariaDB 10.6:
       * drop STATUS column, add boolean TYPE column */
@@ -300,7 +308,5 @@ function getQueries(): array {
               /* no harm done if this query fails */",
     ],
   ];
-
-  return $queryArray;
 }
 

@@ -6,7 +6,7 @@
  *
  * @return string
  */
-function imfsRandomString( $length ): string {
+function imfsRandomString( $length ) {
   /* some characters removed from this set to reduce confusion reading aloud */
   $characters       = '23456789abcdefghjkmnpqrstuvwxyzABCDEFGHJKLMNPQRTUVWXYZ';
   $charactersLength = strlen( $characters );
@@ -18,7 +18,7 @@ function imfsRandomString( $length ): string {
   return $randomString;
 }
 
-function imfsToObject( $rows ): object {
+function imfsToObject( $rows ) {
   $variables = [];
   foreach ( $rows as $row ) {
     $variables[ $row->Variable_name ] = is_numeric( $row->Value ) ? intval( $row->Value ) : $row->Value;
@@ -27,7 +27,7 @@ function imfsToObject( $rows ): object {
   return (object) $variables;
 }
 
-function imfsToResultSet( $rows, $nameCaption = 'Item', $valueCaption = 'Value' ): array {
+function imfsToResultSet( $rows, $nameCaption = 'Item', $valueCaption = 'Value' ) {
   $res = [];
   foreach ( $rows as $name => $value ) {
     $rsrow = [ $nameCaption => $name, $valueCaption => $value ];
@@ -37,7 +37,7 @@ function imfsToResultSet( $rows, $nameCaption = 'Item', $valueCaption = 'Value' 
   return $res;
 }
 
-function getActivePlugins(): array {
+function getActivePlugins() {
   $plugins = get_plugins();
   $result  = [];
   foreach ( $plugins as $path => $desc ) {
@@ -49,7 +49,7 @@ function getActivePlugins(): array {
   return $result;
 }
 
-function imfsGetWpDescription( $db ): array {
+function imfsGetWpDescription( $db ) {
   global $wp_db_version;
   global $wp_version;
   global $required_php_version;
@@ -74,7 +74,7 @@ function imfsGetWpDescription( $db ): array {
   return $wordpress;
 }
 
-function imfsGetAllStats( $db ): array {
+function imfsGetAllStats( $db ) {
   global $_SERVER;
   $variables     = imfsToObject( $db->stats[0] );
   $globalStatus  = imfsToObject( $db->stats[3] );

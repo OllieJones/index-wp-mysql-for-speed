@@ -26,13 +26,14 @@ class ImfsDb {
    * @param float $pluginVersion
    * @param float $pluginOldVersion
    */
-  public function __construct( float $pluginVersion, float $pluginOldVersion ) {
+  public function __construct( $pluginVersion, $pluginOldVersion ) {
     $this->pluginOldVersion = $pluginOldVersion;
     $this->pluginVersion    = $pluginVersion;
   }
 
   /**
    * @throws ImfsException
+   * @noinspection PhpRedundantOptionalArgumentInspection
    */
   public function init() {
     global $wpdb;
@@ -90,17 +91,17 @@ class ImfsDb {
    * @return array server information
    * @throws ImfsException
    */
-  public function getStats(): array {
+  public function getStats() {
     global $wpdb;
     $wpdb->flush();
     $output  = [];
     $dbstats = $this->queries['dbstats'];
     foreach ( $dbstats as $q ) {
-      $results = $this->get_results( $q );
-      array_push( $output, $results );
+      $results  = $this->get_results( $q );
+      $output[] = $results;
     }
-    $results = $this->getInnodbMetrics();
-    array_push( $output, $results );
+    $results  = $this->getInnodbMetrics();
+    $output[] = $results;
 
     return $output;
   }
@@ -114,7 +115,7 @@ class ImfsDb {
    * @return array|object|null
    * @throws ImfsException
    */
-  public function get_results( $sql, bool $doTiming = false, string $outputFormat = OBJECT_K ) {
+  public function get_results( $sql, $doTiming = false, $outputFormat = OBJECT_K ) {
     global $wpdb;
     $thentime = $doTiming ? $this->getTime() : - 1;
     $results  = $wpdb->get_results( $this->tagQuery( $sql ), $outputFormat );
@@ -148,25 +149,37 @@ class ImfsDb {
    *
    * @return string
    */
-  private function tagQuery( $q ): string {
-    return $q . '/*' . index_wp_mysql_for_speed_querytag . strval( rand( 0, 999999999 ) ) . '*/';
+  private function tagQuery( $q ) {
+    return $q . '/*' . index_wp_mysql_for_speed_querytag . rand( 0, 999999999 ) . '*/';
   }
 
-  private function getInnodbMetrics(): array {
+  private function getInnodbMetrics() {
     global $wpdb;
     $suppressing = $wpdb->suppress_errors( true );
     try {
       $r = $this->get_results( $this->queries['innodb_metrics'][0], false, OBJECT );
       if ( is_array( $r ) && count( $r ) === 1 && $r[0]->num > 0 ) {
-        return $this->get_results( $this->queries['innodb_metrics'][1] );
+        $r = $this->get_results( $this->queries['innodb_metrics'][1], false, OBJECT );
+        if ( is_array( $r ) && count( $r ) === 1 && $r[0]->num == 0 ) {
+          return $this->get_results( $this->queries['innodb_metrics'][2] );
+        } else {
+          return [
+            (object) [
+              "Variable_name" => "INNODB_METRICS",
+              "Value"         => "cannot read: user lacks PROCESS privilege",
+            ],
+          ];
+
+        }
+      } else {
+        return [
+          (object) [
+            "Variable_name" => "INNODB_METRICS",
+            "Value"         => "cannot read: not present on this server version",
+          ],
+        ];
       }
 
-      return [
-        (object) [
-          "Variable_name" => "INNODB_METRICS",
-          "Value"         => "not present on this server version",
-        ],
-      ];
     } catch ( ImfsException $ex ) {
       /* this INNODB_METRICS lookup sometimes fails */
       return [
@@ -189,7 +202,7 @@ class ImfsDb {
    * @throws ImfsException
    *
    */
-  public function rekeyTables( int $targetAction, array $tables, float $version, bool $alreadyPrefixed = false ): string {
+  public function rekeyTables( $targetAction, array $tables, $version, $alreadyPrefixed = false ) {
     $count = 0;
     if ( count( $tables ) > 0 ) {
       foreach ( $tables as $name ) {
@@ -218,7 +231,7 @@ class ImfsDb {
    *
    * @throws ImfsException
    */
-  public function rekeyTable( int $targetAction, string $name, $version, $alreadyPrefixed = false ) {
+  public function rekeyTable( $targetAction, $name, $version, $alreadyPrefixed = false ) {
     global $wpdb;
 
     $unprefixedName = $alreadyPrefixed ? ImfsStripPrefix( $name ) : $name;
@@ -243,7 +256,7 @@ class ImfsDb {
    * @return array
    * @throws ImfsException
    */
-  public function getConversionList( int $targetState, string $name, float $version ): array {
+  public function getConversionList( $targetState, $name, $version ) {
     $target  = $targetState === 0
       ? imfsGetIndexes::getStandardIndexes( $this->unconstrained )
       : imfsGetIndexes::getHighPerformanceIndexes( $this->unconstrained, $version );
@@ -306,7 +319,7 @@ class ImfsDb {
    * @return array
    * @throws ImfsException
    */
-  public function getKeyDDL( string $name, bool $addPrefix = true ) {
+  public function getKeyDDL( $name, $addPrefix = true ) {
     global $wpdb;
     if ( $addPrefix ) {
       $name = $wpdb->prefix . $name;
@@ -325,7 +338,7 @@ class ImfsDb {
    * @return bool|int
    * @throws ImfsException
    */
-  public function query( $sql, bool $doTiming = false ) {
+  public function query( $sql, $doTiming = false ) {
     global $wpdb;
     $thentime = $doTiming ? $this->getTime() : - 1;
     $results  = $wpdb->query( $this->tagQuery( $sql ) );
@@ -344,7 +357,7 @@ class ImfsDb {
   /** get the current index situation
    * @return array
    */
-  public function getIndexList(): array {
+  public function getIndexList() {
 
     $results = [];
     try {
@@ -384,7 +397,7 @@ class ImfsDb {
    * @return array
    * @throws ImfsException
    */
-  public function getRekeying(): array {
+  public function getRekeying() {
     global $wpdb;
     $originalTables = $this->tables();
     /* don't process tables still on old storage engines */
@@ -479,7 +492,7 @@ class ImfsDb {
    * @return array tables manipulated by this module
    * @throws ImfsException
    */
-  public function tables( bool $prefixed = false ): array {
+  public function tables( $prefixed = false ) {
     global $wpdb;
     $avail = $wpdb->tables;
     if ( is_main_site() ) {
@@ -491,7 +504,7 @@ class ImfsDb {
     $allTables = imfsGetIndexes::getIndexableTables( $this->unconstrained );
     $tables    = [];
     foreach ( $allTables as $table ) {
-      if ( array_search( $table, $avail ) !== false ) {
+      if ( in_array( $table, $avail ) ) {
         $tables[] = $table;
       }
     }
@@ -516,7 +529,7 @@ class ImfsDb {
    * @return bool
    * @throws ImfsException
    */
-  public function anyIndexChangesNeededForAction( int $targetAction, $name, $version ): bool {
+  public function anyIndexChangesNeededForAction( $targetAction, $name, $version ) {
     $actions = $this->getConversionList( $targetAction, $name, $version );
 
     return count( $actions ) > 0;
@@ -528,7 +541,7 @@ class ImfsDb {
    * @return string
    * @throws ImfsException
    */
-  public function upgradeStorageEngine( array $list ): string {
+  public function upgradeStorageEngine( array $list ) {
     $counter = 0;
     try {
       $this->lock( $list, true );
@@ -564,14 +577,14 @@ class ImfsDb {
       if ( ! $alreadyPrefixed ) {
         $tbl = $wpdb->prefix . $tbl;
       }
-      array_push( $tablesToLock, $tbl );
+      $tablesToLock[] = $tbl;
     }
 
     /* always specify locks in the same order to avoid starving the philosophers */
     sort( $tablesToLock );
     $tables = [];
     foreach ( $tablesToLock as $tbl ) {
-      array_push( $tables, $tbl . ' WRITE' );
+      $tables[] = $tbl . ' WRITE';
     }
 
     $this->enterMaintenanceMode();
@@ -582,7 +595,7 @@ class ImfsDb {
   /**
    * @param int $duration how many seconds until maintenance expires
    */
-  public function enterMaintenanceMode( int $duration = 60 ) {
+  public function enterMaintenanceMode( $duration = 60 ) {
     $maintenanceFileName = ABSPATH . '.maintenance';
     if ( is_writable( ABSPATH ) ) {
       $maintain     = [];
@@ -604,7 +617,7 @@ class ImfsDb {
   /**
    * @throws ImfsException
    */
-  public function upgradeTableStorageEngine( $table ): bool {
+  public function upgradeTableStorageEngine( $table ) {
     set_time_limit( 120 );
     $sql = 'ALTER TABLE ' . $table . ' ENGINE=InnoDb, ROW_FORMAT=DYNAMIC';
     $this->query( $sql, true );
@@ -615,7 +628,7 @@ class ImfsDb {
   /** Resets the messages in this class and returns the previous messages.
    * @return array
    */
-  public function clearMessages(): array {
+  public function clearMessages() {
     $msgs           = $this->messages;
     $this->messages = [];
 
