@@ -48,7 +48,7 @@ This is here for archive purposes only. Use the automated process, please.
 
 # readme.txt
 
-**Stable tag:** 1.4.1 \
+**Stable tag:** 1.4.2 \
 **Contributors:** OllieJones, rjasdfiii \
 **Tags:** database, index, key, mysql, wp-cli \
 **Requires at least:** 5.2 \
@@ -172,6 +172,15 @@ Support MariaDB 10.1, make indexes work a little better, miscellaneous bugfixes.
 
 * WordPress 5.9 and database version 51917 version compatibility tested.
 * Rekeys tables in one go: allows the plugin to work more quickly, and when sql_require_primary_key
+
+### 1.4.2
+* 
+* (No changes to indexes from 1.4.1)
+* Add support for legacy php versions back to 5.6.
+* Avoid attempting to read `INNODB_METRICS` when user lacks `PROCESS` privilege.
+* Correct nag hyperlink on multisite.
+
+
 
 ### ON (typically at managed service providers).
 

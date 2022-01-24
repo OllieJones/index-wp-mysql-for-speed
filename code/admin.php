@@ -73,22 +73,6 @@ class ImfsPage extends Imfs_AdminPageFramework {
 
   }
 
-  /** Enqueue css for all tabs.
-   *
-   * @param string $sHTML
-   *
-   * @return string
-   * @callback  action content_{page slug}
-   */
-  public function content_imfs_settings( $sHTML ) {
-    $this->enqueueStyles(
-      [
-        plugins_url( 'assets/imfs.css', __FILE__ ),
-      ], 'imfs_settings' );
-
-    return $sHTML;
-  }
-
   /** Render stuff at the top as needed. if the current tab is a monitor, render the header information
    *
    * @param string $sHTML
@@ -97,6 +81,11 @@ class ImfsPage extends Imfs_AdminPageFramework {
    * @callback  action content_{position}_{page slug}
    */
   public function content_top_imfs_settings( $sHTML ) {
+    $this->enqueueStyles(
+      [
+        plugins_url( 'assets/imfs.css', __FILE__ ),
+      ], 'imfs_settings' );
+
     $s       = '';
     $monitor = $this->getMonitorName();
 
@@ -171,6 +160,33 @@ class ImfsPage extends Imfs_AdminPageFramework {
     return RenderMonitor::renderMonitors( $monitor, $part, $this->db );
   }
 
+  /** Render top of panel
+   *
+   * @param string $sHTML
+   *
+   * @return string
+   * @callback  action content_{position}_{page slug}
+   */
+  public function content_top_imfs_settings_high_performance_keys( $sHTML ) {
+
+    return $sHTML . '<div class="index-wp-mysql-for-speed-content-container">' . $this->wpCliAdmonition() . '</div>';
+  }
+
+  /** Get header information about wp-cli
+   *
+   * @return string
+   */
+  public function wpCliAdmonition() {
+    /** @noinspection HtmlUnknownTarget */
+    $wpCliUrl = '<a href="https://make.wordpress.org/cli/handbook/">WP-CLI</a>';
+
+    $wpCliString = '<p class="topinfo">' . __( 'This plugin supports %s. <em>Please use it if possible</em>: it avoids web server timeouts when changing keys on large tables.', $this->domain );
+    $wpCliString = sprintf( $wpCliString, $wpCliUrl );
+    $wpCliString .= ' ' . __( 'To learn more, type', $this->domain ) . ' ' . '<code>wp help index-mysql</code>' . __( 'into your command shell.', $this->domain ) . '</p>';
+
+    return $wpCliString;
+  }
+
   /** Render stuff at the bottom as needed. if the current tab is a monitor, render the data
    *
    * @param string $sHTML
@@ -209,7 +225,6 @@ class ImfsPage extends Imfs_AdminPageFramework {
     $helpUrl       = index_wp_mysql_for_speed_help_site;
     $reviewUrl     = "https://wordpress.org/support/plugin/index-wp-mysql-for-speed/reviews/";
     $detailsUrl    = index_wp_mysql_for_speed_help_site . "tables_and_keys/";
-    $wpCliUrl      = '<a href="https://make.wordpress.org/cli/handbook/">WP-CLI</a>';
     $clickHere     = __( 'click here', $this->domain );
     $orUseHelpTab  = __( 'or use the Help tab in the upper left corner of this page.' );
     $help          = sprintf( $hyperlink, $helpUrl, $clickHere ) . ' ' . $orUseHelpTab;
@@ -222,9 +237,7 @@ class ImfsPage extends Imfs_AdminPageFramework {
     $supportString = sprintf( $supportString, $support, $review );
     $detailsString = '<p class="topinfo">' . __( 'For detailed information about this plugin\'s actions on your database, please %s.', $this->domain ) . '</p>';
     $detailsString = sprintf( $detailsString, $details );
-    $wpCliString   = '<p class="topinfo">' . __( 'This plugin supports %s. You may run its operations that way if your hosting machine is set up for it. Using WP-CLI is a good choice as it avoids web server timeouts for large tables.', $this->domain );
-    $wpCliString   = sprintf( $wpCliString, $wpCliUrl );
-    $wpCliString   .= ' ' . __( 'To learn more, type', $this->domain ) . ' ' . '<code>wp help index-mysql</code>' . __( 'into your command shell.', $this->domain ) . '</p>';
+    $wpCliString   = $this->wpCliAdmonition();
 
     return $sHTML . '<div class="index-wp-mysql-for-speed-content-container">' . $helpString . $supportString . $detailsString . $wpCliString . '</div>';
   }

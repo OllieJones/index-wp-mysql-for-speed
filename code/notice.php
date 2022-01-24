@@ -25,14 +25,14 @@ class ImfsNotice {
         case 'add':
           $remind = __( 'add', index_wp_mysql_for_speed_domain );
           break;
-        case 'update':
+        default:
           $remind = __( 'update', index_wp_mysql_for_speed_domain );
           break;
-        default:
-          break;
       }
-      $notice = __( 'Use the Index WP MySQL For Speed plugin <a href="/wp-admin/tools.php?page=imfs_settings">to %s your high-performance keys</a>.', index_wp_mysql_for_speed_domain );
-      $notice = sprintf( $notice, $remind );
+      $url = admin_url( 'tools.php?page=imfs_settings' );
+
+      $notice = __( 'Use the Index WP MySQL For Speed plugin <a href="%s">to %s your high-performance keys</a>.', index_wp_mysql_for_speed_domain );
+      $notice = sprintf( $notice, $url, $remind );
       $notice = '<div class="notice notice-info is-dismissible"><p>' . $notice . '</p></div>';
       echo $notice;
     }

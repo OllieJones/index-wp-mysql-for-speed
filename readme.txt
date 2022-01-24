@@ -4,7 +4,7 @@ Tags: database, index, key, mysql, wp-cli
 Requires at least: 5.2
 Tested up to: 5.9
 Requires PHP: 5.6
-Stable tag: 1.4.1
+Stable tag: 1.4.2
 Network: true
 License: GPL v2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -19,13 +19,14 @@ Speed up your WordPress site by adding high-performance keys (database indexes) 
 
 == Description ==
 
-<h4>What's new in version 1.4.1?</h4>
+<h4>What's new in version 1.4?</h4>
 
 Since the first release, our users have told us about several more opportunities to speed up their WooCommerce and core WordPress operations. We've added keys to the `meta` tables to help with searching for content, and to the `users` table to look people up by their display names. And, you can now upload saved Monitors so we can see your slowest queries. We'll use that information to improve future versions. Thanks, dear users!
 
 <h4>How do I use this plugin?</h4>
 
-After you install this plugin, use it with the Index MySQL Tool under the Tools menu. Or, give the shell command _wp help index-mysql_ to learn how to use it with [WP-CLI](https://wp-cli.org/).
+After you install this plugin, use it with the Index MySQL Tool under the Tools menu. If you have large tables, use it with [WP-CLI](https://wp-cli.org/) instead to avoid timeouts. Give the shell command _wp help index-mysql_ to learn how.
+
 
 <h4>What does it do for my site?</h4>
 
@@ -135,6 +136,12 @@ Support MariaDB 10.1, make keys work a little better, miscellaneous bugfixes.
 * Monitor captures include overall database server metrics. Monitor captures can be uploaded.
 * Help pages for each tab of the plugin's Dashboard panel are available.
 * Clearer Dashboard panel displays.
+
+= 1.4.2 =
+* (No changes to indexes.)
+* Add support for legacy php versions back to 5.6.
+* Avoid attempting to read `INNODB_METRICS` when user lacks `PROCESS` privilege.
+* Correct nag hyperlink on multisite.
 
 == Upgrade Notice ==
 This version offers performance improvements, especially for larger sites and sites using

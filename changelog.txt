@@ -37,3 +37,9 @@ Support MariaDB 10.1, make indexes work a little better, miscellaneous bugfixes.
 * Help pages for each tab of the plugin's Dashboard panel.
 * Clearer Dashboard panel displays.
 
+= 1.4.2 =
+* (No changes to indexes.)
+* Add support for legacy php versions back to 5.6.
+* Avoid attempting to read `INNODB_METRICS` when user lacks `PROCESS` privilege.
+* Correct nag hyperlink on multisite.
+
