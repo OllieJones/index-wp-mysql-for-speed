@@ -16,8 +16,10 @@ class ImfsMonitor {
   public $explainVerb = "EXPLAIN";
   public $analyzeVerb = "EXPLAIN"; /* change to EXPLAIN to avoid EXPLAIN ANALYZE overhead */
   public $captureName;
+  public $monval;
 
   public function __construct( $monval, $action ) {
+    $this->monval      = $monval;
     $this->captureName = $monval->name;
     $this->parser      = new LightSQLParser();
     if ( $action === 'capture' ) {
@@ -174,18 +176,21 @@ class ImfsMonitor {
   private function getQueryLog( $logName ) {
     $queryLog = get_option( $logName );
     if ( ! $queryLog ) {
+      /* initialize a new monitor log object if it doesn't exist */
       $queryLogOverflowing   = false;
       $queryLog              = (object) [];
       $queryLog->gathercount = 1;
       $queryLog->querycount  = 0;
-      $queryLog->start       = PHP_INT_MAX;
-      $queryLog->end         = PHP_INT_MIN;
-      $queryLog->queries     = [];
-      /* get the key status from when the monitor storted. */
+      /* initialize both ends of the time range to the start time. */
+      $queryLog->start   = $this->monval->starttime;
+      $queryLog->end     = $this->monval->starttime;
+      $queryLog->queries = [];
+      /* get the key status from when the monitor storted, for later reporting */
       $monval         = get_option( index_wp_mysql_for_speed_monitor );
       $queryLog->keys = $monval->keys;
 
     } else {
+      /* use the existing monitor log object */
       $queryLogOverflowing = strlen( $queryLog ) > $this->queryLogSizeThreshold;
       $queryLog            = json_decode( $queryLog );
       $queryLog->queries   = (array) $queryLog->queries;
