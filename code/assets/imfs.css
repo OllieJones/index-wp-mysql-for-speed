@@ -102,7 +102,7 @@ div#wpcontent form div > div > table.form-table > tbody > tr > th span.warning {
     color: #cc9900;
 }
 
-tr#fieldrow-majorVersion {
+tr#fieldrow-majorVersion, tr#fieldrow-wp_version, tr#fieldrow-wp_db_version {
     display: none;
 }
 

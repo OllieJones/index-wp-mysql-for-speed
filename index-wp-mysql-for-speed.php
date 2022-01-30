@@ -28,7 +28,9 @@
 /** current version number  */
 define( 'index_wp_mysql_for_speed_VERSION_NUM', '1.4.2' );
 define( 'index_mysql_for_speed_major_version', 1.4 );
-define( 'index_mysql_for_speed_previous_major_version', 1.3 );
+define( 'index_mysql_for_speed_inception_major_version', 1.3 );
+define( 'index_mysql_for_speed_inception_wp_version', '5.8.3');
+define( 'index_mysql_for_speed_inception_wp_db_version', 49752);
 
 /* set up some handy globals */
 define( 'index_wp_mysql_for_speed_PLUGIN_NAME', trim( dirname( plugin_basename( __FILE__ ) ), '/' ) );
@@ -69,16 +71,22 @@ function index_wp_mysql_for_speed_do_everything() {
 /**
  * Figure out whether user hasn't yet added or updated indexes.
  * Doing anything on the highperf index page clears this.
+ * We check for plugin major version updates and wp database version updates.
  * @return string|bool
  */
 function updateNag() {
+  global $wp_version, $wp_db_version;
   $result = null;
   if ( ! wp_doing_ajax() ) {
     $imfsPage     = get_option( 'ImfsPage' );
     $majorVersion = ( $imfsPage !== false && isset( $imfsPage['majorVersion'] ) && is_numeric( $imfsPage['majorVersion'] ) )
-      ? floatval( $imfsPage['majorVersion'] ) : index_mysql_for_speed_previous_major_version;
+      ? floatval( $imfsPage['majorVersion'] ) : index_mysql_for_speed_inception_major_version;
+    $savedWpVersion = ( $imfsPage !== false && isset( $imfsPage['wp_version'] )) ? $imfsPage['wp_version'] :index_mysql_for_speed_inception_wp_version;
+    $savedDbVersion = ( $imfsPage !== false && isset( $imfsPage['wp_db_version'] )) ? $imfsPage['wp_db_version'] : index_mysql_for_speed_inception_wp_db_version;
     if ( ! $imfsPage ) {
       $result = 'add';
+    } else if ($wp_db_version != $savedDbVersion) {
+      $result = 'version_update';
     } else if ( $majorVersion !== index_mysql_for_speed_major_version ) {
       $result = 'update';
     }
@@ -116,6 +124,7 @@ function index_wp_mysql_for_speed_monitor() {
   }
 }
 
+/** @noinspection PhpIncludeInspection */
 function requireThemAll( $nag = false ) {
   require_once( plugin_dir_path( __FILE__ ) . 'code/imsfdb.php' );
   require_once( plugin_dir_path( __FILE__ ) . 'afp/admin-page-framework.php' );

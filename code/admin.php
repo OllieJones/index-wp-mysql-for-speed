@@ -16,6 +16,8 @@ class ImfsPage extends Imfs_AdminPageFramework {
    * @var bool true if reindexing does not have the 191 prefix index limitation.
    */
   public $unconstrained = false;
+  private $wpDbUpgrading = false;
+  private $pluginUpgrading = false;
   private $db;
   private $dontNavigate;
   private $tabSuffix;
@@ -25,7 +27,7 @@ class ImfsPage extends Imfs_AdminPageFramework {
     $this->domain       = $slug;
     $this->pluginName   = __( 'Index WP MySQL For Speed', $this->domain );
     $this->pluginSlug   = $slug;
-    $this->db           = new ImfsDb( index_mysql_for_speed_major_version, index_mysql_for_speed_previous_major_version );
+    $this->db           = new ImfsDb( index_mysql_for_speed_major_version, index_mysql_for_speed_inception_major_version );
     $this->dontNavigate = __( 'This may take a few minutes. <em>Please do not navigate away from this page while you wait</em>.', $this->domain );
     $this->tabSuffix    = "_m";
   }
@@ -250,30 +252,14 @@ class ImfsPage extends Imfs_AdminPageFramework {
    * @noinspection PhpUnusedParameterInspection
    */
   public function load_imfs_settings_high_performance_keys( $oAdminPage ) {
-
-    $optName = $oAdminPage->oProp->sOptionKey;
-    $opts    = get_option( $optName );
-    if ( ! $opts ) {
-      $opts = [];
-    }
-    $opts['majorVersion'] = index_mysql_for_speed_major_version;
-    update_option( $optName, $opts );
+    global $wp_version, $wp_db_version;
 
     if ( $this->checkVersionInfo() ) {
 
+      $this->upgrading( $oAdminPage );
       $rekeying = $this->db->getRekeying();
 
       $this->showIndexStatus( $rekeying );
-
-      /* stash the major version to help with updates */
-      $this->addSettingFields(
-        [
-          'field_id' => 'majorVersion',
-          'value'    => index_mysql_for_speed_major_version,
-          'type'     => 'hidden',
-          'save'     => true,
-        ] );
-
 
       $this->addSettingFields(
         [
@@ -481,7 +467,10 @@ class ImfsPage extends Imfs_AdminPageFramework {
         $list[] = $wpdb->prefix . $tbl;
       }
       $list  = implode( ', ', $list );
-      $label = __( 'These tables have keys set some way other than this plugin. You can convert them to this plugin\'s latest high-performance keys or revert them to WordPress\'s standard keys.', $this->domain );
+      $label = $this->wpDbUpgrading
+        ? __( 'A recent WordPress update changed some keys in some tables.', $this->domain )
+        : __( 'These tables have keys set some way other than this plugin.', $this->domain );
+      $label .= ' ' . __( 'You can convert those tables to this plugin\'s latest high-performance keys or revert them to WordPress\'s standard keys.', $this->domain );
       $label .= '<p class="tablelist">' . $list . '</p>';
 
       /** @noinspection PhpUnusedLocalVariableInspection */
@@ -1239,6 +1228,58 @@ class ImfsPage extends Imfs_AdminPageFramework {
 
     return $this->action( $submitInfo['field_id'], $inputs, $oldInputs, $factory, $submitInfo );
   }
+
+  /**  check whether upgrading
+   * @param $oAdminPage
+   *
+   * @return void
+   */
+  private function upgrading( $oAdminPage ) {
+    global $wp_version, $wp_db_version;
+    /* stash the current versions of things in the options key. */
+    $optName = $oAdminPage->oProp->sOptionKey;
+    $opts    = get_option( $optName );
+    if ( ! $opts ) {
+      $opts = [];
+    }
+    $previousMajorVersion = ( isset( $opts['majorVersion'] ) && is_numeric( $opts['majorVersion'] ) )
+      ? floatval( $opts['majorVersion'] ) : index_mysql_for_speed_inception_major_version;
+    $previousWpVersion    = ( isset( $opts['wp_version'] ) ) ? $opts['wp_version'] : index_mysql_for_speed_inception_wp_version;
+    $previousDbVersion    = ( isset( $opts['wp_db_version'] ) ) ? $opts['wp_db_version'] : index_mysql_for_speed_inception_wp_db_version;
+
+    $this->pluginUpgrading = $previousMajorVersion !== index_mysql_for_speed_major_version;
+    $this->wpDbUpgrading   = $previousDbVersion !== $wp_db_version;
+
+    $opts['majorVersion']  = index_mysql_for_speed_major_version;
+    $opts['wp_version']    = $wp_version;
+    $opts['wp_db_version'] = $wp_db_version;
+
+    update_option( $optName, $opts );
+    /* stash the versions to help with updates */
+    $this->addSettingFields(
+      [
+        'field_id' => 'majorVersion',
+        'value'    => index_mysql_for_speed_major_version,
+        'type'     => 'hidden',
+        'save'     => true,
+      ] );
+    $this->addSettingFields(
+      [
+        'field_id' => 'wp_version',
+        'value'    => $wp_version,
+        'type'     => 'hidden',
+        'save'     => true,
+      ] );
+    $this->addSettingFields(
+      [
+        'field_id' => 'wp_db_version',
+        'value'    => $wp_db_version,
+        'type'     => 'hidden',
+        'save'     => true,
+      ] );
+  }
+
+
 }
 
 new ImfsPage;

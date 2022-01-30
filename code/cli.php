@@ -57,7 +57,7 @@ class ImsfCli extends WP_CLI_Command {
         switch_to_blog( $restoreBlogId );
       }
     }
-    $this->db = new ImfsDb( index_mysql_for_speed_major_version, index_mysql_for_speed_previous_major_version );
+    $this->db = new ImfsDb( index_mysql_for_speed_major_version, index_mysql_for_speed_inception_major_version );
     $this->db->init();
     $this->rekeying = $this->db->getRekeying();
 
@@ -275,11 +275,16 @@ class ImsfCli extends WP_CLI_Command {
    * @return void
    */
   private function setCurrentVersion( $optName = 'ImfsPage' ) {
+    global $wp_version, $wp_db_version;
     $opts = get_option( $optName );
     if ( ! $opts ) {
       $opts = [];
     }
     $opts['majorVersion'] = index_mysql_for_speed_major_version;
+    $opts['wp_version'] = $wp_version;
+    $opts['wp_db_version'] = $wp_db_version;
+
+
     update_option( $optName, $opts );
   }
 
