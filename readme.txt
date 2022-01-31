@@ -4,7 +4,7 @@ Tags: database, index, key, mysql, wp-cli
 Requires at least: 5.2
 Tested up to: 5.9
 Requires PHP: 5.6
-Stable tag: 1.4.2
+Stable tag: 1.4.3
 Network: true
 License: GPL v2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -22,6 +22,8 @@ Speed up your WordPress site by adding high-performance keys (database indexes) 
 <h4>What's new in version 1.4?</h4>
 
 Since the first release, our users have told us about several more opportunities to speed up their WooCommerce and core WordPress operations. We've added keys to the `meta` tables to help with searching for content, and to the `users` table to look people up by their display names. And, you can now upload saved Monitors so we can see your slowest queries. We'll use that information to improve future versions. Thanks, dear users!
+
+WordPress version updates attempt to restore some of WordPress's default keys. This plugin prompts you to add the high-performance keys after updates.
 
 <h4>How do I use this plugin?</h4>
 
@@ -120,12 +122,6 @@ Please see more questions and answers [here](https://plumislandmedia.net/index-w
 
 == Changelog ==
 
-= 1.3.3 =
-When upgrading tables, change ROW_FORMAT to DYNAMIC as well as ENGINE to InnoDB. Add monitors.
-
-= 1.3.4 =
-Support MariaDB 10.1, make keys work a little better, miscellaneous bugfixes.
-
 = 1.4.1 =
 * WordPress 5.9 and database version 51917 version compatibility tested.
 * Rekeys tables in one go: allows the plugin to work more quickly, and when sql_require_primary_key=ON (typically at managed service providers).
@@ -138,14 +134,18 @@ Support MariaDB 10.1, make keys work a little better, miscellaneous bugfixes.
 * Clearer Dashboard panel displays.
 
 = 1.4.2 =
-* (No changes to indexes.)
+* (No changes to keys.)
 * Add support for legacy php versions back to 5.6.
 * Avoid attempting to read `INNODB_METRICS` when user lacks `PROCESS` privilege.
 * Correct nag hyperlink on multisite.
 
+= 1.4.3 =
+* (No changes to keys.)
+* Detect recent WordPress version update and prompt to restore high-performance keys.
+
 == Upgrade Notice ==
 This version offers performance improvements, especially for larger sites and sites using
-managed service providers. It also offers help pages.
+managed service providers. It handles WordPress version updates better. It also offers help pages.
 
 After you update the plugin, please go to [Tools / Index MySQL](/wp-admin/tools.php?page=imfs_settings) to update your high-performance keys to the latest version.
 

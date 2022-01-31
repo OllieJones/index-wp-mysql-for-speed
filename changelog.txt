@@ -43,3 +43,7 @@ Support MariaDB 10.1, make indexes work a little better, miscellaneous bugfixes.
 * Avoid attempting to read `INNODB_METRICS` when user lacks `PROCESS` privilege.
 * Correct nag hyperlink on multisite.
 
+= 1.4.3 =
+* (No changes to keys.)
+* Detect recent WordPress version update and prompt to restore high-performance keys.
+

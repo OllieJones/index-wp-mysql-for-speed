@@ -48,7 +48,7 @@ This is here for archive purposes only. Use the automated process, please.
 
 # readme.txt
 
-**Stable tag:** 1.4.2 \
+**Stable tag:** 1.4.3 \
 **Contributors:** OllieJones, rjasdfiii \
 **Tags:** database, index, key, mysql, wp-cli \
 **Requires at least:** 5.2 \
