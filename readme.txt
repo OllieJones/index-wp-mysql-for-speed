@@ -2,7 +2,7 @@
 Contributors: OllieJones, rjasdfiii
 Tags: database, index, key, mysql, wp-cli
 Requires at least: 5.2
-Tested up to: 5.9
+Tested up to: 5.9.1
 Requires PHP: 5.6
 Stable tag: 1.4.3
 Network: true
@@ -18,12 +18,6 @@ Domain Path: /languages
 Speed up your WordPress site by adding high-performance keys (database indexes) to your MySQL database tables.
 
 == Description ==
-
-<h4>What's new in version 1.4?</h4>
-
-Since the first release, our users have told us about several more opportunities to speed up their WooCommerce and core WordPress operations. We've added keys to the `meta` tables to help with searching for content, and to the `users` table to look people up by their display names. And, you can now upload saved Monitors so we can see your slowest queries. We'll use that information to improve future versions. Thanks, dear users!
-
-WordPress version updates attempt to restore some of WordPress's default keys. This plugin prompts you to add the high-performance keys after updates.
 
 <h4>How do I use this plugin?</h4>
 
@@ -82,6 +76,12 @@ You can monitor
 Once you have gathered monitoring information, you can view the captured queries, and sort them by how long they take. Or you can save the monitor information to a file and show it to somebody who knows about database operations. Or you can upload the monitor to the plugin's servers so the authors can look at it.
 
 It's a good idea to monitor for a five-minute interval at a time of day when your site is busy. Once you've completed a monitor, you can examine it to determine which database operations are slowing you down the most.
+
+<h4>What's new in version 1.4?</h4>
+
+Since the first release, our users have told us about several more opportunities to speed up their WooCommerce and core WordPress operations. We've added keys to the `meta` tables to help with searching for content, and to the `users` table to look people up by their display names. And, you can now upload saved Monitors so we can see your slowest queries. We'll use that information to improve future versions. Thanks, dear users!
+
+WordPress version updates attempt to restore some of WordPress's default keys. This plugin prompts you to add the high-performance keys after updates.
 
 = Credits =
 * Michael Uno for Admin Page Framework.
