@@ -6,7 +6,6 @@ class ImfsPage extends Imfs_AdminPageFramework {
 
   public $pluginName;
   public $pluginSlug;
-  public $domain;
   public $monitors;
   /**
    * @var bool true if the dbms allows reindexing at all.
@@ -22,13 +21,11 @@ class ImfsPage extends Imfs_AdminPageFramework {
   private $dontNavigate;
   private $tabSuffix;
 
-  public function __construct( $slug = index_wp_mysql_for_speed_domain ) {
+  public function __construct() {
     parent::__construct();
-    $this->domain       = $slug;
-    $this->pluginName   = __( 'Index WP MySQL For Speed', $this->domain );
-    $this->pluginSlug   = $slug;
+    $this->pluginName   = __( 'Index WP MySQL For Speed', 'index-wp-mysql-for-speed' );
     $this->db           = new ImfsDb( index_mysql_for_speed_major_version, index_mysql_for_speed_inception_major_version );
-    $this->dontNavigate = __( 'This may take a few minutes. <em>Please do not navigate away from this page while you wait</em>.', $this->domain );
+    $this->dontNavigate = __( 'This may take a few minutes. <em>Please do not navigate away from this page while you wait</em>.', 'index-wp-mysql-for-speed' );
     $this->tabSuffix    = "_m";
   }
 
@@ -39,7 +36,7 @@ class ImfsPage extends Imfs_AdminPageFramework {
 
     $pageName = $this->pluginName;
     /* translators: settings page menu text */
-    $menuName = __( 'Index MySQL', $this->domain );
+    $menuName = __( 'Index MySQL', 'index-wp-mysql-for-speed' );
     $this->addSubMenuItems(
       [
         'title'      => $pageName,
@@ -53,11 +50,11 @@ class ImfsPage extends Imfs_AdminPageFramework {
     $tabs           = [];
     $tabs[]         = [
       'tab_slug' => 'high_performance_keys',
-      'title'    => __( 'High-Performance Keys', $this->domain ),
+      'title'    => __( 'High-Performance Keys', 'index-wp-mysql-for-speed' ),
     ];
     $tabs[]         = [
       'tab_slug' => 'monitor_database_operations',
-      'title'    => __( 'Monitor Database Operations', $this->domain ),
+      'title'    => __( 'Monitor Database Operations', 'index-wp-mysql-for-speed' ),
     ];
     $this->monitors = RenderMonitor::getMonitors();
     foreach ( $this->monitors as $monitor ) {
@@ -68,7 +65,7 @@ class ImfsPage extends Imfs_AdminPageFramework {
     }
     $tabs[] = [
       'tab_slug' => 'about',
-      'title'    => __( 'About', $this->domain ),
+      'title'    => __( 'About', 'index-wp-mysql-for-speed' ),
     ];
     $this->addInPageTabs( 'imfs_settings', ...$tabs );
     $this->setPageHeadingTabsVisibility( false );
@@ -129,7 +126,7 @@ class ImfsPage extends Imfs_AdminPageFramework {
   private function insertHelpTab( $monitor, $sHTML ) {
     $tabSlug = $monitor ? 'monitor' : $this->oProp->getCurrentTabSlug();
     $helpUrl = index_wp_mysql_for_speed_help_site . $tabSlug;
-    $help    = __( 'Help', $this->domain );
+    $help    = __( 'Help', 'index-wp-mysql-for-speed' );
     /** @noinspection HtmlUnknownTarget */
     $helpTag = '<a class="helpbutton nav-tab" target="_blank" href="%s">%s</a>';
     $helpTag = sprintf( $helpTag, $helpUrl, $help );
@@ -182,9 +179,10 @@ class ImfsPage extends Imfs_AdminPageFramework {
     /** @noinspection HtmlUnknownTarget */
     $wpCliUrl = '<a href="https://make.wordpress.org/cli/handbook/">WP-CLI</a>';
 
-    $wpCliString = '<p class="topinfo">' . __( 'This plugin supports %s. <em>Please use it if possible</em>: it avoids web server timeouts when changing keys on large tables.', $this->domain );
+    /* translators: 1: hyperlink to https://make.wordpress.org/cli/handbook/ with text WP-CLI */
+    $wpCliString = '<p class="topinfo">' . __( 'This plugin supports %1$s. <em>Please use it if possible</em>: it avoids web server timeouts when changing keys on large tables.', 'index-wp-mysql-for-speed' );
     $wpCliString = sprintf( $wpCliString, $wpCliUrl );
-    $wpCliString .= ' ' . __( 'To learn more, type', $this->domain ) . ' ' . '<code>wp help index-mysql</code>' . __( 'into your command shell.', $this->domain ) . '</p>';
+    $wpCliString .= ' ' . __( 'To learn more, type', 'index-wp-mysql-for-speed' ) . ' ' . '<code>wp help index-mysql</code>' . __( 'into your command shell.', 'index-wp-mysql-for-speed' ) . '</p>';
 
     return $wpCliString;
   }
@@ -222,22 +220,25 @@ class ImfsPage extends Imfs_AdminPageFramework {
     $sHTML
   ) {
     /** @noinspection HtmlUnknownTarget */
-    $hyperlink     = '<a href="%s" target="_blank">%s</a>';
-    $supportUrl    = "https://wordpress.org/support/plugin/index-wp-mysql-for-speed/";
-    $helpUrl       = index_wp_mysql_for_speed_help_site;
-    $reviewUrl     = "https://wordpress.org/support/plugin/index-wp-mysql-for-speed/reviews/";
-    $detailsUrl    = index_wp_mysql_for_speed_help_site . "tables_and_keys/";
-    $clickHere     = __( 'click here', $this->domain );
-    $orUseHelpTab  = __( 'or use the Help tab in the upper left corner of this page.' );
-    $help          = sprintf( $hyperlink, $helpUrl, $clickHere ) . ' ' . $orUseHelpTab;
-    $support       = sprintf( $hyperlink, $supportUrl, $clickHere );
-    $review        = sprintf( $hyperlink, $reviewUrl, $clickHere );
-    $details       = sprintf( $hyperlink, $detailsUrl, $clickHere );
-    $helpString    = '<p class="topinfo">' . __( 'For help please %s.', $this->domain ) . '</p>';
-    $helpString    = sprintf( $helpString, $help );
-    $supportString = '<p class="topinfo">' . __( 'For support please %s. If you create an issue in the support forum, please upload your diagnostic metadata, and mention the id of your upload.  Please %s to rate this plugin.', $this->domain ) . '</p>';
+    $hyperlink    = '<a href="%s" target="_blank">%s</a>';
+    $supportUrl   = "https://wordpress.org/support/plugin/index-wp-mysql-for-speed/";
+    $helpUrl      = index_wp_mysql_for_speed_help_site;
+    $reviewUrl    = "https://wordpress.org/support/plugin/index-wp-mysql-for-speed/reviews/";
+    $detailsUrl   = index_wp_mysql_for_speed_help_site . "tables_and_keys/";
+    $clickHere    = __( 'click here', 'index-wp-mysql-for-speed' );
+    $orUseHelpTab = __( 'or use the Help tab in the upper left corner of this page.' );
+    $help         = sprintf( $hyperlink, $helpUrl, $clickHere ) . ' ' . $orUseHelpTab;
+    $support      = sprintf( $hyperlink, $supportUrl, $clickHere );
+    $review       = sprintf( $hyperlink, $reviewUrl, $clickHere );
+    $details      = sprintf( $hyperlink, $detailsUrl, $clickHere );
+    /* translators: 1: how to get help: made from translatable 'click here'  and 'or use the Help tab...' strings, */
+    $helpString = '<p class="topinfo">' . __( 'For help please %1$s.', 'index-wp-mysql-for-speed' ) . '</p>';
+    $helpString = sprintf( $helpString, $help );
+    /* translators: 1: embeds "For help please ..."  2: hyperlink to review page on wp.org */
+    $supportString = '<p class="topinfo">' . __( 'For support please %1$s. If you create an issue in the support forum, please upload your diagnostic metadata, and mention the id of your upload.  Please %2$s to rate this plugin.', 'index-wp-mysql-for-speed' ) . '</p>';
     $supportString = sprintf( $supportString, $support, $review );
-    $detailsString = '<p class="topinfo">' . __( 'For detailed information about this plugin\'s actions on your database, please %s.', $this->domain ) . '</p>';
+    /* translators: 1: hyperlink to online details page, including the Click Here text. */
+    $detailsString = '<p class="topinfo">' . __( 'For detailed information about this plugin\'s actions on your database, please %1$s.', 'index-wp-mysql-for-speed' ) . '</p>';
     $detailsString = sprintf( $detailsString, $details );
     $wpCliString   = $this->wpCliAdmonition();
 
@@ -264,8 +265,8 @@ class ImfsPage extends Imfs_AdminPageFramework {
       $this->addSettingFields(
         [
           'field_id' => 'actionmessage',
-          'title'    => __( 'Actions', $this->domain ),
-          'default'  => __( 'Actions you can take on your tables.', $this->domain ),
+          'title'    => __( 'Actions', 'index-wp-mysql-for-speed' ),
+          'default'  => __( 'Actions you can take on your tables.', 'index-wp-mysql-for-speed' ),
           'save'     => false,
           'class'    => [
             'fieldrow' => [ 'major', 'header' ],
@@ -277,8 +278,8 @@ class ImfsPage extends Imfs_AdminPageFramework {
 
         [
           'field_id' => 'backup',
-          'title'    => __( 'Backup', $this->domain ),
-          'label'    => __( 'This plugin modifies your WordPress database. Make a backup before you proceed.', $this->domain ),
+          'title'    => __( 'Backup', 'index-wp-mysql-for-speed' ),
+          'label'    => __( 'This plugin modifies your WordPress database. Make a backup before you proceed.', 'index-wp-mysql-for-speed' ),
           'save'     => false,
           'class'    => [
             'fieldrow' => 'info',
@@ -286,7 +287,7 @@ class ImfsPage extends Imfs_AdminPageFramework {
           [
             'field_id' => 'backup_done',
             'type'     => 'checkbox',
-            'label'    => __( 'I have made a backup', $this->domain ),
+            'label'    => __( 'I have made a backup', 'index-wp-mysql-for-speed' ),
             'default'  => 0,
             'save'     => false,
             'class'    => [
@@ -302,36 +303,36 @@ class ImfsPage extends Imfs_AdminPageFramework {
       /* rekeying ***************************/
       $action = 'enable';
       if ( count( $rekeying[ $action ] ) > 0 ) {
-        $title        = __( 'Add keys', $this->domain );
-        $caption      = __( 'Add high-performance keys', $this->domain );
-        $callToAction = __( 'Add Keys Now', $this->domain );
+        $title        = __( 'Add keys', 'index-wp-mysql-for-speed' );
+        $caption      = __( 'Add high-performance keys', 'index-wp-mysql-for-speed' );
+        $callToAction = __( 'Add Keys Now', 'index-wp-mysql-for-speed' );
         $this->renderListOfTables( $rekeying[ $action ], false, $action, $action, $title, $caption, $callToAction, true );
       }
       /* updating old versions of keys  ***************************/
       $action = 'old';
       if ( count( $rekeying[ $action ] ) > 0 ) {
 
-        $title        = __( 'Update keys', $this->domain );
-        $caption      = __( 'Update keys to this plugin\'s latest version', $this->domain );
-        $callToAction = __( 'Update Keys Now', $this->domain );
+        $title        = __( 'Update keys', 'index-wp-mysql-for-speed' );
+        $caption      = __( 'Update keys to this plugin\'s latest version', 'index-wp-mysql-for-speed' );
+        $callToAction = __( 'Update Keys Now', 'index-wp-mysql-for-speed' );
         $this->renderListOfTables( $rekeying[ $action ], false, $action, 'enable', $title, $caption, $callToAction, true );
       }
       /* converting nonstandard keys  ***************************/
       $action = 'nonstandard';
       if ( count( $rekeying[ $action ] ) > 0 ) {
 
-        $title        = __( 'Convert keys', $this->domain );
-        $caption      = __( 'Convert to this plugin\'s high-performance keys', $this->domain );
-        $callToAction = __( 'Convert Keys Now', $this->domain );
+        $title        = __( 'Convert keys', 'index-wp-mysql-for-speed' );
+        $caption      = __( 'Convert to this plugin\'s high-performance keys', 'index-wp-mysql-for-speed' );
+        $callToAction = __( 'Convert Keys Now', 'index-wp-mysql-for-speed' );
         $this->renderListOfTables( $rekeying[ $action ], false, $action, 'enable', $title, $caption, $callToAction, true );
       }
       /* disabling  ***************************/
       $action = 'disable';
       if ( count( $rekeying[ $action ] ) > 0 ) {
 
-        $title        = __( 'Revert keys', $this->domain );
-        $caption      = __( 'Revert to WordPress\'s default keys', $this->domain );
-        $callToAction = __( 'Revert Keys Now', $this->domain );
+        $title        = __( 'Revert keys', 'index-wp-mysql-for-speed' );
+        $caption      = __( 'Revert to WordPress\'s default keys', 'index-wp-mysql-for-speed' );
+        $callToAction = __( 'Revert Keys Now', 'index-wp-mysql-for-speed' );
         $this->renderListOfTables( $rekeying[ $action ], false, $action, $action, $title, $caption, $callToAction, false );
       }
     }
@@ -349,8 +350,8 @@ class ImfsPage extends Imfs_AdminPageFramework {
         [
           'field_id'    => 'version_error',
           'title'       => 'Notice',
-          'default'     => __( 'Sorry, you cannot use this plugin with your version of MySQL.', $this->domain ),
-          'description' => __( 'Your MySQL version is outdated. Please consider upgrading,', $this->domain ),
+          'default'     => __( 'Sorry, you cannot use this plugin with your version of MySQL.', 'index-wp-mysql-for-speed' ),
+          'description' => __( 'Your MySQL version is outdated. Please consider upgrading,', 'index-wp-mysql-for-speed' ),
           'save'        => false,
           'class'       => [
             'fieldrow' => 'failure',
@@ -362,7 +363,7 @@ class ImfsPage extends Imfs_AdminPageFramework {
           [
             'field_id' => 'constraint_notice',
             'title'    => 'Notice',
-            'default'  => __( 'Upgrading your MySQL server version will give you better performance when you add high-performance keys. Please consider doing that before you add these keys.', $this->domain ),
+            'default'  => __( 'Upgrading your MySQL server version will give you better performance when you add high-performance keys. Please consider doing that before you add these keys.', 'index-wp-mysql-for-speed' ),
             'save'     => false,
             'class'    => [
               'fieldrow' => 'warning',
@@ -372,6 +373,57 @@ class ImfsPage extends Imfs_AdminPageFramework {
     }
 
     return $this->db->canReindex;
+  }
+
+  /**  check whether upgrading
+   *
+   * @param $oAdminPage
+   *
+   * @return void
+   */
+  private function upgrading( $oAdminPage ) {
+    global $wp_version, $wp_db_version;
+    /* stash the current versions of things in the options key. */
+    $optName = $oAdminPage->oProp->sOptionKey;
+    $opts    = get_option( $optName );
+    if ( ! $opts ) {
+      $opts = [];
+    }
+    $previousMajorVersion = ( isset( $opts['majorVersion'] ) && is_numeric( $opts['majorVersion'] ) )
+      ? floatval( $opts['majorVersion'] ) : index_mysql_for_speed_inception_major_version;
+    $previousWpVersion    = ( isset( $opts['wp_version'] ) ) ? $opts['wp_version'] : index_mysql_for_speed_inception_wp_version;
+    $previousDbVersion    = ( isset( $opts['wp_db_version'] ) ) ? $opts['wp_db_version'] : index_mysql_for_speed_inception_wp_db_version;
+
+    $this->pluginUpgrading = $previousMajorVersion !== index_mysql_for_speed_major_version;
+    $this->wpDbUpgrading   = $previousDbVersion !== $wp_db_version;
+
+    $opts['majorVersion']  = index_mysql_for_speed_major_version;
+    $opts['wp_version']    = $wp_version;
+    $opts['wp_db_version'] = $wp_db_version;
+
+    update_option( $optName, $opts );
+    /* stash the versions to help with updates */
+    $this->addSettingFields(
+      [
+        'field_id' => 'majorVersion',
+        'value'    => index_mysql_for_speed_major_version,
+        'type'     => 'hidden',
+        'save'     => true,
+      ] );
+    $this->addSettingFields(
+      [
+        'field_id' => 'wp_version',
+        'value'    => $wp_version,
+        'type'     => 'hidden',
+        'save'     => true,
+      ] );
+    $this->addSettingFields(
+      [
+        'field_id' => 'wp_db_version',
+        'value'    => $wp_db_version,
+        'type'     => 'hidden',
+        'save'     => true,
+      ] );
   }
 
   /** present a list of tables with their indexing status.
@@ -387,12 +439,12 @@ class ImfsPage extends Imfs_AdminPageFramework {
     /* display current status */
     if ( is_array( $rekeying['upgrade'] ) && count( $rekeying['upgrade'] ) > 0 ) {
       $list  = implode( ', ', $rekeying['upgrade'] );
-      $label = __( 'These database tables need upgrading to MySQL\'s latest table storage format, InnoDB with dynamic rows.', $this->domain );
+      $label = __( 'These database tables need upgrading to MySQL\'s latest table storage format, InnoDB with dynamic rows.', 'index-wp-mysql-for-speed' );
       $label .= '<p class="tablelist">' . $list . '</p>';
       $this->addSettingFields(
         [
           'field_id' => 'message' . $messageNumber ++,
-          'title'    => __( 'Tables to upgrade', $this->domain ),
+          'title'    => __( 'Tables to upgrade', 'index-wp-mysql-for-speed' ),
           'default'  => $label,
           'save'     => false,
           'class'    => [
@@ -406,12 +458,12 @@ class ImfsPage extends Imfs_AdminPageFramework {
         $list[] = $wpdb->prefix . $tbl;
       }
       $list  = implode( ', ', $list );
-      $label = __( 'You have added high-performance keys to these tables. You can revert them to WordPress\'s standard keys.', $this->domain );
+      $label = __( 'You have added high-performance keys to these tables. You can revert them to WordPress\'s standard keys.', 'index-wp-mysql-for-speed' );
       $label .= '<p class="tablelist">' . $list . '</p>';
       $this->addSettingFields(
         [
           'field_id' => 'message' . $messageNumber ++,
-          'title'    => __( 'Success', $this->domain ),
+          'title'    => __( 'Success', 'index-wp-mysql-for-speed' ),
           'default'  => $label,
           'save'     => false,
           'class'    => [
@@ -425,13 +477,13 @@ class ImfsPage extends Imfs_AdminPageFramework {
         $list[] = $wpdb->prefix . $tbl;
       }
       $list  = implode( ', ', $list );
-      $label = __( 'You have added high-performance keys to your tables using an earlier version of this plugin. You can revert them to WordPress\'s standard keys, or update them to the latest high-performance keys.', $this->domain );
+      $label = __( 'You have added high-performance keys to your tables using an earlier version of this plugin. You can revert them to WordPress\'s standard keys, or update them to the latest high-performance keys.', 'index-wp-mysql-for-speed' );
       $label .= '<p class="tablelist">' . $list . '</p>';
 
       $this->addSettingFields(
         [
           'field_id' => 'message' . $messageNumber ++,
-          'title'    => __( 'Keys to update', $this->domain ),
+          'title'    => __( 'Keys to update', 'index-wp-mysql-for-speed' ),
           'default'  => $label,
           'save'     => false,
           'class'    => [
@@ -445,14 +497,14 @@ class ImfsPage extends Imfs_AdminPageFramework {
         $list[] = $wpdb->prefix . $tbl;
       }
       $list  = implode( ', ', $list );
-      $label = __( 'These tables have WordPress\'s standard keys. You can add high-performance keys to these tables to make your WordPress database faster.', $this->domain );
+      $label = __( 'These tables have WordPress\'s standard keys. You can add high-performance keys to these tables to make your WordPress database faster.', 'index-wp-mysql-for-speed' );
       $label .= '<p class="tablelist">' . $list . '</p>';
 
       /** @noinspection PhpUnusedLocalVariableInspection */
       $this->addSettingFields(
         [
           'field_id' => 'message' . $messageNumber ++,
-          'title'    => __( 'Keys to add', $this->domain ),
+          'title'    => __( 'Keys to add', 'index-wp-mysql-for-speed' ),
           'default'  => $label,
           'save'     => false,
           'class'    => [
@@ -468,16 +520,16 @@ class ImfsPage extends Imfs_AdminPageFramework {
       }
       $list  = implode( ', ', $list );
       $label = $this->wpDbUpgrading
-        ? __( 'A recent WordPress update changed some keys in some tables.', $this->domain )
-        : __( 'These tables have keys set some way other than this plugin.', $this->domain );
-      $label .= ' ' . __( 'You can convert those tables to this plugin\'s latest high-performance keys or revert them to WordPress\'s standard keys.', $this->domain );
+        ? __( 'A recent WordPress update changed some keys in some tables.', 'index-wp-mysql-for-speed' )
+        : __( 'These tables have keys set some way other than this plugin.', 'index-wp-mysql-for-speed' );
+      $label .= ' ' . __( 'You can convert those tables to this plugin\'s latest high-performance keys or revert them to WordPress\'s standard keys.', 'index-wp-mysql-for-speed' );
       $label .= '<p class="tablelist">' . $list . '</p>';
 
       /** @noinspection PhpUnusedLocalVariableInspection */
       $this->addSettingFields(
         [
           'field_id' => 'message' . $messageNumber ++,
-          'title'    => __( 'Keys to convert', $this->domain ),
+          'title'    => __( 'Keys to convert', 'index-wp-mysql-for-speed' ),
           'default'  => $label,
           'save'     => false,
           'class'    => [
@@ -495,9 +547,9 @@ class ImfsPage extends Imfs_AdminPageFramework {
   function upgradeIndex() {
     if ( count( $this->db->oldEngineTables ) > 0 ) {
       $action       = 'upgrade';
-      $title        = '<span class="warning header">' . __( 'Upgrade tables', $this->domain ) . '</span>';
-      $caption      = __( 'Upgrade table storage format', $this->domain );
-      $callToAction = __( 'Upgrade Storage Now', $this->domain );
+      $title        = '<span class="warning header">' . __( 'Upgrade tables', 'index-wp-mysql-for-speed' ) . '</span>';
+      $caption      = __( 'Upgrade table storage format', 'index-wp-mysql-for-speed' );
+      $callToAction = __( 'Upgrade Storage Now', 'index-wp-mysql-for-speed' );
       $this->renderListOfTables( $this->db->oldEngineTables, true, $action, $action, $title, $caption, $callToAction, true );
     }
   }
@@ -546,11 +598,11 @@ class ImfsPage extends Imfs_AdminPageFramework {
       }
       if ( $rowcount > 1 ) {
         $rowcount   = number_format_i18n( $rowcount );
-        $itemString = $rowcount . ' ' . __( 'rows, approximately', $this->domain );
+        $itemString = $rowcount . ' ' . __( 'rows, approximately', 'index-wp-mysql-for-speed' );
       } else if ( $rowcount == 1 ) {
-        $itemString = $rowcount . ' ' . __( 'row, approximately', $this->domain );
+        $itemString = $rowcount . ' ' . __( 'row, approximately', 'index-wp-mysql-for-speed' );
       } else if ( $rowcount == 0 ) {
-        $itemString = __( 'no rows', $this->domain );
+        $itemString = __( 'no rows', 'index-wp-mysql-for-speed' );
       } else {
         $itemString = '';
       }
@@ -590,7 +642,7 @@ class ImfsPage extends Imfs_AdminPageFramework {
         'field_id' => $action . '_wp',
         'label'    => $this->cliMessage(
           $actionToDisplay . ' ' . implode( ' ', $tableList ),
-          __( $title, $this->domain ) ),
+          __( $title, 'index-wp-mysql-for-speed' ) ),
         'save'     => false,
         'class'    => [
           'fieldrow' => 'info',
@@ -618,7 +670,7 @@ class ImfsPage extends Imfs_AdminPageFramework {
       $wp .= ' ' . '--blogid=' . $blogid;
     }
     /* translators: %1$s is WP-CLI hyperlink, %2s is 'wp index-mysql',  %3$s describes the function, %4$s is the cli commmand */
-    $fmt = __( 'Using %1$s, %2$s: <code>%3$s %4$s</code>', $this->domain );
+    $fmt = __( 'Using %1$s, %2$s: <code>%3$s %4$s</code>', 'index-wp-mysql-for-speed' );
 
     return sprintf( $fmt, $cliLink, $function, $wp, $command );
   }
@@ -638,7 +690,7 @@ class ImfsPage extends Imfs_AdminPageFramework {
     $this->addSettingFields(
       [
         'field_id' => 'version',
-        'title'    => __( 'Versions', $this->domain ),
+        'title'    => __( 'Versions', 'index-wp-mysql-for-speed' ),
         'default'  => $versionString,
         'save'     => false,
         'class'    => [
@@ -647,6 +699,8 @@ class ImfsPage extends Imfs_AdminPageFramework {
       ]
     );
   }
+
+  /** @noinspection PhpUnused */
 
   /** Render the Monitor Database Operations form
    *
@@ -660,22 +714,23 @@ class ImfsPage extends Imfs_AdminPageFramework {
     $oAdminPage
   ) {
 
-    $sampleText  = __( 'sampling %d%% of pageviews.', $this->domain );
+    /* translators:  1: a percentage number--50,20,10,5,2,1 */
+    $sampleText  = __( 'sampling %1$d%% of pageviews.', 'index-wp-mysql-for-speed' );
     $labelText   = [];
-    $labelText[] = __( '<p class="longlabel">We can monitor your site\'s use of MySQL for a few minutes to help you understand what runs slowly.', $this->domain );
-    $labelText[] = __( 'To capture monitoring from your site, push the', $this->domain );
-    $labelText[] = __( 'Start Monitoring', $this->domain );
-    $labelText[] = __( 'button after choosing  a name for your monitor and the options you need.</p>', $this->domain );
-    $labelText[] = __( '<p class="longlabel">Then use your site and dashboard to do things that may be slow so the plugin can capture them.', $this->domain );
-    $labelText[] = __( 'While your monitor is active, the plugin captures database activity on your site,', $this->domain );
-    $labelText[] = __( 'both yours and other users\'.</p>', $this->domain );
-    $labelText[] = __( '<p class="longlabel">When the monitoring time ends, view your saved monitor to see your site\'s MySQL traffic and identify the slowest operations.</p>', $this->domain );
+    $labelText[] = '<p class="longlabel">' . __( 'We can monitor your site\'s use of MySQL for a few minutes to help you understand what runs slowly.', 'index-wp-mysql-for-speed' );
+    $labelText[] = __( 'To capture monitoring from your site, push the', 'index-wp-mysql-for-speed' );
+    $labelText[] = __( 'Start Monitoring', 'index-wp-mysql-for-speed' );
+    $labelText[] = __( 'button after choosing  a name for your monitor and the options you need.', 'index-wp-mysql-for-speed' ) . '</p>';
+    $labelText[] = '<p class="longlabel">' . __( 'Then use your site and dashboard to do things that may be slow so the plugin can capture them.', 'index-wp-mysql-for-speed' );
+    $labelText[] = __( 'While your monitor is active, the plugin captures database activity on your site,', 'index-wp-mysql-for-speed' );
+    $labelText[] = __( 'both yours and other users\'.', 'index-wp-mysql-for-speed' ) . '</p>';
+    $labelText[] = '<p class="longlabel">' . __( 'When the monitoring time ends, view your saved monitor to see your site\'s MySQL traffic and identify the slowest operations.', 'index-wp-mysql-for-speed' ) . '</p>';
     $labelText   = implode( ' ', $labelText );
 
     $this->addSettingFields(
       [
         'field_id' => 'monitoring_parameters',
-        'title'    => __( 'Monitoring', $this->domain ),
+        'title'    => __( 'Monitoring', 'index-wp-mysql-for-speed' ),
         'label'    => $labelText,
         'class'    => [
           'fieldrow' => 'info',
@@ -692,16 +747,16 @@ class ImfsPage extends Imfs_AdminPageFramework {
             'save'     => true,
             'default'  => 3,
             'label'    => [
-              3 => __( 'Monitor Dashboard and Site', $this->domain ),
-              2 => __( 'Monitor Site Only', $this->domain ),
-              1 => __( 'Monitor Dashboard Only', $this->domain ),
+              3 => __( 'Monitor Dashboard and Site', 'index-wp-mysql-for-speed' ),
+              2 => __( 'Monitor Site Only', 'index-wp-mysql-for-speed' ),
+              1 => __( 'Monitor Dashboard Only', 'index-wp-mysql-for-speed' ),
             ],
           ],
           [
             'field_id'        => 'duration',
             'type'            => 'number',
             'label_min_width' => '',
-            'label'           => __( 'for', $this->domain ),
+            'label'           => __( 'for', 'index-wp-mysql-for-speed' ),
             'save'            => true,
             'default'         => 5,
             'attributes'      => [
@@ -714,7 +769,7 @@ class ImfsPage extends Imfs_AdminPageFramework {
           ],
           [
             'field_id' => 'duration_text_minutes',
-            'label'    => __( 'minutes', $this->domain ),
+            'label'    => __( 'minutes', 'index-wp-mysql-for-speed' ),
             'save'     => false,
           ],
           [
@@ -723,7 +778,7 @@ class ImfsPage extends Imfs_AdminPageFramework {
             'save'       => true,
             'default'    => 100,
             'label'      => [
-              100 => __( 'capturing all pageviews.', $this->domain ),
+              100 => __( 'capturing all pageviews.', 'index-wp-mysql-for-speed' ),
               50  => sprintf( $sampleText, 50 ),
               20  => sprintf( $sampleText, 20 ),
               10  => sprintf( $sampleText, 10 ),
@@ -732,13 +787,13 @@ class ImfsPage extends Imfs_AdminPageFramework {
               1   => sprintf( $sampleText, 1 ),
             ],
             'attributes' => [
-              'title' => __( 'If your site is very busy, chooose a lower sample rate.', $this->domain ),
+              'title' => __( 'If your site is very busy, chooose a lower sample rate.', 'index-wp-mysql-for-speed' ),
             ],
           ],
           [
             'field_id' => 'name',
             'type'     => 'text',
-            'label'    => __( 'Save into', $this->domain ),
+            'label'    => __( 'Save into', 'index-wp-mysql-for-speed' ),
             'save'     => true,
             'default'  => 'monitor',
             'class'    => [
@@ -752,7 +807,7 @@ class ImfsPage extends Imfs_AdminPageFramework {
     $this->addSettingFields(
       [
         'field_id' => 'monitoring_starter',
-        'label'    => __( 'Monitoring stops automatically.', $this->domain ),
+        'label'    => __( 'Monitoring stops automatically.', 'index-wp-mysql-for-speed' ),
         'save'     => false,
         'class'    => [
           'fieldrow' => 'info',
@@ -761,14 +816,14 @@ class ImfsPage extends Imfs_AdminPageFramework {
           'field_id' => 'start_monitoring_now',
           'type'     => 'submit',
           'save'     => false,
-          'value'    => __( 'Start Monitoring', $this->domain ),
+          'value'    => __( 'Start Monitoring', 'index-wp-mysql-for-speed' ),
           'class'    => [
             'fieldrow' => 'action',
           ],
         ],
 //	 TODO add wp cli for monitoring
 //              array(
-//					'label' => $this->cliMessage( 'monitor --minutes=n', __( 'Monitor', $this->domain ) ),
+//					'label' => $this->cliMessage( 'monitor --minutes=n', __( 'Monitor', 'index-wp-mysql-for-speed' ) ),
 //					'type'  => 'label',
 //					'save'  => false,
 //					'class' => array(
@@ -780,13 +835,13 @@ class ImfsPage extends Imfs_AdminPageFramework {
     );
 
     $monLabel = count( $this->monitors ) > 0
-      ? __( 'Saved monitors', $this->domain )
-      : __( 'No monitors are saved. ', $this->domain );
+      ? __( 'Saved monitors', 'index-wp-mysql-for-speed' )
+      : __( 'No monitors are saved. ', 'index-wp-mysql-for-speed' );
 
     $this->addSettingFields(
       [
         'field_id' => 'monitor_headers',
-        'title'    => __( 'Monitors', $this->domain ),
+        'title'    => __( 'Monitors', 'index-wp-mysql-for-speed' ),
         'label'    => $monLabel,
         'save'     => false,
         'class'    => [
@@ -811,10 +866,10 @@ class ImfsPage extends Imfs_AdminPageFramework {
               'type'       => 'submit',
               'save'       => false,
               'value'      => 'X',
-              'tip'        => __( 'Delete', $this->domain ) . ' ' . $monitor,
+              'tip'        => __( 'Delete', 'index-wp-mysql-for-speed' ) . ' ' . $monitor,
               'attributes' => [
                 'class' => 'button button_secondary button_delete button_round',
-                'title' => __( 'Delete', $this->domain ) . ' ' . $monitor,
+                'title' => __( 'Delete', 'index-wp-mysql-for-speed' ) . ' ' . $monitor,
               ],
             ],
 
@@ -850,7 +905,7 @@ class ImfsPage extends Imfs_AdminPageFramework {
         [
           'field_id' => 'constraint_notice',
           'title'    => 'Notice',
-          'default'  => __( 'Upgrading your MySQL server version will give you better performance when you add high-performance keys.', $this->domain ),
+          'default'  => __( 'Upgrading your MySQL server version will give you better performance when you add high-performance keys.', 'index-wp-mysql-for-speed' ),
           'save'     => false,
           'class'    => [
             'fieldrow' => 'warning',
@@ -872,8 +927,8 @@ class ImfsPage extends Imfs_AdminPageFramework {
     $this->addSettingFields(
       [
         'field_id' => 'metadata',
-        'title'    => __( 'Diagnostic data', $this->domain ),
-        'label'    => __( 'With your permission we upload metadata about your WordPress site to our plugin\'s servers. We cannot identify you or your website from it, and we never sell nor give it to any third party. We use it only to improve this plugin.', $this->domain ),
+        'title'    => __( 'Diagnostic data', 'index-wp-mysql-for-speed' ),
+        'label'    => __( 'With your permission we upload metadata about your WordPress site to our plugin\'s servers. We cannot identify you or your website from it, and we never sell nor give it to any third party. We use it only to improve this plugin.', 'index-wp-mysql-for-speed' ),
         'save'     => false,
         'class'    => [
           'fieldrow' => 'info',
@@ -881,8 +936,8 @@ class ImfsPage extends Imfs_AdminPageFramework {
       ],
       [
         'field_id' => 'uploadId',
-        'title'    => __( 'Upload id', $this->domain ),
-        'label'    => __( 'If you create an issue or contact the authors, please mention this upload id.', $this->domain ),
+        'title'    => __( 'Upload id', 'index-wp-mysql-for-speed' ),
+        'label'    => __( 'If you create an issue or contact the authors, please mention this upload id.', 'index-wp-mysql-for-speed' ),
         'type'     => 'text',
         'save'     => true,
         'default'  => imfsRandomString( 8 ),
@@ -894,14 +949,14 @@ class ImfsPage extends Imfs_AdminPageFramework {
         'field_id'    => 'upload_metadata_now',
         'type'        => 'submit',
         'save'        => false,
-        'value'       => __( 'Upload metadata', $this->domain ),
+        'value'       => __( 'Upload metadata', 'index-wp-mysql-for-speed' ),
         'description' => $this->dontNavigate,
         'class'       => [
           'fieldrow' => 'action',
         ],
       ],
       [
-        'label' => $this->cliMessage( 'upload_metadata', __( 'Upload metadata', $this->domain ) ),
+        'label' => $this->cliMessage( 'upload_metadata', __( 'Upload metadata', 'index-wp-mysql-for-speed' ) ),
         'type'  => 'label',
         'save'  => false,
         'class' => [
@@ -910,8 +965,6 @@ class ImfsPage extends Imfs_AdminPageFramework {
       ]
     );
   }
-
-  /** @noinspection PhpUnused */
 
   /** load overall page, used to load monitor items (with variable slug names)
    *
@@ -927,7 +980,7 @@ class ImfsPage extends Imfs_AdminPageFramework {
     try {
       $this->populate();
     } catch ( ImfsException $ex ) {
-      $msg = __( 'Something went wrong inspecting your database', $this->domain ) . ': ' . $ex->getMessage();
+      $msg = __( 'Something went wrong inspecting your database', 'index-wp-mysql-for-speed' ) . ': ' . $ex->getMessage();
       $this->setSettingNotice( $msg );
 
       return;
@@ -963,10 +1016,10 @@ class ImfsPage extends Imfs_AdminPageFramework {
             'field_id'   => 'upload_' . $monitor . '_now',
             'type'       => 'submit',
             'save'       => false,
-            'value'      => __( 'Upload ', $this->domain ),
+            'value'      => __( 'Upload ', 'index-wp-mysql-for-speed' ),
             'attributes' => [
               'class' => 'button button_secondary',
-              'title' => __( 'Upload this monitor to the plugin\'s servers', $this->domain ),
+              'title' => __( 'Upload this monitor to the plugin\'s servers', 'index-wp-mysql-for-speed' ),
             ],
             'class'      => [
               'fieldset' => 'inline-buttons-and-text',
@@ -976,7 +1029,7 @@ class ImfsPage extends Imfs_AdminPageFramework {
             'field_id' => 'uploadId',
             'type'     => 'text',
             'save'     => true,
-            'label'    => __( 'this saved monitor to the plugin\'s servers using upload id', $this->domain ),
+            'label'    => __( 'this saved monitor to the plugin\'s servers using upload id', 'index-wp-mysql-for-speed' ),
             'default'  => $uploadId,
             'class'    => [
               'fieldset' => 'inline-buttons-and-text',
@@ -1008,9 +1061,9 @@ class ImfsPage extends Imfs_AdminPageFramework {
         /* It's the upload button. Check the uploadId */
         if ( ! isset( $inputs['monitor_actions']['uploadId'] ) || strlen( $inputs['monitor_actions']['uploadId'] ) === 0 ) {
           /* reject the bogus uploadId */
-          $errors['monitor_actions']['uploadId'] = __( "Please provide an upload id.", $this->domain );
+          $errors['monitor_actions']['uploadId'] = __( "Please provide an upload id.", 'index-wp-mysql-for-speed' );
           $this->setFieldErrors( $errors );
-          $this->setSettingNotice( __( 'Make corrections and try again.', $this->domain ) );
+          $this->setSettingNotice( __( 'Make corrections and try again.', 'index-wp-mysql-for-speed' ) );
 
           return $oldInputs;
         }
@@ -1026,6 +1079,8 @@ class ImfsPage extends Imfs_AdminPageFramework {
 
     return $inputs;
   }
+
+  /** @noinspection PhpUnusedParameterInspection */
 
   private
   function action(
@@ -1065,14 +1120,15 @@ class ImfsPage extends Imfs_AdminPageFramework {
           break;
         case 'upload_metadata_now':
           $id = imfs_upload_stats( $this->db, $inputs['uploadId'] );
-          $this->setSettingNotice( __( 'Metadata uploaded to id ', $this->domain ) . $id, 'updated' );
+          $this->setSettingNotice( __( 'Metadata uploaded to id ', 'index-wp-mysql-for-speed' ) . $id, 'updated' );
           break;
         case 'upload_monitor_now':
           $mon  = new renderMonitor( $monitor, $this->db );
           $data = $mon->load()->makeUpload();
           $id   = imfs_upload_monitor( $this->db, $inputs['uploadId'], $monitor, $data );
-          $msg  = __( 'Monitor %1$s uploaded to id %2$s', $this->domain );
-          $msg  = sprintf( $msg, $monitor, $id );
+          /* translators: 1: name of captured monitor.  2: upload id */
+          $msg = __( 'Monitor %1$s uploaded to id %2$s', 'index-wp-mysql-for-speed' );
+          $msg = sprintf( $msg, $monitor, $id );
           $this->setSettingNotice( $msg, 'updated' );
           break;
       }
@@ -1085,8 +1141,6 @@ class ImfsPage extends Imfs_AdminPageFramework {
       return $oldInputs;
     }
   }
-
-  /** @noinspection PhpUnusedParameterInspection */
 
   private
   function listFromCheckboxes(
@@ -1119,11 +1173,11 @@ class ImfsPage extends Imfs_AdminPageFramework {
 
     if ( ! isset ( $inputs['backup']['1'] ) || ! $inputs['backup']['1'] ) {
       $valid            = false;
-      $errors['backup'] = __( 'Please acknowledge that you have made a backup.', $this->domain );
+      $errors['backup'] = __( 'Please acknowledge that you have made a backup.', 'index-wp-mysql-for-speed' );
     }
 
     $action = $submitInfo['field_id'];
-    $err    = __( 'Please select at least one table.', $this->domain );
+    $err    = __( 'Please select at least one table.', 'index-wp-mysql-for-speed' );
     if ( $action === 'enable_now' ) {
       if ( count( $this->listFromCheckboxes( $inputs['enable'] ) ) === 0 ) {
         $valid            = false;
@@ -1145,7 +1199,7 @@ class ImfsPage extends Imfs_AdminPageFramework {
 
     if ( ! $valid ) {
       $this->setFieldErrors( $errors );
-      $this->setSettingNotice( __( 'Make corrections and try again.', $this->domain ) );
+      $this->setSettingNotice( __( 'Make corrections and try again.', 'index-wp-mysql-for-speed' ) );
 
       return $oldInputs;
     }
@@ -1174,8 +1228,9 @@ class ImfsPage extends Imfs_AdminPageFramework {
           if ( in_array( $monitor, $this->monitors ) ) {
             RenderMonitor::deleteMonitor( $monitor );
             $this->monitors = RenderMonitor::getMonitors();
-            $message        = __( 'Monitor %s deleted.', $this->domain );
-            $message        = sprintf( $message, $monitor );
+            /* translators: name of a captured monitor object */
+            $message = __( 'Monitor %$1s deleted.', 'index-wp-mysql-for-speed' );
+            $message = sprintf( $message, $monitor );
             $this->setSettingNotice( $message, 'updated' );
 
             return $oldInputs;
@@ -1188,13 +1243,13 @@ class ImfsPage extends Imfs_AdminPageFramework {
       $monitor = $inputs['monitor_specs']['name'];
       if ( ctype_alnum( $monitor ) === false ) {
         $valid                   = false;
-        $errors['monitor_specs'] = __( "Letters and numbers only for your monitor name, please.", $this->domain );
+        $errors['monitor_specs'] = __( "Letters and numbers only for your monitor name, please.", 'index-wp-mysql-for-speed' );
       }
     }
 
     if ( ! $valid ) {
       $this->setFieldErrors( $errors );
-      $this->setSettingNotice( __( 'Make corrections and try again.', $this->domain ) );
+      $this->setSettingNotice( __( 'Make corrections and try again.', 'index-wp-mysql-for-speed' ) );
 
       return $oldInputs;
     }
@@ -1216,67 +1271,17 @@ class ImfsPage extends Imfs_AdminPageFramework {
     if ( isset( $inputs['uploadId'] ) && strlen( $inputs['uploadId'] ) > 0 ) {
       $valid = true;
     } else {
-      $errors['uploadId'] = __( "Please provide an upload id.", $this->domain );
+      $errors['uploadId'] = __( "Please provide an upload id.", 'index-wp-mysql-for-speed' );
       $valid              = false;
     }
     if ( ! $valid ) {
       $this->setFieldErrors( $errors );
-      $this->setSettingNotice( __( 'Make corrections and try again.', $this->domain ) );
+      $this->setSettingNotice( __( 'Make corrections and try again.', 'index-wp-mysql-for-speed' ) );
 
       return $oldInputs;
     }
 
     return $this->action( $submitInfo['field_id'], $inputs, $oldInputs, $factory, $submitInfo );
-  }
-
-  /**  check whether upgrading
-   * @param $oAdminPage
-   *
-   * @return void
-   */
-  private function upgrading( $oAdminPage ) {
-    global $wp_version, $wp_db_version;
-    /* stash the current versions of things in the options key. */
-    $optName = $oAdminPage->oProp->sOptionKey;
-    $opts    = get_option( $optName );
-    if ( ! $opts ) {
-      $opts = [];
-    }
-    $previousMajorVersion = ( isset( $opts['majorVersion'] ) && is_numeric( $opts['majorVersion'] ) )
-      ? floatval( $opts['majorVersion'] ) : index_mysql_for_speed_inception_major_version;
-    $previousWpVersion    = ( isset( $opts['wp_version'] ) ) ? $opts['wp_version'] : index_mysql_for_speed_inception_wp_version;
-    $previousDbVersion    = ( isset( $opts['wp_db_version'] ) ) ? $opts['wp_db_version'] : index_mysql_for_speed_inception_wp_db_version;
-
-    $this->pluginUpgrading = $previousMajorVersion !== index_mysql_for_speed_major_version;
-    $this->wpDbUpgrading   = $previousDbVersion !== $wp_db_version;
-
-    $opts['majorVersion']  = index_mysql_for_speed_major_version;
-    $opts['wp_version']    = $wp_version;
-    $opts['wp_db_version'] = $wp_db_version;
-
-    update_option( $optName, $opts );
-    /* stash the versions to help with updates */
-    $this->addSettingFields(
-      [
-        'field_id' => 'majorVersion',
-        'value'    => index_mysql_for_speed_major_version,
-        'type'     => 'hidden',
-        'save'     => true,
-      ] );
-    $this->addSettingFields(
-      [
-        'field_id' => 'wp_version',
-        'value'    => $wp_version,
-        'type'     => 'hidden',
-        'save'     => true,
-      ] );
-    $this->addSettingFields(
-      [
-        'field_id' => 'wp_db_version',
-        'value'    => $wp_db_version,
-        'type'     => 'hidden',
-        'save'     => true,
-      ] );
   }
 
 

@@ -24,7 +24,6 @@
 class ImsfCli extends WP_CLI_Command {
 
   public $db;
-  public $domain = index_wp_mysql_for_speed_domain;
   public $assoc_args;
   public $cmd = 'wp index-mysql';
   public $allSwitch = false;
@@ -63,24 +62,24 @@ class ImsfCli extends WP_CLI_Command {
 
     if ( true ) {
       $wpDescription = imfsGetWpDescription( $this->db );
-      WP_CLI::log( __( 'Index WP MySQL For Speed', $this->domain ) . ' ' . index_wp_mysql_for_speed_VERSION_NUM );
+      WP_CLI::log( __( 'Index WP MySQL For Speed', 'index-wp-mysql-for-speed' ) . ' ' . index_wp_mysql_for_speed_VERSION_NUM );
       $versions = ' Plugin:' . $wpDescription['pluginversion'] . ' MySQL:' . $wpDescription['mysqlversion'] . ' WordPress:' . $wp_version . ' WordPress database:' . $wp_db_version . ' php:' . phpversion();
-      WP_CLI::log( __( 'Versions', $this->domain ) . ' ' . $versions );
+      WP_CLI::log( __( 'Versions', 'index-wp-mysql-for-speed' ) . ' ' . $versions );
     }
 
     if ( ! $this->db->canReindex ) {
       if ( $wp_db_version < index_wp_mysql_for_speed_first_compatible_db_version ||
            $wp_db_version > index_wp_mysql_for_speed_last_compatible_db_version ) {
-        $fmt = __( 'Sorry, this plugin\'s version is not compatible with your WordPress database version.', $this->domain );
+        $fmt = __( 'Sorry, this plugin\'s version is not compatible with your WordPress database version.', 'index-wp-mysql-for-speed' );
       } else {
-        $fmt = __( 'Sorry, you cannot use this plugin with your version of MySQL.', $this->domain ) . ' ' .
-               __( 'Your MySQL version is outdated. Please consider upgrading,', $this->domain );
+        $fmt = __( 'Sorry, you cannot use this plugin with your version of MySQL.', 'index-wp-mysql-for-speed' ) . ' ' .
+               __( 'Your MySQL version is outdated. Please consider upgrading,', 'index-wp-mysql-for-speed' );
       }
       WP_CLI::exit( $fmt );
 
     }
     if ( ! $this->db->unconstrained ) {
-      $fmt = __( 'Upgrading your MySQL server to a later version will give you better performance when you add high-performance keys.', $this->domain );
+      $fmt = __( 'Upgrading your MySQL server to a later version will give you better performance when you add high-performance keys.', 'index-wp-mysql-for-speed' );
       WP_CLI::warning( $fmt );
     }
 
@@ -95,24 +94,24 @@ class ImsfCli extends WP_CLI_Command {
   function status( $args, $assoc_args ) {
     $this->setupCliEnvironment( $args, $assoc_args );
 
-    $fmt = __( 'Database tables need upgrading to MySQL\'s latest table storage format, InnoDB with dynamic rows.', $this->domain );
+    $fmt = __( 'Database tables need upgrading to MySQL\'s latest table storage format, InnoDB with dynamic rows.', 'index-wp-mysql-for-speed' );
     $this->showCommandLine( 'upgrade', 'upgrade', $fmt, true, true );
 
-    $fmt = __( 'Add or upgrade high-performance keys to make your WordPress database faster.', $this->domain );
+    $fmt = __( 'Add or upgrade high-performance keys to make your WordPress database faster.', 'index-wp-mysql-for-speed' );
     $this->showCommandLine( 'enable', 'enable', $fmt, false, false );
 
-    $fmt = __( 'You set some keys from outside this plugin. You can convert them to this plugin\'s high-performance keys.', $this->domain );
+    $fmt = __( 'You set some keys from outside this plugin. You can convert them to this plugin\'s high-performance keys.', 'index-wp-mysql-for-speed' );
     $this->showCommandLine( 'nonstandard', 'enable', $fmt, false, false );
-    $fmt = __( 'Or, you can revert them to WordPress\'s standard keys.', $this->domain );
+    $fmt = __( 'Or, you can revert them to WordPress\'s standard keys.', 'index-wp-mysql-for-speed' );
     $this->showCommandLine( 'nonstandard', 'disable', $fmt, false, false );
 
-    $fmt = __( 'You added high-performance keys using an earlier version of this plugin. You can update them to the latest high-performance keys.', $this->domain );
+    $fmt = __( 'You added high-performance keys using an earlier version of this plugin. You can update them to the latest high-performance keys.', 'index-wp-mysql-for-speed' );
     $this->showCommandLine( 'old', 'enable', $fmt, false, false );
-    $fmt = __( 'Or, you can revert them to WordPress\'s standard keys.', $this->domain );
+    $fmt = __( 'Or, you can revert them to WordPress\'s standard keys.', 'index-wp-mysql-for-speed' );
     $this->showCommandLine( 'old', 'disable', $fmt, false, false );
 
-    $fmt = __( 'You successfully added high-performance keys.', $this->domain ) . ' ' .
-           __( 'You can revert them to WordPress\'s standard keys.', $this->domain );
+    $fmt = __( 'You successfully added high-performance keys.', 'index-wp-mysql-for-speed' ) . ' ' .
+           __( 'You can revert them to WordPress\'s standard keys.', 'index-wp-mysql-for-speed' );
     $this->showCommandLine( 'fast', 'disable', $fmt, false, false );
   }
 
@@ -127,7 +126,7 @@ class ImsfCli extends WP_CLI_Command {
   private function showCommandLine( $actionKey, $action, $caption, $warning, $alreadyPrefixed ) {
     $array = $this->rekeying;
     if ( array_key_exists( $actionKey, $array ) && count( $array[ $actionKey ] ) > 0 ) {
-      $msg  = $caption . ' ' . __( 'Use this command:', $this->domain );
+      $msg  = $caption . ' ' . __( 'Use this command:', 'index-wp-mysql-for-speed' );
       $tbls = $this->addPrefixes( $array[ $actionKey ], $alreadyPrefixed );
       if ( $warning ) {
         WP_CLI::warning( $msg );
@@ -166,9 +165,7 @@ class ImsfCli extends WP_CLI_Command {
     if ( count( $tbls ) > 0 ) {
       $list = implode( ' ', $tbls );
 
-      $fmt = __( "%s %s %s", $this->domain );
-
-      return sprintf( '  ' . $fmt, $this->cmd, $cmd, $list );
+      return sprintf( '  ' . "%s %s %s", $this->cmd, $cmd, $list );
     }
 
     return '';
@@ -234,11 +231,11 @@ class ImsfCli extends WP_CLI_Command {
       }
     }
     if ( count( $err ) > 0 ) {
-      $fmt = __( 'These tables are not found or not eligible to', $this->domain ) . ' ' . $action . ': ' . implode( ' ', $err ) . '.';
+      $fmt = __( 'These tables are not found or not eligible to', 'index-wp-mysql-for-speed' ) . ' ' . $action . ': ' . implode( ' ', $err ) . '.';
       WP_CLI::error( $fmt );
     }
     if ( count( $res ) == 0 ) {
-      $fmt = __( 'No tables are eligible to', $this->domain ) . ' ' . $action . '.';
+      $fmt = __( 'No tables are eligible to', 'index-wp-mysql-for-speed' ) . ' ' . $action . '.';
       WP_CLI::error( $fmt );
     }
 
@@ -260,10 +257,10 @@ class ImsfCli extends WP_CLI_Command {
       $queries ++;
     }
     $this->db->timings = [];
-    $msg               = _n( 'MySQL statement', 'MySQL statements', $queries, $this->domain );
+    $msg               = _n( 'MySQL statement', 'MySQL statements', $queries, 'index-wp-mysql-for-speed' );
 
     return sprintf( "%s %s %s (%d %s, %ss)",
-      $action, $tbl, __( "complete.", $this->domain ), $queries, $msg, number_format_i18n( $time, 2 ) );
+      $action, $tbl, __( "complete.", 'index-wp-mysql-for-speed' ), $queries, $msg, number_format_i18n( $time, 2 ) );
   }
 
   /** set the current majorVersion into the options structure.
@@ -363,7 +360,7 @@ class ImsfCli extends WP_CLI_Command {
     $this->setupCliEnvironment( $args, $assoc_args );
     $id = imfsRandomString( 8 );
     $id = imfs_upload_stats( $this->db, $id );
-    WP_CLI::log( __( 'Metadata uploaded to id ', $this->domain ) . $id );
+    WP_CLI::log( __( 'Metadata uploaded to id ', 'index-wp-mysql-for-speed' ) . $id );
   }
 
 

@@ -4,6 +4,14 @@ A plugin to add useful indexes to your WordPress installation's MySQL database.
 
 For more information [see here](https://plumislandmedia.net/index-wp-mysql-for-speed/).
 
+## Internationalization
+
+Use this command to generate the .pot file.
+
+```bash
+wp i18n make-pot . languages/index-wp-mysql-for-speed.pot --path=/var/www/ubu2010.plumislandmedia.local
+```
+
 ## Plugin repo stuff
 
 Here's the info on the repo.
@@ -48,7 +56,7 @@ This is here for archive purposes only. Use the automated process, please.
 
 # readme.txt
 
-**Stable tag:** 1.4.3 \
+**Stable tag:** 1.4.4 \
 **Contributors:** OllieJones, rjasdfiii \
 **Tags:** database, index, key, mysql, wp-cli \
 **Requires at least:** 5.2 \

@@ -18,18 +18,20 @@ class QueryMonControl {
     $monval->keys       = $db->getIndexList();
 
     $monval->targets = intval( $specs['targets'] );
-    $targetText      = __( 'Monitoring dashboard and site', index_wp_mysql_for_speed_domain );
+    $targetText      = __( 'Monitoring dashboard and site', 'index-wp-mysql-for-speed' );
     if ( $monval->targets === 2 ) {
-      $targetText = __( 'Monitoring site only', index_wp_mysql_for_speed_domain );
+      $targetText = __( 'Monitoring site only', 'index-wp-mysql-for-speed' );
     } else if ( $monval->targets === 1 ) {
-      $targetText = __( 'Monitoring dashboard only', index_wp_mysql_for_speed_domain );
+      $targetText = __( 'Monitoring dashboard only', 'index-wp-mysql-for-speed' );
     }
 
     if ( $specs['samplerate'] != 100 ) {
-      $stopTimeString = sprintf( __( '%s for %d minutes until %s. Random sampling %d%% of page views. Monitoring output saved into %s', index_wp_mysql_for_speed_domain ),
+      /* translators: 1: "Monitoring dashboard and site", etc. 2: number of minutes  3: end time  4: percentage 5: monitor name */
+      $stopTimeString = sprintf( __( '%1$s for %2$d minutes until %3$s. Random sampling %4$d%% of page views. Monitoring output saved into %5$s', 'index-wp-mysql-for-speed' ),
         $targetText, $specs['duration'], wp_date( 'g:i:s a T', $stopTime ), $specs['samplerate'], $monval->name );
     } else {
-      $stopTimeString = sprintf( __( '%s  for %d minutes until %s. Monitoring output saved into %s', index_wp_mysql_for_speed_domain ),
+      /* translators: 1: "Monitoring dashboard and site", etc. 2: number of minutes  3: end time  4: monitor name */
+      $stopTimeString = sprintf( __( '%1$s for %2$d minutes until %3$s. Monitoring output saved into %4$s', 'index-wp-mysql-for-speed' ),
         $targetText, $specs['duration'], wp_date( 'g:i:s a T', $stopTime ), $monval->name );
     }
     update_option( index_wp_mysql_for_speed_monitor, $monval, true );

@@ -20,20 +20,22 @@ class ImfsNotice {
       return;
     }
 
-    $url    = admin_url( 'tools.php?page=imfs_settings' );
-    $notice = __( 'Use the Index WP MySQL For Speed plugin <a href="%s">to %s your high-performance keys</a>.', index_wp_mysql_for_speed_domain );
+    $url = admin_url( 'tools.php?page=imfs_settings' );
+    /* translators: 1: hyperlink to tools page for this plugin. 2: the translated word "add" or "update" */
+    $notice = __( 'Use the Index WP MySQL For Speed plugin <a href="%1$s">to %2$s your high-performance keys</a>.', 'index-wp-mysql-for-speed' );
     if ( $this->notice ) {
       switch ( $this->notice ) {
         case 'add':
-          $remind = __( 'add', index_wp_mysql_for_speed_domain );
+          $remind = __( 'add', 'index-wp-mysql-for-speed' );
           $notice = sprintf( $notice, $url, $remind );
           break;
         case 'version_update':
-          $notice = __( 'Use the Index WP MySQL For Speed plugin <a href="%s">to update your high-performance keys</a> for the latest WordPress version.', index_wp_mysql_for_speed_domain );
+          /* translators: 1: hyperlink to tools page for this plugin. */
+          $notice = __( 'Use the Index WP MySQL For Speed plugin <a href="%1$s">to update your high-performance keys</a> for the latest WordPress version.', 'index-wp-mysql-for-speed' );
           $notice = sprintf( $notice, $url );
           break;
         default:
-          $remind = __( 'update', index_wp_mysql_for_speed_domain );
+          $remind = __( 'update', 'index-wp-mysql-for-speed' );
           $notice = sprintf( $notice, $url, $remind );
           break;
       }

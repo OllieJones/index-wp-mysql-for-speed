@@ -4,7 +4,7 @@ Tags: database, index, key, mysql, wp-cli
 Requires at least: 5.2
 Tested up to: 5.9.1
 Requires PHP: 5.6
-Stable tag: 1.4.3
+Stable tag: 1.4.4
 Network: true
 License: GPL v2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -143,9 +143,12 @@ Please see more questions and answers [here](https://plumislandmedia.net/index-w
 * (No changes to keys.)
 * Detect recent WordPress version update and prompt to restore high-performance keys.
 
+= 1.4.4 =
+* (No changes to keys.)
+* Add support for internationalization. Speed up rendering of dashboard panels.
+
 == Upgrade Notice ==
-This version offers performance improvements, especially for larger sites and sites using
-managed service providers. It handles WordPress version updates better. It also offers help pages.
+This version offers performance improvements, especially for larger sites and sites using managed service providers. It handles WordPress version updates better. It also offers help pages and better support for translators.
 
 After you update the plugin, please go to [Tools / Index MySQL](/wp-admin/tools.php?page=imfs_settings) to update your high-performance keys to the latest version.
 

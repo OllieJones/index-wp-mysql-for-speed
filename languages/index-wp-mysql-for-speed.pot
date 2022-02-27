@@ -1,0 +1,1157 @@
+# Copyright (C) 2022 Oliver Jones, Rick James
+# This file is distributed under the GPL v2 or later.
+msgid ""
+msgstr ""
+"Project-Id-Version: Index WP MySQL For Speed 1.4.4\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/index-wp-mysql-for-speed\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"POT-Creation-Date: 2022-03-02T19:37:26-05:00\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"X-Generator: WP-CLI 2.5.0\n"
+"X-Domain: index-wp-mysql-for-speed\n"
+
+#. Plugin Name of the plugin
+#: code/admin.php:25
+#: code/cli.php:65
+msgid "Index WP MySQL For Speed"
+msgstr ""
+
+#. Plugin URI of the plugin
+msgid "https://plumislandmedia.org/index-wp-mysql-for-speed/"
+msgstr ""
+
+#. Description of the plugin
+msgid "Speed up your WordPress site by adding high-performance keys (database indexes) to your MySQL database tables."
+msgstr ""
+
+#. Author of the plugin
+msgid "Oliver Jones, Rick James"
+msgstr ""
+
+#. Author URI of the plugin
+msgid "https://github.com/OllieJones"
+msgstr ""
+
+#. translators: you can omit translating messages in AdminPageFramework files; they don't appear in this plugin's UI.
+#: afp/factory/_common/form/field_type/AdminPageFramework_FieldType_system.php:66
+msgid "No browser information found."
+msgstr ""
+
+#: afp/factory/_common/form/field_type/AdminPageFramework_FieldType_system.php:93
+#: afp/factory/_common/form/field_type/AdminPageFramework_FieldType_system.php:169
+msgid "Version"
+msgstr ""
+
+#: afp/factory/_common/form/field_type/AdminPageFramework_FieldType_system.php:93
+msgid "Language"
+msgstr ""
+
+#: afp/factory/_common/form/field_type/AdminPageFramework_FieldType_system.php:93
+#: afp/factory/_common/form/field_type/AdminPageFramework_FieldType_system.php:169
+msgid "Memory Limit"
+msgstr ""
+
+#: afp/factory/_common/form/field_type/AdminPageFramework_FieldType_system.php:93
+msgid "Multi-site"
+msgstr ""
+
+#: afp/factory/_common/form/field_type/AdminPageFramework_FieldType_system.php:93
+msgid "Permalink Structure"
+msgstr ""
+
+#: afp/factory/_common/form/field_type/AdminPageFramework_FieldType_system.php:93
+msgid "Active Theme"
+msgstr ""
+
+#: afp/factory/_common/form/field_type/AdminPageFramework_FieldType_system.php:93
+msgid "Registered Post Statuses"
+msgstr ""
+
+#: afp/factory/_common/form/field_type/AdminPageFramework_FieldType_system.php:93
+msgid "Table Prefix"
+msgstr ""
+
+#: afp/factory/_common/form/field_type/AdminPageFramework_FieldType_system.php:93
+msgid "Table Prefix Length"
+msgstr ""
+
+#: afp/factory/_common/form/field_type/AdminPageFramework_FieldType_system.php:93
+msgid "Table Prefix Status"
+msgstr ""
+
+#: afp/factory/_common/form/field_type/AdminPageFramework_FieldType_system.php:93
+msgid "Multibite String Extension"
+msgstr ""
+
+#: afp/factory/_common/form/field_type/AdminPageFramework_FieldType_system.php:93
+msgid "WP_CONTENT_DIR Writeable"
+msgstr ""
+
+#: afp/factory/_common/form/field_type/AdminPageFramework_FieldType_system.php:93
+msgid "Active Plugins"
+msgstr ""
+
+#: afp/factory/_common/form/field_type/AdminPageFramework_FieldType_system.php:93
+msgid "Network Active Plugins"
+msgstr ""
+
+#: afp/factory/_common/form/field_type/AdminPageFramework_FieldType_system.php:93
+#: afp/factory/_common/form/field_type/AdminPageFramework_FieldType_system.php:169
+msgid "Constants"
+msgstr ""
+
+#: afp/factory/_common/form/field_type/AdminPageFramework_FieldType_system.php:169
+msgid "Safe Mode"
+msgstr ""
+
+#: afp/factory/_common/form/field_type/AdminPageFramework_FieldType_system.php:169
+msgid "Upload Max Size"
+msgstr ""
+
+#: afp/factory/_common/form/field_type/AdminPageFramework_FieldType_system.php:169
+msgid "Post Max Size"
+msgstr ""
+
+#: afp/factory/_common/form/field_type/AdminPageFramework_FieldType_system.php:169
+msgid "Upload Max File Size"
+msgstr ""
+
+#: afp/factory/_common/form/field_type/AdminPageFramework_FieldType_system.php:169
+msgid "Max Execution Time"
+msgstr ""
+
+#: afp/factory/_common/form/field_type/AdminPageFramework_FieldType_system.php:169
+msgid "Max Input Vars"
+msgstr ""
+
+#: afp/factory/_common/form/field_type/AdminPageFramework_FieldType_system.php:169
+msgid "Argument Separator"
+msgstr ""
+
+#: afp/factory/_common/form/field_type/AdminPageFramework_FieldType_system.php:169
+msgid "Allow URL File Open"
+msgstr ""
+
+#: afp/factory/_common/form/field_type/AdminPageFramework_FieldType_system.php:169
+msgid "Display Errors"
+msgstr ""
+
+#: afp/factory/_common/form/field_type/AdminPageFramework_FieldType_system.php:169
+msgid "Log Errors"
+msgstr ""
+
+#: afp/factory/_common/form/field_type/AdminPageFramework_FieldType_system.php:169
+msgid "Error log location"
+msgstr ""
+
+#: afp/factory/_common/form/field_type/AdminPageFramework_FieldType_system.php:169
+msgid "Error Reporting Level"
+msgstr ""
+
+#: afp/factory/_common/form/field_type/AdminPageFramework_FieldType_system.php:169
+msgid "FSOCKOPEN"
+msgstr ""
+
+#: afp/factory/_common/form/field_type/AdminPageFramework_FieldType_system.php:169
+msgid "cURL"
+msgstr ""
+
+#: afp/factory/_common/form/field_type/AdminPageFramework_FieldType_system.php:169
+msgid "SOAP"
+msgstr ""
+
+#: afp/factory/_common/form/field_type/AdminPageFramework_FieldType_system.php:169
+msgid "SUHOSIN"
+msgstr ""
+
+#: afp/factory/_common/form/field_type/AdminPageFramework_FieldType_system.php:173
+msgid "Web Server"
+msgstr ""
+
+#: afp/factory/_common/form/field_type/AdminPageFramework_FieldType_system.php:173
+msgid "Session"
+msgstr ""
+
+#: afp/factory/_common/form/field_type/AdminPageFramework_FieldType_system.php:173
+msgid "Session Name"
+msgstr ""
+
+#: afp/factory/_common/form/field_type/AdminPageFramework_FieldType_system.php:173
+msgid "Session Cookie Path"
+msgstr ""
+
+#: afp/factory/_common/form/field_type/AdminPageFramework_FieldType_system.php:173
+msgid "Session Save Path"
+msgstr ""
+
+#: afp/factory/_common/form/field_type/AdminPageFramework_FieldType_system.php:173
+msgid "Session Use Cookies"
+msgstr ""
+
+#: afp/factory/_common/form/field_type/AdminPageFramework_FieldType_system.php:173
+msgid "Session Use Only Cookies"
+msgstr ""
+
+#. translators: you can omit translating messages in AdminPageFramework files; they don't appear in this plugin's UI.
+#: afp/factory/_common/_abstract/_model/AdminPageFramework_Message.php:57
+msgid "The options have been updated."
+msgstr ""
+
+#: afp/factory/_common/_abstract/_model/AdminPageFramework_Message.php:58
+msgid "The options have been cleared."
+msgstr ""
+
+#: afp/factory/_common/_abstract/_model/AdminPageFramework_Message.php:59
+msgid "Export"
+msgstr ""
+
+#: afp/factory/_common/_abstract/_model/AdminPageFramework_Message.php:60
+msgid "Export Options"
+msgstr ""
+
+#: afp/factory/_common/_abstract/_model/AdminPageFramework_Message.php:61
+msgid "Import"
+msgstr ""
+
+#: afp/factory/_common/_abstract/_model/AdminPageFramework_Message.php:62
+msgid "Import Options"
+msgstr ""
+
+#: afp/factory/_common/_abstract/_model/AdminPageFramework_Message.php:63
+msgid "Submit"
+msgstr ""
+
+#: afp/factory/_common/_abstract/_model/AdminPageFramework_Message.php:64
+msgid "An error occurred while uploading the import file."
+msgstr ""
+
+#. translators: 1: a file type like jpg or pdf.
+#: afp/factory/_common/_abstract/_model/AdminPageFramework_Message.php:66
+msgid "The uploaded file type is not supported: %1$s"
+msgstr ""
+
+#: afp/factory/_common/_abstract/_model/AdminPageFramework_Message.php:67
+msgid "Could not load the importing data."
+msgstr ""
+
+#: afp/factory/_common/_abstract/_model/AdminPageFramework_Message.php:68
+msgid "The uploaded file has been imported."
+msgstr ""
+
+#: afp/factory/_common/_abstract/_model/AdminPageFramework_Message.php:69
+msgid "No data could be imported."
+msgstr ""
+
+#: afp/factory/_common/_abstract/_model/AdminPageFramework_Message.php:70
+msgid "Upload Image"
+msgstr ""
+
+#: afp/factory/_common/_abstract/_model/AdminPageFramework_Message.php:71
+msgid "Use This Image"
+msgstr ""
+
+#: afp/factory/_common/_abstract/_model/AdminPageFramework_Message.php:72
+msgid "Insert from URL"
+msgstr ""
+
+#: afp/factory/_common/_abstract/_model/AdminPageFramework_Message.php:73
+msgid "Are you sure you want to reset the options?"
+msgstr ""
+
+#: afp/factory/_common/_abstract/_model/AdminPageFramework_Message.php:74
+msgid "Please confirm your action."
+msgstr ""
+
+#: afp/factory/_common/_abstract/_model/AdminPageFramework_Message.php:75
+msgid "The specified options have been deleted."
+msgstr ""
+
+#: afp/factory/_common/_abstract/_model/AdminPageFramework_Message.php:76
+msgid "A problem occurred while processing the form data. Please try again."
+msgstr ""
+
+#. translators: 1: value of php's max_input_vars setting. 2: number of input vars in present POST operation. Not used in this plugin
+#: afp/factory/_common/_abstract/_model/AdminPageFramework_Message.php:78
+msgid "Not all form fields could not be sent. Please check your server settings of PHP <code>max_input_vars</code> and consult the server administrator to increase the value. <code>max input vars</code>: %1$s. <code>$_POST</code> count: %2$s"
+msgstr ""
+
+#: afp/factory/_common/_abstract/_model/AdminPageFramework_Message.php:79
+msgid "Is it okay to send the email?"
+msgstr ""
+
+#: afp/factory/_common/_abstract/_model/AdminPageFramework_Message.php:80
+msgid "The email has been sent."
+msgstr ""
+
+#: afp/factory/_common/_abstract/_model/AdminPageFramework_Message.php:81
+msgid "The email has been scheduled."
+msgstr ""
+
+#: afp/factory/_common/_abstract/_model/AdminPageFramework_Message.php:82
+msgid "There was a problem sending the email"
+msgstr ""
+
+#: afp/factory/_common/_abstract/_model/AdminPageFramework_Message.php:83
+msgid "Title"
+msgstr ""
+
+#: afp/factory/_common/_abstract/_model/AdminPageFramework_Message.php:84
+msgid "Author"
+msgstr ""
+
+#: afp/factory/_common/_abstract/_model/AdminPageFramework_Message.php:85
+msgid "Categories"
+msgstr ""
+
+#: afp/factory/_common/_abstract/_model/AdminPageFramework_Message.php:86
+msgid "Tags"
+msgstr ""
+
+#: afp/factory/_common/_abstract/_model/AdminPageFramework_Message.php:87
+msgid "Comments"
+msgstr ""
+
+#: afp/factory/_common/_abstract/_model/AdminPageFramework_Message.php:88
+msgid "Date"
+msgstr ""
+
+#: afp/factory/_common/_abstract/_model/AdminPageFramework_Message.php:89
+msgid "Show All"
+msgstr ""
+
+#: afp/factory/_common/_abstract/_model/AdminPageFramework_Message.php:90
+msgid "Show All Authors"
+msgstr ""
+
+#: afp/factory/_common/_abstract/_model/AdminPageFramework_Message.php:91
+msgid "Thank you for creating with"
+msgstr ""
+
+#: afp/factory/_common/_abstract/_model/AdminPageFramework_Message.php:92
+msgid "and"
+msgstr ""
+
+#. translators: for settings link on plugin page
+#: afp/factory/_common/_abstract/_model/AdminPageFramework_Message.php:93
+#: index-wp-mysql-for-speed.php:170
+msgid "Settings"
+msgstr ""
+
+#: afp/factory/_common/_abstract/_model/AdminPageFramework_Message.php:94
+msgid "Manage"
+msgstr ""
+
+#: afp/factory/_common/_abstract/_model/AdminPageFramework_Message.php:95
+msgid "Select Image"
+msgstr ""
+
+#: afp/factory/_common/_abstract/_model/AdminPageFramework_Message.php:96
+msgid "Upload File"
+msgstr ""
+
+#: afp/factory/_common/_abstract/_model/AdminPageFramework_Message.php:97
+msgid "Use This File"
+msgstr ""
+
+#: afp/factory/_common/_abstract/_model/AdminPageFramework_Message.php:98
+msgid "Select File"
+msgstr ""
+
+#: afp/factory/_common/_abstract/_model/AdminPageFramework_Message.php:99
+msgid "Remove Value"
+msgstr ""
+
+#: afp/factory/_common/_abstract/_model/AdminPageFramework_Message.php:100
+msgid "Select All"
+msgstr ""
+
+#: afp/factory/_common/_abstract/_model/AdminPageFramework_Message.php:101
+msgid "Select None"
+msgstr ""
+
+#: afp/factory/_common/_abstract/_model/AdminPageFramework_Message.php:102
+msgid "No term found."
+msgstr ""
+
+#: afp/factory/_common/_abstract/_model/AdminPageFramework_Message.php:103
+msgid "Select"
+msgstr ""
+
+#: afp/factory/_common/_abstract/_model/AdminPageFramework_Message.php:104
+msgid "Insert"
+msgstr ""
+
+#: afp/factory/_common/_abstract/_model/AdminPageFramework_Message.php:105
+msgid "Use This"
+msgstr ""
+
+#: afp/factory/_common/_abstract/_model/AdminPageFramework_Message.php:106
+msgid "Return to Library"
+msgstr ""
+
+#. translators: 1: number of queries  2:seconds
+#: afp/factory/_common/_abstract/_model/AdminPageFramework_Message.php:108
+msgid "%1$s queries in %2$s seconds."
+msgstr ""
+
+#. translators: 1: number of megabytes. 2: number of megabytes. 3: percentage
+#: afp/factory/_common/_abstract/_model/AdminPageFramework_Message.php:110
+msgid "%1$s out of %2$s MB (%3$s) memory used."
+msgstr ""
+
+#. translators: 1: number of megabytes
+#: afp/factory/_common/_abstract/_model/AdminPageFramework_Message.php:112
+msgid "Peak memory usage %1$s MB."
+msgstr ""
+
+#. translators: 1: number of megabytes
+#: afp/factory/_common/_abstract/_model/AdminPageFramework_Message.php:114
+msgid "Initial memory usage  %1$s MB."
+msgstr ""
+
+#. translators: {0}: number of fields, a small integer
+#: afp/factory/_common/_abstract/_model/AdminPageFramework_Message.php:116
+msgid "The allowed maximum number of fields is {0}."
+msgstr ""
+
+#. translators: {0}: number of fields, a small integer
+#: afp/factory/_common/_abstract/_model/AdminPageFramework_Message.php:118
+msgid "The allowed minimum number of fields is {0}."
+msgstr ""
+
+#: afp/factory/_common/_abstract/_model/AdminPageFramework_Message.php:119
+msgid "Add"
+msgstr ""
+
+#: afp/factory/_common/_abstract/_model/AdminPageFramework_Message.php:120
+msgid "Remove"
+msgstr ""
+
+#. translators: {0}: number of sections, a small integer
+#: afp/factory/_common/_abstract/_model/AdminPageFramework_Message.php:122
+msgid "The allowed maximum number of sections is {0}"
+msgstr ""
+
+#. translators: {0}: number of sections, a small integer
+#: afp/factory/_common/_abstract/_model/AdminPageFramework_Message.php:124
+msgid "The allowed minimum number of sections is {0}"
+msgstr ""
+
+#: afp/factory/_common/_abstract/_model/AdminPageFramework_Message.php:125
+msgid "Add Section"
+msgstr ""
+
+#: afp/factory/_common/_abstract/_model/AdminPageFramework_Message.php:126
+msgid "Remove Section"
+msgstr ""
+
+#: afp/factory/_common/_abstract/_model/AdminPageFramework_Message.php:127
+msgid "Toggle All"
+msgstr ""
+
+#: afp/factory/_common/_abstract/_model/AdminPageFramework_Message.php:128
+msgid "Toggle all collapsible sections"
+msgstr ""
+
+#: afp/factory/_common/_abstract/_model/AdminPageFramework_Message.php:129
+msgid "Reset"
+msgstr ""
+
+#: afp/factory/_common/_abstract/_model/AdminPageFramework_Message.php:130
+msgid "Yes"
+msgstr ""
+
+#: afp/factory/_common/_abstract/_model/AdminPageFramework_Message.php:131
+msgid "No"
+msgstr ""
+
+#: afp/factory/_common/_abstract/_model/AdminPageFramework_Message.php:132
+msgid "On"
+msgstr ""
+
+#: afp/factory/_common/_abstract/_model/AdminPageFramework_Message.php:133
+msgid "Off"
+msgstr ""
+
+#: afp/factory/_common/_abstract/_model/AdminPageFramework_Message.php:134
+msgid "Enabled"
+msgstr ""
+
+#: afp/factory/_common/_abstract/_model/AdminPageFramework_Message.php:135
+msgid "Disabled"
+msgstr ""
+
+#: afp/factory/_common/_abstract/_model/AdminPageFramework_Message.php:136
+msgid "Supported"
+msgstr ""
+
+#: afp/factory/_common/_abstract/_model/AdminPageFramework_Message.php:137
+msgid "Not Supported"
+msgstr ""
+
+#: afp/factory/_common/_abstract/_model/AdminPageFramework_Message.php:138
+msgid "Functional"
+msgstr ""
+
+#: afp/factory/_common/_abstract/_model/AdminPageFramework_Message.php:139
+msgid "Not Functional"
+msgstr ""
+
+#: afp/factory/_common/_abstract/_model/AdminPageFramework_Message.php:140
+msgid "Too Long"
+msgstr ""
+
+#: afp/factory/_common/_abstract/_model/AdminPageFramework_Message.php:141
+msgid "Acceptable"
+msgstr ""
+
+#: afp/factory/_common/_abstract/_model/AdminPageFramework_Message.php:142
+msgid "No log found."
+msgstr ""
+
+#. translators: 1: method (subroutine) name in code
+#: afp/factory/_common/_abstract/_model/AdminPageFramework_Message.php:144
+msgid "The method is called too early: %1$s"
+msgstr ""
+
+#: afp/factory/_common/_abstract/_model/AdminPageFramework_Message.php:145
+msgid "Debug Info"
+msgstr ""
+
+#: afp/factory/_common/_abstract/_model/AdminPageFramework_Message.php:146
+msgid "Click here to expand to view the contents."
+msgstr ""
+
+#: afp/factory/_common/_abstract/_model/AdminPageFramework_Message.php:147
+msgid "Click here to collapse the contents."
+msgstr ""
+
+#: afp/factory/_common/_abstract/_model/AdminPageFramework_Message.php:148
+msgid "Loading..."
+msgstr ""
+
+#: afp/factory/_common/_abstract/_model/AdminPageFramework_Message.php:149
+msgid "Please enable JavaScript for better user experience."
+msgstr ""
+
+#: afp/factory/_common/_abstract/_model/AdminPageFramework_Message.php:150
+msgid "Debug"
+msgstr ""
+
+#: afp/factory/_common/_abstract/_model/AdminPageFramework_Message.php:151
+msgid "This information will be disabled when <code>WP_DEBUG</code> is set to <code>false</code> in <code>wp-config.php</code>."
+msgstr ""
+
+#: afp/factory/_common/_abstract/_model/AdminPageFramework_Message.php:152
+msgid "The ability to repeat sections is disabled."
+msgstr ""
+
+#: afp/factory/_common/_abstract/_model/AdminPageFramework_Message.php:153
+msgid "The ability to repeat fields is disabled."
+msgstr ""
+
+#: afp/factory/_common/_abstract/_model/AdminPageFramework_Message.php:154
+msgid "Warning."
+msgstr ""
+
+#: afp/factory/_common/_abstract/_model/AdminPageFramework_Message.php:155
+msgid "Submit the form."
+msgstr ""
+
+#: afp/factory/_common/_abstract/_model/AdminPageFramework_Message.php:156
+msgid "Please check this box if you want to proceed."
+msgstr ""
+
+#: afp/factory/_common/_abstract/_model/AdminPageFramework_Message.php:157
+msgid "No file is selected."
+msgstr ""
+
+#: code/admin.php:27
+msgid "This may take a few minutes. <em>Please do not navigate away from this page while you wait</em>."
+msgstr ""
+
+#. translators: settings page menu text
+#: code/admin.php:38
+msgid "Index MySQL"
+msgstr ""
+
+#: code/admin.php:52
+msgid "High-Performance Keys"
+msgstr ""
+
+#: code/admin.php:56
+msgid "Monitor Database Operations"
+msgstr ""
+
+#: code/admin.php:67
+msgid "About"
+msgstr ""
+
+#: code/admin.php:128
+msgid "Help"
+msgstr ""
+
+#. translators: 1: hyperlink to https://make.wordpress.org/cli/handbook/ with text WP-CLI
+#: code/admin.php:182
+msgid "This plugin supports %1$s. <em>Please use it if possible</em>: it avoids web server timeouts when changing keys on large tables."
+msgstr ""
+
+#: code/admin.php:184
+msgid "To learn more, type"
+msgstr ""
+
+#: code/admin.php:184
+msgid "into your command shell."
+msgstr ""
+
+#: code/admin.php:227
+msgid "click here"
+msgstr ""
+
+#. translators: 1: how to get help: made from translatable 'click here'  and 'or use the Help tab...' strings,
+#: code/admin.php:234
+msgid "For help please %1$s."
+msgstr ""
+
+#. translators: 1: embeds "For help please ..."  2: hyperlink to review page on wp.org
+#: code/admin.php:237
+msgid "For support please %1$s. If you create an issue in the support forum, please upload your diagnostic metadata, and mention the id of your upload.  Please %2$s to rate this plugin."
+msgstr ""
+
+#. translators: 1: hyperlink to online details page, including the Click Here text.
+#: code/admin.php:240
+msgid "For detailed information about this plugin's actions on your database, please %1$s."
+msgstr ""
+
+#: code/admin.php:267
+msgid "Actions"
+msgstr ""
+
+#: code/admin.php:268
+msgid "Actions you can take on your tables."
+msgstr ""
+
+#: code/admin.php:280
+msgid "Backup"
+msgstr ""
+
+#: code/admin.php:281
+msgid "This plugin modifies your WordPress database. Make a backup before you proceed."
+msgstr ""
+
+#: code/admin.php:289
+msgid "I have made a backup"
+msgstr ""
+
+#: code/admin.php:305
+msgid "Add keys"
+msgstr ""
+
+#: code/admin.php:306
+msgid "Add high-performance keys"
+msgstr ""
+
+#: code/admin.php:307
+msgid "Add Keys Now"
+msgstr ""
+
+#: code/admin.php:314
+msgid "Update keys"
+msgstr ""
+
+#: code/admin.php:315
+msgid "Update keys to this plugin's latest version"
+msgstr ""
+
+#: code/admin.php:316
+msgid "Update Keys Now"
+msgstr ""
+
+#: code/admin.php:323
+msgid "Convert keys"
+msgstr ""
+
+#: code/admin.php:324
+msgid "Convert to this plugin's high-performance keys"
+msgstr ""
+
+#: code/admin.php:325
+msgid "Convert Keys Now"
+msgstr ""
+
+#: code/admin.php:332
+msgid "Revert keys"
+msgstr ""
+
+#: code/admin.php:333
+msgid "Revert to WordPress's default keys"
+msgstr ""
+
+#: code/admin.php:334
+msgid "Revert Keys Now"
+msgstr ""
+
+#: code/admin.php:352
+#: code/cli.php:75
+msgid "Sorry, you cannot use this plugin with your version of MySQL."
+msgstr ""
+
+#: code/admin.php:353
+#: code/cli.php:76
+msgid "Your MySQL version is outdated. Please consider upgrading,"
+msgstr ""
+
+#: code/admin.php:365
+msgid "Upgrading your MySQL server version will give you better performance when you add high-performance keys. Please consider doing that before you add these keys."
+msgstr ""
+
+#: code/admin.php:441
+msgid "These database tables need upgrading to MySQL's latest table storage format, InnoDB with dynamic rows."
+msgstr ""
+
+#: code/admin.php:446
+msgid "Tables to upgrade"
+msgstr ""
+
+#: code/admin.php:460
+msgid "You have added high-performance keys to these tables. You can revert them to WordPress's standard keys."
+msgstr ""
+
+#: code/admin.php:465
+msgid "Success"
+msgstr ""
+
+#: code/admin.php:479
+msgid "You have added high-performance keys to your tables using an earlier version of this plugin. You can revert them to WordPress's standard keys, or update them to the latest high-performance keys."
+msgstr ""
+
+#: code/admin.php:485
+msgid "Keys to update"
+msgstr ""
+
+#: code/admin.php:499
+msgid "These tables have WordPress's standard keys. You can add high-performance keys to these tables to make your WordPress database faster."
+msgstr ""
+
+#: code/admin.php:506
+msgid "Keys to add"
+msgstr ""
+
+#: code/admin.php:522
+msgid "A recent WordPress update changed some keys in some tables."
+msgstr ""
+
+#: code/admin.php:523
+msgid "These tables have keys set some way other than this plugin."
+msgstr ""
+
+#: code/admin.php:524
+msgid "You can convert those tables to this plugin's latest high-performance keys or revert them to WordPress's standard keys."
+msgstr ""
+
+#: code/admin.php:531
+msgid "Keys to convert"
+msgstr ""
+
+#: code/admin.php:549
+msgid "Upgrade tables"
+msgstr ""
+
+#: code/admin.php:550
+msgid "Upgrade table storage format"
+msgstr ""
+
+#: code/admin.php:551
+msgid "Upgrade Storage Now"
+msgstr ""
+
+#: code/admin.php:600
+msgid "rows, approximately"
+msgstr ""
+
+#: code/admin.php:602
+msgid "row, approximately"
+msgstr ""
+
+#: code/admin.php:604
+msgid "no rows"
+msgstr ""
+
+#. translators: %1$s is WP-CLI hyperlink, %2s is 'wp index-mysql',  %3$s describes the function, %4$s is the cli commmand
+#: code/admin.php:672
+msgid "Using %1$s, %2$s: <code>%3$s %4$s</code>"
+msgstr ""
+
+#: code/admin.php:692
+#: code/cli.php:67
+msgid "Versions"
+msgstr ""
+
+#. translators:  1: a percentage number--50,20,10,5,2,1
+#: code/admin.php:717
+msgid "sampling %1$d%% of pageviews."
+msgstr ""
+
+#: code/admin.php:719
+msgid "We can monitor your site's use of MySQL for a few minutes to help you understand what runs slowly."
+msgstr ""
+
+#: code/admin.php:720
+msgid "To capture monitoring from your site, push the"
+msgstr ""
+
+#: code/admin.php:721
+#: code/admin.php:818
+msgid "Start Monitoring"
+msgstr ""
+
+#: code/admin.php:722
+msgid "button after choosing  a name for your monitor and the options you need."
+msgstr ""
+
+#: code/admin.php:723
+msgid "Then use your site and dashboard to do things that may be slow so the plugin can capture them."
+msgstr ""
+
+#: code/admin.php:724
+msgid "While your monitor is active, the plugin captures database activity on your site,"
+msgstr ""
+
+#: code/admin.php:725
+msgid "both yours and other users'."
+msgstr ""
+
+#: code/admin.php:726
+msgid "When the monitoring time ends, view your saved monitor to see your site's MySQL traffic and identify the slowest operations."
+msgstr ""
+
+#: code/admin.php:732
+msgid "Monitoring"
+msgstr ""
+
+#: code/admin.php:749
+msgid "Monitor Dashboard and Site"
+msgstr ""
+
+#: code/admin.php:750
+msgid "Monitor Site Only"
+msgstr ""
+
+#: code/admin.php:751
+msgid "Monitor Dashboard Only"
+msgstr ""
+
+#: code/admin.php:758
+msgid "for"
+msgstr ""
+
+#: code/admin.php:771
+msgid "minutes"
+msgstr ""
+
+#: code/admin.php:780
+msgid "capturing all pageviews."
+msgstr ""
+
+#: code/admin.php:789
+msgid "If your site is very busy, chooose a lower sample rate."
+msgstr ""
+
+#: code/admin.php:795
+msgid "Save into"
+msgstr ""
+
+#: code/admin.php:809
+msgid "Monitoring stops automatically."
+msgstr ""
+
+#: code/admin.php:837
+msgid "Saved monitors"
+msgstr ""
+
+#: code/admin.php:838
+msgid "No monitors are saved. "
+msgstr ""
+
+#: code/admin.php:843
+msgid "Monitors"
+msgstr ""
+
+#: code/admin.php:868
+#: code/admin.php:871
+msgid "Delete"
+msgstr ""
+
+#: code/admin.php:907
+msgid "Upgrading your MySQL server version will give you better performance when you add high-performance keys."
+msgstr ""
+
+#: code/admin.php:929
+msgid "Diagnostic data"
+msgstr ""
+
+#: code/admin.php:930
+msgid "With your permission we upload metadata about your WordPress site to our plugin's servers. We cannot identify you or your website from it, and we never sell nor give it to any third party. We use it only to improve this plugin."
+msgstr ""
+
+#: code/admin.php:938
+msgid "Upload id"
+msgstr ""
+
+#: code/admin.php:939
+msgid "If you create an issue or contact the authors, please mention this upload id."
+msgstr ""
+
+#: code/admin.php:951
+#: code/admin.php:958
+msgid "Upload metadata"
+msgstr ""
+
+#: code/admin.php:982
+msgid "Something went wrong inspecting your database"
+msgstr ""
+
+#: code/admin.php:1018
+msgid "Upload "
+msgstr ""
+
+#: code/admin.php:1021
+msgid "Upload this monitor to the plugin's servers"
+msgstr ""
+
+#: code/admin.php:1031
+msgid "this saved monitor to the plugin's servers using upload id"
+msgstr ""
+
+#: code/admin.php:1063
+#: code/admin.php:1273
+msgid "Please provide an upload id."
+msgstr ""
+
+#: code/admin.php:1065
+#: code/admin.php:1201
+#: code/admin.php:1251
+#: code/admin.php:1278
+msgid "Make corrections and try again."
+msgstr ""
+
+#: code/admin.php:1122
+#: code/cli.php:363
+msgid "Metadata uploaded to id "
+msgstr ""
+
+#. translators: 1: name of captured monitor.  2: upload id
+#: code/admin.php:1129
+msgid "Monitor %1$s uploaded to id %2$s"
+msgstr ""
+
+#: code/admin.php:1175
+msgid "Please acknowledge that you have made a backup."
+msgstr ""
+
+#: code/admin.php:1179
+msgid "Please select at least one table."
+msgstr ""
+
+#. translators: name of a captured monitor object
+#: code/admin.php:1231
+msgid "Monitor %$1s deleted."
+msgstr ""
+
+#: code/admin.php:1245
+msgid "Letters and numbers only for your monitor name, please."
+msgstr ""
+
+#: code/cli.php:73
+msgid "Sorry, this plugin's version is not compatible with your WordPress database version."
+msgstr ""
+
+#: code/cli.php:82
+msgid "Upgrading your MySQL server to a later version will give you better performance when you add high-performance keys."
+msgstr ""
+
+#: code/cli.php:97
+msgid "Database tables need upgrading to MySQL's latest table storage format, InnoDB with dynamic rows."
+msgstr ""
+
+#: code/cli.php:100
+msgid "Add or upgrade high-performance keys to make your WordPress database faster."
+msgstr ""
+
+#: code/cli.php:103
+msgid "You set some keys from outside this plugin. You can convert them to this plugin's high-performance keys."
+msgstr ""
+
+#: code/cli.php:105
+#: code/cli.php:110
+msgid "Or, you can revert them to WordPress's standard keys."
+msgstr ""
+
+#: code/cli.php:108
+msgid "You added high-performance keys using an earlier version of this plugin. You can update them to the latest high-performance keys."
+msgstr ""
+
+#: code/cli.php:113
+msgid "You successfully added high-performance keys."
+msgstr ""
+
+#: code/cli.php:114
+msgid "You can revert them to WordPress's standard keys."
+msgstr ""
+
+#: code/cli.php:129
+msgid "Use this command:"
+msgstr ""
+
+#: code/cli.php:234
+msgid "These tables are not found or not eligible to"
+msgstr ""
+
+#: code/cli.php:238
+msgid "No tables are eligible to"
+msgstr ""
+
+#: code/cli.php:260
+msgid "MySQL statement"
+msgid_plural "MySQL statements"
+msgstr[0] ""
+msgstr[1] ""
+
+#: code/cli.php:263
+msgid "complete."
+msgstr ""
+
+#. translators: 1: number of tables processed
+#: code/imsfdb.php:233
+msgid "High-performance keys added to %1$d tables."
+msgstr ""
+
+#. translators: 1: number of tables processed
+#: code/imsfdb.php:237
+msgid "Keys on %1$d tables reverted to WordPress standard."
+msgstr ""
+
+#. translators: 1: count of tables upgraded from MyISAM to InnoDB
+#: code/imsfdb.php:580
+msgid "%1$d tables upgraded"
+msgstr ""
+
+#. translators: 1: hyperlink to tools page for this plugin. 2: the translated word "add" or "update"
+#: code/notice.php:25
+msgid "Use the Index WP MySQL For Speed plugin <a href=\"%1$s\">to %2$s your high-performance keys</a>."
+msgstr ""
+
+#: code/notice.php:29
+msgid "add"
+msgstr ""
+
+#. translators: 1: hyperlink to tools page for this plugin.
+#: code/notice.php:34
+msgid "Use the Index WP MySQL For Speed plugin <a href=\"%1$s\">to update your high-performance keys</a> for the latest WordPress version."
+msgstr ""
+
+#: code/notice.php:38
+msgid "update"
+msgstr ""
+
+#: code/querymoncontrol.php:21
+msgid "Monitoring dashboard and site"
+msgstr ""
+
+#: code/querymoncontrol.php:23
+msgid "Monitoring site only"
+msgstr ""
+
+#: code/querymoncontrol.php:25
+msgid "Monitoring dashboard only"
+msgstr ""
+
+#. translators: 1: "Monitoring dashboard and site", etc. 2: number of minutes  3: end time  4: percentage 5: monitor name
+#: code/querymoncontrol.php:30
+msgid "%1$s for %2$d minutes until %3$s. Random sampling %4$d%% of page views. Monitoring output saved into %5$s"
+msgstr ""
+
+#. translators: 1: "Monitoring dashboard and site", etc. 2: number of minutes  3: end time  4: monitor name
+#: code/querymoncontrol.php:34
+msgid "%1$s for %2$d minutes until %3$s. Monitoring output saved into %4$s"
+msgstr ""
+
+#: code/rendermonitor.php:109
+msgid "queries captured."
+msgstr ""
+
+#: code/rendermonitor.php:181
+msgid "Uptime"
+msgstr ""
+
+#: code/rendermonitor.php:187
+msgid "RAM:"
+msgstr ""
+
+#: code/rendermonitor.php:194
+msgid "Threads:"
+msgstr ""
+
+#: code/rendermonitor.php:198
+msgid "Version:"
+msgstr ""
+
+#: code/rendermonitor.php:209
+msgid "Connections/s"
+msgstr ""
+
+#: code/rendermonitor.php:212
+msgid "Failed connections/s"
+msgstr ""
+
+#: code/rendermonitor.php:219
+msgid "Abrupt disconnections/s"
+msgstr ""
+
+#: code/rendermonitor.php:225
+msgid "Queries/s"
+msgstr ""
+
+#: code/rendermonitor.php:232
+msgid "Net:"
+msgstr ""
+
+#: code/rendermonitor.php:234
+msgid "received"
+msgstr ""
+
+#: code/rendermonitor.php:236
+msgid "sent"
+msgstr ""
+
+#: code/rendermonitor.php:241
+msgid "IO:"
+msgstr ""
+
+#: code/rendermonitor.php:243
+msgid "read"
+msgstr ""
+
+#: code/rendermonitor.php:245
+msgid "rows"
+msgstr ""
+
+#: code/rendermonitor.php:249
+msgid "fetched"
+msgstr ""
+
+#: code/rendermonitor.php:254
+msgid "written"
+msgstr ""
+
+#: code/rendermonitor.php:259
+msgid "retrieved"
+msgstr ""
+
+#: code/rendermonitor.php:264
+msgid "stored"
+msgstr ""

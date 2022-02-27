@@ -53,6 +53,7 @@ class Imfs_AdminPageFramework_Message {
         return isset($this->aDefaults[$sPropertyName]) ? $this->aDefaults[$sPropertyName] : $sPropertyName;
     }
     private function ___doDummy() {
+        /* translators: you can omit translating messages in AdminPageFramework files; they don't appear in this plugin's UI. */
         __('The options have been updated.', 'index-wp-mysql-for-speed');
         __('The options have been cleared.', 'index-wp-mysql-for-speed');
         __('Export', 'index-wp-mysql-for-speed');
@@ -61,6 +62,7 @@ class Imfs_AdminPageFramework_Message {
         __('Import Options', 'index-wp-mysql-for-speed');
         __('Submit', 'index-wp-mysql-for-speed');
         __('An error occurred while uploading the import file.', 'index-wp-mysql-for-speed');
+      /* translators: 1: a file type like jpg or pdf.  */
         __('The uploaded file type is not supported: %1$s', 'index-wp-mysql-for-speed');
         __('Could not load the importing data.', 'index-wp-mysql-for-speed');
         __('The uploaded file has been imported.', 'index-wp-mysql-for-speed');
@@ -72,6 +74,7 @@ class Imfs_AdminPageFramework_Message {
         __('Please confirm your action.', 'index-wp-mysql-for-speed');
         __('The specified options have been deleted.', 'index-wp-mysql-for-speed');
         __('A problem occurred while processing the form data. Please try again.', 'index-wp-mysql-for-speed');
+      /* translators: 1: value of php's max_input_vars setting. 2: number of input vars in present POST operation. Not used in this plugin */
         __('Not all form fields could not be sent. Please check your server settings of PHP <code>max_input_vars</code> and consult the server administrator to increase the value. <code>max input vars</code>: %1$s. <code>$_POST</code> count: %2$s', 'index-wp-mysql-for-speed');
         __('Is it okay to send the email?', 'index-wp-mysql-for-speed');
         __('The email has been sent.', 'index-wp-mysql-for-speed');
@@ -101,15 +104,23 @@ class Imfs_AdminPageFramework_Message {
         __('Insert', 'index-wp-mysql-for-speed');
         __('Use This', 'index-wp-mysql-for-speed');
         __('Return to Library', 'index-wp-mysql-for-speed');
+      /* translators: 1: number of queries  2:seconds */
         __('%1$s queries in %2$s seconds.', 'index-wp-mysql-for-speed');
+      /* translators: 1: number of megabytes. 2: number of megabytes. 3: percentage */
         __('%1$s out of %2$s MB (%3$s) memory used.', 'index-wp-mysql-for-speed');
+      /* translators: 1: number of megabytes */
         __('Peak memory usage %1$s MB.', 'index-wp-mysql-for-speed');
+      /* translators: 1: number of megabytes */
         __('Initial memory usage  %1$s MB.', 'index-wp-mysql-for-speed');
+      /* translators: {0}: number of fields, a small integer */
         __('The allowed maximum number of fields is {0}.', 'index-wp-mysql-for-speed');
+      /* translators: {0}: number of fields, a small integer */
         __('The allowed minimum number of fields is {0}.', 'index-wp-mysql-for-speed');
         __('Add', 'index-wp-mysql-for-speed');
         __('Remove', 'index-wp-mysql-for-speed');
+      /* translators: {0}: number of sections, a small integer */
         __('The allowed maximum number of sections is {0}', 'index-wp-mysql-for-speed');
+      /* translators: {0}: number of sections, a small integer */
         __('The allowed minimum number of sections is {0}', 'index-wp-mysql-for-speed');
         __('Add Section', 'index-wp-mysql-for-speed');
         __('Remove Section', 'index-wp-mysql-for-speed');
@@ -129,6 +140,7 @@ class Imfs_AdminPageFramework_Message {
         __('Too Long', 'index-wp-mysql-for-speed');
         __('Acceptable', 'index-wp-mysql-for-speed');
         __('No log found.', 'index-wp-mysql-for-speed');
+      /* translators: 1: method (subroutine) name in code */
         __('The method is called too early: %1$s', 'index-wp-mysql-for-speed');
         __('Debug Info', 'index-wp-mysql-for-speed');
         __('Click here to expand to view the contents.', 'index-wp-mysql-for-speed');

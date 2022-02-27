@@ -62,6 +62,7 @@ class Imfs_AdminPageFramework_FieldType_system extends Imfs_AdminPageFramework_F
         }
         $_aBrowser = @ini_get('browscap') ? get_browser($_SERVER['HTTP_USER_AGENT'], true) : array();
         unset($_aBrowser['browser_name_regex']);
+        /* translators: you can omit translating messages in AdminPageFramework files; they don't appear in this plugin's UI. */
         return empty($_aBrowser) ? __('No browser information found.', 'index-wp-mysql-for-speed') : $_aBrowser;
     }
     private function ___getErrorLogByType($sType, $bGenerateInfo = true) {
