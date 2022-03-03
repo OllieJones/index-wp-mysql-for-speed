@@ -143,19 +143,10 @@ function index_wp_mysql_for_speed_activate() {
 }
 
 function index_wp_mysql_for_speed_deactivate() {
-  /* clean up options and transients */
-  global $wpdb;
-  delete_option( 'ImfsPage' );
-  $q  = "SELECT option_name FROM {$wpdb->options} WHERE option_name LIKE '" . index_wp_mysql_for_speed_monitor . "%'";
-  $rs = $wpdb->get_results( $q );
-  foreach ( $rs as $r ) {
-    delete_option( $r->option_name );
-  }
-  $q  = "SELECT option_name FROM {$wpdb->options} WHERE option_name LIKE '_transient_" . index_wp_mysql_for_speed_monitor . "%'";
-  $rs = $wpdb->get_results( $q );
-  foreach ( $rs as $r ) {
-    delete_transient( $r->option_name );
-  }
+  /* clean up emphemeral options */
+  delete_option( 'imfsQueryMonitor' );
+  delete_option( 'imfsQueryMonitornextMonitorUpdate' );
+  delete_option( 'imfsQueryMonitorGather' );
 }
 
 /**
