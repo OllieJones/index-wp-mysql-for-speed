@@ -434,7 +434,7 @@ END;
       return '';
     }
     $s        = substr( $s, 3 );
-    $stashNum = intval( substr( $s, 0, strlen( $s ) - 3 ) );
+    $stashNum = substr( $s, 0, strlen( $s ) - 3 ) + 0;
     if ( $stashNum >= count( $this->stash ) ) {
       return '';
     }

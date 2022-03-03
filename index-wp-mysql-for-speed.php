@@ -34,7 +34,6 @@ define( 'index_mysql_for_speed_inception_wp_db_version', 49752);
 
 /* set up some handy globals */
 define( 'index_wp_mysql_for_speed_PLUGIN_NAME', trim( dirname( plugin_basename( __FILE__ ) ), '/' ) );
-define( 'index_wp_mysql_for_speed_domain', index_wp_mysql_for_speed_PLUGIN_NAME );
 define( 'index_wp_mysql_for_speed_stats_endpoint', $target = 'https://lit-mesa-75588.herokuapp.com/imfsstats' );
 define( 'index_wp_mysql_for_speed_monitor', 'imfsQueryMonitor' );
 define( 'index_wp_mysql_for_speed_querytag', '*imfs-query-tag*' );
@@ -167,7 +166,8 @@ function index_wp_mysql_for_speed_deactivate() {
  * @return array
  */
 function index_wp_mysql_for_speed_action_link( $actions ) {
-  $name    = __( "Settings", index_wp_mysql_for_speed_domain );
+  /* translators: for settings link on plugin page */
+  $name    = __( "Settings", 'index-wp-mysql-for-speed' );
   $mylinks = [
     '<a href="' . admin_url( 'tools.php?page=imfs_settings' ) . '">' . $name . '</a>',
   ];

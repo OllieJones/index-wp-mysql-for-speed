@@ -64,7 +64,7 @@ class ImfsMonitor {
       $this->storeGathered( $optionName, $uploads, $this->gatherDelimiter, $this->queryGatherSizeLimit );
     }
 
-    $nextMonitorUpdate = intval( get_option( index_wp_mysql_for_speed_monitor . 'nextMonitorUpdate' ) );
+    $nextMonitorUpdate = get_option( index_wp_mysql_for_speed_monitor . 'nextMonitorUpdate' ) + 0;
     $now               = time();
     if ( $now > $nextMonitorUpdate ) {
       $this->processGatheredQueries();

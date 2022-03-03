@@ -89,15 +89,14 @@ class renderMonitor {
     $c      = $this->classPrefix;
     $times  = $this->capturedQuerySummary();
     $dbSumm = $this->dbStatusSummary();
-    $res    = <<<END
+
+    return <<<END
     <div class="$c capture-header">
 		<h1 class="$c h1">$this->monitor</h1>
 		<div class="$c top time">$times</div>
 		<div class="$c top summary">$dbSumm</div>
     </div>
 END;
-
-    return $res;
   }
 
   public function capturedQuerySummary() {
@@ -589,8 +588,8 @@ END;
       $shortened = $parser->getShortened();
       $traceback = $query->c;
       $traceback = preg_replace( '/\s+/', '', $traceback );
-      if ( strlen( $traceback ) > 140 ) {
-        $traceback = substr( $traceback, 0, 80 ) . '...' . substr( $traceback, - 87 );
+      if ( strlen( $traceback ) > 240 ) {
+        $traceback = substr( $traceback, 0, 120 ) . '...' . substr( $traceback, - 117 );
       }
 
       $q = [
@@ -664,7 +663,7 @@ END;
       $res['ram'] = $status->Memory_used_state;
     }
     if ( $status->Threads_running_state ) {
-      $res['threads'] = $status->Threads_running_state;
+      $res['threads'] = $status->Threads_running_state + 0;
     }
     $failedConnections = $this->getFailed_connections( $status );
     $goodConnections   = ( isset( $status->Connections ) ? $status->Connections : 0 ) - $failedConnections;

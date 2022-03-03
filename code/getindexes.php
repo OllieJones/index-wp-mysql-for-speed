@@ -1,6 +1,6 @@
 <?php
 
-class imfsGetIndexes {
+class ImfsGetIndexes {
 
   public static $imfsStandardIndexes;
 
@@ -14,11 +14,11 @@ class imfsGetIndexes {
    */
   static function getIndexableTables( $unconstrained ) {
     $tables = [];
-    $x      = imfsGetIndexes::getStandardIndexes( $unconstrained );
+    $x      = ImfsGetIndexes::getStandardIndexes( $unconstrained );
     foreach ( $x as $table => $indexes ) {
       $tables[ $table ] = 1;
     }
-    $x = imfsGetIndexes::getHighPerformanceIndexes( $unconstrained );
+    $x = ImfsGetIndexes::getHighPerformanceIndexes( $unconstrained );
     foreach ( $x as $table => $indexes ) {
       $tables[ $table ] = 1;
     }
@@ -40,7 +40,7 @@ class imfsGetIndexes {
   static function getStandardIndexes( $unconstrained, $version = 51917 ) {
     /* these are WordPress's standard indexes for database version 51917 and before.
      * see the end of this file for their definitions */
-    return imfsGetIndexes::$imfsStandardIndexes;
+    return ImfsGetIndexes::$imfsStandardIndexes;
   }
 
   /**
@@ -53,10 +53,10 @@ class imfsGetIndexes {
    */
   static function getHighPerformanceIndexes( $unconstrained, $version = 1.4 ) {
     if ( $version === 1.4 ) {
-      return imfsGetIndexes::getHighPerformanceIndexes1_4( $unconstrained );
+      return ImfsGetIndexes::getHighPerformanceIndexes1_4( $unconstrained );
     }
     if ( ! isset( $version ) || $version <= 1.3 ) {
-      return imfsGetIndexes::getHighPerformanceIndexes1_3( $unconstrained );
+      return ImfsGetIndexes::getHighPerformanceIndexes1_3( $unconstrained );
     }
 
     throw new ImfsException( "unknown plugin version when retrieving indexing instructions" . $version );
@@ -249,8 +249,8 @@ class imfsGetIndexes {
       ],
       /* the target indexes for previous version are the same as the standard indexes here,
        * because we did not reindex these tables at all in the previous version. */
-      'commentmeta' => imfsGetIndexes::$imfsStandardIndexes['commentmeta'],
-      "users"       => imfsGetIndexes::$imfsStandardIndexes['users'],
+      'commentmeta' => ImfsGetIndexes::$imfsStandardIndexes['commentmeta'],
+      "users"       => ImfsGetIndexes::$imfsStandardIndexes['users'],
     ];
 
     /* These are the Barracuda-dependent (unprefixed) indexes
@@ -313,7 +313,7 @@ class imfsGetIndexes {
   }
 }
 
-imfsGetIndexes::$imfsStandardIndexes = [
+ImfsGetIndexes::$imfsStandardIndexes = [
   'postmeta'    => [
     "PRIMARY KEY" => "ADD PRIMARY KEY (meta_id)",
     "post_id"     => "ADD KEY post_id (post_id)",

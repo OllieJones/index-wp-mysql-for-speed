@@ -16,7 +16,6 @@ class ImfsPage extends Imfs_AdminPageFramework {
    */
   public $unconstrained = false;
   private $wpDbUpgrading = false;
-  private $pluginUpgrading = false;
   private $db;
   private $dontNavigate;
   private $tabSuffix;
@@ -589,12 +588,12 @@ class ImfsPage extends Imfs_AdminPageFramework {
     $tableList = [];
     $prefix    = $prefixed ? '' : $wpdb->prefix;
     foreach ( $tablesToRekey as $tbl ) {
-      $unprefixed = ImfsStripPrefix( $tbl );
+      $unprefixed = ImfsQueries::stripPrefix( $tbl );
       $rowcount   = - 1;
-      if ( array_key_exists( $tbl, $this->db->stats[1] ) ) {
-        $rowcount = $this->db->stats[1][ $tbl ]->count;
-      } else if ( array_key_exists( $unprefixed, $this->db->stats[1] ) ) {
-        $rowcount = $this->db->stats[1][ $unprefixed ]->count;
+      if ( array_key_exists( $tbl, $this->db->tableCounts ) ) {
+        $rowcount = $this->db->tableCounts[ $tbl ]->count;
+      } else if ( array_key_exists( $unprefixed, $this->db->tableCounts ) ) {
+        $rowcount = $this->db->tableCounts[ $unprefixed ]->count;
       }
       if ( $rowcount > 1 ) {
         $rowcount   = number_format_i18n( $rowcount );
@@ -940,7 +939,7 @@ class ImfsPage extends Imfs_AdminPageFramework {
         'label'    => __( 'If you create an issue or contact the authors, please mention this upload id.', 'index-wp-mysql-for-speed' ),
         'type'     => 'text',
         'save'     => true,
-        'default'  => imfsRandomString( 8 ),
+        'default'  => ImfsQueries::getRandomString( 8 ),
         'class'    => [
           'fieldrow' => 'randomid',
         ],
@@ -1006,7 +1005,7 @@ class ImfsPage extends Imfs_AdminPageFramework {
 
   private function populate_monitor_fields( $monitor ) {
 
-    $uploadId = Imfs_AdminPageFramework::getOption( get_class( $this ), 'uploadId', imfsRandomString( 8 ) );
+    $uploadId = Imfs_AdminPageFramework::getOption( get_class( $this ), 'uploadId', ImfsQueries::getRandomString( 8 ) );
     $this->addSettingFields(
       [
         'field_id' => 'monitor_actions',
@@ -1099,7 +1098,7 @@ class ImfsPage extends Imfs_AdminPageFramework {
           $this->setSettingNotice( $message, 'updated' );
           break;
         case 'upgrade_now':
-          $msg = $this->db->upgradeStorageEngine( $this->listFromCheckboxes( $inputs['upgrade'] ) );
+          $msg = $this->db->upgradeTableStorageEngines( $this->listFromCheckboxes( $inputs['upgrade'] ) );
           $this->setSettingNotice( $msg, 'updated' );
           break;
         case 'enable_now':

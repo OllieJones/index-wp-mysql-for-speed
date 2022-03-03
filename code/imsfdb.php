@@ -8,10 +8,9 @@ class ImfsDb {
   public $canReindex = false;
   /** @var int 1 if we have Barracuda, 0 if we have Antelope */
   public $unconstrained;
-  public $queries;
   public $messages = [];
   public $semver;
-  public $stats;
+  public $tableCounts;
   public $oldEngineTables;
   public $newEngineTables;
   public $timings;
@@ -21,6 +20,10 @@ class ImfsDb {
   private $indexStopList = [ 'woo_' ];
   private $pluginOldVersion;
   private $pluginVersion;
+
+  private $indexQueryCache = [];
+  /** @var int the time in seconds allowed for each ALTER operation */
+  private $scriptTimeLimit = 600;
 
   /**
    * @param float $pluginVersion
@@ -40,22 +43,21 @@ class ImfsDb {
     if ( ! $this->initialized ) {
       $this->initialized   = true;
       $this->timings       = [];
-      $this->queries       = getQueries();
-      $this->semver        = getMySQLVersion();
+      $this->semver        = ImfsQueries::getMySQLVersion();
       $this->canReindex    = $this->semver->canreindex;
       $this->unconstrained = $this->semver->unconstrained;
 
       if ( $this->canReindex ) {
-        $this->stats     = $this->getStats();
-        $oldEngineTables = [];
-        $newEngineTables = [];
+        $this->tableCounts  = $this->getTableCounts();
+        $this->tableFormats = $this->getTableFormats();
+        $oldEngineTables    = [];
+        $newEngineTables    = [];
         /* make sure we only upgrade the engine on WordPress's own tables */
         $wpTables = array_flip( $wpdb->tables( 'blog', true ) );
         if ( is_main_site() ) {
           $wpTables = $wpTables + array_flip( $wpdb->tables( 'global', true ) );
         }
-        $tablesData = $this->stats[2];
-        foreach ( $tablesData as $name => $info ) {
+        foreach ( $this->tableFormats as $name => $info ) {
           $activeTable = false;
           if ( isset( $wpTables[ $name ] ) ) {
             $activeTable = true;
@@ -87,23 +89,12 @@ class ImfsDb {
     }
   }
 
-  /** Fetch server status data
-   * @return array server information
-   * @throws ImfsException
-   */
-  public function getStats() {
+  private function getTableCounts() {
     global $wpdb;
     $wpdb->flush();
-    $output  = [];
-    $dbstats = $this->queries['dbstats'];
-    foreach ( $dbstats as $q ) {
-      $results  = $this->get_results( $q );
-      $output[] = $results;
-    }
-    $results  = $this->getInnodbMetrics();
-    $output[] = $results;
+    $query = ImfsQueries::getTableCountsQuery();
 
-    return $output;
+    return $this->get_results( $query );
   }
 
   /** run a SELECT
@@ -153,26 +144,52 @@ class ImfsDb {
     return $q . '/*' . index_wp_mysql_for_speed_querytag . rand( 0, 999999999 ) . '*/';
   }
 
-  private function getInnodbMetrics() {
+  private function getTableFormats() {
     global $wpdb;
-    $suppressing = $wpdb->suppress_errors( true );
-    try {
-      $r = $this->get_results( $this->queries['innodb_metrics'][0], false, OBJECT );
-      if ( is_array( $r ) && count( $r ) === 1 && $r[0]->num > 0 ) {
-        $r = $this->get_results( $this->queries['innodb_metrics'][1], false, OBJECT );
-        if ( is_array( $r ) && count( $r ) === 1 && $r[0]->num == 0 ) {
-          return $this->get_results( $this->queries['innodb_metrics'][2] );
-        } else {
-          return [
-            (object) [
-              "Variable_name" => "INNODB_METRICS",
-              "Value"         => "cannot read: user lacks PROCESS privilege",
-            ],
-          ];
+    $wpdb->flush();
+    $query = ImfsQueries::getTableFormatsQuery();
 
+    return $this->get_results( $query );
+  }
+
+  function getTableStats() {
+    return $this->get_results( ImfsQueries::getTableStatsQuery() );
+  }
+
+  function getVariables() {
+    return $this->get_results( "SHOW GLOBAL VARIABLES" );
+  }
+
+  function getStatus() {
+    return $this->get_results( "SHOW GLOBAL STATUS" );
+  }
+
+  function getInnodbMetrics() {
+    global $wpdb;
+    $result      = [];
+    $suppressing = $wpdb->suppress_errors( true );
+    $queries     = ImfsQueries::getInnoDbMetricsQueries();
+    try {
+      $r = $this->get_results( $queries[0], false, OBJECT );
+      if ( is_array( $r ) && count( $r ) === 1 && $r[0]->num > 0 ) {
+        $r = $this->get_results( $queries[1], false, OBJECT );
+        if ( is_array( $r ) ) {
+          if ( count( $r ) === 1 ) {
+            if ( $r[0]->num == 0 ) {
+              $result = $this->get_results( $queries[2] );
+            } else {
+              $result = [
+                (object) [
+                  "Variable_name" => "INNODB_METRICS",
+                  "Value"         => "cannot read: user lacks PROCESS privilege",
+                ],
+              ];
+
+            }
+          }
         }
       } else {
-        return [
+        $result = [
           (object) [
             "Variable_name" => "INNODB_METRICS",
             "Value"         => "cannot read: not present on this server version",
@@ -182,7 +199,7 @@ class ImfsDb {
 
     } catch ( ImfsException $ex ) {
       /* this INNODB_METRICS lookup sometimes fails */
-      return [
+      $result = [
         (object) [
           "Variable_name" => "INNODB_METRICS",
           "Value"         => $ex->getMessage(),
@@ -191,6 +208,8 @@ class ImfsDb {
     } finally {
       $wpdb->suppress_errors( $suppressing );
     }
+
+    return $result;
   }
 
   /**
@@ -203,7 +222,9 @@ class ImfsDb {
    *
    */
   public function rekeyTables( $targetAction, array $tables, $version, $alreadyPrefixed = false ) {
-    $count = 0;
+    /* changing indexes: get rid of the cache showing present indexes */
+    $this->indexQueryCache = [];
+    $count                 = 0;
     if ( count( $tables ) > 0 ) {
       foreach ( $tables as $name ) {
         $this->rekeyTable( $targetAction, $name, $version, $alreadyPrefixed );
@@ -213,10 +234,12 @@ class ImfsDb {
     $msg = '';
     switch ( $targetAction ) {
       case 1:
-        $msg = __( 'High-performance keys added to %d tables.', index_wp_mysql_for_speed_domain );
+        /* translators: 1: number of tables processed */
+        $msg = __( 'High-performance keys added to %1$d tables.', 'index-wp-mysql-for-speed' );
         break;
       case 0:
-        $msg = __( 'Keys on %d tables reverted to WordPress standard.', index_wp_mysql_for_speed_domain );
+        /* translators: 1: number of tables processed */
+        $msg = __( 'Keys on %1$d tables reverted to WordPress standard.', 'index-wp-mysql-for-speed' );
         break;
     }
 
@@ -234,7 +257,7 @@ class ImfsDb {
   public function rekeyTable( $targetAction, $name, $version, $alreadyPrefixed = false ) {
     global $wpdb;
 
-    $unprefixedName = $alreadyPrefixed ? ImfsStripPrefix( $name ) : $name;
+    $unprefixedName = $alreadyPrefixed ? ImfsQueries::stripPrefix( $name ) : $name;
     $prefixedName   = $alreadyPrefixed ? $name : $wpdb->prefix . $name;
 
     $actions = $this->getConversionList( $targetAction, $unprefixedName, $version );
@@ -244,7 +267,7 @@ class ImfsDb {
     }
 
     $q = 'ALTER TABLE ' . $prefixedName . ' ' . implode( ', ', $actions );
-    set_time_limit( 120 );
+    set_time_limit( $this->scriptTimeLimit );
     $this->query( $q, true );
   }
 
@@ -258,8 +281,8 @@ class ImfsDb {
    */
   public function getConversionList( $targetState, $name, $version ) {
     $target  = $targetState === 0
-      ? imfsGetIndexes::getStandardIndexes( $this->unconstrained )
-      : imfsGetIndexes::getHighPerformanceIndexes( $this->unconstrained, $version );
+      ? ImfsGetIndexes::getStandardIndexes( $this->unconstrained )
+      : ImfsGetIndexes::getHighPerformanceIndexes( $this->unconstrained, $version );
     $target  = array_key_exists( $name, $target ) ? $target[ $name ] : [];
     $current = $this->getKeyDDL( $name );
 
@@ -325,9 +348,15 @@ class ImfsDb {
       $name = $wpdb->prefix . $name;
     }
 
-    $stmt = $wpdb->prepare( $this->queries['indexes'], $name );
+    if ( array_key_exists( $name, $this->indexQueryCache ) ) {
+      return $this->indexQueryCache[ $name ];
+    }
 
-    return $this->get_results( $stmt );
+    $stmt                           = $wpdb->prepare( ImfsQueries::getTableIndexesQuery(), $name );
+    $result                         = $this->get_results( $stmt );
+    $this->indexQueryCache[ $name ] = $result;
+
+    return $result;
   }
 
   /** run a query*
@@ -501,7 +530,7 @@ class ImfsDb {
       }
     }
     /* match to the tables we know how to reindex */
-    $allTables = imfsGetIndexes::getIndexableTables( $this->unconstrained );
+    $allTables = ImfsGetIndexes::getIndexableTables( $this->unconstrained );
     $tables    = [];
     foreach ( $allTables as $table ) {
       if ( in_array( $table, $avail ) ) {
@@ -541,7 +570,10 @@ class ImfsDb {
    * @return string
    * @throws ImfsException
    */
-  public function upgradeStorageEngine( array $list ) {
+  public function upgradeTableStorageEngines( array $list ) {
+    /* reworking tables; flush any index cache */
+    $this->indexQueryCache = [];
+
     $counter = 0;
     try {
       $this->lock( $list, true );
@@ -549,7 +581,8 @@ class ImfsDb {
         $this->upgradeTableStorageEngine( $table );
         $counter ++;
       }
-      $msg = __( '%d tables upgraded', index_wp_mysql_for_speed_domain );
+      /* translators: 1: count of tables upgraded from MyISAM to InnoDB */
+      $msg = __( '%1$d tables upgraded', 'index-wp-mysql-for-speed' );
     } catch ( ImfsException $ex ) {
       $msg = implode( ', ', $this->clearMessages() );
       throw ( $ex );
@@ -618,7 +651,7 @@ class ImfsDb {
    * @throws ImfsException
    */
   public function upgradeTableStorageEngine( $table ) {
-    set_time_limit( 120 );
+    set_time_limit( $this->scriptTimeLimit );
     $sql = 'ALTER TABLE ' . $table . ' ENGINE=InnoDb, ROW_FORMAT=DYNAMIC';
     $this->query( $sql, true );
 

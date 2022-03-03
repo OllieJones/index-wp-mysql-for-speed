@@ -30,10 +30,10 @@ function getGlobalStatus( $prior = false ) {
     $key = $row[0];
     $val = $row[1];
     if ( is_numeric( $val ) ) {
-      $val      = intval( $val );
+      $val      = $val + 0;
       $priorVal = is_array( $prior ) && isset( $prior[ $key ] ) ? $prior[ $key ] : 0;
       if ( is_array( $prior ) && is_numeric( $priorVal ) ) {
-        $val = $val - intval( $priorVal );
+        $val = $val - $priorVal + 0;
       }
     }
     if ( $val !== 0 ) {

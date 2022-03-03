@@ -36,7 +36,7 @@ class ImsfCli extends WP_CLI_Command {
    */
   function version( $args, $assoc_args ) {
     $this->setupCliEnvironment( $args, $assoc_args );
-    $wpDescription = imfsToResultSet( imfsGetWpDescription( $this->db ) );
+    $wpDescription = ImfsQueries::toResultSet( ImfsQueries::getWpDescription( $this->db ) );
     $format        = array_key_exists( 'format', $assoc_args ) ? $assoc_args['format'] : null;
     WP_CLI\Utils\format_items( $format, $wpDescription, [ 'Item', 'Value' ] );
   }
@@ -61,7 +61,7 @@ class ImsfCli extends WP_CLI_Command {
     $this->rekeying = $this->db->getRekeying();
 
     if ( true ) {
-      $wpDescription = imfsGetWpDescription( $this->db );
+      $wpDescription = ImfsQueries::getWpDescription( $this->db );
       WP_CLI::log( __( 'Index WP MySQL For Speed', 'index-wp-mysql-for-speed' ) . ' ' . index_wp_mysql_for_speed_VERSION_NUM );
       $versions = ' Plugin:' . $wpDescription['pluginversion'] . ' MySQL:' . $wpDescription['mysqlversion'] . ' WordPress:' . $wp_version . ' WordPress database:' . $wp_db_version . ' php:' . phpversion();
       WP_CLI::log( __( 'Versions', 'index-wp-mysql-for-speed' ) . ' ' . $versions );
@@ -277,8 +277,8 @@ class ImsfCli extends WP_CLI_Command {
     if ( ! $opts ) {
       $opts = [];
     }
-    $opts['majorVersion'] = index_mysql_for_speed_major_version;
-    $opts['wp_version'] = $wp_version;
+    $opts['majorVersion']  = index_mysql_for_speed_major_version;
+    $opts['wp_version']    = $wp_version;
     $opts['wp_db_version'] = $wp_db_version;
 
 
@@ -306,7 +306,7 @@ class ImsfCli extends WP_CLI_Command {
       foreach ( $tbls as $tbl ) {
         $this->db->timings = [];
         $arr               = [ $tbl ];
-        $this->db->upgradeStorageEngine( $arr );
+        $this->db->upgradeTableStorageEngines( $arr );
         WP_CLI::log( $this->reportCompletion( $action, $tbl ) );
       }
     } catch ( ImfsException $ex ) {
@@ -322,7 +322,7 @@ class ImsfCli extends WP_CLI_Command {
   function tables( $args, $assoc_args ) {
     global $wpdb;
     $this->setupCliEnvironment( $args, $assoc_args );
-    $list = $this->db->stats[1];
+    $list = $this->db->tableFormats;
     $hdrs = [];
     $row  = reset( $list );
     foreach ( $row as $key => $val ) {
@@ -358,7 +358,7 @@ class ImsfCli extends WP_CLI_Command {
    */
   function upload_metadata( $args, $assoc_args ) {
     $this->setupCliEnvironment( $args, $assoc_args );
-    $id = imfsRandomString( 8 );
+    $id = ImfsQueries::getRandomString( 8 );
     $id = imfs_upload_stats( $this->db, $id );
     WP_CLI::log( __( 'Metadata uploaded to id ', 'index-wp-mysql-for-speed' ) . $id );
   }
