@@ -14,7 +14,6 @@ class ImfsMonitor {
   public $cronInterval = 30; /* seconds, always less than $gatherExpiration */
   public $parser;
   public $explainVerb = "EXPLAIN";
-  public $analyzeVerb = "EXPLAIN"; /* change to EXPLAIN to avoid EXPLAIN ANALYZE overhead */
   public $captureName;
   public $monval;
 
@@ -89,9 +88,15 @@ class ImfsMonitor {
       $item->s = intval( $q[3] ); /* query start time */
       $item->a = ! ! is_admin();
       if ( $explain ) {
-        $explainer = stripos( $q[0], 'SELECT ' ) === 0 ? $this->analyzeVerb : $this->explainVerb;
-        $explainq  = $explainer . ' ' . $q[0];
-        $item->e   = $wpdb->get_results( $this->tagQuery( $explainq ) );
+        $explainer = $this->explainVerb;
+        /* EXPLAIN SELECT is the only explain that works in MySQL 5.5 */
+        if ( stripos( $q[0], 'SELECT ' ) !== 0 && $this->monval->semver->major <= 5 && $this->monval->semver->minor <= 5 ) {
+          /* do not do the EXPLAIN */
+          $item->e = null;
+        } else {
+          $explainq = $explainer . ' ' . $q[0];
+          $item->e  = $wpdb->get_results( $this->tagQuery( $explainq ) );
+        }
       }
 
       return json_encode( $item );

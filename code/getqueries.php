@@ -419,6 +419,12 @@ class ImfsQueries {
     return $randomString;
   }
 
+  /** Transform a result set array of objects, like from SHOW VARIABLES, to an object
+   *
+   * @param array $rows Array of {Variable_name, Value} objects
+   *
+   * @return object
+   */
   public static function toObject( $rows ) {
     $variables = [];
     foreach ( $rows as $row ) {
@@ -428,6 +434,14 @@ class ImfsQueries {
     return (object) $variables;
   }
 
+  /** Make an ordinary 2-column result set object look like a result set array
+   *
+   * @param object $rows result set to transform
+   * @param string $nameCaption the name of the first column, default Item
+   * @param string $valueCaption the name of the second column, default Value
+   *
+   * @return array
+   */
   public static function toResultSet( $rows, $nameCaption = 'Item', $valueCaption = 'Value' ) {
     $res = [];
     foreach ( $rows as $name => $value ) {
@@ -438,6 +452,12 @@ class ImfsQueries {
     return $res;
   }
 
+  /** Retrieve WordPress configuration
+   *
+   * @param ImfsDb $db database instance
+   *
+   * @return array describing the current WordPress configuration
+   */
   public static function getWpDescription( $db ) {
     global $wp_db_version;
     global $wp_version;

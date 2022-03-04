@@ -11,6 +11,7 @@ class QueryMonControl {
     $name     = $specs['name'];
 
     $monval             = (object) [];
+    $monval->semver     = $db->semver;
     $monval->starttime  = $now;
     $monval->stoptime   = $stopTime;
     $monval->name       = $specs['name'];
