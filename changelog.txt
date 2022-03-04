@@ -47,3 +47,9 @@ Support MariaDB 10.1, make indexes work a little better, miscellaneous bugfixes.
 * (No changes to keys.)
 * Detect recent WordPress version update and prompt to restore high-performance keys.
 
+= 1.4.4 =
+* (No changes to keys.)
+* Add support for internationalization. Speed up rendering of dashboard panels.
+* In MySQL 5.5, avoid using EXPLAIN on anything except SELECT queries.
+* Don't remove settings and monitors on deactivate, only on uninstall.
+

@@ -146,6 +146,8 @@ Please see more questions and answers [here](https://plumislandmedia.net/index-w
 = 1.4.4 =
 * (No changes to keys.)
 * Add support for internationalization. Speed up rendering of dashboard panels.
+* In MySQL 5.5, avoid using EXPLAIN on anything except SELECT queries.
+* Don't remove settings and monitors on deactivate, only on uninstall.
 
 == Upgrade Notice ==
 This version offers performance improvements, especially for larger sites and sites using managed service providers. It handles WordPress version updates better. It also offers help pages and better support for translators.
