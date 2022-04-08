@@ -1,8 +1,8 @@
 === Index WP MySQL For Speed ===
 Contributors: OllieJones, rjasdfiii
-Tags: database, index, key, mysql, wp-cli
+Tags: database, index, key, performance, mysql, wp-cli
 Requires at least: 5.2
-Tested up to: 5.9.1
+Tested up to: 5.9.3
 Requires PHP: 5.6
 Stable tag: 1.4.4
 Network: true
@@ -116,6 +116,9 @@ MySQL versions 5.5.62 and above, 5.6.4 and above, 8 and above. MariaDB versions 
 
 [Please read this](https://www.plumislandmedia.net/index-wp-mysql-for-speed/tables_and_keys/).
 
+= My site has many users. My Users, Posts, and Pages panels in my dashboard are still slow, even with this plugin.
+
+We have another plugin to handle lots of users, [Index WP Users For Speed](https://wordpress.org/plugins/index-wp-users-for-speed/).
 = How do I get an answer to another question? ==
 
 Please see more questions and answers [here](https://plumislandmedia.net/index-wp-mysql-for-speed/faq/).

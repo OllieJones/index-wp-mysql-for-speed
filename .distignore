@@ -24,6 +24,7 @@ multisite.xml
 multisite.xml.dist
 phpcs.ruleset.xml
 README.md
+CODE-OF-CONDUCT.md
 wp-cli.local.yml
 tests
 vendor
