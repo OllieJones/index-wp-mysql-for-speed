@@ -231,6 +231,8 @@ class ImfsDb {
         $count ++;
       }
     }
+
+    wp_cache_flush();
     $msg = '';
     switch ( $targetAction ) {
       case 1:
