@@ -119,7 +119,6 @@ class ImfsDb {
     }
 
     return $results;
-
   }
 
   public function getTime() {
@@ -184,7 +183,6 @@ class ImfsDb {
                   "Value"         => "cannot read: user lacks PROCESS privilege",
                 ],
               ];
-
             }
           }
         }
@@ -196,7 +194,6 @@ class ImfsDb {
           ],
         ];
       }
-
     } catch ( ImfsException $ex ) {
       /* this INNODB_METRICS lookup sometimes fails */
       $result = [
@@ -244,7 +241,6 @@ class ImfsDb {
     }
 
     return sprintf( $msg, $count );
-
   }
 
   /** Redo the keys on the selected table.
@@ -371,6 +367,7 @@ class ImfsDb {
     global $wpdb;
     $thentime = $doTiming ? $this->getTime() : - 1;
     $results  = $wpdb->query( $this->tagQuery( $sql ) );
+    $this->logDDLQuery( $sql );
     if ( false === $results || $wpdb->last_error ) {
       throw new ImfsException( $wpdb->last_error, $wpdb->last_query );
     }
@@ -380,7 +377,17 @@ class ImfsDb {
     }
 
     return $results;
+  }
 
+  private function logDDLQuery( $sql ) {
+    if ( index_mysql_for_speed_log !== null ) {
+      $log = get_option( index_mysql_for_speed_log );
+      if ( strlen( $log ) >= 1024 * 1024 ) {
+        $log = '';
+      }
+      $log .= PHP_EOL . $sql;
+      update_option( index_mysql_for_speed_log, $log );
+    }
   }
 
   /** get the current index situation

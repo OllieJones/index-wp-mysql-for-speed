@@ -29,8 +29,9 @@
 define( 'index_wp_mysql_for_speed_VERSION_NUM', '1.4.4' );
 define( 'index_mysql_for_speed_major_version', 1.4 );
 define( 'index_mysql_for_speed_inception_major_version', 1.3 );
-define( 'index_mysql_for_speed_inception_wp_version', '5.8.3');
-define( 'index_mysql_for_speed_inception_wp_db_version', 49752);
+define( 'index_mysql_for_speed_inception_wp_version', '5.8.3' );
+define( 'index_mysql_for_speed_inception_wp_db_version', 49752 );
+define( 'index_mysql_for_speed_log', null );
 
 /* set up some handy globals */
 define( 'index_wp_mysql_for_speed_PLUGIN_NAME', trim( dirname( plugin_basename( __FILE__ ) ), '/' ) );
@@ -77,14 +78,14 @@ function updateNag() {
   global $wp_version, $wp_db_version;
   $result = null;
   if ( ! wp_doing_ajax() ) {
-    $imfsPage     = get_option( 'ImfsPage' );
-    $majorVersion = ( $imfsPage !== false && isset( $imfsPage['majorVersion'] ) && is_numeric( $imfsPage['majorVersion'] ) )
+    $imfsPage       = get_option( 'ImfsPage' );
+    $majorVersion   = ( $imfsPage !== false && isset( $imfsPage['majorVersion'] ) && is_numeric( $imfsPage['majorVersion'] ) )
       ? floatval( $imfsPage['majorVersion'] ) : index_mysql_for_speed_inception_major_version;
-    $savedWpVersion = ( $imfsPage !== false && isset( $imfsPage['wp_version'] )) ? $imfsPage['wp_version'] :index_mysql_for_speed_inception_wp_version;
-    $savedDbVersion = ( $imfsPage !== false && isset( $imfsPage['wp_db_version'] )) ? $imfsPage['wp_db_version'] : index_mysql_for_speed_inception_wp_db_version;
+    $savedWpVersion = ( $imfsPage !== false && isset( $imfsPage['wp_version'] ) ) ? $imfsPage['wp_version'] : index_mysql_for_speed_inception_wp_version;
+    $savedDbVersion = ( $imfsPage !== false && isset( $imfsPage['wp_db_version'] ) ) ? $imfsPage['wp_db_version'] : index_mysql_for_speed_inception_wp_db_version;
     if ( ! $imfsPage ) {
       $result = 'add';
-    } else if ($wp_db_version != $savedDbVersion) {
+    } else if ( $wp_db_version != $savedDbVersion ) {
       $result = 'version_update';
     } else if ( $majorVersion !== index_mysql_for_speed_major_version ) {
       $result = 'update';
