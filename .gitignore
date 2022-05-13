@@ -1,4 +1,5 @@
 /.idea/
+/.run/
 *~
 **/hidden-test-treeshake/
 
