@@ -2,7 +2,7 @@
 Contributors: OllieJones, rjasdfiii
 Tags: database, index, key, performance, mysql, wp-cli
 Requires at least: 5.2
-Tested up to: 5.9.3
+Tested up to: 6.0
 Requires PHP: 5.6
 Stable tag: 1.4.4
 Network: true
