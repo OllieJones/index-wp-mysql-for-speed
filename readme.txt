@@ -21,7 +21,7 @@ Speed up your WordPress site by adding high-performance keys (database indexes) 
 
 <h4>How do I use this plugin?</h4>
 
-After you install this plugin, use it with the Index MySQL Tool under the Tools menu. If you have large tables, use it with [WP-CLI](https://wp-cli.org/) instead to avoid timeouts. Give the shell command _wp help index-mysql_ to learn how.
+After you install and activate this plugin, visit the Index MySQL Tool under the Tools menu. From there you can press the *Add Keys Now* button. If you have large tables, use it with [WP-CLI](https://wp-cli.org/) instead to avoid timeouts. Give the shell command _wp help index-mysql_ to learn how.
 
 
 <h4>What does it do for my site?</h4>
@@ -96,6 +96,11 @@ WordPress version updates attempt to restore some of WordPress's default keys. T
 
 **Yes.** You already knew that.
 
+= I don't see any changes to my database speed. Why not? =
+
+* On a modestly sized site (with a few users and a few hundred posts) your database may be fast enough without these keys. The speed improvements are most noticeable on larger sites with many posts and products.
+* Just installing and activating the plugin is **not enough to make it work**. Don't forget to visit the Index MySQL Tool under the Tools menu. From there you can press the **Add Keys Now** button.
+
 = I use a nonstandard database table prefix. Will this work ? =
 
 **Yes.** Some WordPress databases have [nonstandard prefixes](https://codex.wordpress.org/Creating_Tables_with_Plugins#Database_Table_Prefix). That is, their tables are named _something_posts_, _something_postmeta_, and so forth instead of _wp_posts_ and _wp_postmeta_. This works with those databases.
@@ -116,9 +121,10 @@ MySQL versions 5.5.62 and above, 5.6.4 and above, 8 and above. MariaDB versions 
 
 [Please read this](https://www.plumislandmedia.net/index-wp-mysql-for-speed/tables_and_keys/).
 
-= My site has many users. My Users, Posts, and Pages panels in my dashboard are still slow, even with this plugin.
+= My site has thousands of registered users. My Users, Posts, and Pages panels in my dashboard are still load slowly even with this plugin.
 
-We have another plugin to handle lots of users, [Index WP Users For Speed](https://wordpress.org/plugins/index-wp-users-for-speed/).
+We have another plugin to handle lots of users, [Index WP Users For Speed](https://wordpress.org/plugins/index-wp-users-for-speed/). Due to the way WordPress handles users, just changing database keys is not enough to solve those performance problems.
+
 = How do I get an answer to another question? ==
 
 Please see more questions and answers [here](https://plumislandmedia.net/index-wp-mysql-for-speed/faq/).
