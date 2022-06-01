@@ -17,7 +17,7 @@ class ImfsDb {
   private $initialized = false;
   private $hasHrTime;
   /** @var string[] list of index prefixes to ignore. */
-  private $indexStopList = [ 'woo_' ];
+  private $indexStopList = [ 'woo_', 'crp_' ];
   private $pluginOldVersion;
   private $pluginVersion;
 
@@ -315,7 +315,7 @@ class ImfsDb {
 
     foreach ( $indexes as $key => $value ) {
       if ( array_key_exists( $key, $current ) && array_key_exists( $key, $target ) && $current[ $key ]->add === $target[ $key ] ) {
-        /* no action required */
+        /* empty, intentionally.  no action required */
       } else if ( array_key_exists( $key, $current ) && array_key_exists( $key, $target ) && $current[ $key ]->add !== $target[ $key ] ) {
         $actions[] = $current[ $key ]->drop;
         $actions[] = $target[ $key ];
