@@ -310,6 +310,8 @@ class ImfsQueries {
                  AND s.INDEX_NAME = tc.CONSTRAINT_NAME
          WHERE s.TABLE_SCHEMA = DATABASE()
            AND s.TABLE_NAME = %s
+           /* #37 don't do anything with FULLTEXT indexes */
+           AND s.INDEX_TYPE <> 'FULLTEXT'
          GROUP BY s.INDEX_NAME
         ) q
         ORDER BY is_primary DESC, is_unique DESC, key_name";
