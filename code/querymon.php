@@ -93,6 +93,9 @@ class ImfsMonitor {
         if ( stripos( $q[0], 'SELECT ' ) !== 0 && $this->monval->semver->major <= 5 && $this->monval->semver->minor <= 5 ) {
           /* do not do the EXPLAIN */
           $item->e = null;
+        } else if ( stripos( $q[0], 'SET ' ) === 0 ) {
+          /* do not do the EXPLAIN on SET operations */
+          $item->e = null;
         } else {
           $explainq = $explainer . ' ' . $q[0];
           $item->e  = $wpdb->get_results( $this->tagQuery( $explainq ) );
@@ -193,7 +196,6 @@ class ImfsMonitor {
       /* get the key status from when the monitor storted, for later reporting */
       $monval         = get_option( index_wp_mysql_for_speed_monitor );
       $queryLog->keys = $monval->keys;
-
     } else {
       /* use the existing monitor log object */
       $queryLogOverflowing = strlen( $queryLog ) > $this->queryLogSizeThreshold;
