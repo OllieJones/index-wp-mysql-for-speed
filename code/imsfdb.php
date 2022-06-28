@@ -1,4 +1,5 @@
 <?php
+/** @noinspection SpellCheckingInspection */
 require_once( 'getindexes.php' );
 require_once( 'getqueries.php' );
 require_once( ABSPATH . 'wp-admin/includes/class-wp-upgrader.php' );
@@ -212,24 +213,28 @@ class ImfsDb {
   /**
    * @param $targetAction int   0 - WordPress standard  1 -- high performance
    * @param $tables array  tables like ['postmeta','termmeta']
+   * @param $version
    * @param $alreadyPrefixed bool false if wp_ prefix needs to be added to table names
-   *
-   * @return string message to display in SettingNotice.
+   * @param bool $dryrun true when doing a dry run, default false -- do the operation
+   * @return array|string status string, or if
    * @throws ImfsException
-   *
    */
-  public function rekeyTables( $targetAction, array $tables, $version, $alreadyPrefixed = false ) {
+  public function rekeyTables( $targetAction, array $tables, $version, $alreadyPrefixed = false, $dryrun = false ) {
+    $statements = [];
     /* changing indexes: get rid of the cache showing present indexes */
     $this->indexQueryCache = [];
     $count                 = 0;
     if ( count( $tables ) > 0 ) {
       foreach ( $tables as $name ) {
-        $this->rekeyTable( $targetAction, $name, $version, $alreadyPrefixed );
+        $statements[] = $this->rekeyTable( $targetAction, $name, $version, $alreadyPrefixed, $dryrun );
         $count ++;
       }
     }
 
     wp_cache_flush();
+    if ( $dryrun ) {
+      return $statements;
+    }
     $msg = '';
     switch ( $targetAction ) {
       case 1:
@@ -249,10 +254,12 @@ class ImfsDb {
    *
    * @param int $targetAction 0 -- WordPress standard.  1 -- high-perf
    * @param string $name table name without prefix
+   * @param bool $dryrun true when doing a dry run, default false -- do the operation
+   * @returns string the text of the SQL statement doing the rekeying
    *
    * @throws ImfsException
    */
-  public function rekeyTable( $targetAction, $name, $version, $alreadyPrefixed = false ) {
+  public function rekeyTable( $targetAction, $name, $version, $alreadyPrefixed = false, $dryrun = false ) {
     global $wpdb;
 
     $unprefixedName = $alreadyPrefixed ? ImfsQueries::stripPrefix( $name ) : $name;
@@ -261,12 +268,15 @@ class ImfsDb {
     $actions = $this->getConversionList( $targetAction, $unprefixedName, $version );
 
     if ( count( $actions ) === 0 ) {
-      return;
+      return '';
     }
 
     $q = 'ALTER TABLE ' . $prefixedName . ' ' . implode( ', ', $actions );
     set_time_limit( $this->scriptTimeLimit );
-    $this->query( $q, true );
+    if ( ! $dryrun ) {
+      $this->query( $q, true );
+    }
+    return $q . ';';
   }
 
   /**

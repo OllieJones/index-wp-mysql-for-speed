@@ -158,6 +158,11 @@ Please see more questions and answers [here](https://plumislandmedia.net/index-w
 * In MySQL 5.5, avoid using EXPLAIN on anything except SELECT queries.
 * Don't remove settings and monitors on deactivate, only on uninstall.
 
+= 1.4.5 =
+* (No changes to keys.)
+* Ignore FULLTEXT indexes and indexes from Contextual Related Posts plugin.
+* --dryrun switch on wp-cli.
+
 == Upgrade Notice ==
 This version offers performance improvements, especially for larger sites and sites using managed service providers. It handles WordPress version updates better. It also offers help pages and better support for translators.
 

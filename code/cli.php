@@ -1,4 +1,5 @@
-<?php /** @noinspection PhpUnused */
+<?php /** @noinspection ALL */
+/** @noinspection PhpUnused */
 /** @noinspection PhpUndefinedFunctionInspection */
 /** @noinspection PhpUndefinedNamespaceInspection */
 /** @noinspection PhpUndefinedClassInspection */
@@ -10,6 +11,9 @@
  *
  * [--all]
  * : Process all eligible tables.
+ *
+ * [--dryrun]
+ * : Show SQL statements but don't run them.
  *
  * [--exclude=<table[,table...]]
  * : Exclude named tables.
@@ -29,6 +33,7 @@ class ImsfCli extends WP_CLI_Command {
   public $allSwitch = false;
   public $rekeying;
   public $errorMessages = [];
+  public $dryrun;
 
   /**
    * Display version information.
@@ -46,6 +51,7 @@ class ImsfCli extends WP_CLI_Command {
     global $wp_version;
     global $wp_db_version;
     $this->allSwitch  = ! empty( $assoc_args['all'] );
+    $this->dryrun     = ! empty( $assoc_args['dryrun'] );
     $this->assoc_args = $assoc_args;
     if ( is_multisite() ) {
       $restoreBlogId = get_current_blog_id();
@@ -76,13 +82,11 @@ class ImsfCli extends WP_CLI_Command {
                __( 'Your MySQL version is outdated. Please consider upgrading,', 'index-wp-mysql-for-speed' );
       }
       WP_CLI::exit( $fmt );
-
     }
     if ( ! $this->db->unconstrained ) {
       $fmt = __( 'Upgrading your MySQL server to a later version will give you better performance when you add high-performance keys.', 'index-wp-mysql-for-speed' );
       WP_CLI::warning( $fmt );
     }
-
   }
 
   /**
@@ -183,12 +187,19 @@ class ImsfCli extends WP_CLI_Command {
   /** @noinspection PhpSameParameterValueInspection */
   private function doRekeying( $args, $assoc_args, $targetAction, $alreadyPrefixed = true ) {
     $action = $targetAction === 0 ? 'disable' : 'enable';
+    if ($this->dryrun) {
+      WP_CLI::log( __( 'Dry run SQL statements. These statements were NOT run.', 'index-wp-mysql-for-speed' ) );
+    }
     $tbls   = $this->getTablesToProcess( $args, $assoc_args, $action );
     foreach ( $tbls as $tbl ) {
       $this->db->timings = [];
       $arr               = [ $tbl ];
-      $this->db->rekeyTables( $targetAction, $arr, index_mysql_for_speed_major_version, $alreadyPrefixed );
-      WP_CLI::log( $this->reportCompletion( $action, $tbl ) );
+      $statements        = $this->db->rekeyTables( $targetAction, $arr, index_mysql_for_speed_major_version, $alreadyPrefixed, $this->dryrun );
+      if ( $this->dryrun ) {
+        WP_CLI::log( implode( PHP_EOL, $statements ) );
+      } else {
+        WP_CLI::log( $this->reportCompletion( $action, $tbl ) );
+      }
     }
     /* store current version of schema to suppress nag in UI */
     $this->setCurrentVersion();
@@ -281,7 +292,6 @@ class ImsfCli extends WP_CLI_Command {
     $opts['wp_version']    = $wp_version;
     $opts['wp_db_version'] = $wp_db_version;
 
-
     update_option( $optName, $opts );
   }
 
@@ -362,7 +372,6 @@ class ImsfCli extends WP_CLI_Command {
     $id = imfs_upload_stats( $this->db, $id );
     WP_CLI::log( __( 'Metadata uploaded to id ', 'index-wp-mysql-for-speed' ) . $id );
   }
-
 
 }
 
