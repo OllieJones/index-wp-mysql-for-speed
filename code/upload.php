@@ -13,6 +13,9 @@ function imfsGetAllStats( $db ) {
   if ( $globalStatus->Rsa_public_key ) {
     $globalStatus->Rsa_public_key = 'Redacted';
   }
+  if ( $globalStatus->Caching_sha2_password_rsa_public_key ) {
+    $globalStatus->Caching_sha2_password_rsa_public_key = 'Redacted';
+  }
   $wordpress = ImfsQueries::getWpDescription( $db );
   /** @noinspection PhpUnnecessaryLocalVariableInspection */
   $stats = [
