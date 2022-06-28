@@ -131,10 +131,8 @@ function requireThemAll( $nag = false ) {
   require_once( plugin_dir_path( __FILE__ ) . 'code/admin.php' );
   require_once( plugin_dir_path( __FILE__ ) . 'code/upload.php' );
   require_once( plugin_dir_path( __FILE__ ) . 'code/querymoncontrol.php' );
-  if ( $nag ) {
-    require_once( plugin_dir_path( __FILE__ ) . 'code/notice.php' );
-    new ImfsNotice ( $nag );
-  }
+  require_once( plugin_dir_path( __FILE__ ) . 'code/notice.php' );
+  new ImfsNotice ( $nag );
 }
 
 function index_wp_mysql_for_speed_activate() {
