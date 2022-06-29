@@ -9,14 +9,14 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2022-03-02T19:37:26-05:00\n"
+"POT-Creation-Date: 2022-06-29T06:25:40-04:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"X-Generator: WP-CLI 2.5.0\n"
+"X-Generator: WP-CLI 2.6.0\n"
 "X-Domain: index-wp-mysql-for-speed\n"
 
 #. Plugin Name of the plugin
 #: code/admin.php:25
-#: code/cli.php:65
+#: code/cli.php:71
 msgid "Index WP MySQL For Speed"
 msgstr ""
 
@@ -337,7 +337,7 @@ msgstr ""
 
 #. translators: for settings link on plugin page
 #: afp/factory/_common/_abstract/_model/AdminPageFramework_Message.php:93
-#: index-wp-mysql-for-speed.php:170
+#: index-wp-mysql-for-speed.php:160
 msgid "Settings"
 msgstr ""
 
@@ -696,12 +696,12 @@ msgid "Revert Keys Now"
 msgstr ""
 
 #: code/admin.php:352
-#: code/cli.php:75
+#: code/cli.php:81
 msgid "Sorry, you cannot use this plugin with your version of MySQL."
 msgstr ""
 
 #: code/admin.php:353
-#: code/cli.php:76
+#: code/cli.php:82
 msgid "Your MySQL version is outdated. Please consider upgrading,"
 msgstr ""
 
@@ -787,7 +787,7 @@ msgid "Using %1$s, %2$s: <code>%3$s %4$s</code>"
 msgstr ""
 
 #: code/admin.php:692
-#: code/cli.php:67
+#: code/cli.php:73
 msgid "Versions"
 msgstr ""
 
@@ -940,7 +940,7 @@ msgid "Make corrections and try again."
 msgstr ""
 
 #: code/admin.php:1122
-#: code/cli.php:363
+#: code/cli.php:373
 msgid "Metadata uploaded to id "
 msgstr ""
 
@@ -966,117 +966,126 @@ msgstr ""
 msgid "Letters and numbers only for your monitor name, please."
 msgstr ""
 
-#: code/cli.php:73
+#: code/cli.php:79
 msgid "Sorry, this plugin's version is not compatible with your WordPress database version."
 msgstr ""
 
-#: code/cli.php:82
+#: code/cli.php:87
 msgid "Upgrading your MySQL server to a later version will give you better performance when you add high-performance keys."
 msgstr ""
 
-#: code/cli.php:97
+#: code/cli.php:101
 msgid "Database tables need upgrading to MySQL's latest table storage format, InnoDB with dynamic rows."
 msgstr ""
 
-#: code/cli.php:100
+#: code/cli.php:104
 msgid "Add or upgrade high-performance keys to make your WordPress database faster."
 msgstr ""
 
-#: code/cli.php:103
+#: code/cli.php:107
 msgid "You set some keys from outside this plugin. You can convert them to this plugin's high-performance keys."
 msgstr ""
 
-#: code/cli.php:105
-#: code/cli.php:110
+#: code/cli.php:109
+#: code/cli.php:114
 msgid "Or, you can revert them to WordPress's standard keys."
 msgstr ""
 
-#: code/cli.php:108
+#: code/cli.php:112
 msgid "You added high-performance keys using an earlier version of this plugin. You can update them to the latest high-performance keys."
 msgstr ""
 
-#: code/cli.php:113
+#: code/cli.php:117
 msgid "You successfully added high-performance keys."
 msgstr ""
 
-#: code/cli.php:114
+#: code/cli.php:118
 msgid "You can revert them to WordPress's standard keys."
 msgstr ""
 
-#: code/cli.php:129
+#: code/cli.php:133
 msgid "Use this command:"
 msgstr ""
 
-#: code/cli.php:234
+#: code/cli.php:191
+msgid "Dry run SQL statements. These statements were NOT run."
+msgstr ""
+
+#: code/cli.php:245
 msgid "These tables are not found or not eligible to"
 msgstr ""
 
-#: code/cli.php:238
+#: code/cli.php:249
 msgid "No tables are eligible to"
 msgstr ""
 
-#: code/cli.php:260
+#: code/cli.php:271
 msgid "MySQL statement"
 msgid_plural "MySQL statements"
 msgstr[0] ""
 msgstr[1] ""
 
-#: code/cli.php:263
+#: code/cli.php:274
 msgid "complete."
 msgstr ""
 
 #. translators: 1: number of tables processed
-#: code/imsfdb.php:233
+#: code/imsfdb.php:242
 msgid "High-performance keys added to %1$d tables."
 msgstr ""
 
 #. translators: 1: number of tables processed
-#: code/imsfdb.php:237
+#: code/imsfdb.php:246
 msgid "Keys on %1$d tables reverted to WordPress standard."
 msgstr ""
 
 #. translators: 1: count of tables upgraded from MyISAM to InnoDB
-#: code/imsfdb.php:580
+#: code/imsfdb.php:604
 msgid "%1$d tables upgraded"
 msgstr ""
 
+#. translators: 1: name of monitor  2: date / time
+#: code/notice.php:28
+msgid "Monitoring is in progress until %2$s. Monitoring output saved into <i>%1$s</i>."
+msgstr ""
+
 #. translators: 1: hyperlink to tools page for this plugin. 2: the translated word "add" or "update"
-#: code/notice.php:25
+#: code/notice.php:48
 msgid "Use the Index WP MySQL For Speed plugin <a href=\"%1$s\">to %2$s your high-performance keys</a>."
 msgstr ""
 
-#: code/notice.php:29
+#: code/notice.php:52
 msgid "add"
 msgstr ""
 
 #. translators: 1: hyperlink to tools page for this plugin.
-#: code/notice.php:34
+#: code/notice.php:57
 msgid "Use the Index WP MySQL For Speed plugin <a href=\"%1$s\">to update your high-performance keys</a> for the latest WordPress version."
 msgstr ""
 
-#: code/notice.php:38
+#: code/notice.php:61
 msgid "update"
 msgstr ""
 
-#: code/querymoncontrol.php:21
+#: code/querymoncontrol.php:22
 msgid "Monitoring dashboard and site"
 msgstr ""
 
-#: code/querymoncontrol.php:23
+#: code/querymoncontrol.php:24
 msgid "Monitoring site only"
 msgstr ""
 
-#: code/querymoncontrol.php:25
+#: code/querymoncontrol.php:26
 msgid "Monitoring dashboard only"
 msgstr ""
 
 #. translators: 1: "Monitoring dashboard and site", etc. 2: number of minutes  3: end time  4: percentage 5: monitor name
-#: code/querymoncontrol.php:30
-msgid "%1$s for %2$d minutes until %3$s. Random sampling %4$d%% of page views. Monitoring output saved into %5$s"
+#: code/querymoncontrol.php:31
+msgid "%1$s for %2$d minutes until %3$s. Random sampling %4$d%% of page views. Monitoring output saved into <i>%5$s</i>."
 msgstr ""
 
 #. translators: 1: "Monitoring dashboard and site", etc. 2: number of minutes  3: end time  4: monitor name
-#: code/querymoncontrol.php:34
+#: code/querymoncontrol.php:35
 msgid "%1$s for %2$d minutes until %3$s. Monitoring output saved into %4$s"
 msgstr ""
 

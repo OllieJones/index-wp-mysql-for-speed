@@ -45,7 +45,6 @@ class ImfsQueries {
       return ImfsQueries::makeNumeric( $results );
     }
 
-
     $isMaria = ! ! stripos( $results->version, "mariadb" );
     /* work out whether we have Antelope or Barracuda InnoDB format */
     /* mysql 8+ */
@@ -373,33 +372,6 @@ class ImfsQueries {
          GROUP BY TABLE_NAME, INDEX_NAME
         ) q
         ORDER BY TABLE_NAME, is_primary DESC, is_unique DESC, key_name";
-  }
-
-  /** get the queries to retrieve information_schema.INNODB_METRICS
-   * @return string[] array of queries to use
-   */
-  public static function getInnoDbMetricsQueries() {
-    return [
-      /* nonzero if the table is present */
-      "SELECT COUNT(*) num /* no harm is done if this query fails */ 
-			   FROM information_schema.TABLES
-			  WHERE TABLE_SCHEMA = 'INFORMATION_SCHEMA'
-			    AND TABLE_NAME = 'INNODB_METRICS'",
-      /* nonzero if the current MySQL user does not have the PROCESS privilege. */
-      "SELECT COUNT(*) num /* no harm is done if this query fails */   
-        FROM mysql.user 
-       WHERE CONCAT_WS('@', User, Host) = CURRENT_USER()
-         AND CONVERT(Process_priv USING utf8) <> CONVERT('Y' USING utf8)",
-      /* make this match SHOW STATUS in column names */
-      /* breaking change in MariaDB 10.6:
-      * drop STATUS column, add boolean TYPE column */
-      "SELECT   /* no harm is done if this query fails */ 
-               NAME Variable_name, COUNT Value
-               FROM information_schema.INNODB_METRICS
-              WHERE COMMENT NOT LIKE 'Deprecated%'
-                AND TIME_ENABLED IS NOT NULL
-              ORDER BY NAME",
-    ];
   }
 
   /** Get a pseudo-random text string from letters and numbers.

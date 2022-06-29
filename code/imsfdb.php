@@ -539,19 +539,20 @@ class ImfsDb {
 
   /**
    * @param array $list of tables
-   *
-   * @return string
+   * @param bool $dryrun true if we're doing a dry run.
+   * @return array|string list of DDL statements, or display messat
    * @throws ImfsException
    */
-  public function upgradeTableStorageEngines( array $list ) {
+  public function upgradeTableStorageEngines( array $list, $dryrun = false ) {
     /* reworking tables; flush any index cache */
     $this->indexQueryCache = [];
+    $statements            = [];
 
     $counter = 0;
     try {
       $this->lock( $list, true );
       foreach ( $list as $table ) {
-        $this->upgradeTableStorageEngine( $table );
+        $statements[] = $this->upgradeTableStorageEngine( $table, $dryrun );
         $counter ++;
       }
       /* translators: 1: count of tables upgraded from MyISAM to InnoDB */
@@ -563,6 +564,9 @@ class ImfsDb {
       $this->unlock();
     }
 
+    if ( $dryrun ) {
+      return $statements;
+    }
     return sprintf( $msg, $counter );
   }
 
@@ -623,9 +627,12 @@ class ImfsDb {
   /**
    * @throws ImfsException
    */
-  public function upgradeTableStorageEngine( $table ) {
+  public function upgradeTableStorageEngine( $table, $dryrun = false ) {
+    $sql = 'ALTER TABLE ' . $table . ' ENGINE=InnoDb, ROW_FORMAT=DYNAMIC;';
+    if ( $dryrun ) {
+      return $sql;
+    }
     set_time_limit( $this->scriptTimeLimit );
-    $sql = 'ALTER TABLE ' . $table . ' ENGINE=InnoDb, ROW_FORMAT=DYNAMIC';
     $this->query( $sql, true );
 
     return true;

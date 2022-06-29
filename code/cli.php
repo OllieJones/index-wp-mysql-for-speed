@@ -34,6 +34,7 @@ class ImsfCli extends WP_CLI_Command {
   public $rekeying;
   public $errorMessages = [];
   public $dryrun;
+  private $commentPrefix;
 
   /**
    * Display version information.
@@ -67,10 +68,12 @@ class ImsfCli extends WP_CLI_Command {
     $this->rekeying = $this->db->getRekeying();
 
     if ( true ) {
-      $wpDescription = ImfsQueries::getWpDescription( $this->db );
-      WP_CLI::log( __( 'Index WP MySQL For Speed', 'index-wp-mysql-for-speed' ) . ' ' . index_wp_mysql_for_speed_VERSION_NUM );
+      /*  -- comment is the form of comments in SQL, with dash dash space */
+      $this->commentPrefix = $this->dryrun ? '-- ' : '';
+      $wpDescription       = ImfsQueries::getWpDescription( $this->db );
+      WP_CLI::log( $this->commentPrefix . __( 'Index WP MySQL For Speed', 'index-wp-mysql-for-speed' ) . ' ' . index_wp_mysql_for_speed_VERSION_NUM );
       $versions = ' Plugin:' . $wpDescription['pluginversion'] . ' MySQL:' . $wpDescription['mysqlversion'] . ' WordPress:' . $wp_version . ' WordPress database:' . $wp_db_version . ' php:' . phpversion();
-      WP_CLI::log( __( 'Versions', 'index-wp-mysql-for-speed' ) . ' ' . $versions );
+      WP_CLI::log( $this->commentPrefix . __( 'Versions', 'index-wp-mysql-for-speed' ) . ' ' . $versions );
     }
 
     if ( ! $this->db->canReindex ) {
@@ -81,11 +84,11 @@ class ImsfCli extends WP_CLI_Command {
         $fmt = __( 'Sorry, you cannot use this plugin with your version of MySQL.', 'index-wp-mysql-for-speed' ) . ' ' .
                __( 'Your MySQL version is outdated. Please consider upgrading,', 'index-wp-mysql-for-speed' );
       }
-      WP_CLI::exit( $fmt );
+      WP_CLI::exit( $this->commentPrefix . $fmt );
     }
     if ( ! $this->db->unconstrained ) {
       $fmt = __( 'Upgrading your MySQL server to a later version will give you better performance when you add high-performance keys.', 'index-wp-mysql-for-speed' );
-      WP_CLI::warning( $fmt );
+      WP_CLI::warning( $this->commentPrefix . $fmt );
     }
   }
 
@@ -133,13 +136,13 @@ class ImsfCli extends WP_CLI_Command {
       $msg  = $caption . ' ' . __( 'Use this command:', 'index-wp-mysql-for-speed' );
       $tbls = $this->addPrefixes( $array[ $actionKey ], $alreadyPrefixed );
       if ( $warning ) {
-        WP_CLI::warning( $msg );
+        WP_CLI::warning( $this->commentPrefix . $msg );
       } else {
-        WP_CLI::log( $msg );
+        WP_CLI::log( $this->commentPrefix . $msg );
       }
-      WP_CLI::log( $this->getCommand( $action, $tbls ) );
+      WP_CLI::log( $this->commentPrefix . $this->getCommand( $action, $tbls ) );
       if ( count( $this->errorMessages ) > 0 ) {
-        WP_CLI::log( implode( PHP_EOL, $this->errorMessages ) );
+        WP_CLI::log( $this->commentPrefix . implode( PHP_EOL, $this->errorMessages ) );
         $this->errorMessages = [];
       }
     }
@@ -187,10 +190,10 @@ class ImsfCli extends WP_CLI_Command {
   /** @noinspection PhpSameParameterValueInspection */
   private function doRekeying( $args, $assoc_args, $targetAction, $alreadyPrefixed = true ) {
     $action = $targetAction === 0 ? 'disable' : 'enable';
-    if ($this->dryrun) {
-      WP_CLI::log( __( 'Dry run SQL statements. These statements were NOT run.', 'index-wp-mysql-for-speed' ) );
+    if ( $this->dryrun ) {
+      WP_CLI::log( $this->commentPrefix . __( 'Dry run SQL statements. These statements were NOT run.', 'index-wp-mysql-for-speed' ) );
     }
-    $tbls   = $this->getTablesToProcess( $args, $assoc_args, $action );
+    $tbls = $this->getTablesToProcess( $args, $assoc_args, $action );
     foreach ( $tbls as $tbl ) {
       $this->db->timings = [];
       $arr               = [ $tbl ];
@@ -198,7 +201,7 @@ class ImsfCli extends WP_CLI_Command {
       if ( $this->dryrun ) {
         WP_CLI::log( implode( PHP_EOL, $statements ) );
       } else {
-        WP_CLI::log( $this->reportCompletion( $action, $tbl ) );
+        WP_CLI::log( $this->commentPrefix . $this->reportCompletion( $action, $tbl ) );
       }
     }
     /* store current version of schema to suppress nag in UI */
@@ -243,11 +246,11 @@ class ImsfCli extends WP_CLI_Command {
     }
     if ( count( $err ) > 0 ) {
       $fmt = __( 'These tables are not found or not eligible to', 'index-wp-mysql-for-speed' ) . ' ' . $action . ': ' . implode( ' ', $err ) . '.';
-      WP_CLI::error( $fmt );
+      WP_CLI::error( $this->commentPrefix . $fmt );
     }
     if ( count( $res ) == 0 ) {
       $fmt = __( 'No tables are eligible to', 'index-wp-mysql-for-speed' ) . ' ' . $action . '.';
-      WP_CLI::error( $fmt );
+      WP_CLI::error( $this->commentPrefix . $fmt );
     }
 
     return $res;
@@ -311,16 +314,23 @@ class ImsfCli extends WP_CLI_Command {
     $action = 'upgrade';
     $this->setupCliEnvironment( $args, $assoc_args );
     $tbls = $this->getTablesToProcess( $args, $assoc_args, $action );
+    if ( $this->dryrun ) {
+      WP_CLI::log( $this->commentPrefix . __( 'Dry run SQL statements. These statements were NOT run.', 'index-wp-mysql-for-speed' ) );
+    }
     try {
       $this->db->lock( $tbls, true );
       foreach ( $tbls as $tbl ) {
         $this->db->timings = [];
         $arr               = [ $tbl ];
-        $this->db->upgradeTableStorageEngines( $arr );
-        WP_CLI::log( $this->reportCompletion( $action, $tbl ) );
+        $statements        = $this->db->upgradeTableStorageEngines( $arr, $this->dryrun );
+        if ( $this->dryrun ) {
+          WP_CLI::log( implode( PHP_EOL, $statements ) );
+        } else {
+          WP_CLI::log( $this->commentPrefix . $this->reportCompletion( $action, $tbl ) );
+        }
       }
     } catch ( ImfsException $ex ) {
-      WP_CLI::error( $ex->getMessage() );
+      WP_CLI::error( $this->commentPrefix . $ex->getMessage() );
     } finally {
       $this->db->unlock();
     }
