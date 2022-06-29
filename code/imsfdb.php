@@ -164,52 +164,6 @@ class ImfsDb {
     return $this->get_results( "SHOW GLOBAL STATUS" );
   }
 
-  function getInnodbMetrics() {
-    global $wpdb;
-    $result      = [];
-    $suppressing = $wpdb->suppress_errors( true );
-    $queries     = ImfsQueries::getInnoDbMetricsQueries();
-    try {
-      $r = $this->get_results( $queries[0], false, OBJECT );
-      if ( is_array( $r ) && count( $r ) === 1 && $r[0]->num > 0 ) {
-        $r = $this->get_results( $queries[1], false, OBJECT );
-        if ( is_array( $r ) ) {
-          if ( count( $r ) === 1 ) {
-            if ( $r[0]->num == 0 ) {
-              $result = $this->get_results( $queries[2] );
-            } else {
-              $result = [
-                (object) [
-                  "Variable_name" => "INNODB_METRICS",
-                  "Value"         => "cannot read: user lacks PROCESS privilege",
-                ],
-              ];
-            }
-          }
-        }
-      } else {
-        $result = [
-          (object) [
-            "Variable_name" => "INNODB_METRICS",
-            "Value"         => "cannot read: not present on this server version",
-          ],
-        ];
-      }
-    } catch ( ImfsException $ex ) {
-      /* this INNODB_METRICS lookup sometimes fails */
-      $result = [
-        (object) [
-          "Variable_name" => "INNODB_METRICS",
-          "Value"         => $ex->getMessage(),
-        ],
-      ];
-    } finally {
-      $wpdb->suppress_errors( $suppressing );
-    }
-
-    return $result;
-  }
-
   /**
    * @param $targetAction int   0 - WordPress standard  1 -- high performance
    * @param $tables array  tables like ['postmeta','termmeta']

@@ -4,7 +4,6 @@ function imfsGetAllStats( $db ) {
   global $_SERVER;
   $variables     = ImfsQueries::toObject( $db->getVariables() );
   $globalStatus  = ImfsQueries::toObject( $db->getStatus() );
-  $innoDbMetrics = ImfsQueries::toObject( $db->getInnodbMetrics() );
   $tableStats    = $db->getTableStats();
 
   $variables->hostname        = ImfsQueries::redactHost( $variables->hostname );
@@ -26,7 +25,6 @@ function imfsGetAllStats( $db ) {
     'alltables'     => $tableStats,
     //'timings'      => $db->timings,
     'globalStatus'  => $globalStatus,
-    'innodbMetrics' => $innoDbMetrics,
     'variables'     => $variables,
   ];
 
