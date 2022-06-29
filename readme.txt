@@ -4,7 +4,7 @@ Tags: database, index, key, performance, mysql, wp-cli
 Requires at least: 5.2
 Tested up to: 6.0
 Requires PHP: 5.6
-Stable tag: 1.4.4
+Stable tag: 1.4.5
 Network: true
 License: GPL v2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -131,26 +131,6 @@ Please see more questions and answers [here](https://plumislandmedia.net/index-w
 
 == Changelog ==
 
-= 1.4.1 =
-* WordPress 5.9 and database version 51917 version compatibility tested.
-* Rekeys tables in one go: allows the plugin to work more quickly, and when sql_require_primary_key=ON (typically at managed service providers).
-* Adds high-performance keys to wp_users and wp_commentmeta tables.
-* Adds high-performance keys for filtering on meta_value data quickly in wp_postmeta, wp_termmeta, and wp_usermeta.
-* Handles updates to high-performance keys from previous plugin versions.
-* Checks $wp_db_version number to ensure schema compatibility.
-* Monitor captures include overall database server metrics. Monitor captures can be uploaded.
-* Help pages for each tab of the plugin's Dashboard panel are available.
-* Clearer Dashboard panel displays.
-
-= 1.4.2 =
-* (No changes to keys.)
-* Add support for legacy php versions back to 5.6.
-* Avoid attempting to read `INNODB_METRICS` when user lacks `PROCESS` privilege.
-* Correct nag hyperlink on multisite.
-
-= 1.4.3 =
-* (No changes to keys.)
-* Detect recent WordPress version update and prompt to restore high-performance keys.
 
 = 1.4.4 =
 * (No changes to keys.)
@@ -161,7 +141,9 @@ Please see more questions and answers [here](https://plumislandmedia.net/index-w
 = 1.4.5 =
 * (No changes to keys.)
 * Ignore FULLTEXT indexes and indexes from Contextual Related Posts plugin.
-* --dryrun switch on wp-cli.
+* --dryrun switch on wp-cli to write out ALTER TABLE instead of sending it.
+   Now can do `wp index-mysql enable --all --dryrun | wp db query` to run the DML.
+* Fix some metadata-upload issues.
 
 == Upgrade Notice ==
 This version offers performance improvements, especially for larger sites and sites using managed service providers. It handles WordPress version updates better. It also offers help pages and better support for translators.
