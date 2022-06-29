@@ -10,10 +10,10 @@ function imfsGetAllStats( $db ) {
   $variables->hostname        = ImfsQueries::redactHost( $variables->hostname );
   $variables->report_host     = ImfsQueries::redactHost( $variables->report_host );
   $variables->report_password = ImfsQueries::redactHost( $variables->report_password );
-  if ( $globalStatus->Rsa_public_key ) {
+  if ( property_exists( $globalStatus, 'Rsa_public_key' ) ) {
     $globalStatus->Rsa_public_key = 'Redacted';
   }
-  if ( $globalStatus->Caching_sha2_password_rsa_public_key ) {
+  if ( property_exists( $globalStatus, 'Caching_sha2_password_rsa_public_key' ) ) {
     $globalStatus->Caching_sha2_password_rsa_public_key = 'Redacted';
   }
   $wordpress = ImfsQueries::getWpDescription( $db );
@@ -31,7 +31,6 @@ function imfsGetAllStats( $db ) {
   ];
 
   return $stats;
-
 }
 
 function imfs_upload_monitor( $db, $idString, $name, $monitor ) {
