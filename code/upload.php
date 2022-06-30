@@ -2,9 +2,9 @@
 
 function imfsGetAllStats( $db ) {
   global $_SERVER;
-  $variables     = ImfsQueries::toObject( $db->getVariables() );
-  $globalStatus  = ImfsQueries::toObject( $db->getStatus() );
-  $tableStats    = $db->getTableStats();
+  $variables    = ImfsQueries::toObject( $db->getVariables() );
+  $globalStatus = ImfsQueries::toObject( $db->getStatus() );
+  $tableStats   = $db->getTableStats();
 
   $variables->hostname        = ImfsQueries::redactHost( $variables->hostname );
   $variables->report_host     = ImfsQueries::redactHost( $variables->report_host );
@@ -16,25 +16,54 @@ function imfsGetAllStats( $db ) {
     $globalStatus->Caching_sha2_password_rsa_public_key = 'Redacted';
   }
   $wordpress = ImfsQueries::getWpDescription( $db );
+  $dbms      = imfs_get_dbms_stats( $globalStatus, $variables );
+
   /** @noinspection PhpUnnecessaryLocalVariableInspection */
   $stats = [
-    'id'            => '', /* id should be first */
-    'wordpress'     => $wordpress,
-    'mysqlVer'      => $db->semver,
-    'keys'          => $db->getIndexList(),
-    'alltables'     => $tableStats,
+    'id'           => '', /* id should be first */
+    'wordpress'    => $wordpress,
+    'dbms'         => $dbms,
+    'mysqlVer'     => $db->semver,
+    'keys'         => $db->getIndexList(),
+    'alltables'    => $tableStats,
     //'timings'      => $db->timings,
-    'globalStatus'  => $globalStatus,
-    'variables'     => $variables,
+    'globalStatus' => $globalStatus,
+    'variables'    => $variables,
   ];
 
   return $stats;
 }
 
-function imfs_upload_monitor( $db, $idString, $name, $monitor ) {
+function imfs_get_dbms_stats( $globalStatus, $variables ) {
+  $dbms = [];
+  if ( isset( $globalStatus->Memory_used ) ) {
+    $dbms['mbytesRam'] = round( $globalStatus->Memory_used / ( 1024 * 1024 ), 0 );
+  }
+  if ( isset( $variables->innodb_buffer_pool_size ) ) {
+    $dbms['mbytesBufferPoolSize'] = round( $variables->innodb_buffer_pool_size / ( 1024 * 1024 ), 0 );
+  }
+  if ( isset( $globalStatus->Innodb_buffer_pool_bytes_data ) ) {
+    $dbms['mbytesBufferPoolActive'] = round( $globalStatus->Innodb_buffer_pool_bytes_data / ( 1024 * 1024 ), 0 );
+  }
+  if ( isset( $globalStatus->Innodb_buffer_pool_bytes_dirty ) ) {
+    $dbms['mbytesBufferPoolDirty'] = round( $globalStatus->Innodb_buffer_pool_bytes_dirty / ( 1024 * 1024 ), 0 );
+  }
+  if ( isset( $globalStatus->Uptime ) ) {
+    $dbms['uptime'] = round( $globalStatus->Uptime, 0 );
+  }
+  return $dbms;
+}
 
+function imfs_upload_monitor( $db, $idString, $name, $monitor ) {
+  $wordpress    = ImfsQueries::getWpDescription( $db );
+  $globalStatus = ImfsQueries::toObject( $db->getStatus() );
+  $variables    = ImfsQueries::toObject( $db->getVariables() );
+  $dbms         = imfs_get_dbms_stats( $globalStatus, $variables );
   try {
-    $monitor['id'] = $idString;
+    $monitor['id']        = $idString;
+    $monitor['wordpress'] = $wordpress;
+    $monitor['dbms']      = $dbms;
+    $monitor['alltables'] = $db->getTableStats();
     imfs_upload_post( (object) $monitor );
   } catch ( Exception $e ) {
     /* empty, intentionally. don't croak on uploading */

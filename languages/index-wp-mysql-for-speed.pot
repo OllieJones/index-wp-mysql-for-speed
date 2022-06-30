@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2022-06-29T13:32:53-04:00\n"
+"POT-Creation-Date: 2022-06-30T13:09:34-04:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.6.0\n"
 "X-Domain: index-wp-mysql-for-speed\n"
@@ -337,7 +337,7 @@ msgstr ""
 
 #. translators: for settings link on plugin page
 #: afp/factory/_common/_abstract/_model/AdminPageFramework_Message.php:93
-#: index-wp-mysql-for-speed.php:160
+#: index-wp-mysql-for-speed.php:165
 msgid "Settings"
 msgstr ""
 
@@ -940,7 +940,7 @@ msgid "Make corrections and try again."
 msgstr ""
 
 #: code/admin.php:1122
-#: code/cli.php:383
+#: code/cli.php:389
 msgid "Metadata uploaded to id "
 msgstr ""
 
@@ -1007,26 +1007,35 @@ msgstr ""
 msgid "Use this command:"
 msgstr ""
 
-#: code/cli.php:194
-#: code/cli.php:318
+#. translators: this appears in wpcli output. 1: site name  2: site URL  3: localized date and time
+#: code/cli.php:195
+msgid "Generated from %1$s (%2$s) at %3$s."
+msgstr ""
+
+#: code/cli.php:198
+msgid "Do not save these statements for later use. Instead, regnerate them."
+msgstr ""
+
+#: code/cli.php:199
+#: code/cli.php:324
 msgid "Dry run SQL statements. These statements were NOT run."
 msgstr ""
 
-#: code/cli.php:248
+#: code/cli.php:254
 msgid "These tables are not found or not eligible to"
 msgstr ""
 
-#: code/cli.php:252
+#: code/cli.php:258
 msgid "No tables are eligible to"
 msgstr ""
 
-#: code/cli.php:274
+#: code/cli.php:280
 msgid "MySQL statement"
 msgid_plural "MySQL statements"
 msgstr[0] ""
 msgstr[1] ""
 
-#: code/cli.php:277
+#: code/cli.php:283
 msgid "complete."
 msgstr ""
 
@@ -1094,74 +1103,86 @@ msgstr ""
 msgid "queries captured."
 msgstr ""
 
-#: code/rendermonitor.php:181
-msgid "Uptime"
-msgstr ""
-
-#: code/rendermonitor.php:187
-msgid "RAM:"
-msgstr ""
-
-#: code/rendermonitor.php:194
-msgid "Threads:"
-msgstr ""
-
-#: code/rendermonitor.php:198
+#: code/rendermonitor.php:183
 msgid "Version:"
 msgstr ""
 
-#: code/rendermonitor.php:209
+#: code/rendermonitor.php:194
 msgid "Connections/s"
 msgstr ""
 
-#: code/rendermonitor.php:212
+#: code/rendermonitor.php:197
 msgid "Failed connections/s"
 msgstr ""
 
-#: code/rendermonitor.php:219
+#: code/rendermonitor.php:204
 msgid "Abrupt disconnections/s"
 msgstr ""
 
-#: code/rendermonitor.php:225
+#: code/rendermonitor.php:210
 msgid "Queries/s"
 msgstr ""
 
-#: code/rendermonitor.php:232
+#: code/rendermonitor.php:217
 msgid "Net:"
 msgstr ""
 
-#: code/rendermonitor.php:234
+#: code/rendermonitor.php:219
 msgid "received"
 msgstr ""
 
-#: code/rendermonitor.php:236
+#: code/rendermonitor.php:221
 msgid "sent"
 msgstr ""
 
-#: code/rendermonitor.php:241
+#: code/rendermonitor.php:226
 msgid "IO:"
 msgstr ""
 
-#: code/rendermonitor.php:243
+#: code/rendermonitor.php:228
 msgid "read"
 msgstr ""
 
-#: code/rendermonitor.php:245
+#: code/rendermonitor.php:230
 msgid "rows"
 msgstr ""
 
-#: code/rendermonitor.php:249
+#: code/rendermonitor.php:234
 msgid "fetched"
 msgstr ""
 
-#: code/rendermonitor.php:254
+#: code/rendermonitor.php:239
 msgid "written"
 msgstr ""
 
-#: code/rendermonitor.php:259
+#: code/rendermonitor.php:244
 msgid "retrieved"
 msgstr ""
 
-#: code/rendermonitor.php:264
+#: code/rendermonitor.php:249
 msgid "stored"
+msgstr ""
+
+#: code/rendermonitor.php:724
+msgid "Uptime"
+msgstr ""
+
+#: code/rendermonitor.php:736
+msgid "Buffer Pool: Total:"
+msgstr ""
+
+#: code/rendermonitor.php:741
+msgid "Active:"
+msgstr ""
+
+#: code/rendermonitor.php:747
+msgid "% dirty"
+msgstr ""
+
+#: code/rendermonitor.php:759
+msgid "RAM:"
+msgstr ""
+
+#: code/rendermonitor.php:770
+msgid "Threads:"
 msgstr ""

@@ -15,7 +15,7 @@ function getGlobalStatus( $prior = false ) {
 
 
   /* add in a copy of some items that's not a difference */
-  $stateVars = 'Uptime|Memory_used|Threads_running';
+  $stateVars = 'Uptime|Memory_used|Threads_running|Innodb_buffer_pool_bytes_data|Innodb_buffer_pool_bytes_dirty';
   $stateVars = explode( '|', $stateVars );
 
   foreach ( $resultSet as $row ) {

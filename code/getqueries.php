@@ -435,23 +435,25 @@ class ImfsQueries {
   public static function getWpDescription( $db ) {
     global $wp_db_version;
     global $wp_version;
-    global $required_php_version;
-    global $required_mysql_version;
     global $_SERVER;
+    $dropins    = get_dropins();
+    $dropinList = [];
+    foreach ( $dropins as $dropin ) {
+      $dropinList[] = $dropin ['Name'];
+    }
     /** @noinspection PhpUnnecessaryLocalVariableInspection */
     $wordpress = [
-      'webserverversion'       => $_SERVER['SERVER_SOFTWARE'],
-      'wp_version'             => $wp_version,
-      'wp_db_version'          => $wp_db_version,
-      'phpversion'             => phpversion(),
-      'required_php_version'   => $required_php_version,
-      'mysqlversion'           => $db->semver->version,
-      'required_mysql_version' => $required_mysql_version,
-      'pluginversion'          => index_wp_mysql_for_speed_VERSION_NUM,
-      'is_multisite'           => is_multisite(),
-      'is_main_site'           => is_main_site(),
-      'current_blog_id'        => get_current_blog_id(),
-      'active_plugins'         => implode( '|', ImfsQueries::getActivePlugins() ),
+      'webserverversion' => $_SERVER['SERVER_SOFTWARE'],
+      'wp_version'       => $wp_version,
+      'wp_db_version'    => $wp_db_version,
+      'phpversion'       => phpversion(),
+      'mysqlversion'     => $db->semver->version,
+      'pluginversion'    => index_wp_mysql_for_speed_VERSION_NUM,
+      'is_multisite'     => is_multisite(),
+      'is_main_site'     => is_main_site(),
+      'current_blog_id'  => get_current_blog_id(),
+      'active_plugins'   => implode( '|', ImfsQueries::getActivePlugins() ),
+      'active_dropins'   => implode( '|', $dropinList ),
     ];
 
     return $wordpress;

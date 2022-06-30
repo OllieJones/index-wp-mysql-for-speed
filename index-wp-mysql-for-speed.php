@@ -47,6 +47,11 @@ define( 'index_wp_mysql_for_speed_help_site', 'https://plumislandmedia.net/index
 register_activation_hook( __FILE__, 'index_wp_mysql_for_speed_activate' );
 register_deactivation_hook( __FILE__, 'index_wp_mysql_for_speed_deactivate' );
 
+if (defined('WP_DEBUG') && WP_DEBUG) {
+  /* suppress core deprecated hook  TODO remove this after that is fixed. */
+  add_filter( 'deprecated_hook_trigger_error', '__return_false' );
+}
+
 add_action( 'init', 'index_wp_mysql_for_speed_do_everything' );
 
 function index_wp_mysql_for_speed_do_everything() {

@@ -160,6 +160,7 @@ END;
   }
 
   public function dbStatusSummary() {
+    global $wpdb;
     $l = $this->queryLog;
     $c = $this->classPrefix;
     if ( ! isset ( $l->status ) ) {
@@ -173,28 +174,12 @@ END;
 
     /* server state */
     $result = "<div class=\"$c top line\">";
-    $result .= __( 'Database server' ) . ' ' . DB_HOST . '&ensp;';
-    if ( ( isset( $status->Uptime_state ) ? $status->Uptime_state : 0 ) > 0 ) {
-      $uptime = $status->Uptime_state * 1000000;
-      $uptime = $this->timeCell( $uptime );
-      $uptime = $uptime[0];
-      $result .= __( 'Uptime', 'index-wp-mysql-for-speed' ) . ' ';
-      $result .= "<span class=\"$c count\">$uptime</span>&ensp;";
-    }
-    /* RAM: MariaDB only */
-    $memUsedTotal = isset( $status->Memory_used_state ) ? $status->Memory_used_state : 0;
-    if ( $memUsedTotal > 0 ) {
-      $result  .= __( 'RAM:', 'index-wp-mysql-for-speed' ) . ' ';
-      $ramUsed = $this->byteCell( $memUsedTotal );
-      $result  .= "<span class=\"$c count\">$ramUsed</span>" . '&ensp;';
-    }
-
-    $threads = isset( $status->Threads_running_state ) ? $status->Threads_running_state : 0;
-    if ( $threads > 0 ) {
-      $result .= __( 'Threads:', 'index-wp-mysql-for-speed' ) . ' ';
-      $result .= "<span class=\"$c count\">$threads</span>" . '&ensp;';
-    }
-
+    $pool   = $wpdb->get_results( "SHOW GLOBAL VARIABLES LIKE 'innodb_buffer_pool_size' " );
+    $pool   = $pool[0]->Value;
+    $result .= $this->getServerUptime( $status );
+    $result .= $this->getBufferPool( $status, $pool );
+    $result .= $this->getRam( $status );
+    $result .= $this->getThreads( $status );
     $result .= __( 'Version:', 'index-wp-mysql-for-speed' ) . ' ';
     $result .= $this->db->semver->version;
 
@@ -423,8 +408,6 @@ END;
     return <<<END
 		<td class="$c $class"></td>
 END;
-
-
   }
 
   /** arithmetic mean
@@ -575,12 +558,11 @@ END;
       /* descending order sort */
 
       return $a < $b ? 1 : - 1;
-
     } );
     $counter = 0;
     foreach ( $queries as $query ) {
       /* only the slowest queries */
-      if ( $counter ++ >= 20 ) {
+      if ( $counter ++ >= 25 ) {
         $qs[] = 'Fastest ' . ( count( $queries ) - $counter ) . ' queries omitted.';
         break;
       }
@@ -647,6 +629,9 @@ END;
     return sqrt( ( $sumsq / $n ) - ( $mean * $mean ) );
   }
 
+  /** Retrieve an array of statistics about this monitor to upload
+   * @return array
+   */
   public function getDbStatistics() {
     $status = $this->queryLog->status;
     if ( ! isset ( $status ) ) {
@@ -654,15 +639,11 @@ END;
     }
     $dt              = $this->queryLog->end - $this->queryLog->start;
     $res             = [];
-    $res['version']  = $this->db->semver->version;
     $res['duration'] = $dt;
-    if ( $status->Uptime_state ) {
+    if ( isset( $status->Uptime_state ) ) {
       $res['uptime'] = $status->Uptime_state;
     }
-    if ( $status->Memory_used_state ) {
-      $res['ram'] = $status->Memory_used_state;
-    }
-    if ( $status->Threads_running_state ) {
+    if ( isset( $status->Threads_running_state ) ) {
       $res['threads'] = $status->Threads_running_state + 0;
     }
     $failedConnections = $this->getFailed_connections( $status );
@@ -671,7 +652,7 @@ END;
     if ( $failedConnections ) {
       $res['failedConnRate'] = round( $failedConnections / $dt, 2 );
     }
-    if ( $status->Aborted_clients ) {
+    if ( isset( $status->Aborted_clients ) ) {
       $res['abortedConnRate'] = round( $status->Aborted_clients / $dt, 2 );
     }
     $res['queryRate'] = round( ( isset( $status->Questions ) ? $status->Questions : 0 ) / $dt, 2 );
@@ -728,5 +709,67 @@ END;
     $res .= "</tbody></table></div>";
 
     return $res;
+  }
+
+  /**
+   * @param $status
+   * @return string
+   */
+  private function getServerUptime( &$status ) {
+    $result = __( 'Database server' ) . ' ' . DB_HOST . '&ensp;';
+    if ( ( isset( $status->Uptime_state ) ? $status->Uptime_state : 0 ) > 0 ) {
+      $uptime = $status->Uptime_state * 1000000;
+      $uptime = $this->timeCell( $uptime );
+      $uptime = $uptime[0];
+      $result .= __( 'Uptime', 'index-wp-mysql-for-speed' ) . ' ';
+      $result .= "<span class=\"$this->classPrefix count\">$uptime</span>&ensp;";
+    }
+    return $result;
+  }
+
+  private function getBufferPool( &$status, $pool ) {
+    /* Buffer pool */
+    $result           = '';
+    $bufferPoolActive = isset ( $status->Innodb_buffer_pool_bytes_data_state ) ? $status->Innodb_buffer_pool_bytes_data_state : - 1;
+    $bufferPoolDirty  = isset ( $status->Innodb_buffer_pool_bytes_dirty_state ) ? $status->Innodb_buffer_pool_bytes_dirty_state : - 1;
+    if ( isset( $pool ) && $pool > 0 ) {
+      $result     .= __( 'Buffer Pool: Total:', 'index-wp-mysql-for-speed' ) . ' ';
+      $bufferPool = $this->byteCell( $pool );
+      $result     .= "<span class=\"$this->classPrefix count\">$bufferPool</span> ";
+    }
+    if ( $bufferPoolActive > 0 ) {
+      $result     .= __( 'Active:', 'index-wp-mysql-for-speed' ) . ' ';
+      $bufferPool = $this->byteCell( $bufferPoolActive );
+      $result     .= "<span class=\"$this->classPrefix count\">$bufferPool</span>";
+      if ( $bufferPoolDirty > 0 ) {
+        $percentDirty = round( 100 * $bufferPoolDirty / $bufferPoolActive );
+        $result       .= " <span class=\"$this->classPrefix count\">$percentDirty</span>";
+        $result       .= __( '% dirty', 'index-wp-mysql-for-speed' );
+      }
+      $result .= '&ensp;';
+    }
+    return $result;
+  }
+
+  private function getRam( $status ) {
+    /* RAM: MariaDB only */
+    $result       = '';
+    $memUsedTotal = isset( $status->Memory_used_state ) ? $status->Memory_used_state : 0;
+    if ( $memUsedTotal > 0 ) {
+      $result  .= __( 'RAM:', 'index-wp-mysql-for-speed' ) . ' ';
+      $ramUsed = $this->byteCell( $memUsedTotal );
+      $result  .= "<span class=\"$this->classPrefix count\">$ramUsed</span>" . '&ensp;';
+    }
+    return $result;
+  }
+
+  private function getThreads( $status ) {
+    $result  = '';
+    $threads = isset( $status->Threads_running_state ) ? $status->Threads_running_state : 0;
+    if ( $threads > 0 ) {
+      $result .= __( 'Threads:', 'index-wp-mysql-for-speed' ) . ' ';
+      $result .= "<span class=\"$this->classPrefix count\">$threads</span>" . '&ensp;';
+    }
+    return $result;
   }
 }
