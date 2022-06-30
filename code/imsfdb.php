@@ -18,7 +18,7 @@ class ImfsDb {
   private $initialized = false;
   private $hasHrTime;
   /** @var string[] list of index prefixes to ignore. */
-  private $indexStopList = [ 'woo_', 'crp_' ];
+  private $indexStopList = [ 'woo_', 'crp_', 'yarpp_' ];
   private $pluginOldVersion;
   private $pluginVersion;
 
