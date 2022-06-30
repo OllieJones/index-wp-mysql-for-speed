@@ -145,6 +145,11 @@ div.rendermon > div.rendermon.top.time {
     margin-bottom: 0.2em;
 }
 
+div.rendermon > div.rendermon.exhort {
+    padding-top: 0.4em;
+    font-weight: 600;
+}
+
 div.rendermon.query.table-container > .dataTables_wrapper > .dataTables_info {
     padding-right: 2em;
     padding-top: 0.5em;

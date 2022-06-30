@@ -21,7 +21,7 @@ Speed up your WordPress site by adding high-performance keys (database indexes) 
 
 <h4>How do I use this plugin?</h4>
 
-After you install and activate this plugin, visit the Index MySQL Tool under the Tools menu. From there you can press the *Add Keys Now* button. If you have large tables, use it with [WP-CLI](https://wp-cli.org/) instead to avoid timeouts. Give the shell command _wp help index-mysql_ to learn how.
+After you install and activate this plugin, visit the Index MySQL Tool under the Tools menu. From there you can press the *Add Keys Now* button. If you have large tables, use it with [WP-CLI](https://wp-cli.org/) instead to avoid timeouts. See the WP-CLI section to learn more.
 
 
 <h4>What does it do for my site?</h4>
@@ -77,11 +77,30 @@ Once you have gathered monitoring information, you can view the captured queries
 
 It's a good idea to monitor for a five-minute interval at a time of day when your site is busy. Once you've completed a monitor, you can examine it to determine which database operations are slowing you down the most.
 
+Please consider uploading your saved monitors to the plugin's servers. It's how we learn from your experience to keep improving. Push the Upload button on the monitor's tab.
+
+<h4>WP-CLI command line operation</h4>
+
+This plugin supports [WP-CLI](https://wp-cli.org/).  When your tables are large this is the best way to add the high-performance keys: it doesn't time out.
+
+Give the command `wp help index-mysql` for details. A few examples:
+
+* `wp index-mysql status` shows the current status of high-performance keys.
+* `wp index-mysql enable --all` adds the high-performance keys to all tables that don't have them.
+* `wp index-mysql enable wp_postmeta` adds the high-performance keys to the postmeta table.
+* `wp index-mysql disable --all` removes the high-performance keys from all tables that have them, restore WordPress's default keys.
+* `wp index-mysql enable --all --dryrun` writes out the SQL statements necessary to add the high-performance keys to all tables, but does not run them.
+* `wp index-mysql enable --all --dryrun | wp db query` writes out the SQL statements and pipes them to wp db to run them.
+
+Note: avoid saving the --dryrun output statements to run later. The plugin generates them to match the current state of your tables.
+
 <h4>What's new in version 1.4?</h4>
 
 Since the first release, our users have told us about several more opportunities to speed up their WooCommerce and core WordPress operations. We've added keys to the `meta` tables to help with searching for content, and to the `users` table to look people up by their display names. And, you can now upload saved Monitors so we can see your slowest queries. We'll use that information to improve future versions. Thanks, dear users!
 
 WordPress version updates attempt to restore some of WordPress's default keys. This plugin prompts you to add the high-performance keys after updates.
+
+We have added the --dryrun switch to the WP-CLI interface for those who want to see the SQL statements we use.
 
 = Credits =
 * Michael Uno for Admin Page Framework.
@@ -146,9 +165,8 @@ Please see more questions and answers [here](https://plumislandmedia.net/index-w
 * Fix some metadata-upload issues.
 
 == Upgrade Notice ==
-This version offers performance improvements, especially for larger sites and sites using managed service providers. It handles WordPress version updates better. It also offers help pages and better support for translators.
 
-After you update the plugin, please go to [Tools / Index MySQL](/wp-admin/tools.php?page=imfs_settings) to update your high-performance keys to the latest version.
+We've added the --dryrun option to the wp-cli interface, and corrected some defects.
 
 == Screenshots ==
 

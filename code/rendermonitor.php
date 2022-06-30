@@ -89,12 +89,14 @@ class renderMonitor {
     $c      = $this->classPrefix;
     $times  = $this->capturedQuerySummary();
     $dbSumm = $this->dbStatusSummary();
+    $exhortation = __("Please consider uploading your saved monitor! Learning from our users' monitors is how we improve the plugin.", 'index-wp-mysql-for-speed');
 
     return <<<END
     <div class="$c capture-header">
 		<h1 class="$c h1">$this->monitor</h1>
 		<div class="$c top time">$times</div>
 		<div class="$c top summary">$dbSumm</div>
+		<div class="$c top exhort">$exhortation</div>
     </div>
 END;
   }

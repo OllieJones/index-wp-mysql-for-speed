@@ -13,7 +13,8 @@
  * : Process all eligible tables.
  *
  * [--dryrun]
- * : Show SQL statements but don't run them.
+ * : Show SQL statements to change keys but don't run them. If you use this option you can pipe the output to wp db query. For example:
+ *     wp index-mysql enable --all --dryrun | wp db query
  *
  * [--exclude=<table[,table...]]
  * : Exclude named tables.
