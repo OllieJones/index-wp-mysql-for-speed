@@ -1,4 +1,4 @@
-<?php
+<?php /** @noinspection ALL */
 
 function imfsGetAllStats( $db ) {
   global $_SERVER;
@@ -49,9 +49,35 @@ function imfs_get_dbms_stats( $globalStatus, $variables ) {
     $dbms['mbytesBufferPoolDirty'] = round( $globalStatus->Innodb_buffer_pool_bytes_dirty / ( 1024 * 1024 ), 0 );
   }
   if ( isset( $globalStatus->Uptime ) ) {
-    $dbms['uptime'] = round( $globalStatus->Uptime, 0 );
+    $dbms['sUptime'] = round( $globalStatus->Uptime, 0 );
   }
+
+  $dbms['msNullQueryTime'] = imfsGetNullQueryTime();
   return $dbms;
+}
+
+function imfsGetNullQueryTime () {
+  /* Measure and report the elapsed wall time for a trivial query,
+ * hopefully to identify bogged-down and/or shared servers. */
+  global $wpdb;
+  $startTime = imfsGetTime();
+  $wpdb->get_var( ImfsQueries::tagQuery('SELECT 1') );
+  return floatval( round( 1000 * ( imfsGetTime() - $startTime ), 3 ) );
+}
+
+function imfsGetTime() {
+  try {
+    $hasHrTime = function_exists( 'hrtime' );
+  } catch ( Exception $ex ) {
+    $hasHrTime = false;
+  }
+
+  try {
+    /** @noinspection PhpElementIsNotAvailableInCurrentPhpVersionInspection */
+    return $hasHrTime ? hrtime( true ) * 0.000000001 : time();
+  } catch ( Exception $ex ) {
+    return time();
+  }
 }
 
 function imfs_upload_monitor( $db, $idString, $name, $monitor ) {

@@ -192,6 +192,8 @@ class ImfsMonitor {
       /* initialize both ends of the time range to the start time. */
       $queryLog->start   = $this->monval->starttime;
       $queryLog->end     = $this->monval->starttime;
+      /* track the minimum query time for all queries */
+      $queryLog->mintime = PHP_INT_MAX;
       $queryLog->queries = [];
       /* get the key status from when the monitor storted, for later reporting */
       $monval         = get_option( index_wp_mysql_for_speed_monitor );
@@ -280,6 +282,10 @@ class ImfsMonitor {
           $qe    = $queryLog->queries[ $qid ];
           $qe->n += 1;
           $qe->t += $thisQuery->t;
+          /* Keep track of the shortest query time */
+          if ($queryLog->mintime > $thisQuery->t){
+            $queryLog->mintime = $thisQuery->t;
+          }
           /* accumulate list of times taken */
           $qe->ts[] = $thisQuery->t;
           if ( $qe->maxt < $thisQuery->t ) {

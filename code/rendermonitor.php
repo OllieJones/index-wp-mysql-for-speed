@@ -86,10 +86,10 @@ class renderMonitor {
    * @return string
    */
   public function top() {
-    $c      = $this->classPrefix;
-    $times  = $this->capturedQuerySummary();
-    $dbSumm = $this->dbStatusSummary();
-    $exhortation = __("Please consider uploading your saved monitor! Learning from our users' monitors is how we improve the plugin.", 'index-wp-mysql-for-speed');
+    $c           = $this->classPrefix;
+    $times       = $this->capturedQuerySummary();
+    $dbSumm      = $this->dbStatusSummary();
+    $exhortation = __( "Please consider uploading your saved monitor! Learning from our users' monitors is how we improve the plugin.", 'index-wp-mysql-for-speed' );
 
     return <<<END
     <div class="$c capture-header">
@@ -250,8 +250,15 @@ END;
     $result        .= "<span class=\"$c count\">$rowsProcessed/s</span> ";
     $result        .= __( "stored", 'index-wp-mysql-for-speed' ) . ' ';
 
-    $result .= '</div>';
+    $result .= "</div>";
 
+    if ( isset ( $l->mintime ) && $l->mintime < PHP_INT_MAX ) {
+      $result        .= "<div class=\"$c top line indent\">";
+      $nullQueryTime = $this->timeCell( $l->mintime );
+      $result        .= __( 'Shortest Query Time:', 'index-wp-mysql-for-speed' ) . ' ';
+      $result        .= "<span class=\"$c count\">$nullQueryTime[0]</span> ";
+      $result        .= '</div>';
+    }
     return $result;
   }
 
@@ -674,6 +681,10 @@ END;
     $rowsStored = $this->getRowsStored( $status );
     if ( $rowsStored ) {
       $res['rowsStoredRate'] = round( $rowsStored / $dt, 2 );
+    }
+
+    if (isset ($this->queryLog->mintime) && $this->queryLog->mintime < PHP_INT_MAX ) {
+      $res['minQueryTime'] = round($this->queryLog->mintime);
     }
 
     return $res;
