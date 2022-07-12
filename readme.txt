@@ -140,6 +140,12 @@ MySQL versions 5.5.62 and above, 5.6.4 and above, 8 and above. MariaDB versions 
 
 [Please read this](https://www.plumislandmedia.net/index-wp-mysql-for-speed/tables_and_keys/).
 
+= Is this safe? Can I add high-performance keys and revert back to WordPress standard keys safely?
+
+Yes. it is safe to add keys and revert them. Changing keys is a routine database-maintenance operation.
+
+As you know you should still keep backups of your site: other things can cause data loss.
+
 = My site has thousands of registered users. My Users, Posts, and Pages panels in my dashboard are still load slowly even with this plugin.
 
 We have another plugin to handle lots of users, [Index WP Users For Speed](https://wordpress.org/plugins/index-wp-users-for-speed/). Due to the way WordPress handles users, just changing database keys is not enough to solve those performance problems.
