@@ -166,13 +166,15 @@ Please see more questions and answers [here](https://plumislandmedia.net/index-w
 = 1.4.5 =
 * (No changes to keys.)
 * Ignore FULLTEXT indexes and indexes from Contextual Related Posts plugin.
-* --dryrun switch on wp-cli to write out ALTER TABLE instead of sending it.
+* The new --dryrun switch on wp-cli now writes out ALTER TABLE data definition language instead of running it.
    Now can do `wp index-mysql enable --all --dryrun | wp db query` to run the DML.
 * Fix some metadata-upload issues.
+* Fix a bug when deleting a monitor.
+* Update the $wp_db_monitor version to 53496.
 
 == Upgrade Notice ==
 
-We've added the --dryrun option to the wp-cli interface, and corrected some defects.
+We've added the --dryrun option to the wp-cli interface, and corrected some bugs. Notice that no keys change when upgrading from any version 1.4.x to this version 1.4.5.
 
 == Screenshots ==
 

@@ -38,7 +38,7 @@ class ImfsGetIndexes {
    * @noinspection PhpUnusedParameterInspection
    */
   static function getStandardIndexes( $unconstrained, $version = 51917 ) {
-    /* these are WordPress's standard indexes for database version 51917 and before.
+    /* these are WordPress's standard indexes for database version 53496 and before.
      * see the end of this file for their definitions */
     return ImfsGetIndexes::$imfsStandardIndexes;
   }

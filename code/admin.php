@@ -1228,7 +1228,7 @@ class ImfsPage extends Imfs_AdminPageFramework {
             RenderMonitor::deleteMonitor( $monitor );
             $this->monitors = RenderMonitor::getMonitors();
             /* translators: name of a captured monitor object */
-            $message = __( 'Monitor %$1s deleted.', 'index-wp-mysql-for-speed' );
+            $message = __( 'Monitor %1$s deleted.', 'index-wp-mysql-for-speed' );
             $message = sprintf( $message, $monitor );
             $this->setSettingNotice( $message, 'updated' );
 
