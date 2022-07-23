@@ -63,7 +63,7 @@ class ImfsDb {
           if ( isset( $wpTables[ $name ] ) ) {
             $activeTable = true;
           }
-          if ( 0 === strpos( $name, $wpdb->prefix ) ) {
+          if ( !empty( $wpdb->prefix ) && 0 === strpos( $name, $wpdb->prefix ) ) {
             $activeTable = true;
           }
           if ( $activeTable ) {
