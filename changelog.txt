@@ -62,3 +62,6 @@ Do not upgrade the storage engine for views or for non-WordPress tables.
 * Fix a bug when deleting a monitor.
 * Update the $wp_db_monitor version to 53496.
 
+= 1.4.6 =
+(no changes to keys)
+Fix a bug when looking at the stoplist for index names.

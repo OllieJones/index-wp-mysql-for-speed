@@ -63,6 +63,7 @@ class ImfsDb {
           if ( isset( $wpTables[ $name ] ) ) {
             $activeTable = true;
           }
+          /* This ignores an empty prefix. Nevertheless, that is not a supported WordPress configuration. */
           if ( !empty( $wpdb->prefix ) && 0 === strpos( $name, $wpdb->prefix ) ) {
             $activeTable = true;
           }
@@ -265,7 +266,7 @@ class ImfsDb {
      * the indexStoplist array (skip woocommerce indexes) */
     foreach ( $this->indexStopList as $stop ) {
       foreach ( $indexes as $index => $val ) {
-        if ( substr_compare( $index, $stop, 0, null, true ) === 0 ) {
+        if ( strpos( $index, $stop ) === 0 ) {
           unset ( $indexes[ $index ] );
         }
       }

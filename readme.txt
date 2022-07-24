@@ -4,7 +4,7 @@ Tags: database, index, key, performance, mysql, wp-cli
 Requires at least: 5.2
 Tested up to: 6.0
 Requires PHP: 5.6
-Stable tag: 1.4.5
+Stable tag: 1.4.6
 Network: true
 License: GPL v2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -171,6 +171,10 @@ Please see more questions and answers [here](https://plumislandmedia.net/index-w
 * Fix some metadata-upload issues.
 * Fix a bug when deleting a monitor.
 * Update the $wp_db_monitor version to 53496.
+
+= 1.4.6 =
+(no changes to keys)
+Fix a bug when looking at the stoplist for index names.
 
 == Upgrade Notice ==
 
