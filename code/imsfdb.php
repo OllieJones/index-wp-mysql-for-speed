@@ -265,7 +265,7 @@ class ImfsDb {
      * the indexStoplist array (skip woocommerce indexes) */
     foreach ( $this->indexStopList as $stop ) {
       foreach ( $indexes as $index => $val ) {
-        if ( substr_compare( $index, $stop, null, true ) === 0 ) {
+        if ( substr_compare( $index, $stop, 0, null, true ) === 0 ) {
           unset ( $indexes[ $index ] );
         }
       }
