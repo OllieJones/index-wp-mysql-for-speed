@@ -12,9 +12,12 @@
  * [--all]
  * : Process all eligible tables.
  *
- * [--dryrun]
+ * [--dry-run]
  * : Show SQL statements to change keys but don't run them. If you use this option you can pipe the output to wp db query. For example:
  *     wp index-mysql enable --all --dryrun | wp db query
+ *
+ * [--dryrun]
+ * : Same as --dry-run
  *
  * [--exclude=<table[,table...]]
  * : Exclude named tables.
@@ -53,7 +56,7 @@ class ImsfCli extends WP_CLI_Command {
     global $wp_version;
     global $wp_db_version;
     $this->allSwitch  = ! empty( $assoc_args['all'] );
-    $this->dryrun     = ! empty( $assoc_args['dryrun'] );
+    $this->dryrun     = ! empty( $assoc_args['dry-run'] ) || ! empty( $assoc_args['dryrun'] );
     $this->assoc_args = $assoc_args;
     if ( is_multisite() ) {
       $restoreBlogId = get_current_blog_id();
