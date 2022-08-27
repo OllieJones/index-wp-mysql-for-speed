@@ -54,7 +54,7 @@ class ImfsNotice {
           break;
         case 'version_update':
           /* translators: 1: hyperlink to tools page for this plugin. */
-          $notice = __( 'Use the Index WP MySQL For Speed plugin <a href="%1$s">to update your high-performance keys</a> for the latest WordPress version.', 'index-wp-mysql-for-speed' );
+          $notice = __( 'A recent WordPress version update may have changed your high-performance keys. Use the Index WP MySQL For Speed plugin <a href="%1$s">to update your high-performance keys</a> if necessary.', 'index-wp-mysql-for-speed' );
           $notice = sprintf( $notice, $url );
           break;
         default:

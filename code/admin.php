@@ -68,7 +68,6 @@ class ImfsPage extends Imfs_AdminPageFramework {
     ];
     $this->addInPageTabs( 'imfs_settings', ...$tabs );
     $this->setPageHeadingTabsVisibility( false );
-
   }
 
   /** Render stuff at the top as needed. if the current tab is a monitor, render the header information
@@ -272,7 +271,6 @@ class ImfsPage extends Imfs_AdminPageFramework {
           ],
         ] );
 
-
       $this->addSettingFields(
 
         [
@@ -396,9 +394,10 @@ class ImfsPage extends Imfs_AdminPageFramework {
     $this->pluginUpgrading = $previousMajorVersion !== index_mysql_for_speed_major_version;
     $this->wpDbUpgrading   = $previousDbVersion !== $wp_db_version;
 
-    $opts['majorVersion']  = index_mysql_for_speed_major_version;
-    $opts['wp_version']    = $wp_version;
-    $opts['wp_db_version'] = $wp_db_version;
+    $opts['majorVersion']   = index_mysql_for_speed_major_version;
+    $opts['plugin_version'] = index_wp_mysql_for_speed_VERSION_NUM;
+    $opts['wp_version']     = $wp_version;
+    $opts['wp_db_version']  = $wp_db_version;
 
     update_option( $optName, $opts );
     /* stash the versions to help with updates */
@@ -536,7 +535,6 @@ class ImfsPage extends Imfs_AdminPageFramework {
           ],
         ] );
     }
-
   }
 
   /**
@@ -848,7 +846,6 @@ class ImfsPage extends Imfs_AdminPageFramework {
         ],
       ] );
 
-
     foreach ( $this->monitors as $monitor ) {
       $log     = new RenderMonitor( $monitor, $this->db );
       $summary = $log->load()->capturedQuerySummary();
@@ -1072,7 +1069,6 @@ class ImfsPage extends Imfs_AdminPageFramework {
         $inputs ['uploadId'] = $uploadId;
 
         return $this->action( $submitInfo['field_id'], $inputs, $oldInputs, $oAdminPage, $submitInfo );
-
       }
     }
 
@@ -1282,7 +1278,6 @@ class ImfsPage extends Imfs_AdminPageFramework {
 
     return $this->action( $submitInfo['field_id'], $inputs, $oldInputs, $factory, $submitInfo );
   }
-
 
 }
 

@@ -11,7 +11,7 @@
  * Plugin Name: Index WP MySQL For Speed
  * Plugin URI:  https://plumislandmedia.org/index-wp-mysql-for-speed/
  * Description: Speed up your WordPress site by adding high-performance keys (database indexes) to your MySQL database tables.
- * Version:           1.4.6
+ * Version:           1.4.7
  * Requires at least: 5.2
  * Tested up to:      6.0
  * Requires PHP:      5.6
@@ -26,7 +26,7 @@
  */
 
 /** current version number  */
-define( 'index_wp_mysql_for_speed_VERSION_NUM', '1.4.6' );
+define( 'index_wp_mysql_for_speed_VERSION_NUM', '1.4.7' );
 define( 'index_mysql_for_speed_major_version', 1.4 );
 define( 'index_mysql_for_speed_inception_major_version', 1.3 );
 define( 'index_mysql_for_speed_inception_wp_version', '5.8.3' );
@@ -47,7 +47,7 @@ define( 'index_wp_mysql_for_speed_help_site', 'https://plumislandmedia.net/index
 register_activation_hook( __FILE__, 'index_wp_mysql_for_speed_activate' );
 register_deactivation_hook( __FILE__, 'index_wp_mysql_for_speed_deactivate' );
 
-if (defined('WP_DEBUG') && WP_DEBUG) {
+if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
   /* suppress core deprecated hook  TODO remove this after that is fixed. */
   add_filter( 'deprecated_hook_trigger_error', '__return_false' );
 }
@@ -61,15 +61,18 @@ function index_wp_mysql_for_speed_do_everything() {
     $userCanLoad = is_multisite() ? is_super_admin() : current_user_can( 'activate_plugins' );
     if ( $userCanLoad ) {
       /* recent install or upgrade ? */
-      $nag = updateNag();
-      requireThemAll( $nag );
+      if ( index_wp_mysql_for_speed_plugin_updated() ) {
+        index_wp_mysql_for_speed_activate_mu_plugin();
+      }
+      $nag = index_wp_mysql_for_speed_nag();
+      index_wp_mysql_for_speed_require( $nag );
       add_filter( 'plugin_action_links_' . plugin_basename( __FILE__ ), 'index_wp_mysql_for_speed_action_link' );
     }
   }
   /* wp-cli interface activation */
   if ( defined( 'WP_CLI' ) && WP_CLI ) {
     require_once( plugin_dir_path( __FILE__ ) . 'code/cli.php' );
-    requireThemAll();
+    index_wp_mysql_for_speed_require();
   }
 }
 
@@ -77,11 +80,11 @@ function index_wp_mysql_for_speed_do_everything() {
  * Figure out whether user hasn't yet added or updated indexes.
  * Doing anything on the highperf index page clears this.
  * We check for plugin major version updates and wp database version updates.
- * @return string|bool
+ * @return string|false
  */
-function updateNag() {
+function index_wp_mysql_for_speed_nag() {
   global $wp_version, $wp_db_version;
-  $result = null;
+  $result = false;
   if ( ! wp_doing_ajax() ) {
     $imfsPage       = get_option( 'ImfsPage' );
     $majorVersion   = ( $imfsPage !== false && isset( $imfsPage['majorVersion'] ) && is_numeric( $imfsPage['majorVersion'] ) )
@@ -98,6 +101,26 @@ function updateNag() {
   }
 
   return $result;
+}
+
+/**
+ * Is the plugin or the installation recently updated?
+ * @return bool
+ */
+function index_wp_mysql_for_speed_plugin_updated() {
+  global $wp_version, $wp_db_version;
+  if ( ! wp_doing_ajax() ) {
+    $imfsPage = get_option( 'ImfsPage' );
+
+    $savedPluginVersion = ( $imfsPage !== false && isset( $imfsPage['plugin_version'] ) ) ? $imfsPage['plugin_version'] : '';
+    $savedWpVersion     = ( $imfsPage !== false && isset( $imfsPage['wp_version'] ) ) ? $imfsPage['wp_version'] : '';
+    $savedDbVersion     = ( $imfsPage !== false && isset( $imfsPage['wp_db_version'] ) ) ? $imfsPage['wp_db_version'] : '';
+
+    return ( index_wp_mysql_for_speed_VERSION_NUM !== $savedPluginVersion )
+           || ( $wp_version !== $savedWpVersion )
+           || ( $wp_db_version !== $savedDbVersion );
+  }
+  return false;
 }
 
 add_action( 'init', 'index_wp_mysql_for_speed_monitor', 0 );
@@ -125,12 +148,11 @@ function index_wp_mysql_for_speed_monitor() {
   /* wp-cli interface activation */
   if ( defined( 'WP_CLI' ) && WP_CLI ) {
     require_once( plugin_dir_path( __FILE__ ) . 'code/cli.php' );
-    requireThemAll();
+    index_wp_mysql_for_speed_require();
   }
 }
 
-/** @noinspection PhpIncludeInspection */
-function requireThemAll( $nag = false ) {
+function index_wp_mysql_for_speed_require( $nag = false ) {
   require_once( plugin_dir_path( __FILE__ ) . 'code/imsfdb.php' );
   require_once( plugin_dir_path( __FILE__ ) . 'afp/admin-page-framework.php' );
   require_once( plugin_dir_path( __FILE__ ) . 'code/admin.php' );
@@ -143,6 +165,38 @@ function requireThemAll( $nag = false ) {
 function index_wp_mysql_for_speed_activate() {
   if ( version_compare( get_bloginfo( 'version' ), '5.2', '<' ) ) {
     deactivate_plugins( basename( __FILE__ ) ); /* fail activation */
+    return;
+  }
+  index_wp_mysql_for_speed_activate_mu_plugin();
+}
+
+/** Install the mu plugin to filter DDL.
+ * @return void
+ */
+function index_wp_mysql_for_speed_activate_mu_plugin() {
+  try {
+    /* install mu-plugin for handling version upgrades to tables */
+    $filterName = 'index-wp-mysql-for-speed-update-filter.php';
+
+    /* Make sure the `mu-plugins` directory exists. It might not in a standard install */
+    if ( ! is_dir( WPMU_PLUGIN_DIR ) ) {
+      wp_mkdir_p( WPMU_PLUGIN_DIR );
+    }
+
+    $src  = trailingslashit( plugin_dir_path( __FILE__ ) ) . 'code/assets/mu/' . $filterName;
+    $dest = trailingslashit( WPMU_PLUGIN_DIR ) . $filterName;
+    /* Remove any existing instance of the plugin file in the mu-plugins directory. It might be old. */
+    wp_delete_file( $dest );
+
+    /* Copy the little must-use plugin to the mu-plugins directory. */
+    $result = copy( $src, $dest );
+    if ( ! $result ) {
+      /* translators: this goes into error_log() */
+      error_log( __( 'index-wp-mysql-for-speed: Unable to set up the mu-plugin to filter data definition language when preparing for a WordPress upgrade.', 'index-wp-mysql-for-speed' ) );
+    }
+  } catch ( Exception $exception ) {
+    /* translators: this goes into error_log() */
+    error_log( $exception->getMessage() . ': ' . __( 'index-wp-mysql-for-speed: Exception setting up the mu-plugin to filter data definition language when preparing for a WordPress upgrade.', 'index-wp-mysql-for-speed' ) );
   }
 }
 
@@ -151,6 +205,13 @@ function index_wp_mysql_for_speed_deactivate() {
   delete_option( 'imfsQueryMonitor' );
   delete_option( 'imfsQueryMonitornextMonitorUpdate' );
   delete_option( 'imfsQueryMonitorGather' );
+  /* Delete the mu-plugin for handling upgrades. */
+  $filterName = 'index-wp-mysql-for-speed-update-filter.php';
+  $dest       = trailingslashit( WPMU_PLUGIN_DIR ) . $filterName;
+  if ( ! @unlink( $dest ) ) {
+    /* translators: this goes into error_log() */
+    error_log( __( 'index-wp-mysql-for-speed: Unable to remove the mu-plugin to filter data definition language.', 'index-wp-mysql-for-speed' ) );
+  }
 }
 
 /**

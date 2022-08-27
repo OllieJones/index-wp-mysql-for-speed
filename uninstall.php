@@ -7,6 +7,11 @@ if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
   die;
 }
 
+/* make sure we've deleted the mu-plugin for handling upgrades. It should
+ * have been deleted on deactivation, but belt-and-suspenders */
+$filterName = 'index-wp-mysql-for-speed-update-filter.php';
+@unlink( trailingslashit( WPMU_PLUGIN_DIR ) . $filterName );
+
 /* delete settings */
 delete_option( 'ImfsPage' );
 /* delete saved monitors */

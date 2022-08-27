@@ -4,7 +4,7 @@ Tags: database, index, key, performance, mysql, wp-cli
 Requires at least: 5.2
 Tested up to: 6.0
 Requires PHP: 5.6
-Stable tag: 1.4.6
+Stable tag: 1.4.7
 Network: true
 License: GPL v2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -94,11 +94,11 @@ Give the command `wp help index-mysql` for details. A few examples:
 
 Note: avoid saving the --dryrun output statements to run later. The plugin generates them to match the current state of your tables.
 
-<h4>What's new in version 1.4?</h4>
+<h4>What's new in the latest version?</h4>
 
 Since the first release, our users have told us about several more opportunities to speed up their WooCommerce and core WordPress operations. We've added keys to the `meta` tables to help with searching for content, and to the `users` table to look people up by their display names. And, you can now upload saved Monitors so we can see your slowest queries. We'll use that information to improve future versions. Thanks, dear users!
 
-WordPress version updates attempt to restore some of WordPress's default keys. This plugin prompts you to add the high-performance keys after updates.
+The plugin now handles WordPress version updates correctly: they don't change your high-performance keys.
 
 We have added the --dryrun switch to the WP-CLI interface for those who want to see the SQL statements we use.
 
@@ -117,8 +117,8 @@ We have added the --dryrun switch to the WP-CLI interface for those who want to 
 
 = I don't see any changes to my database speed. Why not? =
 
-* On a modestly sized site (with a few users and a few hundred posts) your database may be fast enough without these keys. The speed improvements are most noticeable on larger sites with many posts and products.
 * Just installing and activating the plugin is **not enough to make it work**. Don't forget to visit the Index MySQL Tool under the Tools menu. From there you can press the **Add Keys Now** button.
+* On a modestly sized site (with a few users and a few hundred posts) your database may be fast enough without these keys. The speed improvements are most noticeable on larger sites with many posts and products.
 
 = I use a nonstandard database table prefix. Will this work ? =
 
@@ -146,6 +146,10 @@ Yes. it is safe to add keys and revert them. Changing keys is a routine database
 
 As you know you should still keep backups of your site: other things can cause data loss.
 
+= What happens to my tables and keys during a WordPress version update?
+
+If the plugin is activated during a WordPress version update, it prevents the update workflow from removing your high-performance keys (Version 1.4.7).
+
 = My site has thousands of registered users. My Users, Posts, and Pages panels in my dashboard are still load slowly even with this plugin.
 
 We have another plugin to handle lots of users, [Index WP Users For Speed](https://wordpress.org/plugins/index-wp-users-for-speed/). Due to the way WordPress handles users, just changing database keys is not enough to solve those performance problems.
@@ -156,29 +160,14 @@ Please see more questions and answers [here](https://plumislandmedia.net/index-w
 
 == Changelog ==
 
-
-= 1.4.4 =
-* (No changes to keys.)
-* Add support for internationalization. Speed up rendering of dashboard panels.
-* In MySQL 5.5, avoid using EXPLAIN on anything except SELECT queries.
-* Don't remove settings and monitors on deactivate, only on uninstall.
-
-= 1.4.5 =
-* (No changes to keys.)
-* Ignore FULLTEXT indexes and indexes from Contextual Related Posts plugin.
-* The new --dryrun switch on wp-cli now writes out ALTER TABLE data definition language instead of running it.
-   Now can do `wp index-mysql enable --all --dryrun | wp db query` to run the DML.
-* Fix some metadata-upload issues.
-* Fix a bug when deleting a monitor.
-* Update the $wp_db_monitor version to 53496.
-
-= 1.4.6 =
+= 1.4.7 =
 (no changes to keys)
-Fix a bug when looking at the stoplist for index names.
+Prevent WordPress version upgrades from altering high-performance keys.
+Add the `--dry-run` option to WP-CLI, with the same meaning as --dryrun.
 
 == Upgrade Notice ==
 
-We've added the --dryrun option to the wp-cli interface, and corrected some bugs. Notice that no keys change when upgrading from any version 1.4.x to this version 1.4.5.
+We've added the --dryrun (or --dry-run) option to the WP-CLI interface, and prevented WordPress version upgrades from altering high-performance keys. No keys change when upgrading from any version 1.4.x to this version 1.4.7.
 
 == Screenshots ==
 
