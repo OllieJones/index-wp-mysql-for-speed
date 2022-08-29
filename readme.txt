@@ -4,7 +4,7 @@ Tags: database, index, key, performance, mysql, wp-cli
 Requires at least: 5.2
 Tested up to: 6.0.2
 Requires PHP: 5.6
-Stable tag: 1.4.7
+Stable tag: 1.4.9
 Network: true
 License: GPL v2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -165,7 +165,7 @@ Please see more questions and answers [here](https://plumislandmedia.net/index-w
 Prevent WordPress version upgrades from altering high-performance keys.
 Add the `--dry-run` option to WP-CLI, with the same meaning as --dryrun.
 
-= 1.4.8 =
+= 1.4.9 =
 (no changes to keys)
 Fix defect #45 in the version upgrade logic that prevents altering high-performance keys during version updates. (Don't run the filter except during version updates, and only on an allowlist of tables.)
 
