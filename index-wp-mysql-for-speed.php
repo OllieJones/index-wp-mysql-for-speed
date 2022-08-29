@@ -40,7 +40,7 @@ define( 'index_wp_mysql_for_speed_monitor', 'imfsQueryMonitor' );
 define( 'index_wp_mysql_for_speed_querytag', '*imfs-query-tag*' );
 /* version 32814 was the advent of utfmb4 */
 define( 'index_wp_mysql_for_speed_first_compatible_db_version', 32814 );
-define( 'index_wp_mysql_for_speed_last_compatible_db_version', 0 ); /*tested up to 53496 */
+define( 'index_wp_mysql_for_speed_last_compatible_db_version', 0 ); /*tested up to 53932 */
 
 define( 'index_wp_mysql_for_speed_help_site', 'https://plumislandmedia.net/index-wp-mysql-for-speed/' );
 
