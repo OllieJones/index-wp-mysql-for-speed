@@ -11,9 +11,9 @@
  * Plugin Name: Index WP MySQL For Speed
  * Plugin URI:  https://plumislandmedia.org/index-wp-mysql-for-speed/
  * Description: Speed up your WordPress site by adding high-performance keys (database indexes) to your MySQL database tables.
- * Version:           1.4.9
+ * Version:           1.4.10
  * Requires at least: 5.2
- * Tested up to:      6.0
+ * Tested up to:      6.0.2
  * Requires PHP:      5.6
  * Author:       OllieJones, rjasdfiii
  * Author URI:   https://github.com/OllieJones
@@ -26,7 +26,7 @@
  */
 
 /** current version number  */
-define( 'index_wp_mysql_for_speed_VERSION_NUM', '1.4.9' );
+define( 'index_wp_mysql_for_speed_VERSION_NUM', '1.4.10' );
 define( 'index_mysql_for_speed_major_version', 1.4 );
 define( 'index_mysql_for_speed_inception_major_version', 1.3 );
 define( 'index_mysql_for_speed_inception_wp_version', '5.8.3' );
@@ -167,6 +167,7 @@ function index_wp_mysql_for_speed_activate() {
     deactivate_plugins( basename( __FILE__ ) ); /* fail activation */
     return;
   }
+
   index_wp_mysql_for_speed_activate_mu_plugin();
 }
 

@@ -1,7 +1,7 @@
 <?php
 /** Plugin Name: Index WP MySQL For Speed Upgrade Filter for mu-plugins.
  *  Description: Prevents version upgrades from changing database table keys. Installed during activation, removed during deactivation.
- *  Version: 1.4.9
+ *  Version: 1.4.10
  *  License: GPL v2 or later
  */
 
@@ -24,26 +24,61 @@ add_filter( 'dbdelta_queries', 'index_mysql_for_speed_upgrade_filter', 10, 1 );
  * @param string[] $queries An array of dbDelta SQL queries.
  * @since 3.3.0
  *
+ * @see WP_Upgrader::create_lock()
+ *
  */
 function index_mysql_for_speed_upgrade_filter( $queries ) {
   global $wpdb;
 
-  /* Is a core update in progress?  (One wishes we had ->is_lock_set(), but we don't.) */
-  $lock = WP_Upgrader::create_lock( 'core_updater', MINUTE_IN_SECONDS );
-  if ( $lock ) {
-    /* No, a core update is not in progress: we set the lock.
-     * Release the lock and return without filtering */
-    WP_Upgrader::release_lock( 'core_updater' );
-    return $queries;
-  }
-
-  /* A core update is in progress (the lock was already set) so we can proceed. */
-
-  $tablesToHandle = [ 'options', 'comments', 'commentmeta', 'users', 'usermeta', 'posts', 'postmeta', 'termmeta' ];
+  $tablesToHandle = [ 'termmeta', 'commentmeta', 'comments', 'options', 'postmeta', 'posts', 'users', 'usermeta' ];
   $prefix         = $wpdb->prefix;
   if ( is_string( $wpdb->base_prefix ) ) {
     $prefix = $wpdb->base_prefix;
   }
+
+  $doSomething = false;
+  /* do any of the queries relate to rekeyed tables? If not, bail. */
+  foreach ( $queries as $query ) {
+    if ( preg_match( '/CREATE TABLE[[:space:]]+/S', $query ) ) {
+      /* Get the name of the table involved here. Strip backticks, extract table name. */
+      $query = preg_replace( '/`([0-9a-zA-Z_]+)`/msS', '$1', $query );
+      $table = preg_replace( '/^[[:space:]]*CREATE TABLE[[:space:]]+([0-9a-zA-Z_]+).*$/msS', '$1', $query );
+
+      /* make sure the table name we have matches one of the tables we expect */
+      $startsOK = 0 === substr_compare( $table, $prefix, 0, strlen( $prefix ) );
+      $endsOK   = false;
+      foreach ( $tablesToHandle as $tableToHandle ) {
+        if ( 0 === substr_compare( $table, $tableToHandle, - strlen( $tableToHandle ) ) ) {
+          $endsOK = true;
+          break;
+        }
+      }
+      if ( $startsOK && $endsOK ) {
+        $doSomething = true;
+      }
+    }
+  }
+
+  /* bail unless it's one or more of our tables */
+  if ( ! $doSomething ) {
+    return $queries;
+  }
+
+  /* we want to do nothing here UNLESS WE'RE SURE a core update is in progress. */
+  $lock_option = 'core_updater.lock';
+  $lock_result = get_option( $lock_option );
+  /* no lock option found? we'e not doing a core update, so bail */
+  if ( ! $lock_result ) {
+    return $queries;
+  }
+
+  // Check to see if the lock is still valid. If it is, bail.
+  if ( $lock_result > ( time() - ( 15 * MINUTE_IN_SECONDS ) ) ) {
+    return $queries;
+  }
+
+  /* A core update is in progress (the lock is valid).  */
+
   $results = [];
   foreach ( $queries as $query ) {
     $resultQuery = $query;

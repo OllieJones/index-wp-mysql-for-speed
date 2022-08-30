@@ -77,3 +77,8 @@ Add the `--dry-run` switch to WP-CLI, with the same meaning as --dryrun.
 = 1.4.9 =
 (no changes to keys)
 Fix defect #45 in the version upgrade logic that prevents altering high-performance keys during version updates. (Don't run the filter except during version updates, and only on an allowlist of tables.)
+
+= 1.4.10 =
+(no changes to keys)
+Update fix to defect #45.
+
