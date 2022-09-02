@@ -70,10 +70,10 @@ abstract class Imfs_AdminPageFramework_Utility_Deprecated {
     }
     abstract class Imfs_AdminPageFramework_Utility_VariableType extends Imfs_AdminPageFramework_Utility_Deprecated {
         static public function isResourcePath($sPathOrURL) {
-            if (defined('PHP_MAXPATHLEN') && strlen($sPathOrURL) > PHP_MAXPATHLEN) {
+            if (defined('PHP_MAXPATHLEN') && is_string($sPathOrURL) && strlen($sPathOrURL) > PHP_MAXPATHLEN) {
                 return ( boolean )filter_var($sPathOrURL, FILTER_VALIDATE_URL);
             }
-            if (file_exists($sPathOrURL)) {
+            if (is_string($sPathOrURL) && file_exists($sPathOrURL)) {
                 return true;
             }
             return ( boolean )filter_var($sPathOrURL, FILTER_VALIDATE_URL);

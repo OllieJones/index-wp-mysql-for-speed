@@ -22,7 +22,7 @@ class Imfs_AdminPageFramework_Format_SubMenuPage extends Imfs_AdminPageFramework
     protected function _getFormattedSubMenuPageArray(array $aSubMenuPage) {
         $aSubMenuPage = $aSubMenuPage + array('show_page_title' => $this->oFactory->oProp->bShowPageTitle, 'show_page_heading_tabs' => $this->oFactory->oProp->bShowPageHeadingTabs, 'show_in_page_tabs' => $this->oFactory->oProp->bShowInPageTabs, 'in_page_tab_tag' => $this->oFactory->oProp->sInPageTabTag, 'page_heading_tab_tag' => $this->oFactory->oProp->sPageHeadingTabTag, 'capability' => $this->oFactory->oProp->sCapability,) + self::$aStructure;
         $aSubMenuPage['page_slug'] = $this->sanitizeSlug($aSubMenuPage['page_slug']);
-        $aSubMenuPage['screen_icon_id'] = trim($aSubMenuPage['screen_icon_id']);
+        $aSubMenuPage['screen_icon_id'] = is_string($aSubMenuPage['screen_icon_id']) ? trim($aSubMenuPage['screen_icon_id']) : $aSubMenuPage['screen_icon_id'];
         return array('href_icon_32x32' => $aSubMenuPage['screen_icon'], 'screen_icon_id' => $this->getAOrB(in_array($aSubMenuPage['screen_icon'], self::$aScreenIconIDs), $aSubMenuPage['screen_icon'], 'generic'), 'capability' => $this->getElement($aSubMenuPage, 'capability', $this->oFactory->oProp->sCapability), 'order' => $this->getAOrB(is_numeric($aSubMenuPage['order']), $aSubMenuPage['order'], $this->iParsedIndex * 10), 'show_debug_info' => $this->getAOrB(isset($aSubMenuPage['show_debug_info']), $aSubMenuPage['show_debug_info'], $this->oFactory->oProp->bShowDebugInfo),) + $aSubMenuPage;
     }
     }
