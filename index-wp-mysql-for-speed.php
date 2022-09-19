@@ -141,7 +141,7 @@ function index_wp_mysql_for_speed_monitor() {
       require_once( plugin_dir_path( __FILE__ ) . 'code/querymon.php' );
       $m = new ImfsMonitor( $monval, 'nocapture' );
       $m->completeMonitoring();
-      delete_option( index_wp_mysql_for_speed_monitor );
+      update_option( index_wp_mysql_for_speed_monitor, null, true );
     }
   }
   //}
@@ -167,7 +167,7 @@ function index_wp_mysql_for_speed_activate() {
     deactivate_plugins( basename( __FILE__ ) ); /* fail activation */
     return;
   }
-
+  update_option( index_wp_mysql_for_speed_monitor, null, true );
   index_wp_mysql_for_speed_activate_mu_plugin();
 }
 
@@ -206,6 +206,7 @@ function index_wp_mysql_for_speed_deactivate() {
   delete_option( 'imfsQueryMonitor' );
   delete_option( 'imfsQueryMonitornextMonitorUpdate' );
   delete_option( 'imfsQueryMonitorGather' );
+  delete_option( index_wp_mysql_for_speed_monitor );
   /* Delete the mu-plugin for handling upgrades. */
   $filterName = 'index-wp-mysql-for-speed-update-filter.php';
   $dest       = trailingslashit( WPMU_PLUGIN_DIR ) . $filterName;
