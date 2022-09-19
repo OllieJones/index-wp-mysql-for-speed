@@ -56,12 +56,12 @@ function imfs_get_dbms_stats( $globalStatus, $variables ) {
   return $dbms;
 }
 
-function imfsGetNullQueryTime () {
+function imfsGetNullQueryTime() {
   /* Measure and report the elapsed wall time for a trivial query,
  * hopefully to identify bogged-down and/or shared servers. */
   global $wpdb;
   $startTime = imfsGetTime();
-  $wpdb->get_var( ImfsQueries::tagQuery('SELECT 1') );
+  $wpdb->get_var( ImfsQueries::tagQuery( 'SELECT 1' ) );
   return floatval( round( 1000 * ( imfsGetTime() - $startTime ), 3 ) );
 }
 
@@ -81,6 +81,14 @@ function imfsGetTime() {
 }
 
 function imfs_upload_monitor( $db, $idString, $name, $monitor ) {
+
+  /* tidy up monitor query text strings, as JSON.parse can gack on bad utf-8 */
+  foreach ( $monitor['queries'] as &$query ) {
+    if ( is_array( $query ) ) {
+      $q          = mb_convert_encoding( $query['q'], 'UTF-8', 'UTF-8' );
+      $query['q'] = $q;
+    }
+  }
   $wordpress    = ImfsQueries::getWpDescription( $db );
   $globalStatus = ImfsQueries::toObject( $db->getStatus() );
   $variables    = ImfsQueries::toObject( $db->getVariables() );

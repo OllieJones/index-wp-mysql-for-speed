@@ -49,7 +49,7 @@ class ImfsMonitor {
                && strpos( $callTrace, 'Imfs_AdminPageFramework' ) === false ) {
             $query = preg_replace( '/[\t\r\n]+/m', ' ', trim( $q[0] ) );
             if ( stripos( $query, 'SHOW ' ) === false ) {
-              $q[0]    = $query;
+              $q[0]    =   mb_convert_encoding($query, 'UTF-8', 'UTF-8');
               $encoded = $this->encodeQuery( $q );
               if ( $encoded ) {
                 $uploads[] = $encoded;
