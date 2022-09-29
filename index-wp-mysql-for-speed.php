@@ -44,6 +44,12 @@ define( 'index_wp_mysql_for_speed_last_compatible_db_version', 0 ); /*tested up 
 
 define( 'index_wp_mysql_for_speed_help_site', 'https://plumislandmedia.net/index-wp-mysql-for-speed/' );
 
+if ( index_wp_mysql_for_speed_is_mu_plugin() ) {
+  /* directly include the mu-plugin file if we're installed as an mu-plugin */
+  $filterName = 'index-wp-mysql-for-speed-update-filter.php';
+  require trailingslashit( plugin_dir_path( __FILE__ ) ) . 'code/assets/mu/' . $filterName;
+}
+
 register_activation_hook( __FILE__, 'index_wp_mysql_for_speed_activate' );
 register_deactivation_hook( __FILE__, 'index_wp_mysql_for_speed_deactivate' );
 
@@ -179,21 +185,26 @@ function index_wp_mysql_for_speed_activate_mu_plugin() {
     /* install mu-plugin for handling version upgrades to tables */
     $filterName = 'index-wp-mysql-for-speed-update-filter.php';
 
-    /* Make sure the `mu-plugins` directory exists. It might not in a standard install */
-    if ( ! is_dir( WPMU_PLUGIN_DIR ) ) {
-      wp_mkdir_p( WPMU_PLUGIN_DIR );
-    }
-
     $src  = trailingslashit( plugin_dir_path( __FILE__ ) ) . 'code/assets/mu/' . $filterName;
     $dest = trailingslashit( WPMU_PLUGIN_DIR ) . $filterName;
-    /* Remove any existing instance of the plugin file in the mu-plugins directory. It might be old. */
-    wp_delete_file( $dest );
 
-    /* Copy the little must-use plugin to the mu-plugins directory. */
-    $result = copy( $src, $dest );
-    if ( ! $result ) {
-      /* translators: this goes into error_log() */
-      error_log( __( 'index-wp-mysql-for-speed: Unable to set up the mu-plugin to filter data definition language when preparing for a WordPress upgrade.', 'index-wp-mysql-for-speed' ) );
+    if ( file_exists( $dest ) ) {
+      /* Remove any existing instance of the plugin file in the mu-plugins directory. It might be old. */
+      wp_delete_file( $dest );
+    }
+
+    if (index_wp_mysql_for_speed_is_mu_plugin()) {
+      /* Make sure the `mu-plugins` directory exists. It might not in a standard install */
+      if ( ! is_dir( WPMU_PLUGIN_DIR ) ) {
+        wp_mkdir_p( WPMU_PLUGIN_DIR );
+      }
+
+      /* Copy the little must-use plugin to the mu-plugins directory. */
+      $result = copy( $src, $dest );
+      if ( ! $result ) {
+        /* translators: this goes into error_log() */
+        error_log( __( 'index-wp-mysql-for-speed: Unable to set up the mu-plugin to filter data definition language when preparing for a WordPress upgrade.', 'index-wp-mysql-for-speed' ) );
+      }
     }
   } catch ( Exception $exception ) {
     /* translators: this goes into error_log() */
@@ -206,12 +217,15 @@ function index_wp_mysql_for_speed_deactivate() {
   delete_option( 'imfsQueryMonitor' );
   delete_option( 'imfsQueryMonitornextMonitorUpdate' );
   delete_option( 'imfsQueryMonitorGather' );
+
   /* Delete the mu-plugin for handling upgrades. */
   $filterName = 'index-wp-mysql-for-speed-update-filter.php';
   $dest       = trailingslashit( WPMU_PLUGIN_DIR ) . $filterName;
-  if ( ! @unlink( $dest ) ) {
-    /* translators: this goes into error_log() */
-    error_log( __( 'index-wp-mysql-for-speed: Unable to remove the mu-plugin to filter data definition language.', 'index-wp-mysql-for-speed' ) );
+  if ( file_exists( $dest ) ) {
+    if ( ! @unlink( $dest ) ) {
+      /* translators: this goes into error_log() */
+      error_log( __( 'index-wp-mysql-for-speed: Unable to remove the mu-plugin to filter data definition language.', 'index-wp-mysql-for-speed' ) );
+    }
   }
 }
 
@@ -230,4 +244,13 @@ function index_wp_mysql_for_speed_action_link( $actions ) {
   ];
 
   return array_merge( $mylinks, $actions );
+}
+
+/**
+ * Checks if the plugin is installed as a regular or must-use plugin
+ *
+ * @return boolean
+ */
+function index_wp_mysql_for_speed_is_mu_plugin() {
+  return strstr( __DIR__, WPMU_PLUGIN_DIR ) !== false;
 }
