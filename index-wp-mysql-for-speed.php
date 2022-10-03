@@ -44,19 +44,8 @@ define( 'index_wp_mysql_for_speed_last_compatible_db_version', 0 ); /*tested up 
 
 define( 'index_wp_mysql_for_speed_help_site', 'https://plumislandmedia.net/index-wp-mysql-for-speed/' );
 
-if ( index_wp_mysql_for_speed_is_mu_plugin() ) {
-  /* directly include the mu-plugin file if we're installed as an mu-plugin */
-  $filterName = 'index-wp-mysql-for-speed-update-filter.php';
-  require trailingslashit( plugin_dir_path( __FILE__ ) ) . 'code/assets/mu/' . $filterName;
-}
-
 register_activation_hook( __FILE__, 'index_wp_mysql_for_speed_activate' );
 register_deactivation_hook( __FILE__, 'index_wp_mysql_for_speed_deactivate' );
-
-if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-  /* suppress core deprecated hook  TODO remove this after that is fixed. */
-  add_filter( 'deprecated_hook_trigger_error', '__return_false' );
-}
 
 add_action( 'init', 'index_wp_mysql_for_speed_do_everything' );
 
@@ -188,12 +177,7 @@ function index_wp_mysql_for_speed_activate_mu_plugin() {
     $src  = trailingslashit( plugin_dir_path( __FILE__ ) ) . 'code/assets/mu/' . $filterName;
     $dest = trailingslashit( WPMU_PLUGIN_DIR ) . $filterName;
 
-    if ( file_exists( $dest ) ) {
-      /* Remove any existing instance of the plugin file in the mu-plugins directory. It might be old. */
-      wp_delete_file( $dest );
-    }
-
-    if (index_wp_mysql_for_speed_is_mu_plugin()) {
+    if ( ! file_exists( $dest ) ) {
       /* Make sure the `mu-plugins` directory exists. It might not in a standard install */
       if ( ! is_dir( WPMU_PLUGIN_DIR ) ) {
         wp_mkdir_p( WPMU_PLUGIN_DIR );
@@ -244,13 +228,4 @@ function index_wp_mysql_for_speed_action_link( $actions ) {
   ];
 
   return array_merge( $mylinks, $actions );
-}
-
-/**
- * Checks if the plugin is installed as a regular or must-use plugin
- *
- * @return boolean
- */
-function index_wp_mysql_for_speed_is_mu_plugin() {
-  return strstr( __DIR__, WPMU_PLUGIN_DIR ) !== false;
 }
