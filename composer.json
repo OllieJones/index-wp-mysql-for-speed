@@ -1,5 +1,6 @@
 {
   "name": "olliejones/index-wp-mysql-for-speed",
+  "version": "0.0.1",
   "description": "Speed up your WordPress site by adding high-performance keys (database indexes) to your MySQL database tables.",
   "type": "wordpress-plugin",
   "keywords": [
@@ -34,9 +35,9 @@
   },
   "scripts": {
     "install-mu-filter": [
-      "pwd >> /tmp.composer.log",
+      "pwd >> /tmp/composer.log",
       "ls -alh >> /tmp/composer.log",
-      "mkdir ../../mu-plugins",
+      "mkdir -p ../../mu-plugins",
       "cp code/assets/mu/index-wp-mysql-for-speed-update-filter.php ../../mu-plugins/",
       "ls -Ralh ../../mu-plugins >> /tmp/composer.log"
     ],
