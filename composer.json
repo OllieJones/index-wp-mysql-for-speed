@@ -34,10 +34,11 @@
   },
   "scripts": {
     "install-mu-filter": [
-      "ls -alh > /tmp/composerlog",
-      "mkdir ../mu-plugins",
-      "cp code/assets/mu/index-wp-mysql-for-speed-update-filter.php ../mu-plugins/",
-      "ls -Ralh .. > /tmp/composer.log"
+      "pwd >> /tmp.composer.log",
+      "ls -alh >> /tmp/composer.log",
+      "mkdir ../../mu-plugins",
+      "cp code/assets/mu/index-wp-mysql-for-speed-update-filter.php ../../mu-plugins/",
+      "ls -Ralh ../../mu-plugins >> /tmp/composer.log"
     ],
     "post-install-cmd": [
       "@install-mu-filter"
