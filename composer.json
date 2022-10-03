@@ -1,0 +1,15 @@
+{
+    "name": "olliejones/index-wp-mysql-for-speed",
+    "description": "A plugin to modernize indexes to your WordPress installation's MySQL database.",
+    "type": "wordpress-muplugin",
+    "license": "GPL-2.0-or-later",
+    "authors": [
+        {
+            "name": "Oliver Jones"
+        },
+        {
+            "name": "Rick James"
+        }
+    ],
+    "require": {}
+}
