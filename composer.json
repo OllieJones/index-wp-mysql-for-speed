@@ -48,5 +48,10 @@
   },
   "scripts-descriptions": {
     "install-mu-filter": "Install the filter for WordPress version update data definition language into mu-plugins."
+  },
+  "config": {
+    "allow-plugins": {
+      "composer/installers": true
+    }
   }
 }
