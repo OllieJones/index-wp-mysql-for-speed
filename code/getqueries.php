@@ -441,6 +441,8 @@ class ImfsQueries {
     foreach ( $dropins as $dropin ) {
       $dropinList[] = $dropin ['Name'];
     }
+    $extensions = get_loaded_extensions();
+    natcasesort( $extensions );
     /** @noinspection PhpUnnecessaryLocalVariableInspection */
     $wordpress = [
       'webserverversion' => $_SERVER['SERVER_SOFTWARE'],
@@ -454,6 +456,7 @@ class ImfsQueries {
       'current_blog_id'  => get_current_blog_id(),
       'active_plugins'   => implode( '|', ImfsQueries::getActivePlugins() ),
       'active_dropins'   => implode( '|', $dropinList ),
+      'extensions'       => implode( '|', $extensions ),
     ];
 
     return $wordpress;

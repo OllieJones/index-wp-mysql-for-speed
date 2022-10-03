@@ -4,7 +4,7 @@ Tags: database, index, key, performance, mysql, wp-cli
 Requires at least: 5.2
 Tested up to: 6.0.2
 Requires PHP: 5.6
-Stable tag: 1.4.10
+Stable tag: 1.4.11
 Network: true
 License: GPL v2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -172,6 +172,10 @@ Fix defect #45 in the version upgrade logic that prevents altering high-performa
 = 1.4.10 =
 (no changes to keys)
 Update fix to defect #45.
+
+= 1.4.11 =
+(no changes to keys)
+So long, Heroku, and thanks for all the fish! (New metadata upload site).
 
 
 == Upgrade Notice ==

@@ -584,12 +584,12 @@ END;
       }
 
       $q = [
-        'f' => $query->f,
+        'f' => mb_convert_encoding($query->f, 'ISO-8859-1', 'UTF-8'),
         'a' => $query->a,
         'p' => $this->queryPlan( $query ),
         'n' => $query->n,
         't' => $query->t,
-        'q' => $shortened,
+        'q' => mb_convert_encoding($shortened, 'ISO-8859-1', 'UTF-8'),
         'c' => $traceback,
       ];
       if ( $query->n > 1 ) {
