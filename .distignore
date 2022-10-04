@@ -15,6 +15,7 @@ behat.yml
 circle.yml
 composer.json
 composer.lock
+/composer
 Gruntfile.js
 package.json
 package-lock.json

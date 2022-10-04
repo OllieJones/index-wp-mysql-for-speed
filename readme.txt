@@ -2,7 +2,7 @@
 Contributors: OllieJones, rjasdfiii
 Tags: database, index, key, performance, mysql, wp-cli
 Requires at least: 5.2
-Tested up to: 6.0.2
+Tested up to: 6.1
 Requires PHP: 5.6
 Stable tag: 1.4.11
 Network: true
@@ -109,6 +109,33 @@ We have added the --dryrun switch to the WP-CLI interface for those who want to 
 * Japreet Sethi for advice, and for testing on his large installation.
 * Rick James for everything.
 
+== Installation ==
+
+You may install this plugin by visiting Plugins > Add New on your site's Dashboard, then searching for *Index WP MySQL For Speed* and following the usual installation workflow.
+
+When you activate it, it will copy [a php source file](https://www.plumislandmedia.net/reference/filtering-database-changes-during-wordpress-updates/) into the [must-use plugins directory](https://wordpress.org/support/article/must-use-plugins/), `wp-content/mu-plugins`. Some sites' configurations prevent the web server from writing files into that directory. In that case the plugin will still work correctly. But, after WordPress core version upgrades you may have to revisit the Tools > Index MySQL page and correct the keying on some tables. Why? The mu-plugin prevents core version updates from trying to change keys.
+
+= Composer =
+
+If you configure your WordPress installation using composer, you may install this plugin into your WordPress top level configuration with the command
+
+`composer require "wpackagist-plugin/index-wp-mysql-for-speed":"^1.4"`
+
+During composer installation the plugin can automatically copy the necessary source file (see the previous section) into the must-use plugins directory. If you want that to happen, you should include these scripts in your top-level `composer.json` file.
+
+` "scripts": {
+         "install-wp-mysql-mu-module": [
+                 "@composer --working-dir=wordpress/wp-content/plugins/index-wp-mysql-for-speed install-mu-module"
+         ],
+         "post-install-cmd": [
+                 "@install-wp-mysql-mu-module"
+         ],
+         "post-update-cmd": [
+                 "@install-wp-mysql-mu-module"
+         ]
+     },
+`
+
 == Frequently Asked Questions ==
 
 = Should I back up my site before using this? =
@@ -154,7 +181,15 @@ If the plugin is activated during a WordPress version update, it prevents the up
 
 We have another plugin to handle lots of users, [Index WP Users For Speed](https://wordpress.org/plugins/index-wp-users-for-speed/). Due to the way WordPress handles users, just changing database keys is not enough to solve those performance problems.
 
-= How do I get an answer to another question? ==
+= Why did the size of my tables grow when I added high-performance keys? =
+
+Database keying works by making copies of your table’s data organized in ways that are easy to randomly access. Your MariaDB or MySQL server automatically maintains the copies of your data as you insert or update rows to each table.  And, the keying task adjusts the amount of free space in each block of your table’s data in preparation for the insertion of new rows. When free space is available, inserting new rows doesn’t require relatively slow block splits. Tables that have been in use for a long time often need new free space in many blocks. When adding keys, it is normal for table sizes to increase. It’s the oldest tradeoff in computer science: time vs. space.
+
+= Will the new keys be valid for new data in the tables? =
+
+**Yes**. Once the high-performance keys are in place MariaDB and MySQL automatically maintain them as you update,  delete, or insert rows of data to your tables. There is no need to do anything to apply the keys to new data: the DBMS software does that for you.
+
+= How do I get an answer to another question? =
 
 Please see more questions and answers [here](https://plumislandmedia.net/index-wp-mysql-for-speed/faq/).
 
@@ -176,11 +211,14 @@ Update fix to defect #45.
 = 1.4.11 =
 (no changes to keys)
 So long, Heroku, and thanks for all the fish! (New metadata upload site).
+Composer support.
 
 
 == Upgrade Notice ==
 
-We've added the --dryrun (or --dry-run) option to the WP-CLI interface, and prevented WordPress version upgrades from altering high-performance keys. No keys change when upgrading from any version 1.4.x to this version 1.4.8.
+We've added the --dryrun (or --dry-run) option to the WP-CLI interface, and prevented WordPress version upgrades from altering high-performance keys.
+
+And, we've added support for installing the plugin with composer. Props to [gregdev](https://github.com/gregdev).
 
 == Screenshots ==
 
