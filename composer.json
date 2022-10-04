@@ -36,12 +36,13 @@
   "scripts": {
     "install-mu-module": [
       "mkdir -p ../../mu-plugins",
-      "cp code/assets/mu/my-plugin-mu-plugin-file.php ../../mu-plugins/"
+      "cp code/assets/mu/index-wp-mysql-for-speed-update-filter.php ../../mu-plugins/"
     ]
   },
   "config": {
     "allow-plugins": {
-      "composer/installers": true
+      "composer/installers": true,
+      "johnpbloch/wordpress-core-installer": true
     }
   }
 }
