@@ -35,6 +35,7 @@
   },
   "scripts": {
     "install-mu-module": [
+      "pwd",
       "mkdir -p ../../mu-plugins",
       "cp code/assets/mu/index-wp-mysql-for-speed-update-filter.php ../../mu-plugins/"
     ]
