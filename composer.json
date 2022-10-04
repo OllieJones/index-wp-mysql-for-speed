@@ -1,6 +1,6 @@
 {
   "name": "olliejones/index-wp-mysql-for-speed",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Speed up your WordPress site by adding high-performance keys (database indexes) to your MySQL database tables.",
   "type": "wordpress-plugin",
   "keywords": [
@@ -31,7 +31,8 @@
   },
   "require": {
     "php": ">=5.6.20",
-    "composer/installers": "~v2"
+    "composer/installers": "~v2",
+    "olliejones/index-wp-mysql-for-speed-update-filter": "dev-main"
   },
   "config": {
     "allow-plugins": {

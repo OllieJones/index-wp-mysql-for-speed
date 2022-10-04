@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "f7bce57b8fa832f18201481833ac784a",
+    "content-hash": "faed5b7ef36da54c73651cc1d5739420",
     "packages": [
         {
             "name": "composer/installers",
@@ -150,12 +150,52 @@
                 }
             ],
             "time": "2022-08-20T06:45:11+00:00"
+        },
+        {
+            "name": "olliejones/index-wp-mysql-for-speed-update-filter",
+            "version": "dev-main",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/OllieJones/index-wp-mysql-for-speed-update-filter.git",
+                "reference": "905b5a806d7d4d716a828e8f238ca7a9fb3578c3"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/OllieJones/index-wp-mysql-for-speed-update-filter/zipball/905b5a806d7d4d716a828e8f238ca7a9fb3578c3",
+                "reference": "905b5a806d7d4d716a828e8f238ca7a9fb3578c3",
+                "shasum": ""
+            },
+            "require": {
+                "composer/installers": "~v2",
+                "php": ">=5.6.20"
+            },
+            "default-branch": true,
+            "type": "wordpress-muplugin",
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "authors": [
+                {
+                    "name": "OllieJones",
+                    "email": "olliejones@gmail.com"
+                }
+            ],
+            "description": "Prevents version upgrades from changing database table keys. Installed in mu-plugins during activation, removed during deactivation. This is a part of https://github.com/OllieJones/index-wp-mysql-for-speed, split out here to allow composer installation.",
+            "support": {
+                "forum": "https://wordpress.org/support/plugin/index-wp-mysql-for-speed/",
+                "issues": "https://github.com/OllieJones/index-wp-mysql-for-speed/issues",
+                "source": "https://github.com/OllieJones/index-wp-mysql-for-speed-update-filter/"
+            },
+            "time": "2022-10-04T13:33:10+00:00"
         }
     ],
     "packages-dev": [],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": [],
+    "stability-flags": {
+        "olliejones/index-wp-mysql-for-speed-update-filter": 20
+    },
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {
