@@ -49,7 +49,7 @@ class ImfsMonitor {
                && strpos( $callTrace, 'Imfs_AdminPageFramework' ) === false ) {
             $query = preg_replace( '/[\t\r\n]+/m', ' ', trim( $q[0] ) );
             if ( stripos( $query, 'SHOW ' ) === false ) {
-              $q[0]    =   mb_convert_encoding($query, 'UTF-8', 'UTF-8');
+              $q[0]    = mb_convert_encoding( $query, 'UTF-8', 'UTF-8' );
               $encoded = $this->encodeQuery( $q );
               if ( $encoded ) {
                 $uploads[] = $encoded;
@@ -80,6 +80,8 @@ class ImfsMonitor {
    */
   function encodeQuery( array $q, $explain = true ) {
     global $wpdb;
+    /* don't try to explain these statements */
+    $blocklist = [ 'SET', 'CREATE', 'DROP', 'ALTER', 'SHOW', 'EXPLAIN', 'ANALYZE' ];
     try {
       $item    = (object) [];
       $item->q = $q[0];
@@ -88,13 +90,21 @@ class ImfsMonitor {
       $item->s = intval( $q[3] ); /* query start time */
       $item->a = ! ! is_admin();
       if ( $explain ) {
+        /* look for statements where EXPLAIN must be blocked */
+        $blocked = false;
+        foreach ( $blocklist as $blocker ) {
+          if ( 0 === stripos( $q[0], $blocker . ' ' ) ) {
+            $blocked = true;
+            break;
+          }
+        }
         $explainer = $this->explainVerb;
         /* EXPLAIN SELECT is the only explain that works in MySQL 5.5 */
         if ( stripos( $q[0], 'SELECT ' ) !== 0 && $this->monval->semver->major <= 5 && $this->monval->semver->minor <= 5 ) {
           /* do not do the EXPLAIN */
           $item->e = null;
-        } else if ( stripos( $q[0], 'SET ' ) === 0 ) {
-          /* do not do the EXPLAIN on SET operations */
+        } else if ( $blocked ) {
+          /* do not do the EXPLAIN on SET and other blocked (DDL) operations */
           $item->e = null;
         } else {
           $explainq = $explainer . ' ' . $q[0];
@@ -190,8 +200,8 @@ class ImfsMonitor {
       $queryLog->gathercount = 1;
       $queryLog->querycount  = 0;
       /* initialize both ends of the time range to the start time. */
-      $queryLog->start   = $this->monval->starttime;
-      $queryLog->end     = $this->monval->starttime;
+      $queryLog->start = $this->monval->starttime;
+      $queryLog->end   = $this->monval->starttime;
       /* track the minimum query time for all queries */
       $queryLog->mintime = PHP_INT_MAX;
       $queryLog->queries = [];
@@ -283,7 +293,7 @@ class ImfsMonitor {
           $qe->n += 1;
           $qe->t += $thisQuery->t;
           /* Keep track of the shortest query time */
-          if ($queryLog->mintime > $thisQuery->t){
+          if ( $queryLog->mintime > $thisQuery->t ) {
             $queryLog->mintime = $thisQuery->t;
           }
           /* accumulate list of times taken */
