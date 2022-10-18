@@ -102,6 +102,18 @@ The plugin now handles WordPress version updates correctly: they don't change yo
 
 We have added the --dryrun switch to the WP-CLI interface for those who want to see the SQL statements we use.
 
+<h4>Why?</h4>
+
+Three reasons (maybe four):
+
+1. to save carbon footprint.
+1. to save carbon footprint.
+1. to save carbon footprint.
+1. to save people time.
+
+Seriously, the microwatt hours of electricity saved by faster web site technologies add up fast, especially at WordPress's global scale.
+
+
 = Credits =
 * Michael Uno for Admin Page Framework.
 * Marco Cesarato for LiteSQLParser.

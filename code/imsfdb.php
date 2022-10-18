@@ -227,9 +227,11 @@ class ImfsDb {
     }
 
     $q = 'ALTER TABLE ' . $prefixedName . ' ' . implode( ', ', $actions );
+    $stats = 'ANALYZE TABLE ' . $prefixedName;
     set_time_limit( $this->scriptTimeLimit );
     if ( ! $dryrun ) {
       $this->query( $q, true );
+      $this->query( $stats, true );
     }
     return $q . ';';
   }
