@@ -98,7 +98,7 @@ class ImfsQueries {
   }
 
   public static function tagQuery( $q ) {
-    return $q . '/*' . index_wp_mysql_for_speed_querytag . rand( 0, 999999999 ) . '*/';
+    return $q . '/*' . index_wp_mysql_for_speed_querytag . mt_rand( 0, 999999999 ) . '*/';
   }
 
   public static function redactHost( $host ) {
@@ -178,7 +178,7 @@ class ImfsQueries {
 						AND t.TABLE_NAME = k.TABLE_NAME
 						AND LOWER(k.COLUMN_NAME) LIKE '%_key'
              LEFT JOIN (
-                  SELECT '${p}options' TABLE_NAME,
+                  SELECT '{$p}options' TABLE_NAME,
                          DATABASE() TABLE_SCHEMA,    
                          SUM(autoload = 'yes') autoload_count
                     FROM {$p}options
@@ -186,7 +186,7 @@ class ImfsQueries {
 				       ON t.TABLE_SCHEMA = autoload.TABLE_SCHEMA
 						AND t.TABLE_NAME = autoload.TABLE_NAME
              WHERE t.TABLE_SCHEMA = DATABASE() 
-               AND t.TABLE_NAME IN ('${p}postmeta','${p}termmeta','${p}usermeta' ,'${p}posts','${p}comments', '${p}options', '${p}users', '${p}commentmeta')
+               AND t.TABLE_NAME IN ('{$p}postmeta','{$p}termmeta','{$p}usermeta' ,'{$p}posts','{$p}comments', '{$p}options', '{$p}users', '{$p}commentmeta')
              GROUP BY REPLACE(t.TABLE_NAME, 'wp_', '')";
   }
 
@@ -206,7 +206,7 @@ class ImfsQueries {
                 t.TABLE_COLLATION AS collation
              FROM information_schema.TABLES t
              WHERE t.TABLE_SCHEMA = DATABASE() 
-               AND t.TABLE_NAME IN ('${p}postmeta','${p}termmeta','${p}usermeta' ,'${p}posts','${p}comments', '${p}options', '${p}users', '${p}commentmeta')";
+               AND t.TABLE_NAME IN ('{$p}postmeta','{$p}termmeta','{$p}usermeta' ,'{$p}posts','{$p}comments', '{$p}options', '{$p}users', '{$p}commentmeta')";
   }
 
   public static function getTableFormatsQuery() {
@@ -387,7 +387,7 @@ class ImfsQueries {
     $charactersLength = strlen( $characters );
     $randomString     = '';
     for ( $i = 0; $i < $length; $i ++ ) {
-      $randomString .= $characters[ rand( 0, $charactersLength - 1 ) ];
+      $randomString .= $characters[ mt_rand( 0, $charactersLength - 1 ) ];
     }
 
     return $randomString;
@@ -478,5 +478,3 @@ class ImfsQueries {
   }
 
 }
-
-

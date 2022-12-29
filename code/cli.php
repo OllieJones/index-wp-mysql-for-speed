@@ -199,7 +199,7 @@ class ImsfCli extends WP_CLI_Command {
       $dateMessage = __( 'Generated from %1$s (%2$s) at %3$s.', 'index-wp-mysql-for-speed' );
       $dateMessage = sprintf( $dateMessage, get_option( 'blogname' ), get_option( 'siteurl' ), wp_date( get_option( 'date_format' ) . ' ' . get_option( 'time_format' ) ) );
       WP_CLI::log( $this->commentPrefix . __( $dateMessage ) );
-      WP_CLI::log( $this->commentPrefix . __( 'Do not save these statements for later use. Instead, regnerate them.', 'index-wp-mysql-for-speed' ) );
+      WP_CLI::log( $this->commentPrefix . __( 'Do not save these statements for later use. Instead, regenerate them.', 'index-wp-mysql-for-speed' ) );
       WP_CLI::log( $this->commentPrefix . __( 'Dry run SQL statements. These statements were NOT run.', 'index-wp-mysql-for-speed' ) );
       WP_CLI::log( "SET @@sql_mode := REPLACE(@@sql_mode, 'NO_ZERO_DATE', '');" );
     }

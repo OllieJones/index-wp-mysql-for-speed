@@ -60,17 +60,19 @@ class renderMonitor {
    * @return string
    */
   function render( $part ) {
-    $this->load();
-    $c      = $this->classPrefix;
-    $prefix = "<div class=\"$c index-wp-mysql-for-speed-content-container\">";
-    $suffix = "</div>";
-    if ( $part === 'top' ) {
-      return $prefix . "<div>" . $this->top() . "</div>";
-    } else if ( $part === 'bottom' ) {
-      return $this->table() . $suffix;
-    }
+	  $this->load();
+	  $c      = $this->classPrefix;
+	  $prefix = "<div class=\"$c index-wp-mysql-for-speed-content-container\">";
+	  $suffix = "</div>";
+	  if ( $part === 'top' ) {
+		  return $prefix . "<div>" . $this->top() . "</div>";
+	  }
 
-    return '';
+	  if ( $part === 'bottom' ) {
+		  return $this->table() . $suffix;
+	  }
+
+	  return '';
   }
 
   /** Load the monitor
@@ -110,7 +112,7 @@ END;
     $querycount = number_format_i18n( $l->querycount, 0 );
     $capString  = __( 'queries captured.', 'index-wp-mysql-for-speed' );
     $result     = <<<END
-		<span class="$c start">$start</span>―<span class="$c end">$end</span> <span class="$c count">(${duration[0]})</span>&emsp;<span class="$c count">$querycount</span>
+		<span class="$c start">$start</span>―<span class="$c end">$end</span> <span class="$c count">({$duration[0]})</span>&emsp;<span class="$c count">$querycount</span>
 END;
 
     return $result . ' ' . $capString;
@@ -493,53 +495,55 @@ END;
    * @return mixed|string
    */
   public function queryPlan( $q ) {
-    if ( ! $q->e || ! is_array( $q->e ) || count( $q->e ) === 0 ) {
-      return '';
-    }
-    $erow   = $q->e[0];
-    $extras = $erow->Extra;
-    if ( false !== stripos( $extras, 'impossible where' ) ) {
-      return $extras;
-    } else if ( false !== stripos( $extras, 'no tables' ) ) {
-      return $extras;
-    }
+	  if ( ! $q->e || ! is_array( $q->e ) || count( $q->e ) === 0 ) {
+		  return '';
+	  }
+	  $erow   = $q->e[0];
+	  $extras = $erow->Extra;
+	  if ( false !== stripos( $extras, 'impossible where' ) ) {
+		  return $extras;
+	  }
 
-    $expl   = [];
-    $expl[] = $erow->table;
+	  if ( false !== stripos( $extras, 'no tables' ) ) {
+		  return $extras;
+	  }
 
-    $type = $erow->select_type;
-    if ( false === stripos( $type, 'SIMPLE' ) ) {
-      $expl[] = $type . ':';
-    }
+	  $expl   = [];
+	  $expl[] = $erow->table;
 
-    if ( $erow->key ) {
-      $expl[] = '(' . $erow->key . ')';
-    }
-    if ( $erow->type && $erow->ref ) {
-      $expl[] = "[" . $erow->type . ":" . $erow->ref . "]";
-    } else if ( $erow->type ) {
-      $expl[] = "[" . $erow->type . "]";
-    } else if ( $erow->ref ) {
-      $expl[] = "[" . $erow->type . "]";
-    }
-    foreach ( explode( ";", $erow->Extra ) as $extra ) {
-      $extra = trim( $extra );
-      if ( false !== stripos( $extra, "using where" ) ) {
-        $expl[] = "Where" . ';';
-      } else if ( false !== stripos( $extra, "using index condition" ) ) {
-        $expl[] = "Index Condition" . ';';
-      } else if ( false !== stripos( $extra, "using index" ) ) {
-        $expl[] = "Covering index" . ';';
-      } else if ( false !== stripos( $extra, "using temporary" ) ) {
-        $expl[] = "Temp" . ';';
-      } else if ( false !== stripos( $extra, "using filesort" ) ) {
-        $expl[] = "Sort" . ';';
-      } else if ( strlen( $extra ) > 0 ) {
-        $expl[] = $extra . ';';
-      }
-    }
+	  $type = $erow->select_type;
+	  if ( false === stripos( $type, 'SIMPLE' ) ) {
+		  $expl[] = $type . ':';
+	  }
 
-    return implode( " ", $expl );
+	  if ( $erow->key ) {
+		  $expl[] = '(' . $erow->key . ')';
+	  }
+	  if ( $erow->type && $erow->ref ) {
+		  $expl[] = "[" . $erow->type . ":" . $erow->ref . "]";
+	  } else if ( $erow->type ) {
+		  $expl[] = "[" . $erow->type . "]";
+	  } else if ( $erow->ref ) {
+		  $expl[] = "[" . $erow->type . "]";
+	  }
+	  foreach ( explode( ";", $erow->Extra ) as $extra ) {
+		  $extra = trim( $extra );
+		  if ( false !== stripos( $extra, "using where" ) ) {
+			  $expl[] = "Where" . ';';
+		  } else if ( false !== stripos( $extra, "using index condition" ) ) {
+			  $expl[] = "Index Condition" . ';';
+		  } else if ( false !== stripos( $extra, "using index" ) ) {
+			  $expl[] = "Covering index" . ';';
+		  } else if ( false !== stripos( $extra, "using temporary" ) ) {
+			  $expl[] = "Temp" . ';';
+		  } else if ( false !== stripos( $extra, "using filesort" ) ) {
+			  $expl[] = "Sort" . ';';
+		  } else if ( strlen( $extra ) > 0 ) {
+			  $expl[] = $extra . ';';
+		  }
+	  }
+
+	  return implode( " ", $expl );
   }
 
   static function deleteMonitor( $monitor ) {
