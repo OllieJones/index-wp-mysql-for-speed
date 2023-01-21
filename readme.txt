@@ -102,7 +102,7 @@ The plugin now handles WordPress version updates correctly: they don't change yo
 
 We have added the --dryrun switch to the WP-CLI interface for those who want to see the SQL statements we use.
 
-<h4>Why?</h4>
+<h4>Why use this plugin?</h4>
 
 Three reasons (maybe four):
 
@@ -185,13 +185,27 @@ Yes. it is safe to add keys and revert them. Changing keys is a routine database
 
 As you know you should still keep backups of your site: other things can cause data loss.
 
-= What happens to my tables and keys during a WordPress version update?
+= I got a fatal error trying to add keys. How can I fix that? =
+
+Sometimes the Index WP MySQL For Speed plugin for WordPress generates errors when you use it to add keys. These can look like this or similar:
+
+    Fatal error: Uncaught ImfsException: [0]: Index for table 'wp_postmeta' is corrupt; try to repair it
+
+First, don't panic. This (usually) does not mean your site has been corrupted. It simply means your MariaDB or MySQL server was not able to add the keys to that particular table. Your site will still function ,but you won’t get the benefit of high-performance keys on the particular table. Very large tables are usually the ones causing this kind of error. Very likely you ran out of temporary disk space on your MariaDB or MySQL database server machine. The database server makes a temporary copy of a table when you add keys to it; that allows it to add the keys without blocking your users.
+
+It’s possible to correct this problem by changing your MariaDB or MySQL configuration. [Instructions are here](https://wordpress.org/support/topic/fatal-error-uncaught-exception-29/).
+
+= What happens to my tables and keys during a WordPress version update? =
 
 If the plugin is activated during a WordPress version update, it prevents the update workflow from removing your high-performance keys (Version 1.4.7).
 
 = My site has thousands of registered users. My Users, Posts, and Pages panels in my dashboard are still load slowly even with this plugin.
 
 We have another plugin to handle lots of users, [Index WP Users For Speed](https://wordpress.org/plugins/index-wp-users-for-speed/). Due to the way WordPress handles users, just changing database keys is not enough to solve those performance problems.
+
+= How can I enable persistent object caching on my site? =
+
+Persistent object caching can help your site's database performance by reducing its workload. You can read about it [here](https://developer.wordpress.org/reference/classes/wp_object_cache/#persistent-cache-plugins). If your hosting provider doesn't offer redis or memcached cache-server technology you can try using our [SQLite Object Cache](https://wordpress.org/plugins/sqlite-object-cache/) plugin for the purpose.
 
 = Why did the size of my tables grow when I added high-performance keys? =
 
