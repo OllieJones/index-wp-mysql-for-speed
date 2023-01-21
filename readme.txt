@@ -191,7 +191,7 @@ Sometimes the Index WP MySQL For Speed plugin for WordPress generates errors whe
 
     Fatal error: Uncaught ImfsException: [0]: Index for table 'wp_postmeta' is corrupt; try to repair it
 
-First, don't panic. This (usually) does not mean your site has been corrupted. It simply means your MariaDB or MySQL server was not able to add the keys to that particular table. Your site will still function ,but you won’t get the benefit of high-performance keys on the particular table. Very large tables are usually the ones causing this kind of error. Very likely you ran out of temporary disk space on your MariaDB or MySQL database server machine. The database server makes a temporary copy of a table when you add keys to it; that allows it to add the keys without blocking your users.
+First, don't panic. This (usually) does not mean your site has been corrupted. It simply means your MariaDB or MySQL server was not able to add the keys to that particular table. Your site will still function, but you won’t get the benefit of high-performance keys on the particular table. Very large tables are usually the ones causing this kind of error. Very likely you ran out of temporary disk space on your MariaDB or MySQL database server machine. The database server makes a temporary copy of a table when you add keys to it; that allows it to add the keys without blocking your users.
 
 It’s possible to correct this problem by changing your MariaDB or MySQL configuration. [Instructions are here](https://wordpress.org/support/topic/fatal-error-uncaught-exception-29/).
 
