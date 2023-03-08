@@ -2,9 +2,9 @@
 Contributors: OllieJones, rjasdfiii
 Tags: database, index, key, performance, mysql, wp-cli
 Requires at least: 5.2
-Tested up to: 6.1
+Tested up to: 6.2
 Requires PHP: 5.6
-Stable tag: 1.4.11
+Stable tag: 1.4.12
 Network: true
 License: GPL v2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -239,6 +239,10 @@ Update fix to defect #45.
 So long, Heroku, and thanks for all the fish! (New metadata upload site).
 Composer support.
 
+= 1.4.12 =
+(no changes to keys)
+Change max_statement_time session variable if necessary to avoid "Query execution was interrupted" errors.
+Do ANALYZE TABLE after each rekeying operation.
 
 == Upgrade Notice ==
 

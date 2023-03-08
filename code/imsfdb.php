@@ -18,7 +18,7 @@ class ImfsDb {
   private $initialized = false;
   private $hasHrTime;
   /** @var string[] list of index prefixes to ignore. */
-  private $indexStopList = [ 'woo_', 'crp_', 'yarpp_' ];
+  private $indexStopList = [ 'woo_', 'crp_', 'yarpp_', 'index_wp_mysql_protect_' ];
   private $pluginOldVersion;
   private $pluginVersion;
 
@@ -157,11 +157,61 @@ class ImfsDb {
     return $this->get_results( ImfsQueries::getTableStatsQuery() );
   }
 
-  function getVariables() {
-    return $this->get_results( "SHOW GLOBAL VARIABLES" );
-  }
+	/**
+	 * Retrieve all DBMS variables.
+	 *
+	 * @return array Resultset, array of objects with Variable_name and Value attributes.
+	 * @throws ImfsException
+	 */
+	public function getVariables() {
+		return $this->get_results( "SHOW GLOBAL VARIABLES" );
+	}
 
-  function getStatus() {
+	/**
+	 * Retrieve one variable.
+	 *
+	 * @param string $name Variable name.
+	 *
+	 * @return null|mixed The variable's value, or null if the variable doesn't exist, or more than one was returned.
+	 */
+	public function getVariable( $name ) {
+		try {
+			$name      = sanitize_key( $name );
+			$resultset = $this->get_results( "SHOW GLOBAL VARIABLES LIKE '$name'" );
+			if ( is_array( $resultset ) && 1 === count( $resultset ) ) {
+				return $resultset[ $name ]->Value;
+			}
+		}
+		catch (Exception $e) {
+			return null;
+		}
+		return null;
+	}
+
+	/**
+	 * Set a session variable.
+	 *
+	 * @param string $name The variable's name.
+	 * @param string|int|float $value The value.
+	 *
+	 * @return bool False on failure.
+	 */
+	function set_session_variable ( $name, $value ) {
+		try {
+			global $wpdb;
+			$name = sanitize_key( $name );
+			$q = "SET SESSION $name=";
+			$q .= is_numeric( $value ) ? '%d' : '%s';
+			$sql  = $this->tagQuery( $q );
+			$wpdb->query( $wpdb->prepare( $sql, $value ) );
+		}
+		catch (Exception $e) {
+			return false;
+		}
+		return true;
+	}
+
+	function getStatus() {
     return $this->get_results( "SHOW GLOBAL STATUS" );
   }
 
@@ -228,14 +278,49 @@ class ImfsDb {
 
     $q = 'ALTER TABLE ' . $prefixedName . ' ' . implode( ', ', $actions );
     $stats = 'ANALYZE TABLE ' . $prefixedName;
-    set_time_limit( $this->scriptTimeLimit );
     if ( ! $dryrun ) {
+	  $this->set_runtime_limit();
       $this->query( $q, true );
       $this->query( $stats, true );
     }
     return $q . ';';
   }
 
+	/**
+	 * @param float|int|null $seconds Time limit. Default is $this->scriptTimeLimit
+	 *
+	 * @return int|float|null Value to use in setting max_statement_time. Null if not needed.
+	 */
+  public function get_max_statement_time ( $seconds = null ) {
+	  $seconds = $seconds ?: $this->scriptTimeLimit;
+	  $max_statement_time = $this->getVariable( 'max_statement_time' );
+	  if ( $max_statement_time && is_numeric( $max_statement_time ) ){
+		  /* The server has a max_statement_time variable */
+		  if ($max_statement_time > 0 && $max_statement_time < $seconds) {
+			  /* It is set lower than our runtime limit. Increase it. */
+			  return $seconds;
+		  }
+	  }
+	  return null;
+  }
+
+	/**
+	 * Set the runtime limit for a query.
+	 *
+	 * @param int $seconds The limit. Default from $this->scriptTimeLimit.
+	 *
+	 * @return void
+	 * @throws ImfsException
+	 */
+  private function set_runtime_limit ( $seconds = null ) {
+	  $seconds = $seconds ?: $this->scriptTimeLimit;
+	  $max_statement_time = $this->get_max_statement_time( $seconds );
+	  if ( $max_statement_time ) {
+		  /* It is set lower than our runtime limit. Increase it. */
+		  $this->set_session_variable( 'max_statement_time', $seconds );
+	  }
+	  set_time_limit( $seconds );
+  }
   /**
    * @param int $targetState 0 -- WordPress default    1 -- high-performance
    * @param string $name table name
@@ -635,7 +720,7 @@ class ImfsDb {
     if ( $dryrun ) {
       return $sql;
     }
-    set_time_limit( $this->scriptTimeLimit );
+    $this->set_runtime_limit();
     $this->query( $sql, true );
 
     return true;
