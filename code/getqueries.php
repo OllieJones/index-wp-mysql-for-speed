@@ -28,6 +28,7 @@ class ImfsQueries {
 
     $results->db_host = ImfsQueries::redactHost( DB_HOST );
     $ver              = explode( '-', $results->version, 3 );
+    $version_string   = $ver[0];
     if ( count( $ver ) >= 2 ) {
       $results->fork = $ver[1];
     }
@@ -55,13 +56,13 @@ class ImfsQueries {
     }
     /* work out whether we have Antelope or Barracuda InnoDB format */
     /* mariadb 10.3 + */
-    if ( $isMaria && $results->major >= 10 && $results->minor >= 3 ) {
+    if ( $isMaria && version_compare( $version_string, '10.3.0', 'ge' ) ) {
       $results->unconstrained = 1;
 
       return ImfsQueries::makeNumeric( $results );
     }
-    /* mariadb 10.2 ar before */
-    if ( $isMaria && $results->major >= 10 ) {
+    /* mariadb 10.2 or before */
+    if ( $isMaria && version_compare( $version_string, '10.0.0', 'ge' ) ) {
 
       $results->unconstrained = ImfsQueries::hasLargePrefix();
 

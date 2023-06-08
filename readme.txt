@@ -2,9 +2,9 @@
 Contributors: OllieJones, rjasdfiii
 Tags: database, index, key, performance, mysql, wp-cli
 Requires at least: 5.2
-Tested up to: 6.2
+Tested up to: 6.2.2
 Requires PHP: 5.6
-Stable tag: 1.4.12
+Stable tag: 1.4.13
 Network: true
 License: GPL v2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -120,6 +120,7 @@ Seriously, the microwatt hours of electricity saved by faster web site technolog
 * Allan Jardine for Datatables.net.
 * Japreet Sethi for advice, and for testing on his large installation.
 * Rick James for everything.
+* Jetbrains for their IDE tools, especially PhpStorm. It's hard to imagine trying to navigate an epic code base without their tools.
 
 == Installation ==
 
@@ -243,6 +244,10 @@ Composer support.
 (no changes to keys)
 Change max_statement_time session variable if necessary to avoid "Query execution was interrupted" errors.
 Do ANALYZE TABLE after each rekeying operation.
+
+= 1.4.13 =
+(no changes to keys)
+Support MariaDB 11.x in version-detection code.
 
 == Upgrade Notice ==
 
