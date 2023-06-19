@@ -21,6 +21,7 @@ class Imfs_AdminPageFramework_TableOfContents {
         $this->sHTML = preg_replace_callback('/<h[2-' . $iDepth . ']*[^>]*>.*?<\/h[2-' . $iDepth . ']>/i', array($this, '_replyToInsertNamedElement'), $this->sHTML);
         $_aOutput = array();
         foreach ($this->_aMatches as $_iIndex => $_sMatch) {
+            $_sMatch = is_string( $_sMatch ) ? $_sMatch : '';
             $_sMatch = strip_tags($_sMatch, '<h1><h2><h3><h4><h5><h6><h7><h8>');
             $_sMatch = preg_replace('/<h([1-' . $iDepth . '])>/', '<li class="toc$1"><a href="#toc_' . $_iIndex . '">', $_sMatch);
             $_sMatch = preg_replace('/<\/h[1-' . $iDepth . ']>/', '</a></li>', $_sMatch);
@@ -37,4 +38,3 @@ class Imfs_AdminPageFramework_TableOfContents {
         return "<span class='toc_header_link' id='toc_{$_icount}'></span>" . PHP_EOL . $aMatches[0];
     }
     }
-    

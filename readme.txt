@@ -4,7 +4,7 @@ Tags: database, index, key, performance, mysql, wp-cli
 Requires at least: 5.2
 Tested up to: 6.2.2
 Requires PHP: 5.6
-Stable tag: 1.4.13
+Stable tag: 1.4.14
 Network: true
 License: GPL v2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -248,6 +248,10 @@ Do ANALYZE TABLE after each rekeying operation.
 = 1.4.13 =
 (no changes to keys)
 Support MariaDB 11.x in version-detection code.
+
+= 1.4.14 =
+(no changes to keys)
+Deal with php 8.2 deprecations.
 
 == Upgrade Notice ==
 

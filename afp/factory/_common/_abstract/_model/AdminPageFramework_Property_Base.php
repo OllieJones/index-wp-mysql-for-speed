@@ -70,15 +70,16 @@ abstract class Imfs_AdminPageFramework_Property_Base extends Imfs_AdminPageFrame
     static private $___sCacheReferrer;
     private function ___getReferrer() {
         self::$___sCacheReferrer = isset(self::$___sCacheReferrer) ? self::$___sCacheReferrer : wp_get_referer();
-        return self::$___sCacheReferrer;
+        return is_string( self::$___sCacheReferrer ) ? self::$___sCacheReferrer : '';
     }
     private function ___getURLQuery() {
         if (!$this->bIsAdminAjax) {
             return $this->getHTTPQueryGET(array(), array());
         }
-		$query = parse_url($this->___getReferrer(), PHP_URL_QUERY);
-		$query = $query ?: '';
-        parse_str($query, $_aQuery);
+        parse_str(
+            parse_url( $this->___getReferrer(), PHP_URL_QUERY ), // query string such as `foo=bar&abc=xyz`
+            $_aQuery
+        );
         return $this->getHTTPQueryGET(array(), array()) + $_aQuery;
     }
     private function ___setGlobals() {

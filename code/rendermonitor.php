@@ -500,6 +500,7 @@ END;
 	  }
 	  $erow   = $q->e[0];
 	  $extras = $erow->Extra;
+      $extras = is_string( $extras ) ? $extras : '';
 	  if ( false !== stripos( $extras, 'impossible where' ) ) {
 		  return $extras;
 	  }
@@ -526,7 +527,7 @@ END;
 	  } else if ( $erow->ref ) {
 		  $expl[] = "[" . $erow->type . "]";
 	  }
-	  foreach ( explode( ";", $erow->Extra ) as $extra ) {
+	  foreach ( explode( ";", $extras ) as $extra ) {
 		  $extra = trim( $extra );
 		  if ( false !== stripos( $extra, "using where" ) ) {
 			  $expl[] = "Where" . ';';

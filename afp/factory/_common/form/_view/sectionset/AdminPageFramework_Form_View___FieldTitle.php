@@ -30,7 +30,24 @@ class Imfs_AdminPageFramework_Form_View___FieldTitle extends Imfs_AdminPageFrame
         }
         $_oInputTagIDGenerator = new Imfs_AdminPageFramework_Form_View___Generate_FieldInputID($aField, 0);
         $_aLabelAttributes = array('class' => $this->getClassAttribute('index-wp-mysql-for-speed-field-title', $this->aClassSelectors), 'for' => $_oInputTagIDGenerator->get(),);
-        $_sOutput.= $aField['title'] ? "<label " . $this->getAttributes($_aLabelAttributes) . "'>" . "<a id='{$aField['field_id']}'></a>" . "<span title='" . esc_attr(strip_tags(is_array($aField['description']) ? implode('&#10;', $aField['description']) : $aField['description'])) . "'>" . $aField['title'] . $this->_getTitleColon($aField) . "</span>" . "</label>" . $this->_getToolTip($aField['tip'], $aField['field_id']) : '';
+        $_sOutput .= $aField[ 'title' ]
+            ? "<label " . $this->getAttributes( $_aLabelAttributes ) . "'>"
+            . "<a id='{$aField[ 'field_id' ]}'></a>"  // to allow the browser to link to the element.
+            . "<span title='"
+            . esc_attr(
+                strip_tags(
+                    is_array( $aField[ 'description' ] )
+                        ? implode( '&#10;', $aField[ 'description' ] )
+                        : ( is_string( $aField[ 'description' ] ) ? $aField[ 'description' ] : '' )
+                )
+            )
+            . "'>"
+            . $aField[ 'title' ]
+            . $this->_getTitleColon( $aField )
+            . "</span>"
+            . $this->_getToolTip( $aField[ 'tip' ], $aField[ 'field_id' ] )
+            . "</label>"
+            : '';
         $_sOutput.= $this->_getFieldOutputsInFieldTitleAreaFromNestedFields($aField);
         return $_sOutput;
     }
@@ -61,4 +78,3 @@ class Imfs_AdminPageFramework_Form_View___FieldTitle extends Imfs_AdminPageFrame
         }
     }
     }
-    
