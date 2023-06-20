@@ -7,9 +7,11 @@
 class Imfs_AdminPageFramework_TabNavigationBar extends Imfs_AdminPageFramework_FrameworkUtility {
     public $sTabTag = 'h2';
     public $aTabs = array();
+    private $aActiveSlugs;
     public $aAttributes = array('class' => 'nav-tab-wrapper',);
     public $aTab = array('slug' => null, 'title' => null, 'href' => null, 'disabled' => null, 'class' => null, 'attributes' => array(),);
     public $aCallbacks = array('format' => null, 'arguments' => array(),);
+
     public function __construct(array $aTabs, $asActiveTabSlugs, $sTabTag = 'h2', $aAttributes = array('class' => 'nav-tab-wrapper',), $aCallbacks = array()) {
         $this->aCallbacks = $aCallbacks + array('format' => null, 'arguments' => null,);
         $this->aTabs = $this->_getFormattedTabs($aTabs);
@@ -61,4 +63,3 @@ class Imfs_AdminPageFramework_TabNavigationBar extends Imfs_AdminPageFramework_F
         return $this->getHTMLTag('a', $_aATagAttributes, $aTab['title']);
     }
     }
-    

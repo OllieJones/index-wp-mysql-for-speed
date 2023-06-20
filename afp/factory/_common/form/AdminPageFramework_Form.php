@@ -359,6 +359,7 @@ abstract class Imfs_AdminPageFramework_Form_Utility extends Imfs_AdminPageFramew
         public $sStructureType = '';
         public $aFieldTypeDefinitions = array();
         public $aSectionsets = array('_default' => array('section_id' => '_default',),);
+        public $aSections = array();
         public $aFieldsets = array();
         public $aSavedData = array();
         public $sCapability = '';

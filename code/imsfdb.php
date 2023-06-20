@@ -12,6 +12,7 @@ class ImfsDb {
   public $messages = [];
   public $semver;
   public $tableCounts;
+  public $tableFormats;
   public $oldEngineTables;
   public $newEngineTables;
   public $timings;

@@ -15,6 +15,7 @@ class ImfsPage extends Imfs_AdminPageFramework {
    * @var bool true if reindexing does not have the 191 prefix index limitation.
    */
   public $unconstrained = false;
+  private $pluginUpgrading = false;
   private $wpDbUpgrading = false;
   private $db;
   private $dontNavigate;

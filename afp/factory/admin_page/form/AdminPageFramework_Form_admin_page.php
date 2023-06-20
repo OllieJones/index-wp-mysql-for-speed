@@ -136,4 +136,3 @@ class Imfs_AdminPageFramework_Form_admin_page extends Imfs_AdminPageFramework_Fo
         }
     }
     }
-    
