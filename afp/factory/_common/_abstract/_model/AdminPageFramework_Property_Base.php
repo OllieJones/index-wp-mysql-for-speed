@@ -76,8 +76,10 @@ abstract class Imfs_AdminPageFramework_Property_Base extends Imfs_AdminPageFrame
         if (!$this->bIsAdminAjax) {
             return $this->getHTTPQueryGET(array(), array());
         }
+        $url = parse_url( $this->___getReferrer(), PHP_URL_QUERY );
+        $url = $url ? $url : '';
         parse_str(
-            parse_url( $this->___getReferrer(), PHP_URL_QUERY ), // query string such as `foo=bar&abc=xyz`
+            $url, // query string such as `foo=bar&abc=xyz`
             $_aQuery
         );
         return $this->getHTTPQueryGET(array(), array()) + $_aQuery;
