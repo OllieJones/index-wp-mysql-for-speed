@@ -82,3 +82,8 @@ Fix defect #45 in the version upgrade logic that prevents altering high-performa
 (no changes to keys)
 Update fix to defect #45.
 
+= 1.4.11 =
+(no changes to keys)
+So long, Heroku, and thanks for all the fish! (New metadata upload site).
+Composer support.
+

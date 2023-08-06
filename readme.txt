@@ -2,7 +2,7 @@
 Contributors: OllieJones, rjasdfiii
 Tags: database, index, key, performance, mysql, wp-cli
 Requires at least: 5.2
-Tested up to: 6.2.2
+Tested up to: 6.3
 Requires PHP: 5.6
 Stable tag: 1.4.14
 Network: true
@@ -222,24 +222,6 @@ Please see more questions and answers [here](https://plumislandmedia.net/index-w
 
 == Changelog ==
 
-= 1.4.7 =
-(no changes to keys)
-Prevent WordPress version upgrades from altering high-performance keys.
-Add the `--dry-run` option to WP-CLI, with the same meaning as --dryrun.
-
-= 1.4.9 =
-(no changes to keys)
-Fix defect #45 in the version upgrade logic that prevents altering high-performance keys during version updates. (Don't run the filter except during version updates, and only on an allowlist of tables.)
-
-= 1.4.10 =
-(no changes to keys)
-Update fix to defect #45.
-
-= 1.4.11 =
-(no changes to keys)
-So long, Heroku, and thanks for all the fish! (New metadata upload site).
-Composer support.
-
 = 1.4.12 =
 (no changes to keys)
 Change max_statement_time session variable if necessary to avoid "Query execution was interrupted" errors.
@@ -251,6 +233,7 @@ Support MariaDB 11.x in version-detection code.
 
 = 1.4.14 =
 (no changes to keys)
+Handle database version 55853 (no schema changes).
 Deal with php 8.2 deprecations.
 
 == Upgrade Notice ==
