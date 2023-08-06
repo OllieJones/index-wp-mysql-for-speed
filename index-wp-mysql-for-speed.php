@@ -13,7 +13,7 @@
  * Description: Speed up your WordPress site by adding high-performance keys (database indexes) to your MySQL database tables.
  * Version:           1.4.14
  * Requires at least: 5.2
- * Tested up to:      6.2.2
+ * Tested up to:      6.3
  * Requires PHP:      5.6
  * Author:       OllieJones, rjasdfiii
  * Author URI:   https://github.com/OllieJones
@@ -51,7 +51,12 @@ register_deactivation_hook( __FILE__, 'index_wp_mysql_for_speed_deactivate' );
 
 add_action( 'init', 'index_wp_mysql_for_speed_do_everything' );
 
-function index_wp_mysql_for_speed_do_everything() {
+function index_wp_mysql_for_speed_do_everything( ) {
+
+//  define( 'INDEX_WP_MYSQL_FOR_SPEED_TEST', true ); /*tested up to 53932 */
+  if ( defined ('INDEX_WP_MYSQL_FOR_SPEED_TEST') && INDEX_WP_MYSQL_FOR_SPEED_TEST) {
+    require_once( plugin_dir_path( __FILE__ ) . 'tests/test-update-filter.php' );
+  }
   /* admin page activation */
   $admin = is_admin();
   if ( $admin ) {

@@ -5,12 +5,15 @@
  *  License: GPL v2 or later
  */
 
+namespace index_wp_mysql_for_speed;
+
 if ( ! defined( 'ABSPATH' ) ) {
   die( 'We\'re sorry, but you can not directly access this file.' );
 }
 
+error_log(__FILE__ . ' loaded.');
 /* this filter never gets called except during version upgrades, when ordinary plugins aren't loaded. */
-add_filter( 'dbdelta_queries', 'index_mysql_for_speed_upgrade_filter', 10, 1 );
+add_filter( 'dbdelta_queries', 'index_wp_mysql_for_speed\upgrade_filter', 10, 1 );
 
 /** Filters the dbDelta SQL queries.
  *
@@ -27,34 +30,28 @@ add_filter( 'dbdelta_queries', 'index_mysql_for_speed_upgrade_filter', 10, 1 );
  * @see WP_Upgrader::create_lock()
  *
  */
-function index_mysql_for_speed_upgrade_filter( $queries ) {
+function upgrade_filter( $queries ) {
   global $wpdb;
 
-  $tablesToHandle = [ 'termmeta', 'commentmeta', 'comments', 'options', 'postmeta', 'posts', 'users', 'usermeta' ];
-  $prefix         = $wpdb->prefix;
+  $tablenames     = [ 'termmeta', 'commentmeta', 'comments', 'options', 'postmeta', 'posts', 'users', 'usermeta' ];
+  $tablesToHandle = array();
+  foreach ( $tablenames as $tablename ) {
+    $tablesToHandle[ $wpdb->prefix . $tablename ] = 1;
+  }
   if ( is_string( $wpdb->base_prefix ) ) {
-    $prefix = $wpdb->base_prefix;
+    foreach ( $tablenames as $tablename ) {
+      $tablesToHandle[ $wpdb->base_prefix . $tablename ] = 1;
+    }
   }
 
   $doSomething = false;
   /* do any of the queries relate to rekeyed tables? If not, bail. */
   foreach ( $queries as $query ) {
     if ( preg_match( '/CREATE TABLE[[:space:]]+/S', $query ) ) {
-      /* Get the name of the table involved here. Strip backticks, extract table name. */
-      $query = preg_replace( '/`([0-9a-zA-Z_]+)`/msS', '$1', $query );
-      $table = preg_replace( '/^[[:space:]]*CREATE TABLE[[:space:]]+([0-9a-zA-Z_]+).*$/msS', '$1', $query );
-
-      /* make sure the table name we have matches one of the tables we expect */
-      $startsOK = 0 === substr_compare( $table, $prefix, 0, strlen( $prefix ) );
-      $endsOK   = false;
-      foreach ( $tablesToHandle as $tableToHandle ) {
-        if ( 0 === substr_compare( $table, $tableToHandle, - strlen( $tableToHandle ) ) ) {
-          $endsOK = true;
-          break;
-        }
-      }
-      if ( $startsOK && $endsOK ) {
+      $table = table_name( $query );
+      if ( array_key_exists( $table, $tablesToHandle ) ) {
         $doSomething = true;
+        break;
       }
     }
   }
@@ -67,7 +64,10 @@ function index_mysql_for_speed_upgrade_filter( $queries ) {
   /* we want to do nothing here UNLESS WE'RE SURE a core update is in progress. */
   $lock_option = 'core_updater.lock';
   $lock_result = get_option( $lock_option );
-  /* no lock option found? we'e not doing a core update, so bail */
+  if ( defined( 'INDEX_WP_MYSQL_FOR_SPEED_TEST' ) && INDEX_WP_MYSQL_FOR_SPEED_TEST ) {
+    $lock_result = time() - HOUR_IN_SECONDS;
+  }
+  /* no lock option found? we're not doing a core update, so bail */
   if ( ! $lock_result ) {
     return $queries;
   }
@@ -78,34 +78,46 @@ function index_mysql_for_speed_upgrade_filter( $queries ) {
   }
 
   /* A core update is in progress (the lock is valid).  */
-
+  error_log( 'upgrade filter running' );
   $results = [];
   foreach ( $queries as $query ) {
     $resultQuery = $query;
     if ( preg_match( '/CREATE TABLE[[:space:]]+/S', $query ) ) {
       /* Get the name of the table involved here. Strip backticks, extract table name. */
-      $query = preg_replace( '/`([0-9a-zA-Z_]+)`/msS', '$1', $query );
-      $table = preg_replace( '/^[[:space:]]*CREATE TABLE[[:space:]]+([0-9a-zA-Z_]+).*$/msS', '$1', $query );
+      $table = table_name( $query );
+      if ( array_key_exists( $table, $tablesToHandle ) ) {
+        error_log( 'original ddl: ' . $query );
 
-      /* make sure the table name we have matches one of the tables we expect */
-      $startsOK = 0 === substr_compare( $table, $prefix, 0, strlen( $prefix ) );
-      $endsOK   = false;
-      foreach ( $tablesToHandle as $tableToHandle ) {
-        if ( 0 === substr_compare( $table, $tableToHandle, - strlen( $tableToHandle ) ) ) {
-          $endsOK = true;
-          break;
-        }
-      }
-      if ( $startsOK && $endsOK ) {
         /* get the present table definition without backticks */
+        $suppress    = $wpdb->suppress_errors( true );
         $resultQuery = $wpdb->get_row( "SHOW CREATE TABLE $table;", ARRAY_N );
+        $wpdb->suppress_errors( $suppress );
+
         if ( is_array( $resultQuery ) && 2 === count( $resultQuery ) && is_string( $resultQuery[1] ) ) {
           $resultQuery = $resultQuery[1];
           $resultQuery = preg_replace( '/`([0-9a-zA-Z_]+)`/msS', '$1', $resultQuery );
+          error_log( 'modified ddl: ' . $resultQuery );
+
         }
       }
     }
     $results [] = $resultQuery;
   }
+  add_filter( 'query', 'index_wp_mysql_for_speed\query_filter', 10, 1 );
   return $results;
 }
+
+function table_name( $query ) {
+  /* Get the name of the table involved here. Strip backticks, extract table name. */
+  $query = preg_replace( '/`([0-9a-zA-Z_]+)`/msS', '$1', $query );
+  return preg_replace( '/^[[:space:]]*CREATE TABLE[[:space:]]+([0-9a-zA-Z_]+).*$/msS', '$1', $query );
+}
+
+function query_filter( $query ) {
+  error_log( 'update_filter: ' . $query );
+  global $wpdb;
+  if ( preg_match( '/ALTER TABLE[[:space:]]+/S', $query ) ) {
+  }
+}
+
+
