@@ -258,7 +258,7 @@ class Imfs_AdminPageFramework_WPUtility_URL extends Imfs_AdminPageFramework_Util
                     continue;
                 }
                 $aArgs[1] = $sActionHook;
-                call_user_func_array(array(get_class(), 'addAndDoAction'), $aArgs);
+                call_user_func_array(array( static::class, 'addAndDoAction'), $aArgs);
             }
         }
         static public function addAndDoAction() {
@@ -286,7 +286,7 @@ class Imfs_AdminPageFramework_WPUtility_URL extends Imfs_AdminPageFramework_Util
                 }
                 $_aArgs[1] = $_sFilter;
                 $_aArgs[2] = $_vInput;
-                $_vInput = call_user_func_array(array(get_class(), 'addAndApplyFilter'), $_aArgs);
+                $_vInput = call_user_func_array(array( static::class, 'addAndApplyFilter'), $_aArgs);
             }
             return $_vInput;
         }

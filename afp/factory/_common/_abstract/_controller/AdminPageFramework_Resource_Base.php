@@ -149,7 +149,7 @@ abstract class Imfs_AdminPageFramework_Resource_Base extends Imfs_AdminPageFrame
         if (!$_oCaller->isInThePage()) {
             return;
         }
-        $this->_printCommonStyles('index-wp-mysql-for-speed-style-common', get_class());
+        $this->_printCommonStyles('index-wp-mysql-for-speed-style-common', static::class );
         $this->_printClassSpecificStyles($this->_sClassSelector_Style . '-' . $this->oProp->sStructureType);
     }
     public function _replyToAddScript() {
@@ -157,7 +157,7 @@ abstract class Imfs_AdminPageFramework_Resource_Base extends Imfs_AdminPageFrame
         if (!$_oCaller->isInThePage()) {
             return;
         }
-        $this->_printCommonScripts('index-wp-mysql-for-speed-script-common', get_class());
+        $this->_printCommonScripts('index-wp-mysql-for-speed-script-common', static::class );
         $this->_printClassSpecificScripts($this->_sClassSelector_Script . '-' . $this->oProp->sStructureType);
     }
     protected function _enqueueSRC($aEnqueueItem) {

@@ -222,7 +222,7 @@ class Imfs_AdminPageFramework_Debug_Base extends Imfs_AdminPageFramework_Framewo
             if ($_bFileExists) {
                 return $bsFilePathOrName;
             }
-            $_sClassBaseName = $sCallerClass ? basename($sCallerClass) : basename(get_class());
+            $_sClassBaseName = $sCallerClass ? basename($sCallerClass) : basename( static::class );
             return $_sWPContentDir . $_sClassBaseName . '_' . date("Ymd") . '.log';
         }
         static private function ___createFile($sFilePath) {
