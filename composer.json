@@ -30,7 +30,9 @@
   },
   "require": {
     "php": ">=5.6.20",
-    "composer/installers": "~v2"
+    "composer/installers": "~v2",
+    "ext-mbstring": "*",
+    "ext-ctype": "*"
   },
   "scripts": {
     "install-mu-module": [

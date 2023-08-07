@@ -8,9 +8,9 @@ Stable tag: 1.4.14
 Network: true
 License: GPL v2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
-Author URI: https://github.com/OllieJones
+Author URI: https://github.com/OllieJones/
 Plugin URI: https://plumislandmedia.net/index-wp-mysql-for-speed/
-Github Plugin URI: https://github.com/OllieJones/index-wp-mysql-for-speed
+Github Plugin URI: https://github.com/OllieJones/index-wp-mysql-for-speed/
 Primary Branch: main
 Text Domain: index-wp-mysql-for-speed
 Domain Path: /languages
@@ -238,9 +238,7 @@ Deal with php 8.2 deprecations.
 
 == Upgrade Notice ==
 
-We've added the --dryrun (or --dry-run) option to the WP-CLI interface, and prevented WordPress version upgrades from altering high-performance keys.
-
-And, we've added support for installing the plugin with composer. Props to [gregdev](https://github.com/gregdev).
+We've removed various programming-language incompatibilities with php 8.2.
 
 == Screenshots ==
 

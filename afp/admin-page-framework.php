@@ -10,11 +10,11 @@ if (!class_exists('Imfs_AdminPageFramework_Registry', false)):
         const VERSION = '3.8.34';
         const NAME = 'Admin Page Framework';
         const DESCRIPTION = 'Facilitates WordPress plugin and theme development.';
-        const URI = 'http://en.michaeluno.jp/admin-page-framework';
+        const URI = 'https://en.michaeluno.jp/admin-page-framework/';
         const AUTHOR = 'Michael Uno';
-        const AUTHOR_URI = 'http://en.michaeluno.jp/';
+        const AUTHOR_URI = 'https://en.michaeluno.jp/';
         const COPYRIGHT = 'Copyright (c) 2013-2021, Michael Uno';
-        const LICENSE = 'MIT <http://opensource.org/licenses/MIT>';
+        const LICENSE = 'MIT <https://opensource.org/licenses/MIT>';
         const CONTRIBUTORS = '';
     }
     final class Imfs_AdminPageFramework_Registry extends Imfs_AdminPageFramework_Registry_Base {
