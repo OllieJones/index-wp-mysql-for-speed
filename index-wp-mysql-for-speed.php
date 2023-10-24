@@ -13,7 +13,7 @@
  * Description: Speed up your WordPress site by adding high-performance keys (database indexes) to your MySQL database tables.
  * Version:           1.4.14
  * Requires at least: 5.2
- * Tested up to:      6.3
+ * Tested up to:      6.4
  * Requires PHP:      5.6
  * Author:       OllieJones, rjasdfiii
  * Author URI:   https://github.com/OllieJones
@@ -42,7 +42,7 @@ define( 'index_wp_mysql_for_speed_monitor', 'imfsQueryMonitor' );
 define( 'index_wp_mysql_for_speed_querytag', '*imfs-query-tag*' );
 /* version 32814 was the advent of utfmb4 */
 define( 'index_wp_mysql_for_speed_first_compatible_db_version', 32814 );
-define( 'index_wp_mysql_for_speed_last_compatible_db_version', 0 ); /*tested up to 53932 */
+define( 'index_wp_mysql_for_speed_last_compatible_db_version', 0 ); /*tested up to 56657 */
 
 define( 'index_wp_mysql_for_speed_help_site', 'https://plumislandmedia.net/index-wp-mysql-for-speed/' );
 
