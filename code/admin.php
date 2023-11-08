@@ -674,6 +674,26 @@ class ImfsPage extends Imfs_AdminPageFramework {
   }
 
   /**
+   * Database health information report.
+   */
+  private function showHealthInfo( $healthReport ) {
+    global $wp_version;
+    global $wp_db_version;
+    $this->addSettingFields(
+      [
+        'field_id' => 'health',
+        'title'    => __( 'Database Health', 'index-wp-mysql-for-speed' ),
+        'default'  => $healthReport,
+        'save'     => false,
+        'class'    => [
+          'fieldrow' => 'info',
+        ],
+      ]
+    );
+  }
+
+
+  /**
    * text field showing versions
    */
   private
@@ -912,6 +932,7 @@ class ImfsPage extends Imfs_AdminPageFramework {
 
     $this->showIndexStatus( $this->db->getRekeying() );
     $this->uploadMetadata();
+    $this->showHealthInfo( $this->db->getHealthReport() );
     $this->showVersionInfo();
   }
 

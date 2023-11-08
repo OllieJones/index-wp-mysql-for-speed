@@ -65,7 +65,7 @@ class ImfsDb {
             $activeTable = true;
           }
           /* This ignores an empty prefix. Nevertheless, that is not a supported WordPress configuration. */
-          if ( !empty( $wpdb->prefix ) && 0 === strpos( $name, $wpdb->prefix ) ) {
+          if ( ! empty( $wpdb->prefix ) && 0 === strpos( $name, $wpdb->prefix ) ) {
             $activeTable = true;
           }
           if ( $activeTable ) {
@@ -158,62 +158,108 @@ class ImfsDb {
     return $this->get_results( ImfsQueries::getTableStatsQuery() );
   }
 
-	/**
-	 * Retrieve all DBMS variables.
-	 *
-	 * @return array Resultset, array of objects with Variable_name and Value attributes.
-	 * @throws ImfsException
-	 */
-	public function getVariables() {
-		return $this->get_results( "SHOW GLOBAL VARIABLES" );
-	}
+  /**
+   * Retrieve all DBMS variables.
+   *
+   * @return array Resultset, array of objects with Variable_name and Value attributes.
+   * @throws ImfsException
+   */
+  public function getVariables() {
+    return $this->get_results( "SHOW GLOBAL VARIABLES" );
+  }
 
-	/**
-	 * Retrieve one variable.
-	 *
-	 * @param string $name Variable name.
-	 *
-	 * @return null|mixed The variable's value, or null if the variable doesn't exist, or more than one was returned.
-	 */
-	public function getVariable( $name ) {
-		try {
-			$name      = sanitize_key( $name );
-			$resultset = $this->get_results( "SHOW GLOBAL VARIABLES LIKE '$name'" );
-			if ( is_array( $resultset ) && 1 === count( $resultset ) ) {
-				return $resultset[ $name ]->Value;
-			}
-		}
-		catch (Exception $e) {
-			return null;
-		}
-		return null;
-	}
+  /**
+   * Retrieve one variable.
+   *
+   * @param string $name Variable name.
+   *
+   * @return null|mixed The variable's value, or null if the variable doesn't exist, or more than one was returned.
+   */
+  public function getVariable( $name ) {
+    try {
+      $name      = sanitize_key( $name );
+      $resultset = $this->get_results( "SHOW GLOBAL VARIABLES LIKE '$name'" );
+      if ( is_array( $resultset ) && 1 === count( $resultset ) ) {
+        return $resultset[ $name ]->Value;
+      }
+    } catch ( Exception $e ) {
+      return null;
+    }
 
-	/**
-	 * Set a session variable.
-	 *
-	 * @param string $name The variable's name.
-	 * @param string|int|float $value The value.
-	 *
-	 * @return bool False on failure.
-	 */
-	function set_session_variable ( $name, $value ) {
-		try {
-			global $wpdb;
-			$name = sanitize_key( $name );
-			$q = "SET SESSION $name=";
-			$q .= is_numeric( $value ) ? '%d' : '%s';
-			$sql  = $this->tagQuery( $q );
-			$wpdb->query( $wpdb->prepare( $sql, $value ) );
-		}
-		catch (Exception $e) {
-			return false;
-		}
-		return true;
-	}
+    return null;
+  }
 
-	function getStatus() {
+  /**
+   * Set a session variable.
+   *
+   * @param string $name The variable's name.
+   * @param string|int|float $value The value.
+   *
+   * @return bool False on failure.
+   */
+  function set_session_variable( $name, $value ) {
+    try {
+      global $wpdb;
+      $name = sanitize_key( $name );
+      $q    = "SET SESSION $name=";
+      $q    .= is_numeric( $value ) ? '%d' : '%s';
+      $sql  = $this->tagQuery( $q );
+      $wpdb->query( $wpdb->prepare( $sql, $value ) );
+    } catch ( Exception $e ) {
+      return false;
+    }
+
+    return true;
+  }
+
+  public function getSizes () {
+    $sizes = $this->get_results( ImfsQueries::getCurrentDbTableSizesQuery(), false, ARRAY_A );
+    return $sizes[0];
+  }
+
+  function getStatus() {
     return $this->get_results( "SHOW GLOBAL STATUS" );
+  }
+
+  /**
+   * Retrieve one status variable.
+   *
+   * @param string $name Variable name.
+   *
+   * @return null|mixed The variable's value, or null if the variable doesn't exist, or more than one was returned.
+   */
+  public function getStatusVariable( $name ) {
+    try {
+      $name      = $this->sanitize_status_variable_name( $name );
+      $resultset = $this->get_results( "SHOW GLOBAL STATUS LIKE '$name'" );
+      if ( is_array( $resultset ) && 1 === count( $resultset ) ) {
+        return $resultset[ $name ]->Value;
+      }
+    } catch ( Exception $e ) {
+      return null;
+    }
+
+    return null;
+  }
+
+  /**
+   * Sanitizes a status variable name
+   *
+   * Keys are used as internal identifiers. Upper and Lowercase alphanumeric characters,
+   * dashes, and underscores are allowed.
+   *
+   * @param string $key String key.
+   *
+   * @return string Sanitized key.
+   */
+  function sanitize_status_variable_name( $key ) {
+    $sanitized_key = '';
+
+    if ( is_scalar( $key ) ) {
+      $sanitized_key = preg_replace( '/[^A-Za-z0-9_\-]/', '', $key );
+    }
+
+    return $sanitized_key;
   }
 
   /**
@@ -222,6 +268,7 @@ class ImfsDb {
    * @param $version
    * @param $alreadyPrefixed bool false if wp_ prefix needs to be added to table names
    * @param bool $dryrun true when doing a dry run, default false -- do the operation
+   *
    * @return array|string status string, or if
    * @throws ImfsException
    */
@@ -261,6 +308,7 @@ class ImfsDb {
    * @param int $targetAction 0 -- WordPress standard.  1 -- high-perf
    * @param string $name table name without prefix
    * @param bool $dryrun true when doing a dry run, default false -- do the operation
+   *
    * @returns string the text of the SQL statement doing the rekeying
    *
    * @throws ImfsException
@@ -277,51 +325,54 @@ class ImfsDb {
       return '';
     }
 
-    $q = 'ALTER TABLE ' . $prefixedName . ' ' . implode( ', ', $actions );
+    $q     = 'ALTER TABLE ' . $prefixedName . ' ' . implode( ', ', $actions );
     $stats = 'ANALYZE TABLE ' . $prefixedName;
     if ( ! $dryrun ) {
-	  $this->set_runtime_limit();
+      $this->set_runtime_limit();
       $this->query( $q, true );
       $this->query( $stats, true );
     }
+
     return $q . ';';
   }
 
-	/**
-	 * @param float|int|null $seconds Time limit. Default is $this->scriptTimeLimit
-	 *
-	 * @return int|float|null Value to use in setting max_statement_time. Null if not needed.
-	 */
-  public function get_max_statement_time ( $seconds = null ) {
-	  $seconds = $seconds ?: $this->scriptTimeLimit;
-	  $max_statement_time = $this->getVariable( 'max_statement_time' );
-	  if ( $max_statement_time && is_numeric( $max_statement_time ) ){
-		  /* The server has a max_statement_time variable */
-		  if ($max_statement_time > 0 && $max_statement_time < $seconds) {
-			  /* It is set lower than our runtime limit. Increase it. */
-			  return $seconds;
-		  }
-	  }
-	  return null;
+  /**
+   * @param float|int|null $seconds Time limit. Default is $this->scriptTimeLimit
+   *
+   * @return int|float|null Value to use in setting max_statement_time. Null if not needed.
+   */
+  public function get_max_statement_time( $seconds = null ) {
+    $seconds            = $seconds ?: $this->scriptTimeLimit;
+    $max_statement_time = $this->getVariable( 'max_statement_time' );
+    if ( $max_statement_time && is_numeric( $max_statement_time ) ) {
+      /* The server has a max_statement_time variable */
+      if ( $max_statement_time > 0 && $max_statement_time < $seconds ) {
+        /* It is set lower than our runtime limit. Increase it. */
+        return $seconds;
+      }
+    }
+
+    return null;
   }
 
-	/**
-	 * Set the runtime limit for a query.
-	 *
-	 * @param int $seconds The limit. Default from $this->scriptTimeLimit.
-	 *
-	 * @return void
-	 * @throws ImfsException
-	 */
-  private function set_runtime_limit ( $seconds = null ) {
-	  $seconds = $seconds ?: $this->scriptTimeLimit;
-	  $max_statement_time = $this->get_max_statement_time( $seconds );
-	  if ( $max_statement_time ) {
-		  /* It is set lower than our runtime limit. Increase it. */
-		  $this->set_session_variable( 'max_statement_time', $seconds );
-	  }
-	  set_time_limit( $seconds );
+  /**
+   * Set the runtime limit for a query.
+   *
+   * @param int $seconds The limit. Default from $this->scriptTimeLimit.
+   *
+   * @return void
+   * @throws ImfsException
+   */
+  private function set_runtime_limit( $seconds = null ) {
+    $seconds            = $seconds ?: $this->scriptTimeLimit;
+    $max_statement_time = $this->get_max_statement_time( $seconds );
+    if ( $max_statement_time ) {
+      /* It is set lower than our runtime limit. Increase it. */
+      $this->set_session_variable( 'max_statement_time', $seconds );
+    }
+    set_time_limit( $seconds );
   }
+
   /**
    * @param int $targetState 0 -- WordPress default    1 -- high-performance
    * @param string $name table name
@@ -629,6 +680,7 @@ class ImfsDb {
   /**
    * @param array $list of tables
    * @param bool $dryrun true if we're doing a dry run.
+   *
    * @return array|string list of DDL statements, or display messat
    * @throws ImfsException
    */
@@ -656,6 +708,7 @@ class ImfsDb {
     if ( $dryrun ) {
       return $statements;
     }
+
     return sprintf( $msg, $counter );
   }
 
@@ -750,6 +803,15 @@ class ImfsDb {
     if ( is_writable( ABSPATH ) && file_exists( $maintenanceFileName ) ) {
       unlink( $maintenanceFileName );
     }
+  }
+
+  public function getHealthReport() {
+    require_once( 'health.php' );
+    $allStats = imfsGetAllStats( $this );
+    $allStats['variables']->hostname = DB_HOST;
+    $health = new Health ( $allStats, time() );
+
+    return $health->getReport();
   }
 }
 

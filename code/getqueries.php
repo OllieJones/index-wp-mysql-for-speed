@@ -2,6 +2,107 @@
 
 class ImfsQueries {
 
+  /** get cell data for byte counts
+   *
+   * @param number $bytes
+   * @param null $unit
+   * @param string $prefix
+   *
+   * @return string
+   */
+  public static function byteCell( $bytes, $unit = null, $prefix = '' ) {
+    if ( $bytes === 0.0 ) {
+      return $prefix !== '' ? '' : '0';
+    }
+    if ( $unit === null ) {
+      $unit = self::getByteUnit( $bytes );
+    }
+
+    return $prefix . number_format_i18n( $bytes / $unit[0], $unit[2] ) . $unit[1];
+  }
+
+  public static function getByteUnit( $bytes ) {
+    if ( $bytes >= 1024 * 1024 * 1024 * 1024 ) {
+      $unit = [ 1024 * 1024 * 1024 * 1024, 'TiB', 0 ];
+    } else if ( $bytes >= 1024 * 1024 * 1024 * 1024 * 0.5 ) {
+      $unit = [ 1024 * 1024 * 1024 * 1024, 'TiB', 1 ];
+    } else if ( $bytes >= 1024 * 1024 * 1024 ) {
+      $unit = [ 1024 * 1024 * 1024 * 1024, 'GiB', 0 ];
+    } else if ( $bytes >= 1024 * 1024 * 1024 * 0.5 ) {
+      $unit = [ 1024 * 1024 * 1024, 'GiB', 1 ];
+    } else if ( $bytes >= 1024 * 1024 ) {
+      $unit = [ 1024 * 1024, 'MiB', 0 ];
+    } else if ( $bytes >= 1024 * 1024 * 0.5 ) {
+      $unit = [ 1024 * 1024, 'MiB', 1 ];
+    } else if ( $bytes >= 1024 ) {
+      $unit = [ 1024, 'KiB', 0 ];
+    } else if ( $bytes >= 1024 * 0.1 ) {
+      $unit = [ 1024, 'KiB', 1 ];
+    } else {
+      $unit = [ 1, 'B', 0 ];
+    }
+
+    return $unit;
+  }
+
+
+  public static function date ( $time ) {
+    $date_format = get_option( 'date_format' ) . ' ' . get_option( 'time_format' );
+    return get_date_from_gmt( date( 'Y-m-d H:i:s', $time ), $date_format );
+
+  }
+  public static function percent ( $num, $denom = null, $points = 1 ) {
+    if ( $denom ) {
+      $num = $num / $denom;
+    }
+    return number_format ( 100.0 * $num, $points );
+  }
+  /** get cell data for microsecond times
+   *
+   * @param number $time in microseconds (multiply seconds by a million)
+   * @param null $unit
+   * @param string $prefix
+   *
+   * @return array
+   */
+  public static function timeCell( $time, $unit = null, $prefix = '' ) {
+    if ( $time === 0.0 ) {
+      $displayTime = $prefix !== '' ? '' : '0';
+
+      return [ $displayTime, '0' ];
+    }
+    $renderTime = $time * 0.000001;
+    if ( $unit === null ) {
+      $unit = self::getTimeUnit( $renderTime );
+    }
+    $displayTime = $prefix . number_format_i18n( $renderTime / $unit[0], $unit[2] ) . $unit[1];
+
+    return [ $displayTime, - $renderTime ];
+  }
+
+  public static function getTimeUnit( $timeSeconds ) {
+    if ( $timeSeconds >= 86400 ) {
+      $unit = [ 86400, 'd', 1 ];
+    } else if ( $timeSeconds >= 3600 * 0.9 ) {
+      $unit = [ 3600, 'h', 1 ];
+    } else if ( $timeSeconds >= 60 * 0.9 ) {
+      $unit = [ 60, 'm', 1 ];
+    } else if ( $timeSeconds >= 0.9 ) {
+      $unit = [ 1, 's', 2 ];
+    } else if ( $timeSeconds >= 0.1 ) {
+      $unit = [ 0.001, 'ms', 0 ];
+    } else if ( $timeSeconds >= 0.01 ) {
+      $unit = [ 0.001, 'ms', 1 ];
+    } else if ( $timeSeconds >= 0.001 ) {
+      $unit = [ 0.001, 'ms', 2 ];
+    } else {
+      $unit = [ 0.000001, 'μs', 0 ];
+    }
+
+    return $unit;
+  }
+
+
   public static function stripPrefix( $name ) {
     global $wpdb;
     $pattern = '/^' . $wpdb->prefix . '/';
@@ -153,6 +254,28 @@ class ImfsQueries {
     return 0;
   }
 
+  /**
+   * Query the total size usage of the database.
+   *
+   * @return string
+   */
+  public static function getCurrentDbTableSizesQuery() {
+    return "SELECT SUM(IF(ENGINE='InnoDB' AND TABLE_SCHEMA = DATABASE(), DATA_LENGTH,0)) innodb_data_len, 
+                   SUM(IF(ENGINE='InnoDB' AND TABLE_SCHEMA = DATABASE(), INDEX_LENGTH,0)) innodb_key_len, 
+                   SUM(IF(ENGINE='InnoDB' AND TABLE_SCHEMA = DATABASE(), 1,0)) innodb_table_count, 
+                   SUM(IF(ENGINE<>'InnoDB' AND TABLE_SCHEMA = DATABASE(), DATA_LENGTH,0)) myisam_data_len, 
+                   SUM(IF(ENGINE<>'INNODB' AND TABLE_SCHEMA = DATABASE(), INDEX_LENGTH,0)) myisam_key_len,
+                   SUM(IF(ENGINE<>'InnoDB' AND TABLE_SCHEMA = DATABASE(), 1,0)) myisam_table_count, 
+                   SUM(IF(ENGINE='InnoDB', DATA_LENGTH,0)) innodb_data_total, 
+                   SUM(IF(ENGINE='InnoDB', INDEX_LENGTH,0)) innodb_key_total, 
+                   SUM(IF(ENGINE='InnoDB', 1,0)) innodb_table_total, 
+                   SUM(IF(ENGINE<>'InnoDB', DATA_LENGTH,0)) myisam_data_total, 
+                   SUM(IF(ENGINE<>'InnoDB', INDEX_LENGTH,0)) myisam_key_total,
+                   SUM(IF(ENGINE<>'InnoDB', 1,0)) myisam_table_total,
+                   COUNT(DISTINCT TABLE_SCHEMA) database_count
+              FROM information_schema.TABLES
+            WHERE TABLE_SCHEMA NOT IN ('information_schema', 'mysql', 'performance_schema', 'sys')";
+  }
   /** @noinspection PhpUnused */
   public static function getTableStatsQuery() {
     global $wpdb;

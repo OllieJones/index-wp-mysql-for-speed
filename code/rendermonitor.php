@@ -127,40 +127,11 @@ END;
    * @return array
    */
   public function timeCell( $time, $unit = null, $prefix = '' ) {
-    if ( $time === 0.0 ) {
-      $displayTime = $prefix !== '' ? '' : '0';
-
-      return [ $displayTime, '0' ];
-    }
-    $renderTime = $time * 0.000001;
-    if ( $unit === null ) {
-      $unit = $this->getTimeUnit( $renderTime );
-    }
-    $displayTime = $prefix . number_format_i18n( $renderTime / $unit[0], $unit[2] ) . $unit[1];
-
-    return [ $displayTime, - $renderTime ];
+    return ImfsQueries::timeCell ( $time, $unit, $prefix );
   }
 
   public function getTimeUnit( $timeSeconds ) {
-    if ( $timeSeconds >= 86400 ) {
-      $unit = [ 86400, 'd', 1 ];
-    } else if ( $timeSeconds >= 3600 * 0.9 ) {
-      $unit = [ 3600, 'h', 1 ];
-    } else if ( $timeSeconds >= 60 * 0.9 ) {
-      $unit = [ 60, 'm', 1 ];
-    } else if ( $timeSeconds >= 0.9 ) {
-      $unit = [ 1, 's', 2 ];
-    } else if ( $timeSeconds >= 0.1 ) {
-      $unit = [ 0.001, 'ms', 0 ];
-    } else if ( $timeSeconds >= 0.01 ) {
-      $unit = [ 0.001, 'ms', 1 ];
-    } else if ( $timeSeconds >= 0.001 ) {
-      $unit = [ 0.001, 'ms', 2 ];
-    } else {
-      $unit = [ 0.000001, 'μs', 0 ];
-    }
-
-    return $unit;
+    return ImfsQueries::getTimeUnit ( $timeSeconds );
   }
 
   public function dbStatusSummary() {
@@ -273,38 +244,7 @@ END;
    * @return string
    */
   public function byteCell( $bytes, $unit = null, $prefix = '' ) {
-    if ( $bytes === 0.0 ) {
-      return $prefix !== '' ? '' : '0';
-    }
-    if ( $unit === null ) {
-      $unit = $this->getByteUnit( $bytes );
-    }
-
-    return $prefix . number_format_i18n( $bytes / $unit[0], $unit[2] ) . $unit[1];
-  }
-
-  public function getByteUnit( $bytes ) {
-    if ( $bytes >= 1024 * 1024 * 1024 * 1024 ) {
-      $unit = [ 1024 * 1024 * 1024 * 1024, 'TiB', 0 ];
-    } else if ( $bytes >= 1024 * 1024 * 1024 * 1024 * 0.5 ) {
-      $unit = [ 1024 * 1024 * 1024 * 1024, 'TiB', 1 ];
-    } else if ( $bytes >= 1024 * 1024 * 1024 ) {
-      $unit = [ 1024 * 1024 * 1024 * 1024, 'GiB', 0 ];
-    } else if ( $bytes >= 1024 * 1024 * 1024 * 0.5 ) {
-      $unit = [ 1024 * 1024 * 1024, 'GiB', 1 ];
-    } else if ( $bytes >= 1024 * 1024 ) {
-      $unit = [ 1024 * 1024, 'MiB', 0 ];
-    } else if ( $bytes >= 1024 * 1024 * 0.5 ) {
-      $unit = [ 1024 * 1024, 'MiB', 1 ];
-    } else if ( $bytes >= 1024 ) {
-      $unit = [ 1024, 'KiB', 0 ];
-    } else if ( $bytes >= 1024 * 0.1 ) {
-      $unit = [ 1024, 'KiB', 1 ];
-    } else {
-      $unit = [ 1, 'B', 0 ];
-    }
-
-    return $unit;
+    return ImfsQueries::byteCell( $bytes, $unit, $prefix );
   }
 
   /**

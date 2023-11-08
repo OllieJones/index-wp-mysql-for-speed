@@ -17,10 +17,16 @@ function imfsGetAllStats( $db ) {
   }
   $wordpress = ImfsQueries::getWpDescription( $db );
   $dbms      = imfs_get_dbms_stats( $globalStatus, $variables );
+  $sizes     = $db->getSizes();
+  foreach ( $sizes as $k => $v ) {
+    $dbms[ $k ] = (int) $v;
+  }
+
 
   /** @noinspection PhpUnnecessaryLocalVariableInspection */
-  $stats = [
+  $stats = array(
     'id'           => '', /* id should be first */
+    'version'      => index_wp_mysql_for_speed_VERSION_NUM,
     'wordpress'    => $wordpress,
     'dbms'         => $dbms,
     'mysqlVer'     => $db->semver,
@@ -29,7 +35,9 @@ function imfsGetAllStats( $db ) {
     //'timings'      => $db->timings,
     'globalStatus' => $globalStatus,
     'variables'    => $variables,
-  ];
+    'version'      => index_wp_mysql_for_speed_VERSION_NUM,
+    't'            => (int) time(),
+  );
 
   return $stats;
 }
@@ -53,6 +61,7 @@ function imfs_get_dbms_stats( $globalStatus, $variables ) {
   }
 
   $dbms['msNullQueryTime'] = imfsGetNullQueryTime();
+
   return $dbms;
 }
 
@@ -62,6 +71,7 @@ function imfsGetNullQueryTime() {
   global $wpdb;
   $startTime = imfsGetTime();
   $wpdb->get_var( ImfsQueries::tagQuery( 'SELECT 1' ) );
+
   return floatval( round( 1000 * ( imfsGetTime() - $startTime ), 3 ) );
 }
 
