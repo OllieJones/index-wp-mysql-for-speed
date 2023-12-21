@@ -4,7 +4,7 @@ Tags: database, index, key, performance, mysql, wp-cli
 Requires at least: 5.2
 Tested up to: 6.4
 Requires PHP: 5.6
-Stable tag: 1.4.14
+Stable tag: 1.4.15
 Network: true
 License: GPL v2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -235,6 +235,11 @@ Support MariaDB 11.x in version-detection code.
 (no changes to keys)
 Handle database version 55853 (no schema changes).
 Deal with php 8.2 deprecations.
+
+= 1.4.15 =
+(no changes to keys)
+Avoid doing EXPLAIN DESCRIBE when capturing monitors.
+Clear the dashboard upgrade nag after doing `wp index-mysql status`.
 
 == Upgrade Notice ==
 
