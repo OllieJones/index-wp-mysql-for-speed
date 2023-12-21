@@ -16,7 +16,7 @@ class Imfs_AdminPageFramework_Model__FormSubmission__Validator__ContactForm exte
         $this->oFactory->oProp->_bDisableSavingOptions = true;
         $this->deleteTransient('apf_tfd' . md5('temporary_form_data_' . $this->oFactory->oProp->sClassName . get_current_user_id()));
         add_action("setting_update_url_{$this->oFactory->oProp->sClassName}", array($this, '_replyToRemoveConfirmationQueryKey'));
-        $_oException = new Exception('aReturn');
+        $_oException = new Imfs_AdminPageFramework_Exception('aReturn');
         $_oException->aReturn = $aInputs;
         throw $_oException;
     }
@@ -54,7 +54,7 @@ class Imfs_AdminPageFramework_Model__FormSubmission__Validator__ContactForm exte
             $this->oFactory->setLastInputs($aInputs);
             $this->oFactory->oProp->_bDisableSavingOptions = true;
             add_filter("options_update_status_{$this->oFactory->oProp->sClassName}", array($this, '_replyToSetStatus'));
-            $_oException = new Exception('aReturn');
+            $_oException = new Imfs_AdminPageFramework_Exception('aReturn');
             $_oException->aReturn = $this->_confirmSubmitButtonAction($this->getElement($aSubmitInformation, 'input_name'), $this->getElement($aSubmitInformation, 'section_id'), 'email');
             throw $_oException;
         }
@@ -68,4 +68,3 @@ class Imfs_AdminPageFramework_Model__FormSubmission__Validator__ContactForm exte
             return array('confirmation' => 'email') + $aStatus;
         }
     }
-    

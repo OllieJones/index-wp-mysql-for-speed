@@ -37,7 +37,7 @@ class Imfs_AdminPageFramework_Model__FormSubmission__Validator__Filter extends I
         $this->_setSettingNoticeAfterValidation(empty($_aInput));
         $this->oFactory->setLastInputs($aRawInputs);
         add_filter("options_update_status_{$this->oFactory->oProp->sClassName}", array($this, '_replyToSetStatus'));
-        $_oException = new Exception('aReturn');
+        $_oException = new Imfs_AdminPageFramework_Exception('aReturn');
         $_oException->aReturn = $_aInput;
         throw $_oException;
     }
@@ -115,4 +115,3 @@ class Imfs_AdminPageFramework_Model__FormSubmission__Validator__Filter extends I
         return $this->addAndApplyFilter($this->oFactory, $sFilterName, $aInputs, $aStoredData, $this->oFactory, $aSubmitInfo);
     }
     }
-    

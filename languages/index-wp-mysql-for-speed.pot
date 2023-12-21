@@ -2,16 +2,16 @@
 # This file is distributed under the GPL v2 or later.
 msgid ""
 msgstr ""
-"Project-Id-Version: Index WP MySQL For Speed 1.4.14\n"
+"Project-Id-Version: Index WP MySQL For Speed 1.4.15\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/index-wp-mysql-for-speed\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2023-08-06T07:18:31-04:00\n"
+"POT-Creation-Date: 2023-12-21T13:18:32-05:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"X-Generator: WP-CLI 2.8.1\n"
+"X-Generator: WP-CLI 2.6.0\n"
 "X-Domain: index-wp-mysql-for-speed\n"
 
 #. Plugin Name of the plugin
@@ -940,7 +940,7 @@ msgid "Make corrections and try again."
 msgstr ""
 
 #: code/admin.php:1119
-#: code/cli.php:397
+#: code/cli.php:401
 msgid "Metadata uploaded to id "
 msgstr ""
 
@@ -1003,39 +1003,39 @@ msgstr ""
 msgid "You can revert them to WordPress's standard keys."
 msgstr ""
 
-#: code/cli.php:140
+#: code/cli.php:144
 msgid "Use this command:"
 msgstr ""
 
 #. translators: this appears in wpcli output. 1: site name  2: site URL  3: localized date and time
-#: code/cli.php:199
+#: code/cli.php:203
 msgid "Generated from %1$s (%2$s) at %3$s."
 msgstr ""
 
-#: code/cli.php:202
+#: code/cli.php:206
 msgid "Do not save these statements for later use. Instead, regenerate them."
 msgstr ""
 
-#: code/cli.php:203
-#: code/cli.php:332
+#: code/cli.php:207
+#: code/cli.php:336
 msgid "Dry run SQL statements. These statements were NOT run."
 msgstr ""
 
-#: code/cli.php:262
+#: code/cli.php:266
 msgid "These tables are not found or not eligible to"
 msgstr ""
 
-#: code/cli.php:266
+#: code/cli.php:270
 msgid "No tables are eligible to"
 msgstr ""
 
-#: code/cli.php:288
+#: code/cli.php:292
 msgid "MySQL statement"
 msgid_plural "MySQL statements"
 msgstr[0] ""
 msgstr[1] ""
 
-#: code/cli.php:291
+#: code/cli.php:295
 msgid "complete."
 msgstr ""
 
