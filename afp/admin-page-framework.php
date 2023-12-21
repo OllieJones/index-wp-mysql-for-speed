@@ -5,6 +5,15 @@
 	<http://en.michaeluno.jp/admin-page-framework>
 	Copyright (c) 2013-2021, Michael Uno; Licensed under MIT <http://opensource.org/licenses/MIT> Included Components: Admin Pages, Utilities
  Generated on 2022-01-07 */
+if (!class_exists('Imfs_AdminPageFramework_Exception', false)):
+    class Imfs_AdminPageFramework_Exception extends Exception {
+      public $aReturn;
+
+      public function __construct( $message = "", $code = 0,  $previous = null ) {
+        parent::__construct( $message, $code, $previous );
+      }
+    }
+endif;
 if (!class_exists('Imfs_AdminPageFramework_Registry', false)):
     abstract class Imfs_AdminPageFramework_Registry_Base {
         const VERSION = '3.8.34';
@@ -89,4 +98,3 @@ if (!class_exists('Imfs_AdminPageFramework_Registry', false)):
         }
         new Imfs_AdminPageFramework_Bootstrap(__FILE__);
     endif;
-    
