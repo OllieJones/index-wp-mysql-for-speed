@@ -124,6 +124,10 @@ class ImsfCli extends WP_CLI_Command {
     $fmt = __( 'You successfully added high-performance keys.', 'index-wp-mysql-for-speed' ) . ' ' .
            __( 'You can revert them to WordPress\'s standard keys.', 'index-wp-mysql-for-speed' );
     $this->showCommandLine( 'fast', 'disable', $fmt, false, false );
+
+    /* store current version of schema to suppress nag in UI */
+    $this->setCurrentVersion();
+
   }
 
   /** display  sample command line to user.
@@ -202,10 +206,10 @@ class ImsfCli extends WP_CLI_Command {
       WP_CLI::log( $this->commentPrefix . __( 'Do not save these statements for later use. Instead, regenerate them.', 'index-wp-mysql-for-speed' ) );
       WP_CLI::log( $this->commentPrefix . __( 'Dry run SQL statements. These statements were NOT run.', 'index-wp-mysql-for-speed' ) );
       WP_CLI::log( "SET @@sql_mode := REPLACE(@@sql_mode, 'NO_ZERO_DATE', '');" );
-	  $max_statement_time = $this->db->get_max_statement_time();
-	  if ( $max_statement_time ) {
-		  WP_CLI::log( "SET SESSION max_statement_time=$max_statement_time;" );
-	  }
+      $max_statement_time = $this->db->get_max_statement_time();
+      if ( $max_statement_time ) {
+        WP_CLI::log( "SET SESSION max_statement_time=$max_statement_time;" );
+      }
     }
     $tbls = $this->getTablesToProcess( $args, $assoc_args, $action );
     foreach ( $tbls as $tbl ) {
