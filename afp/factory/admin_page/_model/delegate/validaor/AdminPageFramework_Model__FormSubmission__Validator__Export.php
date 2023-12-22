@@ -22,7 +22,7 @@ class Imfs_AdminPageFramework_Model__FormSubmission__Validator__Import extends I
     }
     private function _doImportOptions($sPageSlug, $sTabSlug) {
         $_oException = new Imfs_AdminPageFramework_Exception('aReturn');
-        $_oException->aReturn = $this->_importOptions($this->oFactory->oProp->aOptions, $sPageSlug, $sTabSlug);
+        $_oException-setMeta( $this->_importOptions($this->oFactory->oProp->aOptions, $sPageSlug, $sTabSlug) );
         throw $_oException;
     }
     private function _importOptions($aStoredOptions, $sPageSlug, $sTabSlug) {

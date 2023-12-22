@@ -69,15 +69,14 @@ class Imfs_AdminPageFramework_Model__FormSubmission__Validator_Base extends Imfs
                 $this->addAndDoActions($this->oFactory, 'try_validation_after_' . $this->oFactory->oProp->sClassName, $aInputs, $aRawInputs, $_aSubmits, $_aSubmitsInformation, $this->oFactory);
             }
             catch(Exception $_oException) {
-                $_sPropertyName = $_oException->getMessage();
-                if (isset($_oException->$_sPropertyName)) {
-                    $this->_setSettingNoticeAfterValidation(empty($_oException->{$_sPropertyName}));
-                    return $_oException->{$_sPropertyName};
-                }
-                return array();
+              if ( $_oException instanceof Imfs_AdminPageFramework_Exception ) {
+                $meta = $_oException->getMeta();
+                $this->_setSettingNoticeAfterValidation( empty( $meta ) );
+                return $meta;
+              }
+              return array();
             }
             $this->_setSettingNoticeAfterValidation(empty($aInputs));
             return $aInputs;
         }
     }
-    

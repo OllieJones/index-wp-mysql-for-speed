@@ -38,7 +38,7 @@ class Imfs_AdminPageFramework_Model__FormSubmission__Validator__Filter extends I
         $this->oFactory->setLastInputs($aRawInputs);
         add_filter("options_update_status_{$this->oFactory->oProp->sClassName}", array($this, '_replyToSetStatus'));
         $_oException = new Imfs_AdminPageFramework_Exception('aReturn');
-        $_oException->aReturn = $_aInput;
+        $_oException->setMeta( $_aInput );
         throw $_oException;
     }
     public function _replyToSetStatus($aStatus) {
