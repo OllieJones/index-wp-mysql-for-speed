@@ -81,7 +81,7 @@ class ImfsMonitor {
   function encodeQuery( array $q, $explain = true ) {
     global $wpdb;
     /* don't try to explain these statements */
-    $blocklist = [ 'SET', 'CREATE', 'DROP', 'ALTER', 'SHOW', 'EXPLAIN', 'ANALYZE' ];
+    $blocklist = [ 'SET', 'CREATE', 'DROP', 'ALTER', 'SHOW', 'EXPLAIN', 'ANALYZE', 'DESCRIBE' ];
     try {
       $item    = (object) [];
       $item->q = $q[0];
@@ -108,7 +108,11 @@ class ImfsMonitor {
           $item->e = null;
         } else {
           $explainq = $explainer . ' ' . $q[0];
-          $item->e  = $wpdb->get_results( $this->tagQuery( $explainq ) );
+          try {
+            $item->e = $wpdb->get_results( $this->tagQuery( $explainq ) );
+          } catch ( Exception $ex ) {
+            $item->e = null;
+          }
         }
       }
 

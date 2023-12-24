@@ -17,8 +17,8 @@ class Imfs_AdminPageFramework_Model__FormSubmission__Validator__Reset extends Im
             return;
         }
         $_sKeyToReset = trim($_sKeyToReset);
-        $_oException = new Exception('aReturn');
-        $_oException->aReturn = $this->_resetOptions($_sKeyToReset, $aInputs, $aSubmitInformation);
+        $_oException = new Imfs_AdminPageFramework_Exception('aReturn');
+        $_oException->setMeta( $this->_resetOptions($_sKeyToReset, $aInputs, $aSubmitInformation) );
         throw $_oException;
     }
     protected function _shouldProceed($oFactory, $aSubmits) {
@@ -58,8 +58,8 @@ class Imfs_AdminPageFramework_Model__FormSubmission__Validator__Reset extends Im
                 return;
             }
             add_filter("options_update_status_{$this->oFactory->oProp->sClassName}", array($this, '_replyToSetStatus'));
-            $_oException = new Exception('aReturn');
-            $_oException->aReturn = $this->_confirmSubmitButtonAction($this->getElement($aSubmitInformation, 'input_name'), $this->getElement($aSubmitInformation, 'section_id'), 'reset');
+            $_oException = new Imfs_AdminPageFramework_Exception('aReturn');
+            $_oException->setMeta( $this->_confirmSubmitButtonAction($this->getElement($aSubmitInformation, 'input_name'), $this->getElement($aSubmitInformation, 'section_id'), 'reset') );
             throw $_oException;
         }
         protected function _shouldProceed($oFactory, $aSubmits) {
