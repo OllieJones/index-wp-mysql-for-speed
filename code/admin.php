@@ -931,8 +931,8 @@ class ImfsPage extends Imfs_AdminPageFramework {
     }
 
     $this->showIndexStatus( $this->db->getRekeying() );
-    $this->uploadMetadata();
     $this->showHealthInfo( $this->db->getHealthReport() );
+    $this->uploadMetadata();
     $this->showVersionInfo();
   }
 

@@ -75,6 +75,10 @@ function imfsGetNullQueryTime() {
   return floatval( round( 1000 * ( imfsGetTime() - $startTime ), 3 ) );
 }
 
+/**
+ * Get the time in seconds for a minimum (SELECT 1) query
+ * @return float Time in seconds.
+ */
 function imfsGetTime() {
   try {
     $hasHrTime = function_exists( 'hrtime' );
