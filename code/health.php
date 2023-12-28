@@ -136,11 +136,16 @@ class Health {
         number_format_i18n( $v->max_connections, 0 ) );
     }
 
-    if ( is_numeric( $g->Max_used_connections ) && isset ( $g->Max_used_connections_time ) ) {
-      /* translators: 1: formatted number,  2: time string */
-      $text     = __( 'peak : %1$s at %2$s', 'index-wp-mysql-for-speed' );
-      $result[] = sprintf( $text,
-        number_format_i18n( $g->Max_used_connections, 0 ), $g->Max_used_connections_time );
+    if ( is_numeric( $g->Max_used_connections ) ) {
+      /* translators: 1: formatted number */
+      $text     = __( 'peak: %1$s', 'index-wp-mysql-for-speed' );
+      $result[] = sprintf( $text, number_format_i18n( $g->Max_used_connections, 0 ) );
+
+      if ( isset ( $g->Max_used_connections_time ) ) {
+        /* translators: 1: time string */
+        $text     = __( 'at %1$s', 'index-wp-mysql-for-speed' );
+        $result[] = sprintf( $text, $g->Max_used_connections_time );
+      }
     }
 
     return implode( ' ', $result ) . '.';
@@ -171,7 +176,7 @@ class Health {
 
       return sprintf( $text,
         ImfsQueries::date( $since ),
-        number_format_i18n( $g->Created_tmp_tables / $this->getUptime() , 1 ),
+        number_format_i18n( $g->Created_tmp_tables / $this->getUptime(), 1 ),
         ImfsQueries::percent( $g->Created_tmp_disk_tables, $g->Created_tmp_tables ) );
 
     }
@@ -192,7 +197,7 @@ class Health {
       $sentPerSec = $g->Bytes_sent / $this->getUptime();
 
       /* translators: 1: datestamp  2: byte-count like 3.6GiB  3: byte-count like 3.6GiB */
-      $text = __( 'Database server network traffic (since %1$s): %2$s/sec sent to WordPress, %3$s/sec received', 'index-wp-mysql-for-speed' );
+      $text = __( 'Database server network traffic (since %1$s): %2$s/sec sent to WordPress, %3$s/sec received.', 'index-wp-mysql-for-speed' );
 
       return sprintf( $text,
         ImfsQueries::date( $since ),
