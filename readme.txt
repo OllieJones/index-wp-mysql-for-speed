@@ -241,12 +241,15 @@ Deal with php 8.2 deprecations.
 Add a Database Health section to the About tab showing some performance metrics.
 Avoid doing EXPLAIN DESCRIBE when capturing monitors.
 Clear the dashboard upgrade nag after doing `wp index-mysql status`.
+Put backticks around table names in data definition language statements.
 
 == Upgrade Notice ==
 
-We've added a Database Health section to the About tab. It shows some performance measurements made from your MySQL / MariaDB database server.
+We've added a Database Health section to the About tab. It shows some current performance measurements made from your MySQL / MariaDB database server, similar to the stored ones shown in monitor displays.
 
 We've removed various programming-language incompatibilities with php 8.2.
+
+We now use backticks to delimit table names, giving compatibility with some strange plugins.
 
 == Screenshots ==
 
