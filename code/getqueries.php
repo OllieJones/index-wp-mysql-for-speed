@@ -473,7 +473,7 @@ class ImfsQueries {
                CONCAT ( 'DROP ',
                 IF(tc.CONSTRAINT_TYPE LIKE 'PRIMARY KEY', tc.CONSTRAINT_TYPE, CONCAT ('KEY', ' ', s.INDEX_NAME))
                 ) `drop`,
-               CONCAT ('ALTER TABLE ', s.TABLE_SCHEMA, '.', s.TABLE_NAME, ' ') `alter`,	
+               CONCAT ('ALTER TABLE `', s.TABLE_SCHEMA, '`.`', s.TABLE_NAME, '` ') `alter`,	
                MAX(t.ENGINE) 'engine',
                MAX(t.ROW_FORMAT) 'row_format'
           FROM information_schema.STATISTICS s

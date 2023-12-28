@@ -325,8 +325,8 @@ class ImfsDb {
       return '';
     }
 
-    $q     = 'ALTER TABLE ' . $prefixedName . ' ' . implode( ', ', $actions );
-    $stats = 'ANALYZE TABLE ' . $prefixedName;
+    $q     = 'ALTER TABLE `' . $prefixedName . '` ' . implode( ', ', $actions );
+    $stats = 'ANALYZE TABLE `' . $prefixedName . '`';
     if ( ! $dryrun ) {
       $this->set_runtime_limit();
       $this->query( $q, true );
@@ -736,7 +736,7 @@ class ImfsDb {
     sort( $tablesToLock );
     $tables = [];
     foreach ( $tablesToLock as $tbl ) {
-      $tables[] = $tbl . ' WRITE';
+      $tables[] = '`' . $tbl . '` WRITE';
     }
 
     $this->enterMaintenanceMode();
@@ -770,7 +770,7 @@ class ImfsDb {
    * @throws ImfsException
    */
   public function upgradeTableStorageEngine( $table, $dryrun = false ) {
-    $sql = 'ALTER TABLE ' . $table . ' ENGINE=InnoDb, ROW_FORMAT=DYNAMIC;';
+    $sql = 'ALTER TABLE `' . $table . '` ENGINE=InnoDb, ROW_FORMAT=DYNAMIC;';
     if ( $dryrun ) {
       return $sql;
     }
