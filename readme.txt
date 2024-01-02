@@ -222,26 +222,26 @@ Please see more questions and answers [here](https://plumislandmedia.net/index-w
 
 == Changelog ==
 
-= 1.4.12 =
-(no changes to keys)
-Change max_statement_time session variable if necessary to avoid "Query execution was interrupted" errors.
-Do ANALYZE TABLE after each rekeying operation.
-
-= 1.4.13 =
-(no changes to keys)
-Support MariaDB 11.x in version-detection code.
-
-= 1.4.14 =
-(no changes to keys)
-Handle database version 55853 (no schema changes).
-Deal with php 8.2 deprecations.
-
 = 1.4.15 =
 (no changes to keys)
 Add a Database Health section to the About tab showing some performance metrics.
 Avoid doing EXPLAIN DESCRIBE when capturing monitors.
 Clear the dashboard upgrade nag after doing `wp index-mysql status`.
 Put backticks around table names in data definition language statements.
+
+= 1.4.14 =
+(no changes to keys)
+Handle database version 55853 (no schema changes).
+Deal with php 8.2 deprecations.
+
+= 1.4.13 =
+(no changes to keys)
+Support MariaDB 11.x in version-detection code.
+
+= 1.4.12 =
+(no changes to keys)
+Change max_statement_time session variable if necessary to avoid "Query execution was interrupted" errors.
+Do ANALYZE TABLE after each rekeying operation.
 
 == Upgrade Notice ==
 
