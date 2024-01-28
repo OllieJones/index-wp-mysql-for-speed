@@ -186,6 +186,12 @@ Yes. it is safe to add keys and revert them. Changing keys is a routine database
 
 As you know you should still keep backups of your site: other things can cause data loss.
 
+= My site uses WooCommerce HPOS (High Performance Order Storage). Is this plugin still helpful?
+
+**Yes.** WooCommerce still uses core WordPress tables for your shop's products, posts, pages, and users. This plugin adds high-performance keys to those tables.
+
+High Performance Order Storage, true to its name, stores your shop's orders in a more efficient way. Formerly orders were stored in those same core WordPress tables.
+
 = I got a fatal error trying to add keys. How can I fix that? =
 
 Sometimes the Index WP MySQL For Speed plugin for WordPress generates errors when you use it to add keys. These can look like this or similar:
