@@ -69,11 +69,10 @@ class ImfsDb {
             $activeTable = true;
           }
           if ( $activeTable ) {
-            /* not InnoDB, we should upgrade */
-            $wrongEngine = $info->ENGINE !== 'InnoDB';
-            /* one of the old row formats, probably compact. But ignore if old MySQL version. */
-            $wrongRowFormat = $this->unconstrained && $info->ROW_FORMAT !== 'Dynamic' && $info->ROW_FORMAT !== 'Compressed';
-
+            $knownEngine = 'myisam' === strtolower( $info->ENGINE ) || 'aria' === strtolower( $info->ENGINE ) || 'innodb' === strtolower( $info->ENGINE );
+            /* not InnoDB, we should upgrade. Ignore storage engines other than Aria and MyISAM. */
+            $wrongEngine = 'myisam' === strtolower( $info->ENGINE ) || 'aria' === strtolower( $info->ENGINE );
+            $wrongRowFormat = $knownEngine && $this->unconstrained && 'dynamic' !== strtolower( $info->ROW_FORMAT ) && 'compressed' !== strtolower( $info->ROW_FORMAT );
             if ( $wrongEngine || $wrongRowFormat ) {
               $oldEngineTables[] = $name;
             } else {
