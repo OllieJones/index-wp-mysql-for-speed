@@ -88,7 +88,7 @@ class ImsfCli extends WP_CLI_Command {
         $fmt = __( 'Sorry, you cannot use this plugin with your version of MySQL.', 'index-wp-mysql-for-speed' ) . ' ' .
                __( 'Your MySQL version is outdated. Please consider upgrading,', 'index-wp-mysql-for-speed' );
       }
-      WP_CLI::exit( $this->commentPrefix . $fmt );
+      WP_CLI::warning( $this->commentPrefix . $fmt );
     }
     if ( ! $this->db->unconstrained ) {
       $fmt = __( 'Upgrading your MySQL server to a later version will give you better performance when you add high-performance keys.', 'index-wp-mysql-for-speed' );
@@ -201,7 +201,7 @@ class ImsfCli extends WP_CLI_Command {
     if ( $this->dryrun ) {
       /* translators: this appears in wpcli output. 1: site name  2: site URL  3: localized date and time */
       $dateMessage = __( 'Generated from %1$s (%2$s) at %3$s.', 'index-wp-mysql-for-speed' );
-      $dateMessage = sprintf( $dateMessage, get_option( 'blogname' ), get_option( 'siteurl' ), wp_date( get_option( 'date_format' ) . ' ' . get_option( 'time_format' ) ) );
+      $dateMessage = sprintf( $dateMessage, get_option( 'blogname' ), get_option( 'siteurl' ), index_wp_mysql_for_speed_timestamp( get_option( 'date_format' ) . ' ' . get_option( 'time_format' ) ) );
       WP_CLI::log( $this->commentPrefix . __( $dateMessage ) );
       WP_CLI::log( $this->commentPrefix . __( 'Do not save these statements for later use. Instead, regenerate them.', 'index-wp-mysql-for-speed' ) );
       WP_CLI::log( $this->commentPrefix . __( 'Dry run SQL statements. These statements were NOT run.', 'index-wp-mysql-for-speed' ) );

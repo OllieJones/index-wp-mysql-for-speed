@@ -1,10 +1,10 @@
 === Index WP MySQL For Speed ===
 Contributors: OllieJones, rjasdfiii
 Tags: database, index, key, performance, mysql, wp-cli
-Requires at least: 5.2
-Tested up to: 6.4.2
+Requires at least: 4.2
+Tested up to: 6.5
 Requires PHP: 5.6
-Stable tag: 1.4.15
+Stable tag: 1.4.16
 Network: true
 License: GPL v2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html

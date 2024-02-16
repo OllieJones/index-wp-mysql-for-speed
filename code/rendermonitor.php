@@ -106,8 +106,8 @@ END;
   public function capturedQuerySummary() {
     $l          = $this->queryLog;
     $c          = $this->classPrefix;
-    $start      = wp_date( $this->dateFormat, $l->start );
-    $end        = wp_date( $this->dateFormat, $l->end );
+    $start      = index_wp_mysql_for_speed_timestamp( $this->dateFormat, $l->start );
+    $end        = index_wp_mysql_for_speed_timestamp( $this->dateFormat, $l->end );
     $duration   = $this->timeCell( 1000000 * ( $l->end - $l->start ) );
     $querycount = number_format_i18n( $l->querycount, 0 );
     $capString  = __( 'queries captured.', 'index-wp-mysql-for-speed' );
