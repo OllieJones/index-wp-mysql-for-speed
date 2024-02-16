@@ -87,7 +87,7 @@ function index_wp_mysql_for_speed_do_everything( ) {
 function index_wp_mysql_for_speed_nag() {
   global $wp_version, $wp_db_version;
   $result = false;
-  if ( ! wp_doing_ajax() ) {
+  if ( ! function_exists( 'wp_doing_ajax' ) || ! wp_doing_ajax() ) {
     $imfsPage       = get_option( 'ImfsPage' );
     $majorVersion   = ( $imfsPage !== false && isset( $imfsPage['majorVersion'] ) && is_numeric( $imfsPage['majorVersion'] ) )
       ? floatval( $imfsPage['majorVersion'] ) : index_mysql_for_speed_inception_major_version;
@@ -111,7 +111,7 @@ function index_wp_mysql_for_speed_nag() {
  */
 function index_wp_mysql_for_speed_plugin_updated() {
   global $wp_version, $wp_db_version;
-  if ( ! wp_doing_ajax() ) {
+  if ( ! function_exists( 'wp_doing_ajax' ) || ! wp_doing_ajax() ) {
     $imfsPage = get_option( 'ImfsPage' );
 
     $savedPluginVersion = ( $imfsPage !== false && isset( $imfsPage['plugin_version'] ) ) ? $imfsPage['plugin_version'] : '';
