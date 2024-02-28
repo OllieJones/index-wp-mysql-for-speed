@@ -170,7 +170,7 @@ During composer installation the plugin can automatically copy the necessary sou
 
 = Which versions of MySQL and MariaDB does this support? =
 
-MySQL versions 5.5.62 and above, 5.6.4 and above, 8 and above. MariaDB versions 5.5 and above.
+MySQL versions 5.5.62 and above, 5.6.4 and above, 8 and above. MariaDB versions 5.5.62 and above.
 
 = What database Storage Engine does this support? =
 
@@ -191,6 +191,12 @@ As you know you should still keep backups of your site: other things can cause d
 **Yes.** WooCommerce still uses core WordPress tables for your shop's products, posts, pages, and users. This plugin adds high-performance keys to those tables.
 
 High Performance Order Storage, true to its name, stores your shop's orders in a more efficient way. Formerly orders were stored in those same core WordPress tables.
+
+= Is this plugin compatible with some other specific plugin? =
+
+This plugin only changes database indexes. If the other plugin does not change database indexes, it is very likely compatible with this one.
+
+Of course, if you find an incompatibility please open a support topic.
 
 = I got a fatal error trying to add keys. How can I fix that? =
 
