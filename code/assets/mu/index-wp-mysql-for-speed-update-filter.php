@@ -12,7 +12,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /* this filter needs to be called during version upgrades, when ordinary plugins aren't loaded. */
-add_filter( 'dbdelta_queries', 'index_wp_mysql_for_speed\upgrade_filter', 10, 1 );
+add_filter( 'dbdelta_create_queries', 'index_wp_mysql_for_speed\upgrade_filter', 10, 1 );
 
 /** Filters the dbDelta SQL queries.
  *
