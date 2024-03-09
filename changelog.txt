@@ -107,3 +107,10 @@ Add a Database Health section to the About tab showing some performance metrics.
 Avoid doing EXPLAIN DESCRIBE when capturing monitors.
 Clear the dashboard upgrade nag after doing `wp index-mysql status`.
 Put backticks around table names in data definition language statements.
+
+= 1.4.16 =
+(no changes to keys)
+WordPress 6.5 compatibility.
+Miscellaneous bug fixes
+Support WordPress versions back to 4.2, the first utf8mb4 version (At MDDHosting's request).
+Avoid attempting to upgrade from storage engines except MyISAM and Aria.

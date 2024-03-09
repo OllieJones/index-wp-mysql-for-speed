@@ -234,6 +234,13 @@ Please see more questions and answers [here](https://plumislandmedia.net/index-w
 
 == Changelog ==
 
+= 1.4.16 =
+(no changes to keys)
+WordPress 6.5 compatibility.
+Miscellaneous bug fixes
+Support WordPress versions back to 4.2 (At MDDHosting's request).
+Avoid attempting to upgrade from storage engines except MyISAM and Aria.
+
 = 1.4.15 =
 (no changes to keys)
 Add a Database Health section to the About tab showing some performance metrics.
@@ -257,11 +264,15 @@ Do ANALYZE TABLE after each rekeying operation.
 
 == Upgrade Notice ==
 
+We've added support for versions of WordPress back to 4.2 (the version when utf8mb4 burst on the scene and required prefix indexes).
+
 We've added a Database Health section to the About tab. It shows some current performance measurements made from your MySQL / MariaDB database server, similar to the stored ones shown in monitor displays.
 
 We've removed various programming-language incompatibilities with php 8.2.
 
 We now use backticks to delimit table names, giving compatibility with some strange plugins.
+
+We've fixed some bugs.
 
 == Screenshots ==
 

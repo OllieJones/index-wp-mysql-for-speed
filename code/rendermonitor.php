@@ -60,19 +60,19 @@ class renderMonitor {
    * @return string
    */
   function render( $part ) {
-	  $this->load();
-	  $c      = $this->classPrefix;
-	  $prefix = "<div class=\"$c index-wp-mysql-for-speed-content-container\">";
-	  $suffix = "</div>";
-	  if ( $part === 'top' ) {
-		  return $prefix . "<div>" . $this->top() . "</div>";
-	  }
+    $this->load();
+    $c      = $this->classPrefix;
+    $prefix = "<div class=\"$c index-wp-mysql-for-speed-content-container\">";
+    $suffix = "</div>";
+    if ( $part === 'top' ) {
+      return $prefix . "<div>" . $this->top() . "</div>";
+    }
 
-	  if ( $part === 'bottom' ) {
-		  return $this->table() . $suffix;
-	  }
+    if ( $part === 'bottom' ) {
+      return $this->table() . $suffix;
+    }
 
-	  return '';
+    return '';
   }
 
   /** Load the monitor
@@ -127,11 +127,7 @@ END;
    * @return array
    */
   public function timeCell( $time, $unit = null, $prefix = '' ) {
-    return ImfsQueries::timeCell ( $time, $unit, $prefix );
-  }
-
-  public function getTimeUnit( $timeSeconds ) {
-    return ImfsQueries::getTimeUnit ( $timeSeconds );
+    return ImfsQueries::timeCell( $time, $unit, $prefix );
   }
 
   public function dbStatusSummary() {
@@ -232,6 +228,50 @@ END;
       $result        .= "<span class=\"$c count\">$nullQueryTime[0]</span> ";
       $result        .= '</div>';
     }
+
+    return $result;
+  }
+
+  /**
+   * @param $status
+   *
+   * @return string
+   */
+  private function getServerUptime( &$status ) {
+    $result = __( 'Database server' ) . ' ' . DB_HOST . '&ensp;';
+    if ( ( isset( $status->Uptime_state ) ? $status->Uptime_state : 0 ) > 0 ) {
+      $uptime = $status->Uptime_state * 1000000;
+      $uptime = $this->timeCell( $uptime );
+      $uptime = $uptime[0];
+      $result .= __( 'Uptime', 'index-wp-mysql-for-speed' ) . ' ';
+      $result .= "<span class=\"$this->classPrefix count\">$uptime</span>&ensp;";
+    }
+
+    return $result;
+  }
+
+  private function getBufferPool( &$status, $pool ) {
+    /* Buffer pool */
+    $result           = '';
+    $bufferPoolActive = isset ( $status->Innodb_buffer_pool_bytes_data_state ) ? $status->Innodb_buffer_pool_bytes_data_state : - 1;
+    $bufferPoolDirty  = isset ( $status->Innodb_buffer_pool_bytes_dirty_state ) ? $status->Innodb_buffer_pool_bytes_dirty_state : - 1;
+    if ( isset( $pool ) && $pool > 0 ) {
+      $result     .= __( 'Buffer Pool: Total:', 'index-wp-mysql-for-speed' ) . ' ';
+      $bufferPool = $this->byteCell( $pool );
+      $result     .= "<span class=\"$this->classPrefix count\">$bufferPool</span> ";
+    }
+    if ( $bufferPoolActive > 0 ) {
+      $result     .= __( 'Active:', 'index-wp-mysql-for-speed' ) . ' ';
+      $bufferPool = $this->byteCell( $bufferPoolActive );
+      $result     .= "<span class=\"$this->classPrefix count\">$bufferPool</span>";
+      if ( $bufferPoolDirty > 0 ) {
+        $percentDirty = round( 100 * $bufferPoolDirty / $bufferPoolActive );
+        $result       .= " <span class=\"$this->classPrefix count\">$percentDirty</span>";
+        $result       .= __( '% dirty', 'index-wp-mysql-for-speed' );
+      }
+      $result .= '&ensp;';
+    }
+
     return $result;
   }
 
@@ -245,6 +285,30 @@ END;
    */
   public function byteCell( $bytes, $unit = null, $prefix = '' ) {
     return ImfsQueries::byteCell( $bytes, $unit, $prefix );
+  }
+
+  private function getRam( $status ) {
+    /* RAM: MariaDB only */
+    $result       = '';
+    $memUsedTotal = isset( $status->Memory_used_state ) ? $status->Memory_used_state : 0;
+    if ( $memUsedTotal > 0 ) {
+      $result  .= __( 'RAM:', 'index-wp-mysql-for-speed' ) . ' ';
+      $ramUsed = $this->byteCell( $memUsedTotal );
+      $result  .= "<span class=\"$this->classPrefix count\">$ramUsed</span>" . '&ensp;';
+    }
+
+    return $result;
+  }
+
+  private function getThreads( $status ) {
+    $result  = '';
+    $threads = isset( $status->Threads_running_state ) ? $status->Threads_running_state : 0;
+    if ( $threads > 0 ) {
+      $result .= __( 'Threads:', 'index-wp-mysql-for-speed' ) . ' ';
+      $result .= "<span class=\"$this->classPrefix count\">$threads</span>" . '&ensp;';
+    }
+
+    return $result;
   }
 
   /**
@@ -383,6 +447,10 @@ END;
     return $acc / $n;
   }
 
+  public function getTimeUnit( $timeSeconds ) {
+    return ImfsQueries::getTimeUnit( $timeSeconds );
+  }
+
   /** mean absolute deviation
    *
    * @param array $a dataset
@@ -435,56 +503,56 @@ END;
    * @return mixed|string
    */
   public function queryPlan( $q ) {
-	  if ( ! $q->e || ! is_array( $q->e ) || count( $q->e ) === 0 ) {
-		  return '';
-	  }
-	  $erow   = $q->e[0];
-	  $extras = $erow->Extra;
-      $extras = is_string( $extras ) ? $extras : '';
-	  if ( false !== stripos( $extras, 'impossible where' ) ) {
-		  return $extras;
-	  }
+    if ( ! $q->e || ! is_array( $q->e ) || count( $q->e ) === 0 ) {
+      return '';
+    }
+    $erow   = $q->e[0];
+    $extras = $erow->Extra;
+    $extras = is_string( $extras ) ? $extras : '';
+    if ( false !== stripos( $extras, 'impossible where' ) ) {
+      return $extras;
+    }
 
-	  if ( false !== stripos( $extras, 'no tables' ) ) {
-		  return $extras;
-	  }
+    if ( false !== stripos( $extras, 'no tables' ) ) {
+      return $extras;
+    }
 
-	  $expl   = [];
-	  $expl[] = $erow->table;
+    $expl   = [];
+    $expl[] = $erow->table;
 
-	  $type = $erow->select_type;
-	  if ( false === stripos( $type, 'SIMPLE' ) ) {
-		  $expl[] = $type . ':';
-	  }
+    $type = $erow->select_type;
+    if ( false === stripos( $type, 'SIMPLE' ) ) {
+      $expl[] = $type . ':';
+    }
 
-	  if ( $erow->key ) {
-		  $expl[] = '(' . $erow->key . ')';
-	  }
-	  if ( $erow->type && $erow->ref ) {
-		  $expl[] = "[" . $erow->type . ":" . $erow->ref . "]";
-	  } else if ( $erow->type ) {
-		  $expl[] = "[" . $erow->type . "]";
-	  } else if ( $erow->ref ) {
-		  $expl[] = "[" . $erow->type . "]";
-	  }
-	  foreach ( explode( ";", $extras ) as $extra ) {
-		  $extra = trim( $extra );
-		  if ( false !== stripos( $extra, "using where" ) ) {
-			  $expl[] = "Where" . ';';
-		  } else if ( false !== stripos( $extra, "using index condition" ) ) {
-			  $expl[] = "Index Condition" . ';';
-		  } else if ( false !== stripos( $extra, "using index" ) ) {
-			  $expl[] = "Covering index" . ';';
-		  } else if ( false !== stripos( $extra, "using temporary" ) ) {
-			  $expl[] = "Temp" . ';';
-		  } else if ( false !== stripos( $extra, "using filesort" ) ) {
-			  $expl[] = "Sort" . ';';
-		  } else if ( strlen( $extra ) > 0 ) {
-			  $expl[] = $extra . ';';
-		  }
-	  }
+    if ( $erow->key ) {
+      $expl[] = '(' . $erow->key . ')';
+    }
+    if ( $erow->type && $erow->ref ) {
+      $expl[] = "[" . $erow->type . ":" . $erow->ref . "]";
+    } else if ( $erow->type ) {
+      $expl[] = "[" . $erow->type . "]";
+    } else if ( $erow->ref ) {
+      $expl[] = "[" . $erow->type . "]";
+    }
+    foreach ( explode( ";", $extras ) as $extra ) {
+      $extra = trim( $extra );
+      if ( false !== stripos( $extra, "using where" ) ) {
+        $expl[] = "Where" . ';';
+      } else if ( false !== stripos( $extra, "using index condition" ) ) {
+        $expl[] = "Index Condition" . ';';
+      } else if ( false !== stripos( $extra, "using index" ) ) {
+        $expl[] = "Covering index" . ';';
+      } else if ( false !== stripos( $extra, "using temporary" ) ) {
+        $expl[] = "Temp" . ';';
+      } else if ( false !== stripos( $extra, "using filesort" ) ) {
+        $expl[] = "Sort" . ';';
+      } else if ( strlen( $extra ) > 0 ) {
+        $expl[] = $extra . ';';
+      }
+    }
 
-	  return implode( " ", $expl );
+    return implode( " ", $expl );
   }
 
   static function deleteMonitor( $monitor ) {
@@ -500,7 +568,7 @@ END;
     $queries = $l->queries;
 
     /* sort queries in descending order of total time */
-    uasort( $queries, function ( $a, $b ) {
+    uasort( $queries, function( $a, $b ) {
       $a = $a->t;
       $b = $b->t;
       /* don't forget, in php these compare functions
@@ -521,20 +589,22 @@ END;
         break;
       }
       $parser->setQuery( $query->q );
-      $shortened = $parser->getShortened();
-      $traceback = $query->c;
-      $traceback = preg_replace( '/\s+/', '', $traceback );
-      if ( strlen( $traceback ) > 240 ) {
-        $traceback = substr( $traceback, 0, 120 ) . '...' . substr( $traceback, - 117 );
+      $shortened            = $parser->getShortened();
+      $traceback            = $query->c;
+      $traceback            = preg_replace( '/\s+/', '', $traceback );
+      $traceback_max_length = 1536;
+      if ( strlen( $traceback ) > ( $traceback_max_length ) ) {
+        $traceback_half_length = (int) ( $traceback_max_length / 2 );
+        $traceback             = substr( $traceback, 0, $traceback_half_length ) . '...' . substr( $traceback, - ( $traceback_half_length - 3 ) );
       }
 
       $q = [
-        'f' => mb_convert_encoding($query->f, 'ISO-8859-1', 'UTF-8'),
+        'f' => mb_convert_encoding( $query->f, 'ISO-8859-1', 'UTF-8' ),
         'a' => $query->a,
         'p' => $this->queryPlan( $query ),
         'n' => $query->n,
         't' => $query->t,
-        'q' => mb_convert_encoding($shortened, 'ISO-8859-1', 'UTF-8'),
+        'q' => mb_convert_encoding( $shortened, 'ISO-8859-1', 'UTF-8' ),
         'c' => $traceback,
       ];
       if ( $query->n > 1 ) {
@@ -628,8 +698,8 @@ END;
       $res['rowsStoredRate'] = round( $rowsStored / $dt, 2 );
     }
 
-    if (isset ($this->queryLog->mintime) && $this->queryLog->mintime < PHP_INT_MAX ) {
-      $res['minQueryTime'] = round($this->queryLog->mintime);
+    if ( isset ( $this->queryLog->mintime ) && $this->queryLog->mintime < PHP_INT_MAX ) {
+      $res['minQueryTime'] = round( $this->queryLog->mintime );
     }
 
     return $res;
@@ -667,67 +737,5 @@ END;
     $res .= "</tbody></table></div>";
 
     return $res;
-  }
-
-  /**
-   * @param $status
-   * @return string
-   */
-  private function getServerUptime( &$status ) {
-    $result = __( 'Database server' ) . ' ' . DB_HOST . '&ensp;';
-    if ( ( isset( $status->Uptime_state ) ? $status->Uptime_state : 0 ) > 0 ) {
-      $uptime = $status->Uptime_state * 1000000;
-      $uptime = $this->timeCell( $uptime );
-      $uptime = $uptime[0];
-      $result .= __( 'Uptime', 'index-wp-mysql-for-speed' ) . ' ';
-      $result .= "<span class=\"$this->classPrefix count\">$uptime</span>&ensp;";
-    }
-    return $result;
-  }
-
-  private function getBufferPool( &$status, $pool ) {
-    /* Buffer pool */
-    $result           = '';
-    $bufferPoolActive = isset ( $status->Innodb_buffer_pool_bytes_data_state ) ? $status->Innodb_buffer_pool_bytes_data_state : - 1;
-    $bufferPoolDirty  = isset ( $status->Innodb_buffer_pool_bytes_dirty_state ) ? $status->Innodb_buffer_pool_bytes_dirty_state : - 1;
-    if ( isset( $pool ) && $pool > 0 ) {
-      $result     .= __( 'Buffer Pool: Total:', 'index-wp-mysql-for-speed' ) . ' ';
-      $bufferPool = $this->byteCell( $pool );
-      $result     .= "<span class=\"$this->classPrefix count\">$bufferPool</span> ";
-    }
-    if ( $bufferPoolActive > 0 ) {
-      $result     .= __( 'Active:', 'index-wp-mysql-for-speed' ) . ' ';
-      $bufferPool = $this->byteCell( $bufferPoolActive );
-      $result     .= "<span class=\"$this->classPrefix count\">$bufferPool</span>";
-      if ( $bufferPoolDirty > 0 ) {
-        $percentDirty = round( 100 * $bufferPoolDirty / $bufferPoolActive );
-        $result       .= " <span class=\"$this->classPrefix count\">$percentDirty</span>";
-        $result       .= __( '% dirty', 'index-wp-mysql-for-speed' );
-      }
-      $result .= '&ensp;';
-    }
-    return $result;
-  }
-
-  private function getRam( $status ) {
-    /* RAM: MariaDB only */
-    $result       = '';
-    $memUsedTotal = isset( $status->Memory_used_state ) ? $status->Memory_used_state : 0;
-    if ( $memUsedTotal > 0 ) {
-      $result  .= __( 'RAM:', 'index-wp-mysql-for-speed' ) . ' ';
-      $ramUsed = $this->byteCell( $memUsedTotal );
-      $result  .= "<span class=\"$this->classPrefix count\">$ramUsed</span>" . '&ensp;';
-    }
-    return $result;
-  }
-
-  private function getThreads( $status ) {
-    $result  = '';
-    $threads = isset( $status->Threads_running_state ) ? $status->Threads_running_state : 0;
-    if ( $threads > 0 ) {
-      $result .= __( 'Threads:', 'index-wp-mysql-for-speed' ) . ' ';
-      $result .= "<span class=\"$this->classPrefix count\">$threads</span>" . '&ensp;';
-    }
-    return $result;
   }
 }
