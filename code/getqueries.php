@@ -290,7 +290,9 @@ class ImfsQueries {
                 MAX(autoload.autoload_count) AS autoload_count,
                 MAX(t.ENGINE) AS engine,
                 MAX(t.ROW_FORMAT) AS row_format,
-                MAX(t.TABLE_COLLATION) AS collation
+                MAX(t.TABLE_COLLATION) AS collation,
+                MAX(t.DATA_LENGTH) AS data_length,
+                MAX(t.INDEX_LENGTH) AS index_length
              FROM information_schema.TABLES t
              LEFT JOIN information_schema.STATISTICS p 
 				       ON t.TABLE_SCHEMA = p.TABLE_SCHEMA

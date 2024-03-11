@@ -1,17 +1,17 @@
-# Copyright (C) 2023 Oliver Jones, Rick James
+# Copyright (C) 2024 Oliver Jones, Rick James
 # This file is distributed under the GPL v2 or later.
 msgid ""
 msgstr ""
-"Project-Id-Version: Index WP MySQL For Speed 1.4.15\n"
+"Project-Id-Version: Index WP MySQL For Speed 1.4.16\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/index-wp-mysql-for-speed\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2023-12-27T16:54:36-05:00\n"
+"POT-Creation-Date: 2024-03-11T10:29:45-04:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"X-Generator: WP-CLI 2.6.0\n"
+"X-Generator: WP-CLI 2.9.0\n"
 "X-Domain: index-wp-mysql-for-speed\n"
 
 #. Plugin Name of the plugin
@@ -337,7 +337,7 @@ msgstr ""
 
 #. translators: for settings link on plugin page
 #: afp/factory/_common/_abstract/_model/AdminPageFramework_Message.php:93
-#: index-wp-mysql-for-speed.php:232
+#: index-wp-mysql-for-speed.php:249
 msgid "Settings"
 msgstr ""
 
@@ -1074,38 +1074,43 @@ msgstr ""
 msgid "Number of connections to database server:  current: %1$s  limit: %2$s"
 msgstr ""
 
-#. translators: 1: formatted number,  2: time string
+#. translators: 1: formatted number
 #: code/health.php:141
-msgid "peak : %1$s at %2$s"
+msgid "peak: %1$s"
+msgstr ""
+
+#. translators: 1: time string
+#: code/health.php:146
+msgid "at %1$s"
 msgstr ""
 
 #. translators: 1: time interval with unit like 0.5ms
-#: code/health.php:153
+#: code/health.php:158
 msgid "Minimum database query round-trip time: %1$s."
 msgstr ""
 
 #. translators: 1: datestamp  2: number  number like 123.4  4: percentage
-#: code/health.php:170
+#: code/health.php:175
 msgid "Temporary results tables used (since %1$s): %2$s/sec. %3$s%% overflowed to SSD/HDD."
 msgstr ""
 
 #. translators: 1: datestamp  2: byte-count like 3.6GiB  3: byte-count like 3.6GiB
-#: code/health.php:195
-msgid "Database server network traffic (since %1$s): %2$s/sec sent to WordPress, %3$s/sec received"
+#: code/health.php:200
+msgid "Database server network traffic (since %1$s): %2$s/sec sent to WordPress, %3$s/sec received."
 msgstr ""
 
 #. translators: 1: number of tables processed
-#: code/imsfdb.php:295
+#: code/imsfdb.php:294
 msgid "High-performance keys added to %1$d tables."
 msgstr ""
 
 #. translators: 1: number of tables processed
-#: code/imsfdb.php:299
+#: code/imsfdb.php:298
 msgid "Keys on %1$d tables reverted to WordPress standard."
 msgstr ""
 
 #. translators: 1: count of tables upgraded from MyISAM to InnoDB
-#: code/imsfdb.php:700
+#: code/imsfdb.php:699
 msgid "%1$d tables upgraded"
 msgstr ""
 
@@ -1162,105 +1167,105 @@ msgstr ""
 msgid "queries captured."
 msgstr ""
 
-#: code/rendermonitor.php:158
+#: code/rendermonitor.php:154
 msgid "Version:"
 msgstr ""
 
-#: code/rendermonitor.php:169
+#: code/rendermonitor.php:165
 msgid "Connections/s"
 msgstr ""
 
-#: code/rendermonitor.php:172
+#: code/rendermonitor.php:168
 msgid "Failed connections/s"
 msgstr ""
 
-#: code/rendermonitor.php:179
+#: code/rendermonitor.php:175
 msgid "Abrupt disconnections/s"
 msgstr ""
 
-#: code/rendermonitor.php:185
+#: code/rendermonitor.php:181
 msgid "Queries/s"
 msgstr ""
 
-#: code/rendermonitor.php:192
+#: code/rendermonitor.php:188
 msgid "Net:"
 msgstr ""
 
-#: code/rendermonitor.php:194
+#: code/rendermonitor.php:190
 msgid "received"
 msgstr ""
 
-#: code/rendermonitor.php:196
+#: code/rendermonitor.php:192
 msgid "sent"
 msgstr ""
 
-#: code/rendermonitor.php:201
+#: code/rendermonitor.php:197
 msgid "IO:"
 msgstr ""
 
-#: code/rendermonitor.php:203
+#: code/rendermonitor.php:199
 msgid "read"
 msgstr ""
 
-#: code/rendermonitor.php:205
+#: code/rendermonitor.php:201
 msgid "rows"
 msgstr ""
 
-#: code/rendermonitor.php:209
+#: code/rendermonitor.php:205
 msgid "fetched"
 msgstr ""
 
-#: code/rendermonitor.php:214
+#: code/rendermonitor.php:210
 msgid "written"
 msgstr ""
 
-#: code/rendermonitor.php:219
+#: code/rendermonitor.php:215
 msgid "retrieved"
 msgstr ""
 
-#: code/rendermonitor.php:224
+#: code/rendermonitor.php:220
 msgid "stored"
 msgstr ""
 
-#: code/rendermonitor.php:231
+#: code/rendermonitor.php:227
 msgid "Shortest Query Time:"
 msgstr ""
 
-#: code/rendermonitor.php:682
+#: code/rendermonitor.php:246
 msgid "Uptime"
 msgstr ""
 
-#: code/rendermonitor.php:694
+#: code/rendermonitor.php:259
 msgid "Buffer Pool: Total:"
 msgstr ""
 
-#: code/rendermonitor.php:699
+#: code/rendermonitor.php:264
 msgid "Active:"
 msgstr ""
 
-#: code/rendermonitor.php:705
+#: code/rendermonitor.php:270
 msgid "% dirty"
 msgstr ""
 
-#: code/rendermonitor.php:717
+#: code/rendermonitor.php:295
 msgid "RAM:"
 msgstr ""
 
-#: code/rendermonitor.php:728
+#: code/rendermonitor.php:307
 msgid "Threads:"
 msgstr ""
 
 #. translators: this goes into error_log()
-#: index-wp-mysql-for-speed.php:197
+#: index-wp-mysql-for-speed.php:214
 msgid "index-wp-mysql-for-speed: Unable to set up the mu-plugin to filter data definition language when preparing for a WordPress upgrade."
 msgstr ""
 
 #. translators: this goes into error_log()
-#: index-wp-mysql-for-speed.php:202
+#: index-wp-mysql-for-speed.php:219
 msgid "index-wp-mysql-for-speed: Exception setting up the mu-plugin to filter data definition language when preparing for a WordPress upgrade."
 msgstr ""
 
 #. translators: this goes into error_log()
-#: index-wp-mysql-for-speed.php:218
+#: index-wp-mysql-for-speed.php:235
 msgid "index-wp-mysql-for-speed: Unable to remove the mu-plugin to filter data definition language."
 msgstr ""
