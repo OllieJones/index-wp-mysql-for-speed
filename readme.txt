@@ -237,9 +237,9 @@ Please see more questions and answers [here](https://plumislandmedia.net/index-w
 = 1.4.16 =
 (no changes to keys)
 WordPress 6.5 compatibility.
-Miscellaneous bug fixes
 Support WordPress versions back to 4.2 (At MDDHosting's request).
 Avoid attempting to upgrade from storage engines except MyISAM and Aria.
+Miscellaneous bug fixes
 
 = 1.4.15 =
 (no changes to keys)

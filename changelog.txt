@@ -111,6 +111,6 @@ Put backticks around table names in data definition language statements.
 = 1.4.16 =
 (no changes to keys)
 WordPress 6.5 compatibility.
-Miscellaneous bug fixes
 Support WordPress versions back to 4.2, the first utf8mb4 version (At MDDHosting's request).
 Avoid attempting to upgrade from storage engines except MyISAM and Aria.
+Miscellaneous bug fixes.
