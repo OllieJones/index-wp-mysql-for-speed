@@ -264,11 +264,11 @@ class ImsfCli extends WP_CLI_Command {
     }
     if ( count( $err ) > 0 ) {
       $fmt = __( 'These tables are not found or not eligible to', 'index-wp-mysql-for-speed' ) . ' ' . $action . ': ' . implode( ' ', $err ) . '.';
-      WP_CLI::error( $this->commentPrefix . $fmt );
+      WP_CLI::log( $this->commentPrefix . $fmt );
     }
     if ( count( $res ) == 0 ) {
       $fmt = __( 'No tables are eligible to', 'index-wp-mysql-for-speed' ) . ' ' . $action . '.';
-      WP_CLI::error( $this->commentPrefix . $fmt );
+      WP_CLI::log( $this->commentPrefix . $fmt );
     }
 
     return $res;
@@ -336,7 +336,9 @@ class ImsfCli extends WP_CLI_Command {
       WP_CLI::log( $this->commentPrefix . __( 'Dry run SQL statements. These statements were NOT run.', 'index-wp-mysql-for-speed' ) );
     }
     try {
-      $this->db->lock( $tbls, true );
+      if ( count( $tbls ) > 0 ) {
+        $this->db->lock( $tbls, true );
+      }
       foreach ( $tbls as $tbl ) {
         $this->db->timings = [];
         $arr               = [ $tbl ];
@@ -350,7 +352,9 @@ class ImsfCli extends WP_CLI_Command {
     } catch ( ImfsException $ex ) {
       WP_CLI::error( $this->commentPrefix . $ex->getMessage() );
     } finally {
-      $this->db->unlock();
+      if ( count( $tbls ) > 0 ) {
+        $this->db->unlock();
+      }
     }
   }
 

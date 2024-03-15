@@ -113,4 +113,6 @@ Put backticks around table names in data definition language statements.
 WordPress 6.5 compatibility.
 Support WordPress versions back to 4.2, the first utf8mb4 version (At MDDHosting's request).
 Avoid attempting to upgrade from storage engines except MyISAM and Aria.
+WP-CLI upgrade, enable, and disable commands are idempotent now. They don't generate errors when they find no tables to process.
 Miscellaneous bug fixes.
+

@@ -1,6 +1,6 @@
 === Index WP MySQL For Speed ===
 Contributors: OllieJones, rjasdfiii
-Tags: database, index, key, performance, mysql, wp-cli
+Tags: index, key, performance, mysql, wp-cli
 Requires at least: 4.2
 Tested up to: 6.5
 Requires PHP: 5.6
@@ -15,7 +15,7 @@ Primary Branch: main
 Text Domain: index-wp-mysql-for-speed
 Domain Path: /languages
 
-Speed up your WordPress site by adding high-performance keys (database indexes) to your MySQL database tables.
+Speed up your WordPress site by adding high-performance keys (database indexes) to your MariaDB / MySQL database tables.
 
 == Description ==
 
@@ -239,6 +239,7 @@ Please see more questions and answers [here](https://plumislandmedia.net/index-w
 WordPress 6.5 compatibility.
 Support WordPress versions back to 4.2 (At MDDHosting's request).
 Avoid attempting to upgrade from storage engines except MyISAM and Aria.
+WP-CLI upgrade, enable, and disable commands are idempotent now. They don't generate errors when they find no tables to process.
 Miscellaneous bug fixes
 
 = 1.4.15 =
