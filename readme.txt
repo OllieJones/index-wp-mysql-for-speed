@@ -4,7 +4,7 @@ Tags: index, key, performance, mysql, wp-cli
 Requires at least: 4.2
 Tested up to: 6.5
 Requires PHP: 5.6
-Stable tag: 1.4.16
+Stable tag: 1.4.17
 Network: true
 License: GPL v2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -233,6 +233,9 @@ Database keying works by making copies of your table’s data organized in ways 
 Please see more questions and answers [here](https://plumislandmedia.net/index-wp-mysql-for-speed/faq/).
 
 == Changelog ==
+
+= 1.4.17 =
+Back out a miscellaneous bug fix from the previous version. It was an attempt to avoid a warning from Query Monitor's hooks display.
 
 = 1.4.16 =
 (no changes to keys)

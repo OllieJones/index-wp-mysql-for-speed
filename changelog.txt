@@ -116,3 +116,5 @@ Avoid attempting to upgrade from storage engines except MyISAM and Aria.
 WP-CLI upgrade, enable, and disable commands are idempotent now. They don't generate errors when they find no tables to process.
 Miscellaneous bug fixes.
 
+= 1.4.17 =
+Back out a miscellaneous bug fix from the previous version. It was an attempt to avoid a warning from Query Monitor's hooks display.
