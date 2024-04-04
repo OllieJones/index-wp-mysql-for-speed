@@ -82,14 +82,14 @@ function imfsGetNullQueryTime() {
 function imfsGetTime() {
   try {
     $hasHrTime = function_exists( 'hrtime' );
-  } catch ( Exception $ex ) {
+  } catch( Exception $ex ) {
     $hasHrTime = false;
   }
 
   try {
     /** @noinspection PhpElementIsNotAvailableInCurrentPhpVersionInspection */
     return $hasHrTime ? hrtime( true ) * 0.000000001 : time();
-  } catch ( Exception $ex ) {
+  } catch( Exception $ex ) {
     return time();
   }
 }
@@ -110,10 +110,11 @@ function imfs_upload_monitor( $db, $idString, $name, $monitor ) {
   try {
     $monitor['id']        = $idString;
     $monitor['wordpress'] = $wordpress;
+    $monitor['mysqlVer']  = $db->semver;
     $monitor['dbms']      = $dbms;
     $monitor['alltables'] = $db->getTableStats();
     imfs_upload_post( (object) $monitor );
-  } catch ( Exception $e ) {
+  } catch( Exception $e ) {
     /* empty, intentionally. don't croak on uploading */
   }
 
@@ -126,7 +127,7 @@ function imfs_upload_stats( $db, $idString, $target = index_wp_mysql_for_speed_s
     $stats       = imfsGetAllStats( $db );
     $stats['id'] = $idString;
     imfs_upload_post( (object) $stats, $target );
-  } catch ( Exception $e ) {
+  } catch( Exception $e ) {
     /* empty, intentionally. don't croak on uploading */
   }
 

@@ -236,6 +236,7 @@ Please see more questions and answers [here](https://plumislandmedia.net/index-w
 
 = 1.4.17 =
 Back out a miscellaneous bug fix from the previous version. It was an attempt to avoid a warning from Query Monitor's hooks display.
+Upload the full MariaDB / MySQL version information with monitors as well as metadata.
 
 = 1.4.16 =
 (no changes to keys)

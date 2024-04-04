@@ -2,14 +2,14 @@
 # This file is distributed under the GPL v2 or later.
 msgid ""
 msgstr ""
-"Project-Id-Version: Index WP MySQL For Speed 1.4.16\n"
+"Project-Id-Version: Index WP MySQL For Speed 1.4.17\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/index-wp-mysql-for-speed\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2024-03-11T10:29:45-04:00\n"
+"POT-Creation-Date: 2024-04-04T17:53:41-04:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.9.0\n"
 "X-Domain: index-wp-mysql-for-speed\n"
@@ -944,7 +944,7 @@ msgid "Make corrections and try again."
 msgstr ""
 
 #: code/admin.php:1140
-#: code/cli.php:401
+#: code/cli.php:405
 msgid "Metadata uploaded to id "
 msgstr ""
 
