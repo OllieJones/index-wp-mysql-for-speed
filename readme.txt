@@ -4,7 +4,7 @@ Tags: index, key, performance, mysql, wp-cli
 Requires at least: 4.2
 Tested up to: 6.5
 Requires PHP: 5.6
-Stable tag: 1.4.17
+Stable tag: 1.4.18
 Network: true
 License: GPL v2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -88,7 +88,7 @@ Give the command `wp help index-mysql` for details. A few examples:
 * `wp index-mysql status` shows the current status of high-performance keys.
 * `wp index-mysql enable --all` adds the high-performance keys to all tables that don't have them.
 * `wp index-mysql enable wp_postmeta` adds the high-performance keys to the postmeta table.
-* `wp index-mysql disable --all` removes the high-performance keys from all tables that have them, restore WordPress's default keys.
+* `wp index-mysql disable --all` removes the high-performance keys from all tables that have them, restoring WordPress's default keys.
 * `wp index-mysql enable --all --dryrun` writes out the SQL statements necessary to add the high-performance keys to all tables, but does not run them.
 * `wp index-mysql enable --all --dryrun | wp db query` writes out the SQL statements and pipes them to wp db to run them.
 
@@ -228,11 +228,18 @@ Database keying works by making copies of your table’s data organized in ways 
 
 **Yes**. Once the high-performance keys are in place MariaDB and MySQL automatically maintain them as you update,  delete, or insert rows of data to your tables. There is no need to do anything to apply the keys to new data: the DBMS software does that for you.
 
+= How do I revert to WordPress's standard keys, undoing the action of this plugin? =
+
+You can revert the keys from the Index MySQL Tool under the Tools menu, or use the wp-cli command `wp index-mysql disable --all`. *Notice* that if you deactivate or delete the plugin without doing this, the high-performance keys *remain*.
+
 = How do I get an answer to another question? =
 
 Please see more questions and answers [here](https://plumislandmedia.net/index-wp-mysql-for-speed/faq/).
 
 == Changelog ==
+
+= 1.4.18 =
+Security update.
 
 = 1.4.17 =
 Back out a miscellaneous bug fix from the previous version. It was an attempt to avoid a warning from Query Monitor's hooks display.
@@ -246,26 +253,6 @@ Avoid attempting to upgrade from storage engines except MyISAM and Aria.
 WP-CLI upgrade, enable, and disable commands are idempotent now. They don't generate errors when they find no tables to process.
 Miscellaneous bug fixes
 
-= 1.4.15 =
-(no changes to keys)
-Add a Database Health section to the About tab showing some performance metrics.
-Avoid doing EXPLAIN DESCRIBE when capturing monitors.
-Clear the dashboard upgrade nag after doing `wp index-mysql status`.
-Put backticks around table names in data definition language statements.
-
-= 1.4.14 =
-(no changes to keys)
-Handle database version 55853 (no schema changes).
-Deal with php 8.2 deprecations.
-
-= 1.4.13 =
-(no changes to keys)
-Support MariaDB 11.x in version-detection code.
-
-= 1.4.12 =
-(no changes to keys)
-Change max_statement_time session variable if necessary to avoid "Query execution was interrupted" errors.
-Do ANALYZE TABLE after each rekeying operation.
 
 == Upgrade Notice ==
 

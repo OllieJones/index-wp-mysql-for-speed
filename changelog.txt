@@ -118,3 +118,6 @@ Miscellaneous bug fixes.
 
 = 1.4.17 =
 Back out a miscellaneous bug fix from the previous version. It was an attempt to avoid a warning from Query Monitor's hooks display.
+
+= 1.4.18 =
+Security update.

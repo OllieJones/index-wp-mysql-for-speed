@@ -124,7 +124,8 @@ class ImfsPage extends Imfs_AdminPageFramework {
    */
   private function insertHelpTab( $monitor, $sHTML ) {
     $tabSlug = $monitor ? 'monitor' : $this->oProp->getCurrentTabSlug();
-    $helpUrl = index_wp_mysql_for_speed_help_site . $tabSlug;
+    $tabSlug = ctype_alnum ( $tabSlug ) ? $tabSlug : 'about';
+    $helpUrl = index_wp_mysql_for_speed_help_site .  $tabSlug;
     $help    = __( 'Help', 'index-wp-mysql-for-speed' );
     /** @noinspection HtmlUnknownTarget */
     $helpTag = '<a class="helpbutton nav-tab" target="_blank" href="%s/">%s</a>';
