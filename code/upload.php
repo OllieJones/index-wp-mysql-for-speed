@@ -21,6 +21,7 @@ function imfsGetAllStats( $db ) {
   foreach ( $sizes as $k => $v ) {
     $dbms[ $k ] = (int) $v;
   }
+  $meminfo = imfs_meminfo();
 
 
   /** @noinspection PhpUnnecessaryLocalVariableInspection */
@@ -36,6 +37,7 @@ function imfsGetAllStats( $db ) {
     'globalStatus' => $globalStatus,
     'variables'    => $variables,
     'version'      => index_wp_mysql_for_speed_VERSION_NUM,
+    'meminfo'      => $meminfo,
     't'            => (int) time(),
   );
 
@@ -113,6 +115,7 @@ function imfs_upload_monitor( $db, $idString, $name, $monitor ) {
     $monitor['mysqlVer']  = $db->semver;
     $monitor['dbms']      = $dbms;
     $monitor['alltables'] = $db->getTableStats();
+    $monitor['meminfo']   = imfs_meminfo();
     imfs_upload_post( (object) $monitor );
   } catch( Exception $e ) {
     /* empty, intentionally. don't croak on uploading */
@@ -155,4 +158,27 @@ function imfs_upload_post( $stats, $target = index_wp_mysql_for_speed_stats_endp
   ];
 
   $result = wp_remote_post( $target, $options );
+}
+
+function imfs_meminfo ( $file = '/proc/meminfo') {
+    $result = array();
+    /* Belt and suspenders failureproofing to defend against unsupported OSs */
+    try {
+        if ( @file_exists( $file ) && @is_file( $file) && @is_readable( $file ) ) {
+            $fh = @fopen($file, 'r');
+            if ( $fh ) {
+                while ($line = @fgets($fh)) {
+                    if (preg_match('/^([A-Za-z0-9_\(\)]+)[: ]+([0-9]+).*$/', $line, $splits)) {
+                        $key = preg_replace('/[^A-Za-z0-9]/', '_', $splits[1]);
+                        $key = ( '_' === substr( $key, -1)) ? substr($key, 0, strlen($key) - 1) : $key;
+                        $result[$key] = is_numeric($splits[2]) ? intval($splits[2]) : $splits[2];
+                    }
+                }
+                fclose($fh);
+            }
+        }
+        return (object) $result;
+    } catch ( Exception $ex) {
+        return (object) $result;
+    }
 }
