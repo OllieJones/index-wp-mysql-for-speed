@@ -117,6 +117,8 @@ abstract class Imfs_AdminPageFramework_Utility_Deprecated {
         static public function getStringLength($sString) {
             return function_exists('mb_strlen') ? mb_strlen($sString) : strlen($sString);
         }
+
+        /** @noinspection PhpMissingBreakStatementInspection */
         static public function getNumberOfReadableSize($nSize) {
             $_nReturn = substr($nSize, 0, -1);
             switch (strtoupper(substr($nSize, -1))) {
@@ -130,11 +132,17 @@ abstract class Imfs_AdminPageFramework_Utility_Deprecated {
                     $_nReturn*= 1024;
                 case 'K':
                     $_nReturn*= 1024;
+                    break;
+                default:
+                    $_nReturn = is_numeric( $_nReturn ) ? intval( $_nReturn ) : 1024;
+                    $_nReturn = is_numeric( $nSize ) ? intval ($nSize) : $_nReturn;
+                    break;
             }
             return $_nReturn;
         }
         static public function getReadableBytes($nBytes, $iRoundPrecision = 2) {
             $_aUnits = array(0 => 'B', 1 => 'kB', 2 => 'MB', 3 => 'GB');
+            $nBytes = is_numeric ( $nBytes ) ? intval ( $nBytes ) : 1;
             $_nLog = log($nBytes, 1024);
             $_iPower = ( int )$_nLog;
             $_ifSize = pow(1024, $_nLog - $_iPower);
