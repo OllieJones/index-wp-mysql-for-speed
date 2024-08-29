@@ -4,7 +4,7 @@ Tags: index, key, performance, mysql, wp-cli
 Requires at least: 4.2
 Tested up to: 6.6.1
 Requires PHP: 5.6
-Stable tag: 1.4.18
+Stable tag: 1.4.19
 Network: true
 License: GPL v2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -240,6 +240,9 @@ Please see more questions and answers [here](https://plumislandmedia.net/index-w
 
 == Changelog ==
 
+= 1.4.19 =
+Report information about host machine using meminfo and procinfo if those files are available.
+
 = 1.4.18 =
 Security update.
 
@@ -257,6 +260,8 @@ Miscellaneous bug fixes
 
 
 == Upgrade Notice ==
+
+Now we display information about host machine using meminfo and procinfo if those files are available, and upload that information with metadata and monitors.
 
 We've added support for versions of WordPress back to 4.2 (the version when utf8mb4 burst on the scene and required prefix indexes).
 
