@@ -2,7 +2,7 @@
 Contributors: OllieJones, rjasdfiii
 Tags: index, key, performance, mysql, wp-cli
 Requires at least: 4.2
-Tested up to: 6.5
+Tested up to: 6.6.1
 Requires PHP: 5.6
 Stable tag: 1.4.18
 Network: true
@@ -22,7 +22,6 @@ Speed up your WordPress site by adding high-performance keys (database indexes) 
 <h4>How do I use this plugin?</h4>
 
 After you install and activate this plugin, visit the Index MySQL Tool under the Tools menu. From there you can press the *Add Keys Now* button. If you have large tables, use it with [WP-CLI](https://wp-cli.org/) instead to avoid timeouts. See the WP-CLI section to learn more.
-
 
 <h4>What does it do for my site?</h4>
 
@@ -113,6 +112,9 @@ Three reasons (maybe four):
 
 Seriously, the microwatt hours of electricity saved by faster web site technologies add up fast, especially at WordPress's global scale.
 
+<h4>How can I learn more about making my WordPress site more efficient?</h4>
+
+We offer several plugins to help with your site's database efficiency. You can [read about them here](https://www.plumislandmedia.net/wordpress/performance/optimizing-wordpress-database-servers/).
 
 = Credits =
 * Michael Uno for Admin Page Framework.

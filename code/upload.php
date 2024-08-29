@@ -22,6 +22,7 @@ function imfsGetAllStats( $db ) {
     $dbms[ $k ] = (int) $v;
   }
   $meminfo = imfs_meminfo();
+  $cpuinfo = imfs_cpuinfo();
 
 
   /** @noinspection PhpUnnecessaryLocalVariableInspection */
@@ -38,6 +39,7 @@ function imfsGetAllStats( $db ) {
     'variables'    => $variables,
     'version'      => index_wp_mysql_for_speed_VERSION_NUM,
     'meminfo'      => $meminfo,
+    'cpuinfo'      => $cpuinfo,
     't'            => (int) time(),
   );
 
@@ -116,6 +118,7 @@ function imfs_upload_monitor( $db, $idString, $name, $monitor ) {
     $monitor['dbms']      = $dbms;
     $monitor['alltables'] = $db->getTableStats();
     $monitor['meminfo']   = imfs_meminfo();
+    $monitor['cpuinfo']   = imfs_cpuinfo();
     imfs_upload_post( (object) $monitor );
   } catch( Exception $e ) {
     /* empty, intentionally. don't croak on uploading */
@@ -160,25 +163,67 @@ function imfs_upload_post( $stats, $target = index_wp_mysql_for_speed_stats_endp
   $result = wp_remote_post( $target, $options );
 }
 
+/**
+ * Get contents of /proc/meminfo.
+ *
+ * @param string $file Meminfo file name. Default /proc/meminfo.
+ *
+ * @return object Name->value object containing memoinfo contents. Empty object upon failure.
+ */
 function imfs_meminfo ( $file = '/proc/meminfo') {
-    $result = array();
-    /* Belt and suspenders failureproofing to defend against unsupported OSs */
-    try {
-        if ( @file_exists( $file ) && @is_file( $file) && @is_readable( $file ) ) {
-            $fh = @fopen($file, 'r');
-            if ( $fh ) {
-                while ($line = @fgets($fh)) {
-                    if (preg_match('/^([A-Za-z0-9_\(\)]+)[: ]+([0-9]+).*$/', $line, $splits)) {
-                        $key = preg_replace('/[^A-Za-z0-9]/', '_', $splits[1]);
-                        $key = ( '_' === substr( $key, -1)) ? substr($key, 0, strlen($key) - 1) : $key;
-                        $result[$key] = is_numeric($splits[2]) ? intval($splits[2]) : $splits[2];
-                    }
-                }
-                fclose($fh);
-            }
+  $result = array();
+  /* Belt and suspenders failureproofing to defend against unsupported OSs */
+  try {
+    if ( @file_exists( $file ) && @is_file( $file ) && @is_readable( $file ) ) {
+      $fh = @fopen( $file, 'r' );
+      if ( $fh ) {
+        while ( $line = @fgets( $fh ) ) {
+          if ( preg_match( '/^([A-Za-z0-9_\(\)]+)[: ]+([0-9]+).*$/', $line, $splits ) ) {
+            $key            = preg_replace( '/[^A-Za-z0-9]/', '_', $splits[1] );
+            $key            = ( '_' === substr( $key, - 1 ) ) ? substr( $key, 0, strlen( $key ) - 1 ) : $key;
+            $result[ $key ] = is_numeric( $splits[2] ) ? intval( $splits[2] ) : $splits[2];
+          }
         }
-        return (object) $result;
-    } catch ( Exception $ex) {
-        return (object) $result;
+        fclose( $fh );
+      }
     }
+    return (object) $result;
+  } catch ( Exception $ex ) {
+    return (object) $result;
+  }
+}
+/**
+ * Get summary of /proc/cpuinfo.
+ *
+ * @param string $file Cpuinfo file name. Default /proc/cpuinfo.
+ *
+ * @return object Name->value object containing memoinfo contents. Empty object upon failure.
+ */
+function imfs_cpuinfo ( $file = '/proc/cpuinfo') {
+  $result = array();
+  /* Belt and suspenders failureproofing to defend against unsupported OSs */
+  try {
+    if ( @file_exists( $file ) && @is_file( $file ) && @is_readable( $file ) ) {
+      $fh = @fopen( $file, 'r' );
+      if ( $fh ) {
+        while ( $line = @fgets( $fh ) ) {
+          if ( preg_match( '/^([a-zA-Z0-9 ]+[a-zA-Z0-9])+\s*:\s*(.+) *$/', $line, $splits ) ) {
+            $key = preg_replace( '/[^A-Za-z0-9]/', '_', $splits[1] );
+            $val = $splits[2];
+            if ( array_key_exists( $key, $result ) ) {
+              if ( $result[ $key ] !== $val ) {
+                $result[ $key ] .= '|' . $val;
+              }
+            } else {
+              $result[ $key ] = $val;
+            }
+          }
+        }
+        fclose( $fh );
+      }
+    }
+    return (object) $result;
+  } catch ( Exception $ex ) {
+    return (object) $result;
+  }
 }
