@@ -109,38 +109,56 @@ class ImfsGetIndexes {
         "meta_value"  => "ADD KEY meta_value (meta_value(32), meta_id)",
       ],
 
-      "usermeta"    => [
+      "usermeta"                   => [
         "umeta_id"    => "ADD UNIQUE KEY umeta_id (umeta_id)",
         "PRIMARY KEY" => "ADD PRIMARY KEY (user_id, meta_key, umeta_id)",
         "meta_key"    => "ADD KEY meta_key (meta_key, meta_value(32), user_id, umeta_id)",
         "meta_value"  => "ADD KEY meta_value (meta_value(32), umeta_id)",
       ],
-      "termmeta"    => [
+      "termmeta"                   => [
         "meta_id"     => "ADD UNIQUE KEY meta_id (meta_id)",
         "PRIMARY KEY" => "ADD PRIMARY KEY (term_id, meta_key, meta_id)",
         "meta_key"    => "ADD KEY meta_key (meta_key, meta_value(32), term_id, meta_id)",
         "meta_value"  => "ADD KEY meta_value (meta_value(32), meta_id)",
       ],
-      "posts"       => [
+      "posts"                      => [
         "PRIMARY KEY"      => "ADD PRIMARY KEY (ID)",
         "post_name"        => "ADD KEY post_name (post_name)",
         "post_parent"      => "ADD KEY post_parent (post_parent, post_type, post_status)",
         "type_status_date" => "ADD KEY type_status_date (post_type, post_status, post_date, post_author)",
         "post_author"      => "ADD KEY post_author (post_author, post_type, post_status, post_date)",
       ],
-      'commentmeta' => [
+      'commentmeta'                => [
         "meta_id"     => "ADD UNIQUE KEY meta_id (meta_id)",
         "PRIMARY KEY" => "ADD PRIMARY KEY (meta_key, comment_id, meta_id)",
         "comment_id"  => "ADD KEY comment_id (comment_id, meta_key, meta_value(32))",
         "meta_value"  => "ADD KEY meta_value (meta_value(32))",
       ],
-      "users"       => [
+      "users"                      => [
         "PRIMARY KEY"    => "ADD PRIMARY KEY (ID)",
         "user_login_key" => "ADD KEY user_login_key (user_login)",
         "user_nicename"  => "ADD KEY user_nicename (user_nicename)",
         "user_email"     => "ADD KEY user_email (user_email)",
         "display_name"   => "ADD KEY display_name (display_name)",
       ],
+      "woocommerce_order_itemmeta" => [
+        "meta_id"     => "ADD UNIQUE KEY meta_id (meta_id)",
+        "PRIMARY KEY" => "ADD PRIMARY KEY (order_item_id, meta_key, meta_id)",
+        "meta_key"    => "ADD KEY meta_key (meta_key, meta_value(32), order_item_id, meta_id)",
+        "meta_value"  => "ADD KEY meta_value (meta_value(32), meta_id)",
+      ],
+      "wc_orders_meta"             => [
+        "id"             => "ADD UNIQUE KEY id (id)",
+        "PRIMARY KEY"    => "ADD PRIMARY KEY (order_id, meta_key, id)",
+        "meta_key_value" => "ADD KEY meta_key_value (meta_key, meta_value(32), order_id, id)",
+      ],
+      "automatewoo_log_meta"       => [
+        "meta_id"     => "ADD UNIQUE KEY meta_id (meta_id)",
+        "PRIMARY KEY" => "ADD PRIMARY KEY (log_id, meta_key, meta_id)",
+        "meta_key"    => "ADD KEY meta_key (meta_key, meta_value(32), log_id, meta_id)",
+        "meta_value"  => "ADD KEY meta_value (meta_value(32), meta_id)",
+      ],
+
     ];
 
     /* these are the Antelope-dependent (prefixed) indexes */
@@ -154,40 +172,61 @@ class ImfsGetIndexes {
         "meta_value"  => "ADD KEY meta_value (meta_value(32), meta_id)",
       ],
 
-      "usermeta"    => [
+      "usermeta"                   => [
         "umeta_id"    => "ADD UNIQUE KEY umeta_id (umeta_id)",
         "PRIMARY KEY" => "ADD PRIMARY KEY (user_id, umeta_id)",
         "user_id"     => "ADD KEY user_id (user_id, meta_key(32), meta_value(32), umeta_id)",
         "meta_key"    => "ADD KEY meta_key (meta_key(32), meta_value(32), umeta_id)",
         "meta_value"  => "ADD KEY meta_value (meta_value(32), umeta_id)",
       ],
-      "termmeta"    => [
+      "termmeta"                   => [
         "meta_id"     => "ADD UNIQUE KEY meta_id (meta_id)",
         "PRIMARY KEY" => "ADD PRIMARY KEY (term_id, meta_id)",
         "term_id"     => "ADD KEY term_id (term_id, meta_key(32), meta_value(32), meta_id)",
         "meta_key"    => "ADD KEY meta_key (meta_key(32), meta_value(32), meta_id)",
         "meta_value"  => "ADD KEY meta_value (meta_value(32), meta_id)",
       ],
-      "posts"       => [
+      "posts"                      => [
         "PRIMARY KEY"      => "ADD PRIMARY KEY (ID)",
         "post_name"        => "ADD KEY post_name (post_name(32))",
         "post_parent"      => "ADD KEY post_parent (post_parent, post_type, post_status)",
         "type_status_date" => "ADD KEY type_status_date (post_type, post_status, post_date, post_author)",
         "post_author"      => "ADD KEY post_author (post_author, post_type, post_status, post_date)",
       ],
-      'commentmeta' => [
+      'commentmeta'                => [
         "meta_id"     => "ADD UNIQUE KEY meta_id (meta_id)",
         "PRIMARY KEY" => "ADD PRIMARY KEY (comment_id, meta_id)",
         "comment_id"  => "ADD KEY comment_id (comment_id, meta_key(32))",
         "meta_key"    => "ADD KEY meta_key (meta_key(32), meta_value(32))",
         "meta_value"  => "ADD KEY meta_value (meta_value(32), meta_key(32))",
       ],
-      "users"       => [
+      "users"                      => [
         "PRIMARY KEY"    => "ADD PRIMARY KEY (ID)",
         "user_login_key" => "ADD KEY user_login_key (user_login)",
         "user_nicename"  => "ADD KEY user_nicename (user_nicename)",
         "user_email"     => "ADD KEY user_email (user_email)",
         "display_name"   => "ADD KEY display_name (display_name(32))",
+      ],
+      "woocommerce_order_itemmeta" => [
+        "meta_id"       => "ADD UNIQUE KEY meta_id (meta_id)",
+        "PRIMARY KEY"   => "ADD PRIMARY KEY (order_item_id, meta_id)",
+        "order_item_id" => "ADD KEY order_item_id (order_item_id, meta_key(32), meta_value(32), meta_id)",
+        "meta_key"      => "ADD KEY meta_key (meta_key(32), meta_value(32), order_item_id, meta_id)",
+        "meta_value"    => "ADD KEY meta_value (meta_value(32), meta_id)",
+      ],
+      "wc_orders_meta"             => [
+        "id"             => "ADD UNIQUE KEY id (id)",
+        "PRIMARY KEY"    => "ADD PRIMARY KEY (order_id, id)",
+        "order_id"       => "ADD KEY order_id (order_id, meta_key(32), meta_value(32), id)",
+        "meta_key_value" => "ADD KEY meta_key_value (meta_key(32), meta_value(32))",
+        "meta_value"     => "ADD KEY meta_value (meta_value(32), id)"
+      ],
+      "automatewoo_log_meta"       => [
+        "meta_id"     => "ADD UNIQUE KEY meta_id (meta_id)",
+        "PRIMARY KEY" => "ADD PRIMARY KEY (log_id, meta_id)",
+        "log_id"      => "ADD KEY log_id (log_id, meta_key(32), meta_value(32), meta_id)",
+        "meta_key"    => "ADD KEY meta_key (meta_key(32), meta_value(32), log_id, meta_id)",
+        "meta_value"  => "ADD KEY meta_value (meta_value(32), meta_id)",
       ],
 
     ];
@@ -314,34 +353,34 @@ class ImfsGetIndexes {
 }
 
 ImfsGetIndexes::$imfsStandardIndexes = [
-  'postmeta'    => [
+  'postmeta'                   => [
     "PRIMARY KEY" => "ADD PRIMARY KEY (meta_id)",
     "post_id"     => "ADD KEY post_id (post_id)",
     "meta_key"    => "ADD KEY meta_key (meta_key(191))",
   ],
-  'usermeta'    => [
+  'usermeta'                   => [
     "PRIMARY KEY" => "ADD PRIMARY KEY (umeta_id)",
     "user_id"     => "ADD KEY user_id (user_id)",
     "meta_key"    => "ADD KEY meta_key (meta_key(191))",
   ],
-  'termmeta'    => [
+  'termmeta'                   => [
     "PRIMARY KEY" => "ADD PRIMARY KEY (meta_id)",
     "term_id"     => "ADD KEY term_id (term_id)",
     "meta_key"    => "ADD KEY meta_key (meta_key(191))",
   ],
-  'options'     => [
+  'options'                    => [
     "PRIMARY KEY" => "ADD PRIMARY KEY (option_id)",
     "option_name" => "ADD UNIQUE KEY option_name (option_name)",
     "autoload"    => "ADD KEY autoload (autoload)",
   ],
-  'posts'       => [
+  'posts'                      => [
     "PRIMARY KEY"      => "ADD PRIMARY KEY (ID)",
     "post_name"        => "ADD KEY post_name (post_name(191))",
     "post_parent"      => "ADD KEY post_parent (post_parent)",
     "type_status_date" => "ADD KEY type_status_date (post_type, post_status, post_date, ID)",
     "post_author"      => "ADD KEY post_author (post_author)",
   ],
-  'comments'    => [
+  'comments'                   => [
     "PRIMARY KEY"               => "ADD PRIMARY KEY (comment_ID)",
     "comment_post_ID"           => "ADD KEY comment_post_ID (comment_post_ID)",
     "comment_approved_date_gmt" => "ADD KEY comment_approved_date_gmt (comment_approved, comment_date_gmt)",
@@ -349,16 +388,32 @@ ImfsGetIndexes::$imfsStandardIndexes = [
     "comment_parent"            => "ADD KEY comment_parent (comment_parent)",
     "comment_author_email"      => "ADD KEY comment_author_email (comment_author_email(10))",
   ],
-  'commentmeta' => [
+  'commentmeta'                => [
     "PRIMARY KEY" => "ADD PRIMARY KEY (meta_id)",
     "comment_id"  => "ADD KEY comment_id (comment_id)",
     "meta_key"    => "ADD KEY meta_key (meta_key(191))",
   ],
-  "users"       => [
+  "users"                      => [
     "PRIMARY KEY"    => "ADD PRIMARY KEY (ID)",
     "user_login_key" => "ADD KEY user_login_key (user_login)",
     "user_nicename"  => "ADD KEY user_nicename (user_nicename)",
     "user_email"     => "ADD KEY user_email (user_email)",
   ],
+  "woocommerce_order_itemmeta" => [
+    "PRIMARY KEY"   => "ADD PRIMARY KEY (meta_id)",
+    "order_item_id" => "ADD KEY order_item_id (order_item_id)",
+    "meta_key"      => "ADD KEY meta_key (meta_key(32))",
+  ],
+  "wc_orders_meta"             => [
+    "PRIMARY KEY"                  => "ADD PRIMARY KEY (id)",
+    "meta_key_value"               => "ADD KEY meta_key_value (meta_key(191), meta_value(100))",
+    "order_id_meta_key_meta_value" => "ADD KEY order_id_meta_key_meta_value (order_id, meta_key(191), meta_value(100))",
+  ],
+  "automatewoo_log_meta"       => [
+    "PRIMARY KEY" => "ADD PRIMARY KEY (meta_id)",
+    "log_id"      => "ADD KEY log_id (log_id)",
+    "meta_key"    => "ADD KEY meta_key (meta_key(191))",
+  ],
+
 ];
 

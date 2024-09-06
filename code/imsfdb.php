@@ -1,4 +1,4 @@
-<?php
+<?php /** @noinspection SqlNoDataSourceInspection */
 /** @noinspection SpellCheckingInspection */
 require_once( 'getindexes.php' );
 require_once( 'getqueries.php' );
@@ -71,7 +71,7 @@ class ImfsDb {
           if ( $activeTable ) {
             $knownEngine = 'myisam' === strtolower( $info->ENGINE ) || 'aria' === strtolower( $info->ENGINE ) || 'innodb' === strtolower( $info->ENGINE );
             /* not InnoDB, we should upgrade. Ignore storage engines other than Aria and MyISAM. */
-            $wrongEngine = 'myisam' === strtolower( $info->ENGINE ) || 'aria' === strtolower( $info->ENGINE );
+            $wrongEngine    = 'myisam' === strtolower( $info->ENGINE ) || 'aria' === strtolower( $info->ENGINE );
             $wrongRowFormat = $knownEngine && $this->unconstrained && 'dynamic' !== strtolower( $info->ROW_FORMAT ) && 'compressed' !== strtolower( $info->ROW_FORMAT );
             if ( $wrongEngine || $wrongRowFormat ) {
               $oldEngineTables[] = $name;
@@ -211,7 +211,7 @@ class ImfsDb {
     return true;
   }
 
-  public function getSizes () {
+  public function getSizes() {
     $sizes = $this->get_results( ImfsQueries::getCurrentDbTableSizesQuery(), false, ARRAY_A );
     return $sizes[0];
   }
@@ -634,11 +634,29 @@ class ImfsDb {
    * @throws ImfsException
    */
   public function tables( $prefixed = false ) {
+    $tablenames = [
+      'termmeta',
+      'commentmeta',
+      'comments',
+      'options',
+      'postmeta',
+      'posts',
+      'users',
+      'usermeta',
+      'woocommerce_order_itemmeta',
+      'wc_orders_meta',
+      'automatewoo_log_meta'
+    ];
     global $wpdb;
     $avail = $wpdb->tables;
     if ( is_main_site() ) {
       foreach ( $wpdb->global_tables as $table ) {
         $avail[] = $table;
+      }
+    }
+    foreach ( $tablenames as $tablename ) {
+      if ( ! in_array( $tablename, $avail ) && is_array( $this->newEngineTables ) && in_array( $wpdb->prefix . $tablename, $this->newEngineTables ) ) {
+        $avail[] = $tablename;
       }
     }
     /* match to the tables we know how to reindex */
@@ -806,9 +824,9 @@ class ImfsDb {
 
   public function getHealthReport() {
     require_once( 'health.php' );
-    $allStats = imfsGetAllStats( $this );
+    $allStats                        = imfsGetAllStats( $this );
     $allStats['variables']->hostname = DB_HOST;
-    $health = new Health ( $allStats, time() );
+    $health                          = new Health ( $allStats, time() );
 
     return $health->getReport();
   }

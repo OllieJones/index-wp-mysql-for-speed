@@ -1,4 +1,4 @@
-<?php
+<?php /** @noinspection SqlNoDataSourceInspection */
 
 class ImfsQueries {
 
@@ -312,7 +312,9 @@ class ImfsQueries {
 				       ON t.TABLE_SCHEMA = autoload.TABLE_SCHEMA
 						AND t.TABLE_NAME = autoload.TABLE_NAME
              WHERE t.TABLE_SCHEMA = DATABASE() 
-               AND t.TABLE_NAME IN ('{$p}postmeta','{$p}termmeta','{$p}usermeta' ,'{$p}posts','{$p}comments', '{$p}options', '{$p}users', '{$p}commentmeta')
+               AND t.TABLE_NAME IN 
+               ('{$p}postmeta','{$p}termmeta','{$p}usermeta' ,'{$p}posts','{$p}comments', '{$p}options', '{$p}users', '{$p}commentmeta', 
+                 '{$p}woocommerce_order_itemmeta','{$p}wc_orders_meta','{$p}automatewoo_log_meta')
              GROUP BY REPLACE(t.TABLE_NAME, 'wp_', '')";
   }
 
@@ -332,7 +334,8 @@ class ImfsQueries {
                 t.TABLE_COLLATION AS collation
              FROM information_schema.TABLES t
              WHERE t.TABLE_SCHEMA = DATABASE() 
-               AND t.TABLE_NAME IN ('{$p}postmeta','{$p}termmeta','{$p}usermeta' ,'{$p}posts','{$p}comments', '{$p}options', '{$p}users', '{$p}commentmeta')";
+               AND t.TABLE_NAME IN  ('{$p}postmeta','{$p}termmeta','{$p}usermeta' ,'{$p}posts','{$p}comments', '{$p}options', '{$p}users', '{$p}commentmeta', 
+                 '{$p}woocommerce_order_itemmeta','{$p}wc_orders_meta','{$p}automatewoo_log_meta')";
   }
 
   public static function getTableFormatsQuery() {

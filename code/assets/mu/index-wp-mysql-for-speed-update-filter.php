@@ -45,7 +45,7 @@ function upgrade_filter( $queries ) {
 
   global $wpdb;
 
-  $tablenames     = [ 'termmeta', 'commentmeta', 'comments', 'options', 'postmeta', 'posts', 'users', 'usermeta' ];
+  $tablenames     = [ 'termmeta', 'commentmeta', 'comments', 'options', 'postmeta', 'posts', 'users', 'usermeta', 'woocommerce_order_itemmeta','wc_orders_meta','automatewoo_log_meta' ];
   $tablesToHandle = array();
   foreach ( $tablenames as $tablename ) {
     $tablesToHandle[ $wpdb->prefix . $tablename ] = 1;
