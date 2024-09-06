@@ -261,7 +261,7 @@ Miscellaneous bug fixes
 
 == Upgrade Notice ==
 
-Now we display information about host machine using meminfo and procinfo if those files are available, and upload that information with metadata and monitors.
+Now we display information about host machine using `/proc/meminfo` and `/proc/cpuinfo` if those files are available, and upload that information with metadata and monitors.
 
 We've added support for versions of WordPress back to 4.2 (the version when utf8mb4 burst on the scene and required prefix indexes).
 

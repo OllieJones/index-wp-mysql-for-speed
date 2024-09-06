@@ -223,10 +223,32 @@ class Health {
     $d       = $this->stats;
     $cpuinfo = $d['cpuinfo'];
 
+    $mhz    = $cpuinfo->cpu_MHz;
+    $splits = explode( '|', $mhz );
+    if ( count( $splits ) > 4 ) {
+      /* Cope with monster non-uniform machines. */
+      $min = PHP_INT_MAX;
+      $max = - $min;
+      foreach ( $splits as $split ) {
+        if ( is_numeric( $split ) ) {
+          $split = (double) $split;
+          $min   = min( $min, $split );
+          $max   = max( $max, $split );
+        }
+      }
+      if ( $max == - $min ) {
+        $mhz = '?';
+      } else if ( round( $min, 0 ) == round( $max, 0 ) ) {
+        $mhz = round( $min, 0 );
+      } else {
+        $mhz = round( $min, 0 ) . '-' . round( $max, 0 );
+      }
+    }
+
     if ( $cpuinfo->model_name && $cpuinfo->cpu_MHz && $cpuinfo->cpu_cores ) {
       /* translators: 1: number of cores  2: MHz like 2799.345  3: CPU model like "AMD Ryzen 7 5800H with Radeon Graphics" */
       $text = __( 'Web server: %1$s-core %2$s MHz %3$s.', 'index-wp-mysql-for-speed' );
-      return sprintf( $text, $cpuinfo->cpu_cores, $cpuinfo->cpu_MHz, $cpuinfo->model_name );
+      return sprintf( $text, $cpuinfo->cpu_cores, $mhz, $cpuinfo->model_name );
     }
     return '';
   }
