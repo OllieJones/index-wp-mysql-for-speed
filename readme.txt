@@ -2,9 +2,9 @@
 Contributors: OllieJones, rjasdfiii
 Tags: index, key, performance, mysql, wp-cli
 Requires at least: 4.2
-Tested up to: 6.6.1
+Tested up to: 6.6.2
 Requires PHP: 5.6
-Stable tag: 1.4.19
+Stable tag: 1.5.0
 Network: true
 License: GPL v2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -50,7 +50,7 @@ Better keys allow WordPress's code to run faster _without any code changes_.  Ex
 
 <h4>Which tables does the plugin add keys to?</h4>
 
-This plugin adds and updates keys in these WordPress tables.
+This plugin adds and updates keys in these WordPress and WooCommerce tables.
 
 * wp_comments
 * wp_commentmeta
@@ -60,6 +60,9 @@ This plugin adds and updates keys in these WordPress tables.
 * wp_users
 * wp_usermeta
 * wp_options
+* wp_wc_orders_meta
+* wp_woocommerce_order_itemmeta
+* wp_automatewoo_log_meta
 
 You only need run this plugin once to get its benefits.
 
@@ -93,14 +96,6 @@ Give the command `wp help index-mysql` for details. A few examples:
 
 Note: avoid saving the --dryrun output statements to run later. The plugin generates them to match the current state of your tables.
 
-<h4>What's new in the latest version?</h4>
-
-Since the first release, our users have told us about several more opportunities to speed up their WooCommerce and core WordPress operations. We've added keys to the `meta` tables to help with searching for content, and to the `users` table to look people up by their display names. And, you can now upload saved Monitors so we can see your slowest queries. We'll use that information to improve future versions. Thanks, dear users!
-
-The plugin now handles WordPress version updates correctly: they don't change your high-performance keys.
-
-We have added the --dryrun switch to the WP-CLI interface for those who want to see the SQL statements we use.
-
 <h4>Why use this plugin?</h4>
 
 Three reasons (maybe four):
@@ -120,6 +115,7 @@ We offer several plugins to help with your site's database efficiency. You can [
 * Michael Uno for Admin Page Framework.
 * Marco Cesarato for LiteSQLParser.
 * Allan Jardine for Datatables.net.
+* Leho Kraav and Sebastian Sommer for suggesting the WooCommerce tables.
 * Japreet Sethi for advice, and for testing on his large installation.
 * Rick James for everything.
 * Jetbrains for their IDE tools, especially PhpStorm. It's hard to imagine trying to navigate an epic code base without their tools.
@@ -240,6 +236,9 @@ Please see more questions and answers [here](https://plumislandmedia.net/index-w
 
 == Changelog ==
 
+= 1.5.1 =
+Add support for the WooCommerce tables wp_automatewoo_log_meta, wp_wc_orders_meta, and  wp_woocommerce_order_itemmeta.
+
 = 1.4.19 =
 Report information about host machine using meminfo and procinfo if those files are available.
 
@@ -261,17 +260,9 @@ Miscellaneous bug fixes
 
 == Upgrade Notice ==
 
-Now we display information about host machine using `/proc/meminfo` and `/proc/cpuinfo` if those files are available, and upload that information with metadata and monitors.
+We have added support for the WooCommerce tables wp_automatewoo_log_meta, wp_wc_orders_meta, and  wp_woocommerce_order_itemmeta. If those tables are present in your site, we will offer to add high-performance keys to them.
 
-We've added support for versions of WordPress back to 4.2 (the version when utf8mb4 burst on the scene and required prefix indexes).
-
-We've added a Database Health section to the About tab. It shows some current performance measurements made from your MySQL / MariaDB database server, similar to the stored ones shown in monitor displays.
-
-We've removed various programming-language incompatibilities with php 8.2.
-
-We now use backticks to delimit table names, giving compatibility with some strange plugins.
-
-We've fixed some bugs.
+Now we display information about the host machine using `/proc/meminfo` and `/proc/cpuinfo` if those files are available, and upload that information with metadata and monitors.
 
 == Screenshots ==
 

@@ -52,7 +52,7 @@ class ImfsGetIndexes {
    * @throws ImfsException
    */
   static function getHighPerformanceIndexes( $unconstrained, $version = 1.4 ) {
-    if ( $version === 1.4 ) {
+    if ( 1.4 === $version || 1.5 === $version ) {
       return ImfsGetIndexes::getHighPerformanceIndexes1_4( $unconstrained );
     }
     if ( ! isset( $version ) || $version <= 1.3 ) {
