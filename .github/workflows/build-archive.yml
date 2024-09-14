@@ -17,5 +17,11 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: index-wp-mysql-for-speed
-          path: .
+          path: |
+            ./
+            !composer.json
+            !composer.lock
+            !README.md
+            !CODE-OF-CONDUCT.md
+            !tests/**
           compression-level: 9
