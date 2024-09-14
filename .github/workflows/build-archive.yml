@@ -1,0 +1,21 @@
+name: Build and Archive
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: index-wp-mysql-for-speed
+          path: .
+          compression-level: 9
