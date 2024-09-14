@@ -2,9 +2,9 @@
 Contributors: OllieJones, rjasdfiii
 Tags: index, key, performance, mysql, wp-cli
 Requires at least: 4.2
-Tested up to: 6.5
+Tested up to: 6.6.1
 Requires PHP: 5.6
-Stable tag: 1.4.18
+Stable tag: 1.4.19
 Network: true
 License: GPL v2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -22,7 +22,6 @@ Speed up your WordPress site by adding high-performance keys (database indexes) 
 <h4>How do I use this plugin?</h4>
 
 After you install and activate this plugin, visit the Index MySQL Tool under the Tools menu. From there you can press the *Add Keys Now* button. If you have large tables, use it with [WP-CLI](https://wp-cli.org/) instead to avoid timeouts. See the WP-CLI section to learn more.
-
 
 <h4>What does it do for my site?</h4>
 
@@ -113,6 +112,9 @@ Three reasons (maybe four):
 
 Seriously, the microwatt hours of electricity saved by faster web site technologies add up fast, especially at WordPress's global scale.
 
+<h4>How can I learn more about making my WordPress site more efficient?</h4>
+
+We offer several plugins to help with your site's database efficiency. You can [read about them here](https://www.plumislandmedia.net/wordpress/performance/optimizing-wordpress-database-servers/).
 
 = Credits =
 * Michael Uno for Admin Page Framework.
@@ -238,6 +240,9 @@ Please see more questions and answers [here](https://plumislandmedia.net/index-w
 
 == Changelog ==
 
+= 1.4.19 =
+Report information about host machine using meminfo and procinfo if those files are available.
+
 = 1.4.18 =
 Security update.
 
@@ -255,6 +260,8 @@ Miscellaneous bug fixes
 
 
 == Upgrade Notice ==
+
+Now we display information about host machine using `/proc/meminfo` and `/proc/cpuinfo` if those files are available, and upload that information with metadata and monitors.
 
 We've added support for versions of WordPress back to 4.2 (the version when utf8mb4 burst on the scene and required prefix indexes).
 
