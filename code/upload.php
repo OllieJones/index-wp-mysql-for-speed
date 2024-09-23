@@ -1,6 +1,6 @@
 <?php /** @noinspection ALL */
-
-function imfsGetAllStats( $db ) {
+namespace index_wp_mysql_for_speed;
+function get_all_stats( $db ) {
   global $_SERVER;
   $variables    = ImfsQueries::toObject( $db->getVariables() );
   $globalStatus = ImfsQueries::toObject( $db->getStatus() );
@@ -16,13 +16,13 @@ function imfsGetAllStats( $db ) {
     $globalStatus->Caching_sha2_password_rsa_public_key = 'Redacted';
   }
   $wordpress = ImfsQueries::getWpDescription( $db );
-  $dbms      = imfs_get_dbms_stats( $globalStatus, $variables );
+  $dbms      = get_dbms_stats( $globalStatus, $variables );
   $sizes     = $db->getSizes();
   foreach ( $sizes as $k => $v ) {
     $dbms[ $k ] = (int) $v;
   }
-  $meminfo = imfs_meminfo();
-  $cpuinfo = imfs_cpuinfo();
+  $meminfo = meminfo();
+  $cpuinfo = cpuinfo();
 
 
   /** @noinspection PhpUnnecessaryLocalVariableInspection */
@@ -46,7 +46,7 @@ function imfsGetAllStats( $db ) {
   return $stats;
 }
 
-function imfs_get_dbms_stats( $globalStatus, $variables ) {
+function get_dbms_stats( $globalStatus, $variables ) {
   $dbms = [];
   if ( isset( $globalStatus->Memory_used ) ) {
     $dbms['mbytesRam'] = round( $globalStatus->Memory_used / ( 1024 * 1024 ), 0 );
@@ -64,26 +64,26 @@ function imfs_get_dbms_stats( $globalStatus, $variables ) {
     $dbms['sUptime'] = round( $globalStatus->Uptime, 0 );
   }
 
-  $dbms['msNullQueryTime'] = imfsGetNullQueryTime();
+  $dbms['msNullQueryTime'] = get_null_query_time();
 
   return $dbms;
 }
 
-function imfsGetNullQueryTime() {
+function get_null_query_time() {
   /* Measure and report the elapsed wall time for a trivial query,
  * hopefully to identify bogged-down and/or shared servers. */
   global $wpdb;
-  $startTime = imfsGetTime();
+  $startTime = get_time();
   $wpdb->get_var( ImfsQueries::tagQuery( 'SELECT 1' ) );
 
-  return floatval( round( 1000 * ( imfsGetTime() - $startTime ), 3 ) );
+  return floatval( round( 1000 * ( get_time() - $startTime ), 3 ) );
 }
 
 /**
  * Get the time in seconds for a minimum (SELECT 1) query
  * @return float Time in seconds.
  */
-function imfsGetTime() {
+function get_time() {
   try {
     $hasHrTime = function_exists( 'hrtime' );
   } catch( Exception $ex ) {
@@ -98,7 +98,7 @@ function imfsGetTime() {
   }
 }
 
-function imfs_upload_monitor( $db, $idString, $name, $monitor ) {
+function upload_monitor( $db, $idString, $name, $monitor ) {
 
   /* tidy up monitor query text strings, as JSON.parse can gack on bad utf-8 */
   foreach ( $monitor['queries'] as &$query ) {
@@ -110,16 +110,16 @@ function imfs_upload_monitor( $db, $idString, $name, $monitor ) {
   $wordpress    = ImfsQueries::getWpDescription( $db );
   $globalStatus = ImfsQueries::toObject( $db->getStatus() );
   $variables    = ImfsQueries::toObject( $db->getVariables() );
-  $dbms         = imfs_get_dbms_stats( $globalStatus, $variables );
+  $dbms         = get_dbms_stats( $globalStatus, $variables );
   try {
     $monitor['id']        = $idString;
     $monitor['wordpress'] = $wordpress;
     $monitor['mysqlVer']  = $db->semver;
     $monitor['dbms']      = $dbms;
     $monitor['alltables'] = $db->getTableStats();
-    $monitor['meminfo']   = imfs_meminfo();
-    $monitor['cpuinfo']   = imfs_cpuinfo();
-    imfs_upload_post( (object) $monitor );
+    $monitor['meminfo']   = meminfo();
+    $monitor['cpuinfo']   = cpuinfo();
+    upload_post( (object) $monitor );
   } catch( Exception $e ) {
     /* empty, intentionally. don't croak on uploading */
   }
@@ -127,12 +127,12 @@ function imfs_upload_monitor( $db, $idString, $name, $monitor ) {
   return $idString;
 }
 
-function imfs_upload_stats( $db, $idString, $target = index_wp_mysql_for_speed_stats_endpoint ) {
+function upload_stats( $db, $idString, $target = index_wp_mysql_for_speed_stats_endpoint ) {
 
   try {
-    $stats       = imfsGetAllStats( $db );
+    $stats       = get_all_stats( $db );
     $stats['id'] = $idString;
-    imfs_upload_post( (object) $stats, $target );
+    upload_post( (object) $stats, $target );
   } catch( Exception $e ) {
     /* empty, intentionally. don't croak on uploading */
   }
@@ -144,9 +144,9 @@ function imfs_upload_stats( $db, $idString, $target = index_wp_mysql_for_speed_s
  * @param object $stats
  * @param string $target
  */
-function imfs_upload_post( $stats, $target = index_wp_mysql_for_speed_stats_endpoint ) {
+function upload_post( $stats, $target = index_wp_mysql_for_speed_stats_endpoint ) {
 
-  $payload = json_encode( $stats );
+  $payload = wp_json_encode( $stats );
   $options = [
     'body'        => $payload,
     'headers'     => [
@@ -170,7 +170,7 @@ function imfs_upload_post( $stats, $target = index_wp_mysql_for_speed_stats_endp
  *
  * @return object Name->value object containing memoinfo contents. Empty object upon failure.
  */
-function imfs_meminfo ( $file = '/proc/meminfo') {
+function meminfo ( $file = '/proc/meminfo') {
   $result = array();
   /* Belt and suspenders failureproofing to defend against unsupported OSs */
   try {
@@ -199,7 +199,7 @@ function imfs_meminfo ( $file = '/proc/meminfo') {
  *
  * @return object Name->value object containing memoinfo contents. Empty object upon failure.
  */
-function imfs_cpuinfo ( $file = '/proc/cpuinfo') {
+function cpuinfo ( $file = '/proc/cpuinfo') {
   $result = array();
   /* Belt and suspenders failureproofing to defend against unsupported OSs */
   try {

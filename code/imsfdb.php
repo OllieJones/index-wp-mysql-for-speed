@@ -1,5 +1,11 @@
 <?php /** @noinspection SqlNoDataSourceInspection */
+
 /** @noinspection SpellCheckingInspection */
+
+namespace index_wp_mysql_for_speed;
+
+use Exception;
+
 require_once( 'getindexes.php' );
 require_once( 'getqueries.php' );
 require_once( ABSPATH . 'wp-admin/includes/class-wp-upgrader.php' );
@@ -111,9 +117,9 @@ class ImfsDb {
   public function get_results( $sql, $doTiming = false, $outputFormat = OBJECT_K ) {
     global $wpdb;
     $thentime = $doTiming ? $this->getTime() : - 1;
-    $results  = $wpdb->get_results( $this->tagQuery( $sql ), $outputFormat );
+    $results  = $wpdb->get_results( $this->tagQuery( $wpdb->prepare( $sql ) ), $outputFormat );
     if ( false === $results || $wpdb->last_error ) {
-      throw new ImfsException( $wpdb->last_error, $wpdb->last_query );
+      throw new ImfsException( esc_html( $wpdb->last_error ), esc_html( $wpdb->last_query ) );
     }
     if ( $doTiming ) {
       $delta           = round( floatval( $this->getTime() - $thentime ), 3 );
@@ -142,7 +148,7 @@ class ImfsDb {
    * @return string
    */
   private function tagQuery( $q ) {
-    return $q . '/*' . index_wp_mysql_for_speed_querytag . rand( 0, 999999999 ) . '*/';
+    return $q . '/*' . index_wp_mysql_for_speed_querytag . wp_rand( 0, 999999999 ) . '*/';
   }
 
   private function getTableFormats() {
@@ -474,7 +480,7 @@ class ImfsDb {
     $results  = $wpdb->query( $this->tagQuery( $sql ) );
     $this->logDDLQuery( $sql );
     if ( false === $results || $wpdb->last_error ) {
-      throw new ImfsException( $wpdb->last_error, $wpdb->last_query );
+      throw new ImfsException( esc_html( $wpdb->last_error ), esc_html( $wpdb->last_query ) );
     }
     if ( $doTiming ) {
       $delta           = round( floatval( $this->getTime() - $thentime ), 3 );
@@ -587,7 +593,7 @@ class ImfsDb {
           $revertable[] = $name;
           $fastList[]   = $name;
         } else {
-          throw new Exception( "Table $name invalid state $hasFastIndexes $hasStandardIndexes $hasOldIndexes" );
+          throw new Exception( esc_html( "Table $name invalid state $hasFastIndexes $hasStandardIndexes $hasOldIndexes" ) );
         }
       }
       /* handle version update logic */
@@ -824,7 +830,7 @@ class ImfsDb {
 
   public function getHealthReport() {
     require_once( 'health.php' );
-    $allStats                        = imfsGetAllStats( $this );
+    $allStats                        = get_all_stats( $this );
     $allStats['variables']->hostname = DB_HOST;
     $health                          = new Health ( $allStats, time() );
 

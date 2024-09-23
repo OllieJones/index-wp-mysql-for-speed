@@ -1,5 +1,5 @@
 <?php
-
+namespace index_wp_mysql_for_speed;
 /**
  * Light SQL Parser Class
  * @author Marco Cesarato <cesarato.developer@gmail.com>, Ollie JOnes <olliejones@gmail.com>

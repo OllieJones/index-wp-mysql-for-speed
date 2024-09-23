@@ -1,5 +1,6 @@
 <?php
 
+namespace index_wp_mysql_for_speed;
 require_once( 'getstatus.php' );
 
 class QueryMonControl {
@@ -29,11 +30,11 @@ class QueryMonControl {
     if ( $specs['samplerate'] != 100 ) {
       /* translators: 1: "Monitoring dashboard and site", etc. 2: number of minutes  3: end time  4: percentage 5: monitor name */
       $stopTimeString = sprintf( __( '%1$s for %2$d minutes until %3$s. Random sampling %4$d%% of page views. Monitoring output saved into <i>%5$s</i>.', 'index-wp-mysql-for-speed' ),
-        $targetText, $specs['duration'], index_wp_mysql_for_speed_timestamp( 'g:i:s a T', $stopTime ), $specs['samplerate'], $monval->name );
+        $targetText, $specs['duration'], get_timestamp( 'g:i:s a T', $stopTime ), $specs['samplerate'], $monval->name );
     } else {
       /* translators: 1: "Monitoring dashboard and site", etc. 2: number of minutes  3: end time  4: monitor name */
       $stopTimeString = sprintf( __( '%1$s for %2$d minutes until %3$s. Monitoring output saved into %4$s', 'index-wp-mysql-for-speed' ),
-        $targetText, $specs['duration'], index_wp_mysql_for_speed_timestamp( 'g:i:s a T', $stopTime ), $monval->name );
+        $targetText, $specs['duration'], get_timestamp( 'g:i:s a T', $stopTime ), $monval->name );
     }
     update_option( index_wp_mysql_for_speed_monitor, $monval, true );
 

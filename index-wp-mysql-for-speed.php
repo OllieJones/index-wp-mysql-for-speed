@@ -27,6 +27,10 @@
  * Tags:         database, index, key, mysql, wp-cli
  */
 
+namespace index_wp_mysql_for_speed;
+
+use Exception;
+
 /** current version number  */
 define( 'index_wp_mysql_for_speed_VERSION_NUM', '1.5.1' );
 define( 'index_mysql_for_speed_major_version', 1.5 );
@@ -46,12 +50,12 @@ define( 'index_wp_mysql_for_speed_last_compatible_db_version', 0 ); /*tested up 
 
 define( 'index_wp_mysql_for_speed_help_site', 'https://plumislandmedia.net/index-wp-mysql-for-speed/' );
 
-register_activation_hook( __FILE__, 'index_wp_mysql_for_speed_activate' );
-register_deactivation_hook( __FILE__, 'index_wp_mysql_for_speed_deactivate' );
+register_activation_hook( __FILE__, 'index_wp_mysql_for_speed\activate_plugin' );
+register_deactivation_hook( __FILE__, 'index_wp_mysql_for_speed\deactivate_plugin' );
 
-add_action( 'init', 'index_wp_mysql_for_speed_do_everything' );
+add_action( 'init', 'index_wp_mysql_for_speed\do_everything' );
 
-function index_wp_mysql_for_speed_do_everything( ) {
+function do_everything( ) {
 
 //  define( 'INDEX_WP_MYSQL_FOR_SPEED_TEST', true ); /*tested up to 53932 */
   if ( defined ('INDEX_WP_MYSQL_FOR_SPEED_TEST') && INDEX_WP_MYSQL_FOR_SPEED_TEST) {
@@ -63,18 +67,18 @@ function index_wp_mysql_for_speed_do_everything( ) {
     $userCanLoad = is_multisite() ? is_super_admin() : current_user_can( 'activate_plugins' );
     if ( $userCanLoad ) {
       /* recent install or upgrade ? */
-      if ( index_wp_mysql_for_speed_plugin_updated() ) {
-        index_wp_mysql_for_speed_activate_mu_plugin();
+      if ( plugin_updated() ) {
+        activate_mu_plugin();
       }
-      $nag = index_wp_mysql_for_speed_nag();
-      index_wp_mysql_for_speed_require( $nag );
-      add_filter( 'plugin_action_links_' . plugin_basename( __FILE__ ), 'index_wp_mysql_for_speed_action_link' );
+      $nag = nag();
+      require_everything( $nag );
+      add_filter( 'plugin_action_links_' . plugin_basename( __FILE__ ), 'index_wp_mysql_for_speed\action_link' );
     }
   }
   /* wp-cli interface activation */
   if ( defined( 'WP_CLI' ) && WP_CLI ) {
     require_once( plugin_dir_path( __FILE__ ) . 'code/cli.php' );
-    index_wp_mysql_for_speed_require();
+    require_everything();
   }
 }
 
@@ -84,7 +88,7 @@ function index_wp_mysql_for_speed_do_everything( ) {
  * We check for plugin major version updates and wp database version updates.
  * @return string|false
  */
-function index_wp_mysql_for_speed_nag() {
+function nag() {
   global $wp_version, $wp_db_version;
   $result = false;
   if ( ! function_exists( 'wp_doing_ajax' ) || ! wp_doing_ajax() ) {
@@ -109,7 +113,7 @@ function index_wp_mysql_for_speed_nag() {
  * Is the plugin or the installation recently updated?
  * @return bool
  */
-function index_wp_mysql_for_speed_plugin_updated() {
+function plugin_updated() {
   global $wp_version, $wp_db_version;
   if ( ! function_exists( 'wp_doing_ajax' ) || ! wp_doing_ajax() ) {
     $imfsPage = get_option( 'ImfsPage' );
@@ -125,9 +129,9 @@ function index_wp_mysql_for_speed_plugin_updated() {
   return false;
 }
 
-add_action( 'init', 'index_wp_mysql_for_speed_monitor', 0 );
+add_action( 'init', 'index_wp_mysql_for_speed\monitor', 0 );
 
-function index_wp_mysql_for_speed_monitor() {
+function monitor() {
   /* monitoring code ... as light as possible when not monitoring. */
   $monval = get_option( index_wp_mysql_for_speed_monitor );
   if ( $monval ) {
@@ -150,18 +154,18 @@ function index_wp_mysql_for_speed_monitor() {
   /* wp-cli interface activation */
   if ( defined( 'WP_CLI' ) && WP_CLI ) {
     require_once( plugin_dir_path( __FILE__ ) . 'code/cli.php' );
-    index_wp_mysql_for_speed_require();
+    require_everything();
   }
 }
 
-function index_wp_mysql_for_speed_require( $nag = false ) {
-  if ( ! function_exists('index_wp_mysql_for_speed_timestamp' ) ) {
+function require_everything( $nag = false ) {
+  if ( ! function_exists( 'index_wp_mysql_for_speed\get_timestamp' ) ) {
     /** Show timestamp in localtime.
      * Polyfill, for old wp lacking wp_date
      *
      * @return string
      */
-    function index_wp_mysql_for_speed_timestamp( $format, $timestamp = null ) {
+    function get_timestamp( $format, $timestamp = null ) {
 
       $saved = date_default_timezone_get();
       date_default_timezone_set( get_option( 'timezone_string', 'UTC' ) );
@@ -181,19 +185,19 @@ function index_wp_mysql_for_speed_require( $nag = false ) {
   new ImfsNotice ( $nag );
 }
 
-function index_wp_mysql_for_speed_activate() {
+function activate_plugin() {
   if ( version_compare( get_bloginfo( 'version' ), '4.2', '<' ) ) {
     deactivate_plugins( basename( __FILE__ ) ); /* fail activation */
     return;
   }
   update_option( index_wp_mysql_for_speed_monitor, null, true );
-  index_wp_mysql_for_speed_activate_mu_plugin();
+  activate_mu_plugin();
 }
 
 /** Install the mu plugin to filter DDL.
  * @return void
  */
-function index_wp_mysql_for_speed_activate_mu_plugin() {
+function activate_mu_plugin() {
   try {
     /* install mu-plugin for handling version upgrades to tables */
     $filterName = 'index-wp-mysql-for-speed-update-filter.php';
@@ -220,7 +224,7 @@ function index_wp_mysql_for_speed_activate_mu_plugin() {
   }
 }
 
-function index_wp_mysql_for_speed_deactivate() {
+function deactivate_plugin() {
   /* clean up emphemeral options */
   delete_option( 'imfsQueryMonitor' );
   delete_option( 'imfsQueryMonitornextMonitorUpdate' );
@@ -244,7 +248,7 @@ function index_wp_mysql_for_speed_deactivate() {
  *
  * @return array
  */
-function index_wp_mysql_for_speed_action_link( $actions ) {
+function action_link( $actions ) {
   /* translators: for settings link on plugin page */
   $name    = __( "Settings", 'index-wp-mysql-for-speed' );
   $mylinks = [

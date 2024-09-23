@@ -1,5 +1,7 @@
 <?php /** @noinspection SqlNoDataSourceInspection */
 
+namespace index_wp_mysql_for_speed;
+
 class ImfsQueries {
 
   /** get cell data for byte counts
@@ -46,17 +48,19 @@ class ImfsQueries {
   }
 
 
-  public static function date ( $time ) {
+  public static function date( $time ) {
     $date_format = get_option( 'date_format' ) . ' ' . get_option( 'time_format' );
     return get_date_from_gmt( date( 'Y-m-d H:i:s', $time ), $date_format );
 
   }
-  public static function percent ( $num, $denom = null, $points = 1 ) {
+
+  public static function percent( $num, $denom = null, $points = 1 ) {
     if ( $denom ) {
       $num = $num / $denom;
     }
-    return number_format ( 100.0 * $num, $points );
+    return number_format( 100.0 * $num, $points );
   }
+
   /** get cell data for microsecond times
    *
    * @param number $time in microseconds (multiply seconds by a million)
@@ -200,7 +204,7 @@ class ImfsQueries {
   }
 
   public static function tagQuery( $q ) {
-    return $q . '/*' . index_wp_mysql_for_speed_querytag . mt_rand( 0, 999999999 ) . '*/';
+    return $q . '/*' . index_wp_mysql_for_speed_querytag . wp_rand( 0, 999999999 ) . '*/';
   }
 
   public static function redactHost( $host ) {
@@ -276,6 +280,7 @@ class ImfsQueries {
               FROM information_schema.TABLES
             WHERE TABLE_SCHEMA NOT IN ('information_schema', 'mysql', 'performance_schema', 'sys')";
   }
+
   /** @noinspection PhpUnused */
   public static function getTableStatsQuery() {
     global $wpdb;
@@ -574,7 +579,7 @@ class ImfsQueries {
     natcasesort( $extensions );
     /** @noinspection PhpUnnecessaryLocalVariableInspection */
     $wordpress = [
-      'webserverversion' => $_SERVER['SERVER_SOFTWARE'],
+      'webserverversion' => isset( $_SERVER['SERVER_SOFTWARE'] ) ? esc_html( $_SERVER['SERVER_SOFTWARE'] ) : '?',
       'wp_version'       => $wp_version,
       'wp_db_version'    => $wp_db_version,
       'phpversion'       => phpversion(),

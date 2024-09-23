@@ -1,5 +1,5 @@
 <?php /** @noinspection PhpRedundantOptionalArgumentInspection */
-
+namespace index_wp_mysql_for_speed;
 /**
  * Draws the contents of a captured monitor
  */
@@ -106,8 +106,8 @@ END;
   public function capturedQuerySummary() {
     $l          = $this->queryLog;
     $c          = $this->classPrefix;
-    $start      = index_wp_mysql_for_speed_timestamp( $this->dateFormat, $l->start );
-    $end        = index_wp_mysql_for_speed_timestamp( $this->dateFormat, $l->end );
+    $start      = get_timestamp( $this->dateFormat, $l->start );
+    $end        = get_timestamp( $this->dateFormat, $l->end );
     $duration   = $this->timeCell( 1000000 * ( $l->end - $l->start ) );
     $querycount = number_format_i18n( $l->querycount, 0 );
     $capString  = __( 'queries captured.', 'index-wp-mysql-for-speed' );
@@ -237,7 +237,7 @@ END;
    *
    * @return string
    */
-  private function getServerUptime( &$status ) {
+  private function getServerUptime( $status ) {
     $result = __( 'Database server' ) . ' ' . DB_HOST . '&ensp;';
     if ( ( isset( $status->Uptime_state ) ? $status->Uptime_state : 0 ) > 0 ) {
       $uptime = $status->Uptime_state * 1000000;
@@ -250,7 +250,7 @@ END;
     return $result;
   }
 
-  private function getBufferPool( &$status, $pool ) {
+  private function getBufferPool( $status, $pool ) {
     /* Buffer pool */
     $result           = '';
     $bufferPoolActive = isset ( $status->Innodb_buffer_pool_bytes_data_state ) ? $status->Innodb_buffer_pool_bytes_data_state : - 1;

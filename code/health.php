@@ -1,4 +1,11 @@
 <?php
+
+namespace index_wp_mysql_for_speed;
+
+use Exception;
+use ReflectionClass;
+use ReflectionMethod;
+
 require_once( 'getindexes.php' );
 require_once( 'getqueries.php' );
 
@@ -76,7 +83,6 @@ class Health {
     if ( $sizes->database_count > 1 ) {
       $o .= '<p>';
       /* translators: 1: size like 4.3Mib  2: percentage like 40.5  3: complementary percentage like 59.5  4:total number of databases visible */
-      $text  = __( 'All %4$s databases size: %1$s. %2$s%% data, %3$s%% keys.', 'index-wp-mysql-for-speed' );
       $text  = __( 'All %4$s databases size: %1$s. %2$s%% data, %3$s%% keys.', 'index-wp-mysql-for-speed' );
       $total = $sizes->innodb_data_total + $sizes->innodb_key_total;
       if ( $total > 0 ) {

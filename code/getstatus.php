@@ -1,5 +1,7 @@
 <?php
 
+namespace index_wp_mysql_for_speed;
+
 /**
  * @param bool|array $prior if given, this returns the difference between the current and prior results.
  *
@@ -8,7 +10,7 @@
 function getGlobalStatus( $prior = false ) {
   global $wpdb;
 
-  $q         = "SHOW GLOBAL STATUS" . '/*' . index_wp_mysql_for_speed_querytag . rand( 0, 999999999 ) . '*/';
+  $q         = "SHOW GLOBAL STATUS" . '/*' . index_wp_mysql_for_speed_querytag . wp_rand( 0, 999999999 ) . '*/';
   $resultSet = $wpdb->get_results( $q, ARRAY_N );
 
   $result = [];

@@ -1,5 +1,6 @@
 <?php
 
+namespace index_wp_mysql_for_speed;
 class ImfsNotice {
 
   private $monval;
@@ -25,7 +26,7 @@ class ImfsNotice {
     $url    = admin_url( 'tools.php?page=imfs_settings&tab=monitor_database_operations' );
     /* translators: 1: name of monitor  2: date / time */
     $description = __( 'Monitoring is in progress until %2$s. Monitoring output saved into <i>%1$s</i>.', 'index-wp-mysql-for-speed' );
-    $description = sprintf( $description, $monval->name, index_wp_mysql_for_speed_timestamp( 'g:i:s a T', $monval->stoptime ) );
+    $description = sprintf( $description, $monval->name, get_timestamp( 'g:i:s a T', $monval->stoptime ) );
     $text        = "<A HREF=\"{$url}\">Index WP MySql For Speed</A>";
     ?>
       <div class="notice notice-info">
@@ -63,7 +64,7 @@ class ImfsNotice {
           break;
       }
 
-      $notice = '<div class="notice notice-info is-dismissible"><p>' . $notice . '</p></div>';
+      $notice = '<div class="notice notice-info is-dismissible"><p>' . esc_html( $notice ) . '</p></div>';
       echo $notice;
     }
   }

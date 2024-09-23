@@ -1,5 +1,9 @@
 <?php
 
+namespace index_wp_mysql_for_speed;
+
+use Imfs_AdminPageFramework;
+
 require_once( 'rendermonitor.php' );
 
 class ImfsPage extends Imfs_AdminPageFramework {
@@ -124,8 +128,8 @@ class ImfsPage extends Imfs_AdminPageFramework {
    */
   private function insertHelpTab( $monitor, $sHTML ) {
     $tabSlug = $monitor ? 'monitor' : $this->oProp->getCurrentTabSlug();
-    $tabSlug = ctype_alnum ( $tabSlug ) ? $tabSlug : 'about';
-    $helpUrl = index_wp_mysql_for_speed_help_site .  $tabSlug;
+    $tabSlug = ctype_alnum( $tabSlug ) ? $tabSlug : 'about';
+    $helpUrl = index_wp_mysql_for_speed_help_site . $tabSlug;
     $help    = __( 'Help', 'index-wp-mysql-for-speed' );
     /** @noinspection HtmlUnknownTarget */
     $helpTag = '<a class="helpbutton nav-tab" target="_blank" href="%s/">%s</a>';
@@ -253,8 +257,6 @@ class ImfsPage extends Imfs_AdminPageFramework {
    * @noinspection PhpUnusedParameterInspection
    */
   public function load_imfs_settings_high_performance_keys( $oAdminPage ) {
-    global $wp_version, $wp_db_version;
-
     if ( $this->checkVersionInfo() ) {
 
       $this->upgrading( $oAdminPage );
@@ -390,7 +392,6 @@ class ImfsPage extends Imfs_AdminPageFramework {
     }
     $previousMajorVersion = ( isset( $opts['majorVersion'] ) && is_numeric( $opts['majorVersion'] ) )
       ? floatval( $opts['majorVersion'] ) : index_mysql_for_speed_inception_major_version;
-    $previousWpVersion    = ( isset( $opts['wp_version'] ) ) ? $opts['wp_version'] : index_mysql_for_speed_inception_wp_version;
     $previousDbVersion    = ( isset( $opts['wp_db_version'] ) ) ? $opts['wp_db_version'] : index_mysql_for_speed_inception_wp_db_version;
 
     $this->pluginUpgrading = $previousMajorVersion !== index_mysql_for_speed_major_version;
@@ -564,8 +565,7 @@ class ImfsPage extends Imfs_AdminPageFramework {
    * @param string $callToAction button caption
    * @param bool $prechecked items should be prechecked
    */
-  private
-  function renderListOfTables(
+  private function renderListOfTables(
     array $tablesToRekey, $prefixed, $action, $actionToDisplay, $title,
     $caption, $callToAction, $prechecked
   ) {
@@ -640,8 +640,7 @@ class ImfsPage extends Imfs_AdminPageFramework {
       [
         'field_id' => $action . '_wp',
         'label'    => $this->cliMessage(
-          $actionToDisplay . ' ' . implode( ' ', $tableList ),
-          __( $title, 'index-wp-mysql-for-speed' ) ),
+          $actionToDisplay . ' ' . implode( ' ', $tableList ), $title ),
         'save'     => false,
         'class'    => [
           'fieldrow' => 'info',
@@ -1137,13 +1136,13 @@ class ImfsPage extends Imfs_AdminPageFramework {
           $this->setSettingNotice( $msg, 'updated' );
           break;
         case 'upload_metadata_now':
-          $id = imfs_upload_stats( $this->db, $inputs['uploadId'] );
+          $id = upload_stats( $this->db, $inputs['uploadId'] );
           $this->setSettingNotice( __( 'Metadata uploaded to id ', 'index-wp-mysql-for-speed' ) . $id, 'updated' );
           break;
         case 'upload_monitor_now':
           $mon  = new renderMonitor( $monitor, $this->db );
           $data = $mon->load()->makeUpload();
-          $id   = imfs_upload_monitor( $this->db, $inputs['uploadId'], $monitor, $data );
+          $id   = upload_monitor( $this->db, $inputs['uploadId'], $monitor, $data );
           /* translators: 1: name of captured monitor.  2: upload id */
           $msg = __( 'Monitor %1$s uploaded to id %2$s', 'index-wp-mysql-for-speed' );
           $msg = sprintf( $msg, $monitor, $id );

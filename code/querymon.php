@@ -1,4 +1,7 @@
 <?php
+namespace index_wp_mysql_for_speed;
+use Exception;
+
 require_once( 'litesqlparser.php' );
 
 if ( ! defined( 'SAVEQUERIES' ) ) {
@@ -116,7 +119,7 @@ class ImfsMonitor {
         }
       }
 
-      return json_encode( $item );
+      return wp_json_encode( $item );
     } catch ( Exception $e ) {
       return null;/*  no crash on query parse fail */
     }
@@ -187,7 +190,7 @@ class ImfsMonitor {
         $this->processQuery( $queryLog, $thisQuery, $queryLogOverflowing );
       }
     }
-    update_option( $logName, json_encode( $queryLog ), false );
+    update_option( $logName, wp_json_encode( $queryLog ), false );
   }
 
   /**

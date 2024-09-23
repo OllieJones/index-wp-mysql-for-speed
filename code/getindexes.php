@@ -1,5 +1,7 @@
 <?php
 
+namespace index_wp_mysql_for_speed;
+
 class ImfsGetIndexes {
 
   public static $imfsStandardIndexes;
@@ -59,7 +61,7 @@ class ImfsGetIndexes {
       return ImfsGetIndexes::getHighPerformanceIndexes1_3( $unconstrained );
     }
 
-    throw new ImfsException( "unknown plugin version when retrieving indexing instructions" . $version );
+    throw new ImfsException( esc_html( "unknown plugin version when retrieving indexing instructions" . $version ) );
   }
 
   /**

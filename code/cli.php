@@ -29,7 +29,10 @@
  * : The blog id for a multisite network. --url also selects the blog if you prefer.
  *
  */
-class ImsfCli extends WP_CLI_Command {
+
+namespace index_wp_mysql_for_speed;
+
+class ImsfCli extends \WP_CLI_Command {
 
   public $db;
   public $assoc_args;
@@ -48,7 +51,7 @@ class ImsfCli extends WP_CLI_Command {
     $this->setupCliEnvironment( $args, $assoc_args );
     $wpDescription = ImfsQueries::toResultSet( ImfsQueries::getWpDescription( $this->db ) );
     $format        = array_key_exists( 'format', $assoc_args ) ? $assoc_args['format'] : null;
-    WP_CLI\Utils\format_items( $format, $wpDescription, [ 'Item', 'Value' ] );
+    \WP_CLI\Utils\format_items( $format, $wpDescription, [ 'Item', 'Value' ] );
   }
 
   /** @noinspection PhpUnusedParameterInspection */
@@ -75,9 +78,9 @@ class ImsfCli extends WP_CLI_Command {
       /*  -- comment is the form of comments in SQL, with dash dash space */
       $this->commentPrefix = $this->dryrun ? '-- ' : '';
       $wpDescription       = ImfsQueries::getWpDescription( $this->db );
-      WP_CLI::log( $this->commentPrefix . __( 'Index WP MySQL For Speed', 'index-wp-mysql-for-speed' ) . ' ' . index_wp_mysql_for_speed_VERSION_NUM );
+      \WP_CLI::log( $this->commentPrefix . __( 'Index WP MySQL For Speed', 'index-wp-mysql-for-speed' ) . ' ' . index_wp_mysql_for_speed_VERSION_NUM );
       $versions = ' Plugin:' . $wpDescription['pluginversion'] . ' MySQL:' . $wpDescription['mysqlversion'] . ' WordPress:' . $wp_version . ' WordPress database:' . $wp_db_version . ' php:' . phpversion();
-      WP_CLI::log( $this->commentPrefix . __( 'Versions', 'index-wp-mysql-for-speed' ) . ' ' . $versions );
+      \WP_CLI::log( $this->commentPrefix . __( 'Versions', 'index-wp-mysql-for-speed' ) . ' ' . $versions );
     }
 
     if ( ! $this->db->canReindex ) {
@@ -88,11 +91,11 @@ class ImsfCli extends WP_CLI_Command {
         $fmt = __( 'Sorry, you cannot use this plugin with your version of MySQL.', 'index-wp-mysql-for-speed' ) . ' ' .
                __( 'Your MySQL version is outdated. Please consider upgrading,', 'index-wp-mysql-for-speed' );
       }
-      WP_CLI::warning( $this->commentPrefix . $fmt );
+      \WP_CLI::warning( $this->commentPrefix . $fmt );
     }
     if ( ! $this->db->unconstrained ) {
       $fmt = __( 'Upgrading your MySQL server to a later version will give you better performance when you add high-performance keys.', 'index-wp-mysql-for-speed' );
-      WP_CLI::warning( $this->commentPrefix . $fmt );
+      \WP_CLI::warning( $this->commentPrefix . $fmt );
     }
   }
 
@@ -144,13 +147,13 @@ class ImsfCli extends WP_CLI_Command {
       $msg  = $caption . ' ' . __( 'Use this command:', 'index-wp-mysql-for-speed' );
       $tbls = $this->addPrefixes( $array[ $actionKey ], $alreadyPrefixed );
       if ( $warning ) {
-        WP_CLI::warning( $this->commentPrefix . $msg );
+        \WP_CLI::warning( $this->commentPrefix . $msg );
       } else {
-        WP_CLI::log( $this->commentPrefix . $msg );
+        \WP_CLI::log( $this->commentPrefix . $msg );
       }
-      WP_CLI::log( $this->commentPrefix . $this->getCommand( $action, $tbls ) );
+      \WP_CLI::log( $this->commentPrefix . $this->getCommand( $action, $tbls ) );
       if ( count( $this->errorMessages ) > 0 ) {
-        WP_CLI::log( $this->commentPrefix . implode( PHP_EOL, $this->errorMessages ) );
+        \WP_CLI::log( $this->commentPrefix . implode( PHP_EOL, $this->errorMessages ) );
         $this->errorMessages = [];
       }
     }
@@ -201,14 +204,14 @@ class ImsfCli extends WP_CLI_Command {
     if ( $this->dryrun ) {
       /* translators: this appears in wpcli output. 1: site name  2: site URL  3: localized date and time */
       $dateMessage = __( 'Generated from %1$s (%2$s) at %3$s.', 'index-wp-mysql-for-speed' );
-      $dateMessage = sprintf( $dateMessage, get_option( 'blogname' ), get_option( 'siteurl' ), index_wp_mysql_for_speed_timestamp( get_option( 'date_format' ) . ' ' . get_option( 'time_format' ) ) );
-      WP_CLI::log( $this->commentPrefix . __( $dateMessage ) );
-      WP_CLI::log( $this->commentPrefix . __( 'Do not save these statements for later use. Instead, regenerate them.', 'index-wp-mysql-for-speed' ) );
-      WP_CLI::log( $this->commentPrefix . __( 'Dry run SQL statements. These statements were NOT run.', 'index-wp-mysql-for-speed' ) );
-      WP_CLI::log( "SET @@sql_mode := REPLACE(@@sql_mode, 'NO_ZERO_DATE', '');" );
+      $dateMessage = sprintf( $dateMessage, get_option( 'blogname' ), get_option( 'siteurl' ), get_timestamp( get_option( 'date_format' ) . ' ' . get_option( 'time_format' ) ) );
+      \WP_CLI::log( $this->commentPrefix . $dateMessage );
+      \WP_CLI::log( $this->commentPrefix . __( 'Do not save these statements for later use. Instead, regenerate them.', 'index-wp-mysql-for-speed' ) );
+      \WP_CLI::log( $this->commentPrefix . __( 'Dry run SQL statements. These statements were NOT run.', 'index-wp-mysql-for-speed' ) );
+      \WP_CLI::log( "SET @@sql_mode := REPLACE(@@sql_mode, 'NO_ZERO_DATE', '');" );
       $max_statement_time = $this->db->get_max_statement_time();
       if ( $max_statement_time ) {
-        WP_CLI::log( "SET SESSION max_statement_time=$max_statement_time;" );
+        \WP_CLI::log( "SET SESSION max_statement_time=$max_statement_time;" );
       }
     }
     $tbls = $this->getTablesToProcess( $args, $assoc_args, $action );
@@ -217,9 +220,9 @@ class ImsfCli extends WP_CLI_Command {
       $arr               = [ $tbl ];
       $statements        = $this->db->rekeyTables( $targetAction, $arr, index_mysql_for_speed_major_version, $alreadyPrefixed, $this->dryrun );
       if ( $this->dryrun ) {
-        WP_CLI::log( implode( PHP_EOL, $statements ) );
+        \WP_CLI::log( implode( PHP_EOL, $statements ) );
       } else {
-        WP_CLI::log( $this->commentPrefix . $this->reportCompletion( $action, $tbl ) );
+        \WP_CLI::log( $this->commentPrefix . $this->reportCompletion( $action, $tbl ) );
       }
     }
     /* store current version of schema to suppress nag in UI */
@@ -264,11 +267,11 @@ class ImsfCli extends WP_CLI_Command {
     }
     if ( count( $err ) > 0 ) {
       $fmt = __( 'These tables are not found or not eligible to', 'index-wp-mysql-for-speed' ) . ' ' . $action . ': ' . implode( ' ', $err ) . '.';
-      WP_CLI::log( $this->commentPrefix . $fmt );
+      \WP_CLI::log( $this->commentPrefix . $fmt );
     }
     if ( count( $res ) == 0 ) {
       $fmt = __( 'No tables are eligible to', 'index-wp-mysql-for-speed' ) . ' ' . $action . '.';
-      WP_CLI::log( $this->commentPrefix . $fmt );
+      \WP_CLI::log( $this->commentPrefix . $fmt );
     }
 
     return $res;
@@ -333,7 +336,7 @@ class ImsfCli extends WP_CLI_Command {
     $this->setupCliEnvironment( $args, $assoc_args );
     $tbls = $this->getTablesToProcess( $args, $assoc_args, $action );
     if ( $this->dryrun ) {
-      WP_CLI::log( $this->commentPrefix . __( 'Dry run SQL statements. These statements were NOT run.', 'index-wp-mysql-for-speed' ) );
+      \WP_CLI::log( $this->commentPrefix . __( 'Dry run SQL statements. These statements were NOT run.', 'index-wp-mysql-for-speed' ) );
     }
     try {
       if ( count( $tbls ) > 0 ) {
@@ -344,13 +347,13 @@ class ImsfCli extends WP_CLI_Command {
         $arr               = [ $tbl ];
         $statements        = $this->db->upgradeTableStorageEngines( $arr, $this->dryrun );
         if ( $this->dryrun ) {
-          WP_CLI::log( implode( PHP_EOL, $statements ) );
+          \WP_CLI::log( implode( PHP_EOL, $statements ) );
         } else {
-          WP_CLI::log( $this->commentPrefix . $this->reportCompletion( $action, $tbl ) );
+          \WP_CLI::log( $this->commentPrefix . $this->reportCompletion( $action, $tbl ) );
         }
       }
     } catch ( ImfsException $ex ) {
-      WP_CLI::error( $this->commentPrefix . $ex->getMessage() );
+      \WP_CLI::error( $this->commentPrefix . $ex->getMessage() );
     } finally {
       if ( count( $tbls ) > 0 ) {
         $this->db->unlock();
@@ -371,7 +374,7 @@ class ImsfCli extends WP_CLI_Command {
       $hdrs[] = $key;
     }
     $format = array_key_exists( 'format', $assoc_args ) ? $assoc_args['format'] : 'table';
-    WP_CLI\Utils\format_items( $format, $list, $hdrs );
+    \WP_CLI\Utils\format_items( $format, $list, $hdrs );
 
     $list   = [];
     $tables = $this->db->tables();
@@ -390,7 +393,7 @@ class ImsfCli extends WP_CLI_Command {
     foreach ( $row as $key => $val ) {
       $hdrs[] = $key;
     }
-    WP_CLI\Utils\format_items( $format, $list, $hdrs );
+    \WP_CLI\Utils\format_items( $format, $list, $hdrs );
   }
 
   /**
@@ -401,10 +404,10 @@ class ImsfCli extends WP_CLI_Command {
   function upload_metadata( $args, $assoc_args ) {
     $this->setupCliEnvironment( $args, $assoc_args );
     $id = ImfsQueries::getRandomString( 8 );
-    $id = imfs_upload_stats( $this->db, $id );
-    WP_CLI::log( __( 'Metadata uploaded to id ', 'index-wp-mysql-for-speed' ) . $id );
+    $id = upload_stats( $this->db, $id );
+    \WP_CLI::log( __( 'Metadata uploaded to id ', 'index-wp-mysql-for-speed' ) . $id );
   }
 
 }
 
-WP_CLI::add_command( 'index-mysql', 'ImsfCli' );
+\WP_CLI::add_command( 'index-mysql', 'index_wp_mysql_for_speed\ImsfCli' );
