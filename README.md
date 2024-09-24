@@ -18,7 +18,7 @@ Here's the info on the repo.
 
 * SVN URL: https://plugins.svn.wordpress.org/index-wp-mysql-for-speed
 * Public URL: https://wordpress.org/plugins/index-wp-mysql-for-speed
-* Github source code URL: https://github.com/OllieJones/index-wp-mysql-for-speed
+* GitHub source code URL: https://github.com/OllieJones/index-wp-mysql-for-speed
 
 ## Making a one-off zip file
 
@@ -31,12 +31,12 @@ wp dist-archive .
 ### Repo update notes.
 
 1. Make the changes.
-2. Be sure to update the current version number whereever it appears.
+2. Be sure to update the current version number wherever it appears.
 3. Commit to GitHub and push.
 
-To automatically release the plugin to the WordPress repo, we're using a Github Action with the workflow
+To automatically release the plugin to the WordPress repo, we're using a GitHub Action with the workflow
 called [WordPress Plugin Deploy](https://github.com/marketplace/actions/wordpress-plugin-deploy). The act of publishing
-a release on Github now deploys the plugin to the WordPress repo. More
+a release on GitHub now deploys the plugin to the WordPress repo. More
 information [here](https://www.plumislandmedia.net/wordpress/wordpress-plugin-tools/).
 
 ### Pre-automation plugin release

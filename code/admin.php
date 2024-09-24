@@ -199,7 +199,7 @@ class ImfsPage extends Imfs_AdminPageFramework {
     $sHTML
   ) {
     $s = '';
-    /* renderMointor doesn't return anything unless we're on a monitor tab */
+    /* renderMonitor doesn't return anything unless we're on a monitor tab */
     $monitor = $this->getMonitorName();
     if ( $monitor !== false ) {
       $s .= $this->renderMonitor( $monitor, 'bottom' );
@@ -650,7 +650,7 @@ class ImfsPage extends Imfs_AdminPageFramework {
     );
   }
 
-  /** text string with wp cli instrutions
+  /** text string with wp cli instructions
    *
    * @param string $command cli command string
    * @param string $function description of function to carry out
@@ -668,7 +668,7 @@ class ImfsPage extends Imfs_AdminPageFramework {
     if ( $blogid > 1 ) {
       $wp .= ' ' . '--blogid=' . $blogid;
     }
-    /* translators: %1$s is WP-CLI hyperlink, %2s is 'wp index-mysql',  %3$s describes the function, %4$s is the cli commmand */
+    /* translators: %1$s is WP-CLI hyperlink, %2s is 'wp index-mysql',  %3$s describes the function, %4$s is the cli command */
     $fmt = __( 'Using %1$s, %2$s: <code>%3$s %4$s</code>', 'index-wp-mysql-for-speed' );
 
     return sprintf( $fmt, $cliLink, $function, $wp, $command );
@@ -806,7 +806,7 @@ class ImfsPage extends Imfs_AdminPageFramework {
               1   => sprintf( $sampleText, 1 ),
             ],
             'attributes' => [
-              'title' => __( 'If your site is very busy, chooose a lower sample rate.', 'index-wp-mysql-for-speed' ),
+              'title' => __( 'If your site is very busy, choose a lower sample rate.', 'index-wp-mysql-for-speed' ),
             ],
           ],
           [

@@ -781,7 +781,7 @@ msgstr ""
 msgid "no rows"
 msgstr ""
 
-#. translators: %1$s is WP-CLI hyperlink, %2s is 'wp index-mysql',  %3$s describes the function, %4$s is the cli commmand
+#. translators: %1$s is WP-CLI hyperlink, %2s is 'wp index-mysql',  %3$s describes the function, %4$s is the cli command
 #: code/admin.php:672
 msgid "Using %1$s, %2$s: <code>%3$s %4$s</code>"
 msgstr ""
@@ -862,7 +862,7 @@ msgid "capturing all pageviews."
 msgstr ""
 
 #: code/admin.php:809
-msgid "If your site is very busy, chooose a lower sample rate."
+msgid "If your site is very busy, choose a lower sample rate."
 msgstr ""
 
 #: code/admin.php:815

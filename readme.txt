@@ -10,7 +10,7 @@ License: GPL v2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 Author URI: https://github.com/OllieJones/
 Plugin URI: https://plumislandmedia.net/index-wp-mysql-for-speed/
-Github Plugin URI: https://github.com/OllieJones/index-wp-mysql-for-speed/
+GitHub Plugin URI: https://github.com/OllieJones/index-wp-mysql-for-speed/
 Primary Branch: main
 Text Domain: index-wp-mysql-for-speed
 Domain Path: /languages
