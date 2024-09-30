@@ -4,7 +4,7 @@ Tags: index, key, performance, mysql, wp-cli
 Requires at least: 4.2
 Tested up to: 6.6.2
 Requires PHP: 5.6
-Stable tag: 1.5.0
+Stable tag: 1.5.2
 Network: true
 License: GPL v2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -235,6 +235,9 @@ You can revert the keys from the Index MySQL Tool under the Tools menu, or use t
 Please see more questions and answers [here](https://plumislandmedia.net/index-wp-mysql-for-speed/faq/).
 
 == Changelog ==
+
+= 1.5.2 =
+Correct release error.
 
 = 1.5.1 =
 Add support for the WooCommerce tables wp_automatewoo_log_meta, wp_wc_orders_meta, and  wp_woocommerce_order_itemmeta.
