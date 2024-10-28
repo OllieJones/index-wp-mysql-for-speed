@@ -13,7 +13,7 @@
  * Description: Speed up your WordPress site by adding high-performance keys (database indexes) to your MySQL database tables.
  * Version:           1.5.2
  * Requires at least: 4.2
- * Tested up to:      6.6.2
+ * Tested up to:      6.7
  * Requires PHP:      5.6
  * Author:       OllieJones, rjasdfiii
  * Author URI:   https://github.com/OllieJones
