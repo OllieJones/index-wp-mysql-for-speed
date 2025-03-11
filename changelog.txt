@@ -130,3 +130,6 @@ Add support for the WooCommerce tables wp_automatewoo_log_meta, wp_wc_orders_met
 
 = 1.5.2 =
 Correct release error.
+
+= 1.5.3 =
+Correct language deprecations.

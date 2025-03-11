@@ -2,7 +2,7 @@
 Contributors: OllieJones, rjasdfiii
 Tags: index, key, performance, mysql, wp-cli
 Requires at least: 4.2
-Tested up to: 6.7
+Tested up to: 6.8
 Requires PHP: 5.6
 Stable tag: 1.5.2
 Network: true
@@ -235,6 +235,9 @@ You can revert the keys from the Index MySQL Tool under the Tools menu, or use t
 Please see more questions and answers [here](https://plumislandmedia.net/index-wp-mysql-for-speed/faq/).
 
 == Changelog ==
+
+= 1.5.3 =
+Correct language deprecations, test on IIS.
 
 = 1.5.2 =
 Correct release error.

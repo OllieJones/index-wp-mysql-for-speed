@@ -1,15 +1,15 @@
-# Copyright (C) 2024 Oliver Jones, Rick James
+# Copyright (C) 2025 Oliver Jones, Rick James
 # This file is distributed under the GPL v2 or later.
 msgid ""
 msgstr ""
-"Project-Id-Version: Index WP MySQL For Speed 1.5.2\n"
+"Project-Id-Version: Index WP MySQL For Speed 1.5.3\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/index-wp-mysql-for-speed\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2024-09-30T15:48:19+00:00\n"
+"POT-Creation-Date: 2025-03-11T06:54:10-04:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.9.0\n"
 "X-Domain: index-wp-mysql-for-speed\n"
@@ -1100,12 +1100,12 @@ msgid "Database server network traffic (since %1$s): %2$s/sec sent to WordPress,
 msgstr ""
 
 #. translators: 1: number of cores  2: MHz like 2799.345  3: CPU model like "AMD Ryzen 7 5800H with Radeon Graphics"
-#: code/health.php:250
+#: code/health.php:255
 msgid "Web server: %1$s-core %2$s MHz %3$s."
 msgstr ""
 
 #. translators: 1: RAM like 4GiB, 2, 3, 4, 5: percentages like 10.1
-#: code/health.php:263
+#: code/health.php:272
 msgid "Web server RAM: %1$s. %2$s%% active, %3$s%% inactive, %4$s%% available, %5$s%% free."
 msgstr ""
 
