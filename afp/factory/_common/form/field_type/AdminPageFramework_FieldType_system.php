@@ -166,7 +166,25 @@ class Imfs_AdminPageFramework_FieldType_system extends Imfs_AdminPageFramework_F
             return self::$_aPHPInfo;
         }
         $_oErrorReporting = new Imfs_AdminPageFramework_ErrorReporting;
-        self::$_aPHPInfo = array(__('Version', 'index-wp-mysql-for-speed') => phpversion(), __('Safe Mode', 'index-wp-mysql-for-speed') => $this->getAOrB(@ini_get('safe_mode'), $this->oMsg->get('yes'), $this->oMsg->get('no')), __('Memory Limit', 'index-wp-mysql-for-speed') => @ini_get('memory_limit'), __('Upload Max Size', 'index-wp-mysql-for-speed') => @ini_get('upload_max_filesize'), __('Post Max Size', 'index-wp-mysql-for-speed') => @ini_get('post_max_size'), __('Upload Max File Size', 'index-wp-mysql-for-speed') => @ini_get('upload_max_filesize'), __('Max Execution Time', 'index-wp-mysql-for-speed') => @ini_get('max_execution_time'), __('Max Input Vars', 'index-wp-mysql-for-speed') => @ini_get('max_input_vars'), __('Argument Separator', 'index-wp-mysql-for-speed') => @ini_get('arg_separator.output'), __('Allow URL File Open', 'index-wp-mysql-for-speed') => $this->getAOrB(@ini_get('allow_url_fopen'), $this->oMsg->get('yes'), $this->oMsg->get('no')), __('Display Errors', 'index-wp-mysql-for-speed') => $this->getAOrB(@ini_get('display_errors'), $this->oMsg->get('on'), $this->oMsg->get('off')), __('Log Errors', 'index-wp-mysql-for-speed') => $this->getAOrB(@ini_get('log_errors'), $this->oMsg->get('on'), $this->oMsg->get('off')), __('Error log location', 'index-wp-mysql-for-speed') => @ini_get('error_log'), __('Error Reporting Level', 'index-wp-mysql-for-speed') => $_oErrorReporting->getErrorLevel(), __('FSOCKOPEN', 'index-wp-mysql-for-speed') => $this->getAOrB(function_exists('fsockopen'), $this->oMsg->get('supported'), $this->oMsg->get('not_supported')), __('cURL', 'index-wp-mysql-for-speed') => $this->getAOrB(function_exists('curl_init'), $this->oMsg->get('supported'), $this->oMsg->get('not_supported')), __('SOAP', 'index-wp-mysql-for-speed') => $this->getAOrB(class_exists('SoapClient'), $this->oMsg->get('supported'), $this->oMsg->get('not_supported')), __('SUHOSIN', 'index-wp-mysql-for-speed') => $this->getAOrB(extension_loaded('suhosin'), $this->oMsg->get('supported'), $this->oMsg->get('not_supported')), 'ini_set()' => $this->getAOrB(function_exists('ini_set'), $this->oMsg->get('supported'), $this->oMsg->get('not_supported')),) + $this->getPHPInfo() + array(__('Constants', 'index-wp-mysql-for-speed') => $this->___getDefinedConstants(null, 'user'));
+        self::$_aPHPInfo = array(
+          __('Version', 'index-wp-mysql-for-speed') => phpversion(),
+          __('Memory Limit', 'index-wp-mysql-for-speed') => @ini_get('memory_limit'),
+          __('Upload Max Size', 'index-wp-mysql-for-speed') => @ini_get('upload_max_filesize'),
+          __('Post Max Size', 'index-wp-mysql-for-speed') => @ini_get('post_max_size'),
+          __('Upload Max File Size', 'index-wp-mysql-for-speed') => @ini_get('upload_max_filesize'),
+          __('Max Execution Time', 'index-wp-mysql-for-speed') => @ini_get('max_execution_time'),
+          __('Max Input Vars', 'index-wp-mysql-for-speed') => @ini_get('max_input_vars'),
+          __('Argument Separator', 'index-wp-mysql-for-speed') => @ini_get('arg_separator.output'),
+          __('Allow URL File Open', 'index-wp-mysql-for-speed') => $this->getAOrB(@ini_get('allow_url_fopen'), $this->oMsg->get('yes'), $this->oMsg->get('no')),
+          __('Display Errors', 'index-wp-mysql-for-speed') => $this->getAOrB(@ini_get('display_errors'), $this->oMsg->get('on'), $this->oMsg->get('off')),
+          __('Log Errors', 'index-wp-mysql-for-speed') => $this->getAOrB(@ini_get('log_errors'), $this->oMsg->get('on'), $this->oMsg->get('off')),
+          __('Error log location', 'index-wp-mysql-for-speed') => @ini_get('error_log'),
+          __('Error Reporting Level', 'index-wp-mysql-for-speed') => $_oErrorReporting->getErrorLevel(),
+          __('FSOCKOPEN', 'index-wp-mysql-for-speed') => $this->getAOrB(function_exists('fsockopen'), $this->oMsg->get('supported'), $this->oMsg->get('not_supported')),
+          __('cURL', 'index-wp-mysql-for-speed') => $this->getAOrB(function_exists('curl_init'), $this->oMsg->get('supported'), $this->oMsg->get('not_supported')),
+          __('SOAP', 'index-wp-mysql-for-speed') => $this->getAOrB(class_exists('SoapClient'), $this->oMsg->get('supported'), $this->oMsg->get('not_supported')),
+          __('SUHOSIN', 'index-wp-mysql-for-speed') => $this->getAOrB(extension_loaded('suhosin'), $this->oMsg->get('supported'), $this->oMsg->get('not_supported')),
+          'ini_set()' => $this->getAOrB(function_exists('ini_set'), $this->oMsg->get('supported'), $this->oMsg->get('not_supported')),) + $this->getPHPInfo() + array(__('Constants', 'index-wp-mysql-for-speed') => $this->___getDefinedConstants(null, 'user'));
         return self::$_aPHPInfo;
     }
     private function ___getWebServerInfo($bGenerateInfo = true) {

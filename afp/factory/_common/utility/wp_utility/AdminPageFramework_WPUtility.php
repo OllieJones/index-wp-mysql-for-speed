@@ -553,7 +553,7 @@ class Imfs_AdminPageFramework_WPUtility_URL extends Imfs_AdminPageFramework_Util
                 return self::$_aMySQLInfo;
             }
             global $wpdb;
-            $_aOutput = array('Version' => isset($wpdb->use_mysqli) && $wpdb->use_mysqli ? @mysqli_get_server_info($wpdb->dbh) : @mysql_get_server_info(),);
+            $_aOutput = array('Version' => isset($wpdb->use_mysqli) && $wpdb->use_mysqli ? @mysqli_get_server_info($wpdb->dbh) : '(not mysqli)',);
             foreach (( array )$wpdb->get_results("SHOW VARIABLES", ARRAY_A) as $_iIndex => $_aItem) {
                 $_aItem = array_values($_aItem);
                 $_sKey = array_shift($_aItem);

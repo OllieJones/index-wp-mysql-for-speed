@@ -46,7 +46,7 @@ class Imfs_AdminPageFramework_Requirement {
     }
     private function _checkMySQLVersion($sMySQLVersion) {
         global $wpdb;
-        $_sInstalledMySQLVersion = isset($wpdb->use_mysqli) && $wpdb->use_mysqli ? @mysqli_get_server_info($wpdb->dbh) : @mysql_get_server_info();
+        $_sInstalledMySQLVersion = isset($wpdb->use_mysqli) && $wpdb->use_mysqli ? @mysqli_get_server_info($wpdb->dbh) : '(not mysqli)';
         return $_sInstalledMySQLVersion ? version_compare($_sInstalledMySQLVersion, $sMySQLVersion, ">=") : true;
     }
     private function _checkClasses($aClasses) {
