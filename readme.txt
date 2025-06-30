@@ -2,7 +2,7 @@
 Contributors: OllieJones, rjasdfiii
 Tags: index, key, performance, mysql, wp-cli
 Requires at least: 4.2
-Tested up to: 6.8
+Tested up to: 6.8.1
 Requires PHP: 5.6
 Stable tag: 1.5.3
 Network: true
@@ -14,6 +14,7 @@ GitHub Plugin URI: https://github.com/OllieJones/index-wp-mysql-for-speed/
 Primary Branch: main
 Text Domain: index-wp-mysql-for-speed
 Domain Path: /languages
+Donate link: https://github.com/sponsors/OllieJones
 
 Speed up your WordPress site by adding high-performance keys (database indexes) to your MariaDB / MySQL database tables.
 
@@ -209,6 +210,16 @@ It’s possible to correct this problem by changing your MariaDB or MySQL config
 = What happens to my tables and keys during a WordPress version update? =
 
 If the plugin is activated during a WordPress version update, it prevents the update workflow from removing your high-performance keys (Version 1.4.7).
+
+= Does this work on my multisite (network) WordPress instance? =
+
+**Yes**. On multisite instances, you must activate the plugin from the Network Admin dashboard. After network activation, the Index MySQL tool is available for use by the administrator on each site.
+
+If you have many subsites, you may prefer to use WP-CLI to add the high-performance keys to each site in turn. Commands like these will work, if you mention each `blogid` in turn.:
+
+`wp index-mysql enable --all --blogid=1
+ wp index-mysql enable --all --blogid=2
+ wp index-mysql enable --all --blogid=3`
 
 = My site has thousands of registered users. My Users, Posts, and Pages panels in my dashboard are still load slowly even with this plugin.
 
