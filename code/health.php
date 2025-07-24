@@ -22,7 +22,7 @@ class Health {
 
     $o = '';
     foreach ( $methods as $method ) {
-      if ( str_contains( $method->name, '_r' ) ) {
+      if ( false !== strpos( $method->name, '_r' ) ) {
         try {
           $o .= $prefix;
           $o .= $method->invoke( $this );
