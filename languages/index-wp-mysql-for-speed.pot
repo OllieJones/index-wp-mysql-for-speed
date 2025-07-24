@@ -2,14 +2,14 @@
 # This file is distributed under the GPL v2 or later.
 msgid ""
 msgstr ""
-"Project-Id-Version: Index WP MySQL For Speed 1.5.3\n"
+"Project-Id-Version: Index WP MySQL For Speed 1.5.4\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/index-wp-mysql-for-speed\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2025-03-11T06:54:10-04:00\n"
+"POT-Creation-Date: 2025-07-24T16:01:47-04:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.9.0\n"
 "X-Domain: index-wp-mysql-for-speed\n"
@@ -42,7 +42,7 @@ msgid "No browser information found."
 msgstr ""
 
 #: afp/factory/_common/form/field_type/AdminPageFramework_FieldType_system.php:93
-#: afp/factory/_common/form/field_type/AdminPageFramework_FieldType_system.php:169
+#: afp/factory/_common/form/field_type/AdminPageFramework_FieldType_system.php:170
 msgid "Version"
 msgstr ""
 
@@ -51,7 +51,7 @@ msgid "Language"
 msgstr ""
 
 #: afp/factory/_common/form/field_type/AdminPageFramework_FieldType_system.php:93
-#: afp/factory/_common/form/field_type/AdminPageFramework_FieldType_system.php:169
+#: afp/factory/_common/form/field_type/AdminPageFramework_FieldType_system.php:171
 msgid "Memory Limit"
 msgstr ""
 
@@ -100,99 +100,95 @@ msgid "Network Active Plugins"
 msgstr ""
 
 #: afp/factory/_common/form/field_type/AdminPageFramework_FieldType_system.php:93
-#: afp/factory/_common/form/field_type/AdminPageFramework_FieldType_system.php:169
+#: afp/factory/_common/form/field_type/AdminPageFramework_FieldType_system.php:187
 msgid "Constants"
 msgstr ""
 
-#: afp/factory/_common/form/field_type/AdminPageFramework_FieldType_system.php:169
-msgid "Safe Mode"
-msgstr ""
-
-#: afp/factory/_common/form/field_type/AdminPageFramework_FieldType_system.php:169
+#: afp/factory/_common/form/field_type/AdminPageFramework_FieldType_system.php:172
 msgid "Upload Max Size"
 msgstr ""
 
-#: afp/factory/_common/form/field_type/AdminPageFramework_FieldType_system.php:169
+#: afp/factory/_common/form/field_type/AdminPageFramework_FieldType_system.php:173
 msgid "Post Max Size"
 msgstr ""
 
-#: afp/factory/_common/form/field_type/AdminPageFramework_FieldType_system.php:169
+#: afp/factory/_common/form/field_type/AdminPageFramework_FieldType_system.php:174
 msgid "Upload Max File Size"
 msgstr ""
 
-#: afp/factory/_common/form/field_type/AdminPageFramework_FieldType_system.php:169
+#: afp/factory/_common/form/field_type/AdminPageFramework_FieldType_system.php:175
 msgid "Max Execution Time"
 msgstr ""
 
-#: afp/factory/_common/form/field_type/AdminPageFramework_FieldType_system.php:169
+#: afp/factory/_common/form/field_type/AdminPageFramework_FieldType_system.php:176
 msgid "Max Input Vars"
 msgstr ""
 
-#: afp/factory/_common/form/field_type/AdminPageFramework_FieldType_system.php:169
+#: afp/factory/_common/form/field_type/AdminPageFramework_FieldType_system.php:177
 msgid "Argument Separator"
 msgstr ""
 
-#: afp/factory/_common/form/field_type/AdminPageFramework_FieldType_system.php:169
+#: afp/factory/_common/form/field_type/AdminPageFramework_FieldType_system.php:178
 msgid "Allow URL File Open"
 msgstr ""
 
-#: afp/factory/_common/form/field_type/AdminPageFramework_FieldType_system.php:169
+#: afp/factory/_common/form/field_type/AdminPageFramework_FieldType_system.php:179
 msgid "Display Errors"
 msgstr ""
 
-#: afp/factory/_common/form/field_type/AdminPageFramework_FieldType_system.php:169
+#: afp/factory/_common/form/field_type/AdminPageFramework_FieldType_system.php:180
 msgid "Log Errors"
 msgstr ""
 
-#: afp/factory/_common/form/field_type/AdminPageFramework_FieldType_system.php:169
+#: afp/factory/_common/form/field_type/AdminPageFramework_FieldType_system.php:181
 msgid "Error log location"
 msgstr ""
 
-#: afp/factory/_common/form/field_type/AdminPageFramework_FieldType_system.php:169
+#: afp/factory/_common/form/field_type/AdminPageFramework_FieldType_system.php:182
 msgid "Error Reporting Level"
 msgstr ""
 
-#: afp/factory/_common/form/field_type/AdminPageFramework_FieldType_system.php:169
+#: afp/factory/_common/form/field_type/AdminPageFramework_FieldType_system.php:183
 msgid "FSOCKOPEN"
 msgstr ""
 
-#: afp/factory/_common/form/field_type/AdminPageFramework_FieldType_system.php:169
+#: afp/factory/_common/form/field_type/AdminPageFramework_FieldType_system.php:184
 msgid "cURL"
 msgstr ""
 
-#: afp/factory/_common/form/field_type/AdminPageFramework_FieldType_system.php:169
+#: afp/factory/_common/form/field_type/AdminPageFramework_FieldType_system.php:185
 msgid "SOAP"
 msgstr ""
 
-#: afp/factory/_common/form/field_type/AdminPageFramework_FieldType_system.php:169
+#: afp/factory/_common/form/field_type/AdminPageFramework_FieldType_system.php:186
 msgid "SUHOSIN"
 msgstr ""
 
-#: afp/factory/_common/form/field_type/AdminPageFramework_FieldType_system.php:173
+#: afp/factory/_common/form/field_type/AdminPageFramework_FieldType_system.php:191
 msgid "Web Server"
 msgstr ""
 
-#: afp/factory/_common/form/field_type/AdminPageFramework_FieldType_system.php:173
+#: afp/factory/_common/form/field_type/AdminPageFramework_FieldType_system.php:191
 msgid "Session"
 msgstr ""
 
-#: afp/factory/_common/form/field_type/AdminPageFramework_FieldType_system.php:173
+#: afp/factory/_common/form/field_type/AdminPageFramework_FieldType_system.php:191
 msgid "Session Name"
 msgstr ""
 
-#: afp/factory/_common/form/field_type/AdminPageFramework_FieldType_system.php:173
+#: afp/factory/_common/form/field_type/AdminPageFramework_FieldType_system.php:191
 msgid "Session Cookie Path"
 msgstr ""
 
-#: afp/factory/_common/form/field_type/AdminPageFramework_FieldType_system.php:173
+#: afp/factory/_common/form/field_type/AdminPageFramework_FieldType_system.php:191
 msgid "Session Save Path"
 msgstr ""
 
-#: afp/factory/_common/form/field_type/AdminPageFramework_FieldType_system.php:173
+#: afp/factory/_common/form/field_type/AdminPageFramework_FieldType_system.php:191
 msgid "Session Use Cookies"
 msgstr ""
 
-#: afp/factory/_common/form/field_type/AdminPageFramework_FieldType_system.php:173
+#: afp/factory/_common/form/field_type/AdminPageFramework_FieldType_system.php:191
 msgid "Session Use Only Cookies"
 msgstr ""
 
@@ -337,7 +333,7 @@ msgstr ""
 
 #. translators: for settings link on plugin page
 #: afp/factory/_common/_abstract/_model/AdminPageFramework_Message.php:93
-#: index-wp-mysql-for-speed.php:249
+#: index-wp-mysql-for-speed.php:250
 msgid "Settings"
 msgstr ""
 
@@ -1265,17 +1261,60 @@ msgstr ""
 msgid "Threads:"
 msgstr ""
 
+#: code/site-health.php:75
+msgid "Database configuration"
+msgstr ""
+
+#: code/site-health.php:91
+msgid "Autoloaded options are configuration settings for plugins and themes that are automatically loaded with every page load in WordPress. Having too many autoloaded options can slow down your site."
+msgstr ""
+
+#: code/site-health.php:94
+msgid "Autoloaded options are acceptable"
+msgstr ""
+
+#: code/site-health.php:97
+msgid "Performance"
+msgstr ""
+
+#. translators: 1. Number of autoloaded options. 2. Autoloaded options size.
+#: code/site-health.php:102
+msgid "Your site has %1$s autoloaded options (size: %2$s) in the options table, which is acceptable."
+msgstr ""
+
+#: code/site-health.php:124
+msgid "Autoloaded options could affect performance"
+msgstr ""
+
+#. translators: 1. Number of autoloaded options. 2. Autoloaded options size.
+#: code/site-health.php:127
+msgid "Your site has %1$s autoloaded options (size: %2$s) in the options table, which could cause your site to be slow. You can reduce the number of autoloaded options by cleaning up your site's options table."
+msgstr ""
+
+#: code/site-health.php:144
+msgid "https://wordpress.org/support/article/optimization/#autoloaded-options"
+msgstr ""
+
+#: code/site-health.php:145
+msgid "More info about performance optimization"
+msgstr ""
+
 #. translators: this goes into error_log()
-#: index-wp-mysql-for-speed.php:214
+#: index-wp-mysql-for-speed.php:215
 msgid "index-wp-mysql-for-speed: Unable to set up the mu-plugin to filter data definition language when preparing for a WordPress upgrade."
 msgstr ""
 
 #. translators: this goes into error_log()
-#: index-wp-mysql-for-speed.php:219
+#: index-wp-mysql-for-speed.php:220
 msgid "index-wp-mysql-for-speed: Exception setting up the mu-plugin to filter data definition language when preparing for a WordPress upgrade."
 msgstr ""
 
 #. translators: this goes into error_log()
-#: index-wp-mysql-for-speed.php:235
+#: index-wp-mysql-for-speed.php:236
 msgid "index-wp-mysql-for-speed: Unable to remove the mu-plugin to filter data definition language."
+msgstr ""
+
+#: index-wp-mysql-for-speed.php:274
+msgctxt "verb"
+msgid "Sponsor"
 msgstr ""

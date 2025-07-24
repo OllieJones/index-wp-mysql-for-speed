@@ -11,7 +11,7 @@
  * Plugin Name: Index WP MySQL For Speed
  * Plugin URI:  https://plumislandmedia.org/index-wp-mysql-for-speed/
  * Description: Speed up your WordPress site by adding high-performance keys (database indexes) to your MySQL database tables.
- * Version:           1.5.3
+ * Version:           1.5.4
  * Requires at least: 4.2
  * Tested up to:      6.8.2
  * Requires PHP:      5.6
@@ -28,7 +28,7 @@
  */
 
 /** current version number  */
-define( 'index_wp_mysql_for_speed_VERSION_NUM', '1.5.3' );
+define( 'index_wp_mysql_for_speed_VERSION_NUM', '1.5.4' );
 define( 'index_mysql_for_speed_major_version', 1.5 );
 define( 'index_mysql_for_speed_inception_major_version', 1.3 );
 define( 'index_mysql_for_speed_inception_wp_version', '5.8.3' );
@@ -69,6 +69,7 @@ function index_wp_mysql_for_speed_do_everything( ) {
       $nag = index_wp_mysql_for_speed_nag();
       index_wp_mysql_for_speed_require( $nag );
       add_filter( 'plugin_action_links_' . plugin_basename( __FILE__ ), 'index_wp_mysql_for_speed_action_link' );
+      add_filter( 'plugin_row_meta', 'index_wp_mysql_for_speed_sponsor', 10, 2 );
     }
   }
   /* wp-cli interface activation */
@@ -252,4 +253,26 @@ function index_wp_mysql_for_speed_action_link( $actions ) {
   ];
 
   return array_merge( $mylinks, $actions );
+}
+
+/**
+ * Filters the array of row meta for each plugin in the Plugins list table.
+ *
+ * @param array<int, string> $plugin_meta An array of the plugin's metadata.
+ * @param string $plugin_file Path to the plugin file relative to the plugins directory.
+ *
+ * @return array<int, string> Updated array of the plugin's metadata.
+ */
+function index_wp_mysql_for_speed_sponsor( array $plugin_meta, $plugin_file ) {
+  if ( plugin_basename( __FILE__ ) !== $plugin_file ) {
+    return $plugin_meta;
+  }
+
+  $plugin_meta[] = sprintf(
+    '<a href="%1$s"><span class="dashicons dashicons-star-filled" aria-hidden="true" style="font-size:14px;line-height:1.3"></span>%2$s</a>',
+    'https://github.com/sponsors/OllieJones',
+    esc_html_x( 'Sponsor', 'verb', 'index-wp-mysql-for-speed' )
+  );
+
+  return $plugin_meta;
 }
