@@ -1,36 +1,36 @@
 {
-  "name"        : "olliejones/install-test",
-  "description" : "Test project for WordPress stack via Composer see https://composer.rarst.net/recipe/site-stack/",
-  "authors"     : [
+  "name": "olliejones/install-test",
+  "description": "Test project for WordPress stack via Composer see https://composer.rarst.net/recipe/site-stack/",
+  "authors": [
     {
-      "name"    : "OllieJones",
+      "name": "OllieJones",
       "homepage": "https://github.com/OllieJones"
     }
   ],
-  "type"        : "project",
+  "type": "project",
   "repositories": [
     {
       "type": "artifact",
-      "url" : "/home/ollie/src/"
+      "url": "/home/ollie/src/"
     },
     {
       "type": "composer",
-      "url" : "https://wpackagist.org"
+      "url": "https://wpackagist.org"
     }
   ],
-  "config"      : {
+  "config": {
     "vendor-dir": "wp-content/vendor",
     "allow-plugins": {
       "johnpbloch/wordpress-core-installer": true,
       "composer/installers": true
     }
   },
-  "require"     : {
-    "johnpbloch/wordpress"            : ">=6.8",
+  "require": {
+    "johnpbloch/wordpress": ">=6.8",
     "wpackagist-plugin/dashnav": "*",
-    "wpackagist-plugin/index-wp-mysql-for-speed": "^1.6"
+    "wpackagist-plugin/index-wp-mysql-for-speed": ">=1.5.5"
   },
-  "extra"       : {
+  "extra": {
     "wordpress-install-dir": "wp"
   },
   "scripts": {

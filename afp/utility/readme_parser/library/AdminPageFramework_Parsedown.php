@@ -5,7 +5,7 @@
 	<http://en.michaeluno.jp/index-wp-mysql-for-speed>
 	Copyright (c) 2013-2021, Michael Uno; Licensed under MIT <http://opensource.org/licenses/MIT> */
 class Imfs_AdminPageFramework_Parsedown {
-    const version = '1.6.0';
+    const version = '1.5.6';
     function text($text) {
         $this->DefinitionData = array();
         $text = str_replace(array("\r\n", "\r"), "\n", $text);
