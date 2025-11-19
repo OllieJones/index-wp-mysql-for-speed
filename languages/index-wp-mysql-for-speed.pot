@@ -2,14 +2,14 @@
 # This file is distributed under the GPL v2 or later.
 msgid ""
 msgstr ""
-"Project-Id-Version: Index WP MySQL For Speed 1.5.4\n"
+"Project-Id-Version: Index WP MySQL For Speed 1.5.5\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/index-wp-mysql-for-speed\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2025-07-24T16:01:47-04:00\n"
+"POT-Creation-Date: 2025-11-19T12:34:22-05:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.9.0\n"
 "X-Domain: index-wp-mysql-for-speed\n"
@@ -1259,44 +1259,6 @@ msgstr ""
 
 #: code/rendermonitor.php:307
 msgid "Threads:"
-msgstr ""
-
-#: code/site-health.php:75
-msgid "Database configuration"
-msgstr ""
-
-#: code/site-health.php:91
-msgid "Autoloaded options are configuration settings for plugins and themes that are automatically loaded with every page load in WordPress. Having too many autoloaded options can slow down your site."
-msgstr ""
-
-#: code/site-health.php:94
-msgid "Autoloaded options are acceptable"
-msgstr ""
-
-#: code/site-health.php:97
-msgid "Performance"
-msgstr ""
-
-#. translators: 1. Number of autoloaded options. 2. Autoloaded options size.
-#: code/site-health.php:102
-msgid "Your site has %1$s autoloaded options (size: %2$s) in the options table, which is acceptable."
-msgstr ""
-
-#: code/site-health.php:124
-msgid "Autoloaded options could affect performance"
-msgstr ""
-
-#. translators: 1. Number of autoloaded options. 2. Autoloaded options size.
-#: code/site-health.php:127
-msgid "Your site has %1$s autoloaded options (size: %2$s) in the options table, which could cause your site to be slow. You can reduce the number of autoloaded options by cleaning up your site's options table."
-msgstr ""
-
-#: code/site-health.php:144
-msgid "https://wordpress.org/support/article/optimization/#autoloaded-options"
-msgstr ""
-
-#: code/site-health.php:145
-msgid "More info about performance optimization"
 msgstr ""
 
 #. translators: this goes into error_log()

@@ -1,7 +1,7 @@
 <?php
 /** Plugin Name: Index WP MySQL For Speed Upgrade Filter for mu-plugins.
  *  Description: Prevents version upgrades from changing database table keys. Installed during activation, removed during deactivation.
- *  Version: 1.5.4
+ *  Version: 1.5.5
  *  License: GPL v2 or later
  */
 
@@ -30,50 +30,62 @@ add_filter( 'dbdelta_queries', 'index_wp_mysql_for_speed\upgrade_filter', 10, 1 
  *
  */
 function upgrade_filter( $queries ) {
-  /* we want to do nothing here UNLESS WE'RE SURE a core update is in progress. */
-  $lock_option = 'core_updater.lock';
-  $lock_result = get_option( $lock_option );
-  /* no lock option found? we're not doing a core update, so bail */
-  if ( ! $lock_result ) {
-    return $queries;
-  }
-
-  /* Check to see if the lock is still valid. If it isn't, bail. */
-  if ( $lock_result <= ( time() - ( 15 * MINUTE_IN_SECONDS ) ) ) {
-    return $queries;
-  }
 
   global $wpdb;
 
-  $tablenames     = [ 'termmeta', 'commentmeta', 'comments', 'options', 'postmeta', 'posts', 'users', 'usermeta', 'woocommerce_order_itemmeta','wc_orders_meta','automatewoo_log_meta' ];
+  $core_tablenames     = [ 'termmeta', 'commentmeta', 'comments', 'options', 'postmeta', 'posts', 'users', 'usermeta' ];
+  $extra_tablenames     = [ 'woocommerce_order_itemmeta','wc_orders_meta','automatewoo_log_meta' ];
   $tablesToHandle = array();
-  foreach ( $tablenames as $tablename ) {
+  foreach ( $core_tablenames as $tablename ) {
     $tablesToHandle[ $wpdb->prefix . $tablename ] = 1;
   }
   if ( is_string( $wpdb->base_prefix ) ) {
-    foreach ( $tablenames as $tablename ) {
+    foreach ( $core_tablenames as $tablename ) {
       $tablesToHandle[ $wpdb->base_prefix . $tablename ] = 1;
     }
   }
+  $extraTablesToHandle = array();
+  foreach ( $extra_tablenames as $tablename ) {
+    $extraTablesToHandle[ $wpdb->prefix . $tablename ] = 1;
+  }
 
-  $doSomething = false;
-  /* do any of the queries relate to rekeyed tables? If not, bail. */
+
+  $doCore = false;
+  $doExtra = false;
+  /* do any of the queries relate to rekeyed core tables?  */
   foreach ( $queries as $query ) {
     if ( preg_match( '/CREATE TABLE[[:space:]]+/S', $query ) ) {
       $table = table_name( $query );
       if ( array_key_exists( $table, $tablesToHandle ) ) {
-        $doSomething = true;
+        $doCore = true;
+        break;
+      }
+    }
+  }
+  /* do any of the queries relate to rekeyed extra tables?  */
+  foreach ( $queries as $query ) {
+    if ( preg_match( '/CREATE TABLE[[:space:]]+/S', $query ) ) {
+      $table = table_name( $query );
+      if ( array_key_exists( $table, $extraTablesToHandle ) ) {
+        $doExtra = true;
         break;
       }
     }
   }
 
   /* bail unless it's one or more of our tables */
-  if ( ! $doSomething ) {
+  if ( false === $doCore && false === $doExtra ) {
     return $queries;
   }
 
-  /* A core update is in progress (the lock is valid).  */
+  /* we want to do nothing to core tables UNLESS WE'RE SURE a core update is in progress. */
+  $lock_result = get_option( 'core_updater.lock' );
+  if ( ! $lock_result ) {
+    $tablesToHandle = array ();
+  }
+
+  $tablesToHandle = array_merge( $tablesToHandle, $extraTablesToHandle );
+
   $results = [];
   foreach ( $queries as $query ) {
     $resultQuery = $query;
