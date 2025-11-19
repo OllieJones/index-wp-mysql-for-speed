@@ -13,9 +13,8 @@ Thumbs.db
 behat.yml
 /bin
 circle.yml
-composer.json
-composer.lock
 /composer
+composer.lock
 Gruntfile.js
 package.json
 package-lock.json

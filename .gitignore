@@ -2,6 +2,7 @@
 /.run/
 *~
 **/hidden-test-treeshake/
+composer.lock
 
 
 /vendor/

@@ -2,9 +2,9 @@
 Contributors: OllieJones, rjasdfiii
 Tags: index, key, performance, mysql, wp-cli
 Requires at least: 4.2
-Tested up to: 6.8.2
+Tested up to: 6.9
 Requires PHP: 5.6
-Stable tag: 1.5.4
+Stable tag: 1.6.0
 Network: true
 License: GPL v2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -131,7 +131,7 @@ When you activate it, it will copy [a php source file](https://www.plumislandmed
 
 If you configure your WordPress installation using composer, you may install this plugin into your WordPress top level configuration with the command
 
-`composer require "wpackagist-plugin/index-wp-mysql-for-speed":"^1.4"`
+`composer require "wpackagist-plugin/index-wp-mysql-for-speed":"^1.5.5"`
 
 During composer installation the plugin can automatically copy the necessary source file (see the previous section) into the must-use plugins directory. If you want that to happen, you should include these scripts in your top-level `composer.json` file.
 
@@ -247,6 +247,15 @@ Please see more questions and answers [here](https://plumislandmedia.net/index-w
 
 == Changelog ==
 
+= 1.5.5 =
+(No changes to keys).
+
+Correct composer compatibility issue.
+
+Upgrade to the latest Datatables.net code.
+
+Suppress reversions to keys when the WooCommerce installer runs.
+
 = 1.5.4 =
 Correct php 5.6 compatibility issue.
 
@@ -280,7 +289,11 @@ Miscellaneous bug fixes
 
 == Upgrade Notice ==
 
-We have added support for the WooCommerce tables wp_automatewoo_log_meta, wp_wc_orders_meta, and  wp_woocommerce_order_itemmeta. If those tables are present in your site, we will offer to add high-performance keys to them.
+We have corrected a problem with the composer package.
+
+We updated the Datatables.net package.
+
+We have added support for the WooCommerce tables wp_automatewoo_log_meta, wp_wc_orders_meta, and  wp_woocommerce_order_itemmeta. If those tables are present in your site, we will offer to add high-performance keys to them. And, we'll suppress the WooCommerce installer's attempts to revert the keys.
 
 Now we display information about the host machine using `/proc/meminfo` and `/proc/cpuinfo` if those files are available, and upload that information with metadata and monitors.
 

@@ -1,0 +1,47 @@
+{
+  "name"        : "olliejones/install-test",
+  "description" : "Test project for WordPress stack via Composer see https://composer.rarst.net/recipe/site-stack/",
+  "authors"     : [
+    {
+      "name"    : "OllieJones",
+      "homepage": "https://github.com/OllieJones"
+    }
+  ],
+  "type"        : "project",
+  "repositories": [
+    {
+      "type": "artifact",
+      "url" : "/home/ollie/src/"
+    },
+    {
+      "type": "composer",
+      "url" : "https://wpackagist.org"
+    }
+  ],
+  "config"      : {
+    "vendor-dir": "wp-content/vendor",
+    "allow-plugins": {
+      "johnpbloch/wordpress-core-installer": true,
+      "composer/installers": true
+    }
+  },
+  "require"     : {
+    "johnpbloch/wordpress"            : ">=6.8",
+    "wpackagist-plugin/dashnav": "*",
+    "wpackagist-plugin/index-wp-mysql-for-speed": "^1.6"
+  },
+  "extra"       : {
+    "wordpress-install-dir": "wp"
+  },
+  "scripts": {
+    "install-wp-mysql-mu-module": [
+      "@composer --working-dir=wp-content/plugins/index-wp-mysql-for-speed install-mu-module"
+    ],
+    "post-install-cmd": [
+      "@install-wp-mysql-mu-module"
+    ],
+    "post-update-cmd": [
+      "@install-wp-mysql-mu-module"
+    ]
+  }
+}
