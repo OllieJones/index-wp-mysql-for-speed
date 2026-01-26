@@ -241,6 +241,14 @@ Database keying works by making copies of your table’s data organized in ways 
 
 You can revert the keys from the Index MySQL Tool under the Tools menu, or use the wp-cli command `wp index-mysql disable --all`. *Notice* that if you deactivate or delete the plugin without doing this, the high-performance keys *remain*.
 
+= One of my tables already has a nonstandard key in it. How do I make this plugin leave it there? =
+
+If you start the name of the index with the characters `index_wp_mysql_protect_` this plugin ignores it and leaves it in place. For example if yoo want an index on `wp_posts.guid` you can create it like this:
+
+`ALTER TABLE wp_posts ADD KEY index_wp_mysql_protect_guid` ON wp_posts(guid);`
+
+Notice how `index_wp_mysql_protect_guid`, the name of the key, starts with those characters.
+
 = How do I get an answer to another question? =
 
 Please see more questions and answers [here](https://plumislandmedia.net/index-wp-mysql-for-speed/faq/).
