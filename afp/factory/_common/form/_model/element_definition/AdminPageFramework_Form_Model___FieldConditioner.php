@@ -27,7 +27,7 @@ class Imfs_AdminPageFramework_Form_Model___SectionConditioner extends Imfs_Admin
         if (!current_user_can($aDefinition['capability'])) {
             return false;
         }
-        return ( boolean )$aDefinition['if'];
+        return ( bool )$aDefinition['if'];
     }
     }
     class Imfs_AdminPageFramework_Form_Model___FieldConditioner extends Imfs_AdminPageFramework_Form_Model___SectionConditioner {

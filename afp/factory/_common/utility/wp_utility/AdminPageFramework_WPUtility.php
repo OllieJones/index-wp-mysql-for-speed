@@ -625,7 +625,7 @@ class Imfs_AdminPageFramework_WPUtility_URL extends Imfs_AdminPageFramework_Util
             return 0;
         }
         static public function isDebugMode() {
-            return ( boolean )defined('WP_DEBUG') && WP_DEBUG;
+            return ( bool )defined('WP_DEBUG') && WP_DEBUG;
         }
         static public function isDoingAjax() {
             return defined('DOING_AJAX') && DOING_AJAX;

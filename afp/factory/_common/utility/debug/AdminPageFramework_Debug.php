@@ -233,7 +233,7 @@ class Imfs_AdminPageFramework_Debug_Base extends Imfs_AdminPageFramework_Framewo
                 return true;
             }
             $_bhResource = fopen($sFilePath, 'w');
-            return ( boolean )$_bhResource;
+            return ( bool )$_bhResource;
         }
         static private function ___getLogHeadingLine($fCurrentTimeStamp, $nElapsed, $sCallerClass, $sCallerFunction) {
             $_nNow = $fCurrentTimeStamp + (self::___getSiteGMTOffset() * 60 * 60);

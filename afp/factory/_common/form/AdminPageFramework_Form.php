@@ -137,7 +137,7 @@ abstract class Imfs_AdminPageFramework_Form_Utility extends Imfs_AdminPageFramew
             if (!$sCapability) {
                 return true;
             }
-            return ( boolean )current_user_can($sCapability);
+            return ( bool )current_user_can($sCapability);
         }
         public function isInThePage() {
             return $this->callBack($this->aCallbacks['is_in_the_page'], true);
