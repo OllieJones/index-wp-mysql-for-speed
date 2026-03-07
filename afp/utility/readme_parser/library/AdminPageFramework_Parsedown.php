@@ -275,7 +275,7 @@ class Imfs_AdminPageFramework_Parsedown {
             return $Block;
         }
     }
-    protected function blockSetextHeader($Line, ?array $Block = null) {
+    protected function blockSetextHeader($Line, array $Block = null) {
         if (!isset($Block) or isset($Block['type']) or isset($Block['interrupted'])) {
             return;
         }
@@ -345,7 +345,7 @@ class Imfs_AdminPageFramework_Parsedown {
             return $Block;
         }
     }
-    protected function blockTable($Line, ?array $Block = null) {
+    protected function blockTable($Line, array $Block = null) {
         if (!isset($Block) or isset($Block['type']) or isset($Block['interrupted'])) {
             return;
         }
