@@ -71,12 +71,12 @@ abstract class Imfs_AdminPageFramework_Utility_Deprecated {
     abstract class Imfs_AdminPageFramework_Utility_VariableType extends Imfs_AdminPageFramework_Utility_Deprecated {
         static public function isResourcePath($sPathOrURL) {
             if (defined('PHP_MAXPATHLEN') && is_string($sPathOrURL) && strlen($sPathOrURL) > PHP_MAXPATHLEN) {
-                return ( boolean )filter_var($sPathOrURL, FILTER_VALIDATE_URL);
+                return (bool)filter_var($sPathOrURL, FILTER_VALIDATE_URL);
             }
             if (is_string($sPathOrURL) && file_exists($sPathOrURL)) {
                 return true;
             }
-            return ( boolean )filter_var($sPathOrURL, FILTER_VALIDATE_URL);
+            return (bool)filter_var($sPathOrURL, FILTER_VALIDATE_URL);
         }
         static public function isNotNull($mValue = null) {
             return !is_null($mValue);
@@ -279,7 +279,7 @@ abstract class Imfs_AdminPageFramework_Utility_Deprecated {
         }
         static public function getArrayValueByArrayKeys($aArray, $aKeys, $vDefault = null) {
             $_sKey = array_shift($aKeys);
-            if (isset($aArray[$_sKey])) {
+            if (null !== $_sKey && isset($aArray[$_sKey])) {
                 if (empty($aKeys)) {
                     return $aArray[$_sKey];
                 }

@@ -233,7 +233,7 @@ class Health {
         $max = - $min;
         foreach ( $splits as $split ) {
           if ( is_numeric( $split ) ) {
-            $split = (double) $split;
+            $split = (float) $split;
             $min   = min( $min, $split );
             $max   = max( $max, $split );
           }

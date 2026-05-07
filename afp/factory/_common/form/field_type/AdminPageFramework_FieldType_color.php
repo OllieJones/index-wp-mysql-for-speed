@@ -113,7 +113,7 @@ abstract class Imfs_AdminPageFramework_FieldType_Base extends Imfs_AdminPageFram
         if (!isset($_REQUEST['enable_external_source'])) {
             return $aTabs;
         }
-        if (!( boolean )$_REQUEST['enable_external_source']) {
+        if (!(bool)$_REQUEST['enable_external_source']) {
             unset($aTabs['type_url']);
         }
         return $aTabs;

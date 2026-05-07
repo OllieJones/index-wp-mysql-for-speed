@@ -28,7 +28,7 @@
   "require": {
     "johnpbloch/wordpress": ">=6.8",
     "wpackagist-plugin/dashnav": "*",
-    "wpackagist-plugin/index-wp-mysql-for-speed": ">=1.5.5"
+    "wpackagist-plugin/index-wp-mysql-for-speed": ">=1.5.7"
   },
   "extra": {
     "wordpress-install-dir": "wp"

@@ -166,7 +166,7 @@ abstract class Imfs_AdminPageFramework_Resource_Base extends Imfs_AdminPageFrame
             wp_enqueue_style($aEnqueueItem['handle_id'], $_sSRC, $aEnqueueItem['dependencies'], $aEnqueueItem['version'], $aEnqueueItem['media']);
             return;
         }
-        wp_enqueue_script($aEnqueueItem['handle_id'], $_sSRC, $aEnqueueItem['dependencies'], $aEnqueueItem['version'], did_action('admin_body_class') || ( boolean )$aEnqueueItem['in_footer']);
+        wp_enqueue_script($aEnqueueItem['handle_id'], $_sSRC, $aEnqueueItem['dependencies'], $aEnqueueItem['version'], did_action('admin_body_class') || (bool)$aEnqueueItem['in_footer']);
         if ($aEnqueueItem['translation']) {
             wp_localize_script($aEnqueueItem['handle_id'], $aEnqueueItem['handle_id'], $aEnqueueItem['translation']);
         }

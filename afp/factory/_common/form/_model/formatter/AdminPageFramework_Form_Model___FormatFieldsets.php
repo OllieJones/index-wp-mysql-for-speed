@@ -65,7 +65,7 @@ class Imfs_AdminPageFramework_Form_Model___FormatFieldsets extends Imfs_AdminPag
         if (!empty($_abSectionRepeatable)) {
             return true;
         }
-        return ( boolean )count($this->getIntegerKeyElements($aItems));
+        return (bool)count($this->getIntegerKeyElements($aItems));
     }
     private function _getSubSectionsFormatted($aItems, $sCapability, $aSectionsets, $_abSectionRepeatable) {
         $_aNewFieldset = array();

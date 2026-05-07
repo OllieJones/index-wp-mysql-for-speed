@@ -86,7 +86,7 @@ class Imfs_AdminPageFramework_Debug_Base extends Imfs_AdminPageFramework_Framewo
     }
     static private function ___getLegibleString($sString, $iLengthLimit, $bShowDetails = true) {
         static $_iMBSupport;
-        $_iMBSupport = isset($_iMBSupport) ? $_iMBSupport : ( integer )function_exists('mb_strlen');
+        $_iMBSupport = isset($_iMBSupport) ? $_iMBSupport : (int)function_exists('mb_strlen');
         $_aStrLenMethod = array('strlen', 'mb_strlen');
         $_aSubstrMethod = array('substr', 'mb_substr');
         $iCharLimit = $iLengthLimit ? $iLengthLimit : self::$iLegibleStringCharacterLimit;
@@ -127,7 +127,7 @@ class Imfs_AdminPageFramework_Debug_Base extends Imfs_AdminPageFramework_Framewo
         $_oException = new Exception();
         if (is_object($iSkip) && $iSkip instanceof Exception) {
             $_oException = $iSkip;
-            $iSkip = ( integer )$_deprecated;
+            $iSkip = (int)$_deprecated;
         }
         $_iSkip = $_iSkip + $iSkip;
         $_aTraces = array();
@@ -233,7 +233,7 @@ class Imfs_AdminPageFramework_Debug_Base extends Imfs_AdminPageFramework_Framewo
                 return true;
             }
             $_bhResource = fopen($sFilePath, 'w');
-            return ( boolean )$_bhResource;
+            return (bool)$_bhResource;
         }
         static private function ___getLogHeadingLine($fCurrentTimeStamp, $nElapsed, $sCallerClass, $sCallerFunction) {
             $_nNow = $fCurrentTimeStamp + (self::___getSiteGMTOffset() * 60 * 60);
