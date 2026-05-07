@@ -5,7 +5,7 @@
 	<http://en.michaeluno.jp/index-wp-mysql-for-speed>
 	Copyright (c) 2013-2021, Michael Uno; Licensed under MIT <http://opensource.org/licenses/MIT> */
 class Imfs_AdminPageFramework_Parsedown {
-    const version = '1.5.6';
+    const version = '1.5.7';
     function text($text) {
         $this->DefinitionData = array();
         $text = str_replace(array("\r\n", "\r"), "\n", $text);
@@ -275,7 +275,7 @@ class Imfs_AdminPageFramework_Parsedown {
             return $Block;
         }
     }
-    protected function blockSetextHeader($Line, $Block = null) {
+      protected function blockSetextHeader($Line, $Block = null) {
         if (!isset($Block) or isset($Block['type']) or isset($Block['interrupted'])) {
             return;
         }

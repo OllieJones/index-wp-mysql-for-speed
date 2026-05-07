@@ -58,7 +58,7 @@ class Imfs_AdminPageFramework_Link_admin_page extends Imfs_AdminPageFramework_Li
         if (!isset($_GET['page'])) {
             return false;
         }
-        return ( bool )$this->oProp->isPageAdded($_GET['page']);
+        return (bool)$this->oProp->isPageAdded($_GET['page']);
     }
     public function _replyToAddSettingsLinkInPluginListingPage($aLinks) {
         if (count($this->oProp->aPages) < 1) {

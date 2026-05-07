@@ -15,7 +15,7 @@ class Imfs_AdminPageFramework_Form___SubmitNotice extends Imfs_AdminPageFramewor
     }
     public function hasNotice($sType = '') {
         if (!$sType) {
-            return ( bool )count(self::$_aNotices);
+            return (bool)count(self::$_aNotices);
         }
         foreach (self::$_aNotices as $_aNotice) {
             $_sClassAttribute = $this->getElement($_aNotice, array('aAttributes', 'class'), '');

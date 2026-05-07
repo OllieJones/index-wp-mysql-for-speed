@@ -173,7 +173,7 @@ class Imfs_AdminPageFramework_WPUtility_URL extends Imfs_AdminPageFramework_Util
                 return self::$_sPageNow;
             }
             $_aMethodNames = array(0 => '_getPageNow_FrontEnd', 1 => '_getPageNow_BackEnd',);
-            $_sMethodName = $_aMethodNames[( int )is_admin() ];
+            $_sMethodName = $_aMethodNames[(int)is_admin() ];
             self::$_sPageNow = self::$_sMethodName();
             return self::$_sPageNow;
         }
@@ -461,7 +461,7 @@ class Imfs_AdminPageFramework_WPUtility_URL extends Imfs_AdminPageFramework_Util
             $_wp_using_ext_object_cache = false;
             $sTransientKey = self::_getCompatibleTransientKey($sTransientKey);
             $_aFunctionNames = array(0 => 'delete_transient', 1 => 'delete_site_transient',);
-            $_vTransient = $_aFunctionNames[( int )self::isNetworkAdmin() ]($sTransientKey);
+            $_vTransient = $_aFunctionNames[(int)self::isNetworkAdmin() ]($sTransientKey);
             $_wp_using_ext_object_cache = $_bWpUsingExtObjectCacheTemp;
             return $_vTransient;
         }
@@ -471,7 +471,7 @@ class Imfs_AdminPageFramework_WPUtility_URL extends Imfs_AdminPageFramework_Util
             $_wp_using_ext_object_cache = false;
             $sTransientKey = self::_getCompatibleTransientKey($sTransientKey);
             $_aFunctionNames = array(0 => 'get_transient', 1 => 'get_site_transient',);
-            $_vTransient = $_aFunctionNames[( int )self::isNetworkAdmin() ]($sTransientKey);
+            $_vTransient = $_aFunctionNames[(int)self::isNetworkAdmin() ]($sTransientKey);
             $_wp_using_ext_object_cache = $_bWpUsingExtObjectCacheTemp;
             return null === $vDefault ? $_vTransient : (false === $_vTransient ? $vDefault : $_vTransient);
         }
@@ -481,7 +481,7 @@ class Imfs_AdminPageFramework_WPUtility_URL extends Imfs_AdminPageFramework_Util
             $_wp_using_ext_object_cache = false;
             $sTransientKey = self::_getCompatibleTransientKey($sTransientKey);
             $_aFunctionNames = array(0 => 'set_transient', 1 => 'set_site_transient',);
-            $_bIsSet = $_aFunctionNames[( int )self::isNetworkAdmin() ]($sTransientKey, $vValue, $iExpiration);
+            $_bIsSet = $_aFunctionNames[(int)self::isNetworkAdmin() ]($sTransientKey, $vValue, $iExpiration);
             $_wp_using_ext_object_cache = $_bWpUsingExtObjectCacheTemp;
             return $_bIsSet;
         }
@@ -613,7 +613,7 @@ class Imfs_AdminPageFramework_WPUtility_URL extends Imfs_AdminPageFramework_Util
                 return;
             }
             $_sFunctionName = array(0 => 'wp_redirect', 1 => 'wp_safe_redirect',);
-            exit($_sFunctionName[( int )$iType]($sURL));
+            exit($_sFunctionName[(int)$iType]($sURL));
         }
         static public function getRedirectPreError($sURL, $iType) {
             if (!$iType && filter_var($sURL, FILTER_VALIDATE_URL) === false) {
@@ -625,7 +625,7 @@ class Imfs_AdminPageFramework_WPUtility_URL extends Imfs_AdminPageFramework_Util
             return 0;
         }
         static public function isDebugMode() {
-            return ( bool )defined('WP_DEBUG') && WP_DEBUG;
+            return (bool)defined('WP_DEBUG') && WP_DEBUG;
         }
         static public function isDoingAjax() {
             return defined('DOING_AJAX') && DOING_AJAX;

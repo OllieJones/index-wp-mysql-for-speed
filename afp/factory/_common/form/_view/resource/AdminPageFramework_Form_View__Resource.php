@@ -58,7 +58,7 @@ class Imfs_AdminPageFramework_Form_View__Resource extends Imfs_AdminPageFramewor
             return;
         }
         self::$_aEnqueued[$_aEnqueueItem['src']] = $_aEnqueueItem;
-        wp_enqueue_script($_aEnqueueItem['handle_id'], $_aEnqueueItem['src'], $_aEnqueueItem['dependencies'], $_aEnqueueItem['version'], did_action('admin_body_class') || ( bool )$_aEnqueueItem['in_footer']);
+        wp_enqueue_script($_aEnqueueItem['handle_id'], $_aEnqueueItem['src'], $_aEnqueueItem['dependencies'], $_aEnqueueItem['version'], did_action('admin_body_class') || (bool)$_aEnqueueItem['in_footer']);
         if ($_aEnqueueItem['translation']) {
             wp_localize_script($_aEnqueueItem['handle_id'], $_aEnqueueItem['handle_id'], $_aEnqueueItem['translation']);
         }

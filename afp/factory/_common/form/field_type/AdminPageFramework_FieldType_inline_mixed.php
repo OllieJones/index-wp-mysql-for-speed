@@ -20,7 +20,7 @@ class Imfs_AdminPageFramework_FieldType__nested extends Imfs_AdminPageFramework_
             if (!$this->isNormalPlacement($_aChildFieldset)) {
                 continue;
             }
-            $_aChildFieldset = $this->getFieldsetReformattedBySubFieldIndex($_aChildFieldset, ( int )$aField['_index'], $aField['_is_multiple_fields'], $aField);
+            $_aChildFieldset = $this->getFieldsetReformattedBySubFieldIndex($_aChildFieldset, (int)$aField['_index'], $aField['_is_multiple_fields'], $aField);
             $_oFieldset = new Imfs_AdminPageFramework_Form_View___Fieldset($_aChildFieldset, $_oCallerForm->aSavedData, $_oCallerForm->getFieldErrors(), $_oCallerForm->aFieldTypeDefinitions, $_oCallerForm->oMsg, $_oCallerForm->aCallbacks);
             $_aInlineMixedOutput[] = $_oFieldset->get();
         }

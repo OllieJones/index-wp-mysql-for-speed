@@ -67,7 +67,7 @@ if (!class_exists('Imfs_AdminPageFramework_Registry', false)):
             }
             $_aMinifiedVesionSuffix = array(0 => '', 1 => '.min',);
             $_aDevelopmentVersionSuffix = array(0 => '', 1 => '.dev',);
-            return self::VERSION . $_aMinifiedVesionSuffix[( int )self::$bIsMinifiedVersion] . $_aDevelopmentVersionSuffix[( int )self::$bIsDevelopmentVersion];
+            return self::VERSION . $_aMinifiedVesionSuffix[(int)self::$bIsMinifiedVersion] . $_aDevelopmentVersionSuffix[(int)self::$bIsDevelopmentVersion];
         }
         static public function getInfo() {
             $_oReflection = new ReflectionClass(__CLASS__);

@@ -117,7 +117,7 @@ class Imfs_AdminPageFramework_Form_View___Script_CollapsibleSection extends Imfs
         /**
          * Determines whether the passed node element is of a field element.
          * If there are fields in the section title area, clicking on those field elements should not collapse/expand the section. 
-         * @return  boolean
+         * @return(bool)
          */
         function _isFieldElement( nodeTarget ) {
 

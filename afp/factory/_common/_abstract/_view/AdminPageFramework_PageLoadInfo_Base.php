@@ -21,7 +21,7 @@ abstract class Imfs_AdminPageFramework_PageLoadInfo_Base extends Imfs_AdminPageF
         if ($oProp->bIsAdminAjax || !$oProp->bIsAdmin) {
             return false;
         }
-        return ( bool )$oProp->bShowDebugInfo;
+        return (bool)$oProp->bShowDebugInfo;
     }
     public function _replyToSetPageLoadInfoInFooter() {
     }
