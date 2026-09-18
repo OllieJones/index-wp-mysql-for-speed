@@ -24,20 +24,12 @@ class ImfsQueries {
   public static function getByteUnit( $bytes ) {
     if ( $bytes >= 1024 * 1024 * 1024 * 1024 ) {
       $unit = [ 1024 * 1024 * 1024 * 1024, 'TiB', 0 ];
-    } else if ( $bytes >= 1024 * 1024 * 1024 * 1024 * 0.5 ) {
-      $unit = [ 1024 * 1024 * 1024 * 1024, 'TiB', 1 ];
     } else if ( $bytes >= 1024 * 1024 * 1024 ) {
       $unit = [ 1024 * 1024 * 1024, 'GiB', 0 ];
-    } else if ( $bytes >= 1024 * 1024 * 1024 * 0.5 ) {
-      $unit = [ 1024 * 1024 * 1024, 'GiB', 1 ];
     } else if ( $bytes >= 1024 * 1024 ) {
       $unit = [ 1024 * 1024, 'MiB', 0 ];
-    } else if ( $bytes >= 1024 * 1024 * 0.5 ) {
-      $unit = [ 1024 * 1024, 'MiB', 1 ];
     } else if ( $bytes >= 1024 ) {
       $unit = [ 1024, 'KiB', 0 ];
-    } else if ( $bytes >= 1024 * 0.1 ) {
-      $unit = [ 1024, 'KiB', 1 ];
     } else {
       $unit = [ 1, 'B', 0 ];
     }
@@ -51,10 +43,22 @@ class ImfsQueries {
     return get_date_from_gmt( date( 'Y-m-d H:i:s', $time ), $date_format );
 
   }
-  public static function percent ( $num, $denom = null, $points = 1 ) {
-    if ( $denom ) {
+
+  /**
+   * Compute a fraction and display it as a percentage.
+   * @param numeric $num Numerator
+   * @param numeric $denom Denominator
+   * @param integer $points Number of digits after decimal point, default 1.
+   * @param boolean $oneminus If true, display 1 minus the fraction. Default false.
+   *
+   * @return string The percentage, like 42.0, without a percentage sign.
+   */
+  public static function percent ( $num, $denom = null, $points = 1, $oneminus = false ) {
+    if ( $denom !== null && $denom != 0 ) {
       $num = $num / $denom;
     }
+    $num = $oneminus ? 1.0 - $num : $num;
+
     return number_format ( 100.0 * $num, $points );
   }
   /** get cell data for microsecond times

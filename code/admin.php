@@ -369,9 +369,27 @@ class ImfsPage extends Imfs_AdminPageFramework {
             ],
           ] );
       }
+      $this->checkPoolSize();
     }
-
     return $this->db->canReindex;
+  }
+
+  private function checkPoolSize() {
+    $diagnostics = $this->db->getPoolDiagnostics();
+    if ( false !== $diagnostics ) {
+
+      $this->addSettingFields(
+        [
+          'field_id'    => 'pool_size_notice',
+          'title'       => 'Notice',
+          'default'     => array_shift( $diagnostics ),
+          'description' => implode( ' ', $diagnostics ),
+          'save'        => false,
+          'class'       => [
+            'fieldrow' => 'warning',
+          ],
+        ] );
+    }
   }
 
   /**  check whether upgrading

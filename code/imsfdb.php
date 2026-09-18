@@ -26,6 +26,9 @@ class ImfsDb {
   private $indexQueryCache = [];
   /** @var int the time in seconds allowed for each ALTER operation */
   private $scriptTimeLimit = 600;
+  private $DEFAULT_POOL_SIZE = 1024 * 1024 * 128;
+  private $READ_RATE_THRESHOLD = 0.02;
+  private $POOL_SIZE_THRESHOLD = 1024 * 1024 * 1024;
 
   /**
    * @param float $pluginVersion
@@ -227,7 +230,7 @@ class ImfsDb {
    *
    * @return null|mixed The variable's value, or null if the variable doesn't exist, or more than one was returned.
    */
-  public function getStatusVariable( $name ) {
+  public function getGlobalStatus( $name ) {
     try {
       $name      = $this->sanitize_status_variable_name( $name );
       $resultset = $this->get_results( "SHOW GLOBAL STATUS LIKE '$name'" );
@@ -829,6 +832,70 @@ class ImfsDb {
     $health                          = new Health ( $allStats, time() );
 
     return $health->getReport();
+  }
+
+  public function getPoolDiagnostics () {
+    $result        = array();
+    try {
+      $fork          = $this->semver->fork;
+      $isMaria       = false !== stripos( $fork, "mariadb" );
+      $fork          = $isMaria ? $fork : 'MySQL';
+      $poolsize      = (int) $this->getVariable( 'innodb_buffer_pool_size' );
+      $read_requests = (int) $this->getGlobalStatus( 'Innodb_buffer_pool_read_requests' );
+      $reads         = (int) $this->getGlobalStatus( 'Innodb_buffer_pool_reads' );
+      $read_rate     = $read_requests > 0 ? $reads / $read_requests : 1.0;
+      if ( $poolsize === $this->DEFAULT_POOL_SIZE ) {
+        $result[] = sprintf(
+        /* translators: 1 A number of bytes, like 128Mib or 4Kib */
+          __( 'Its buffer pool size is unchanged from the installation default of %1$s.', 'index-wp-mysql-for-speed' ),
+          ImfsQueries::byteCell( $this->DEFAULT_POOL_SIZE ) );
+      } else if ( $poolsize < $this->DEFAULT_POOL_SIZE ) {
+        $result[] = sprintf(
+        /* translators: 1. A number of bytes, like 128Mib or 4Kib. 2. another number of bytes. */
+          __( 'Its buffer pool size, %1$s, is smaller than the installation default size of %2$s.', 'index-wp-mysql-for-speed' ),
+          ImfsQueries::byteCell( $poolsize ),
+          ImfsQueries::byteCell( $this->DEFAULT_POOL_SIZE ) );
+        $result[] = __( 'Even the installation default size is usually too small.', 'index-wp-mysql-for-speed' );
+      } else if ( $poolsize < $this->POOL_SIZE_THRESHOLD && $read_rate > $this->READ_RATE_THRESHOLD ) {
+        $result[] = sprintf(
+        /* translators: 1 A number of bytes, like 128Mib or 4Kib. 2 a number of bytes. 3 a percentage lalike 98.5 4: a percentage */
+          __( 'Its buffer pool size. %1$s, is smaller than %2$s and its hit ratio, %3$s%%, is less than %4$s%%.', 'index-wp-mysql-for-speed' ),
+          ImfsQueries::byteCell( $poolsize ),
+          ImfsQueries::byteCell( $this->POOL_SIZE_THRESHOLD ),
+          ImfsQueries::percent( $read_rate, null, 1, true ) ,
+          ImfsQueries::percent( $this->READ_RATE_THRESHOLD, null, 1, true ) );
+      }
+      if ( count( $result ) > 0 ) {
+        array_unshift( $result,
+          sprintf(
+           /* translators: 1 MySQL or MariaDb, database server name */
+            __( 'Your %1$s database server\'s buffer pool size may be too small.', 'index-wp-mysql-for-speed' ),
+            $fork ) );
+        $infoURL = $isMaria
+          /* Translators: The URL on the MariaDB website explaining the innodb buffer pool. */
+          ? __( 'https://mariadb.com/docs/server/server-usage/storage-engines/innodb/innodb-buffer-pool', 'index-wp-mysql-for-speed' )
+          /* Translators: The URL on the MySQL website explaining the innodb buffer pool size. */
+          : __( 'https://dev.mysql.com/doc/refman/8.4/en/innodb-parameters.html#sysvar_innodb_buffer_pool_size', 'index-wp-mysql-for-speed' );
+
+          $explanURL = $isMaria
+          /* Translators: The URL on the author's English-language website explaining the issue for MariaDB */
+            ? __( 'https://www.plumislandmedia.net/index-wp-mysql-for-speed/sizing-mariadb-buffer-pool/')
+            /* Translators: The URL on the author's website explaining the issue for MySQL */
+            : __( 'https://www.plumislandmedia.net/index-wp-mysql-for-speed/sizing-mysql-buffer-pool/');
+        $result[] = __( 'Increasing your buffer pool size improves your site\'s performance.', 'index-wp-mysql-for-speed' , 'index-wp-mysql-for-speed' );
+        $result[] = sprintf(
+          /* Translators: 1: MySQL or MariaDB server name. 2: URL of English-language documentation on vendor web site. */
+          __( 'Ask the person who supports your %1$s server to read this documentation: <a href="%2$s" target="_blank">%2$s</a>.', 'index-wp-mysql-for-speed' ),
+          $fork, $infoURL );
+        $result[] = __( 'Then ask them to increase your server\'s <code>innodb_buffer_pool_size</code> system variable.', 'index-wp-mysql-for-speed' );
+        $result[] = __( 'For a more detailed explanation of this buffer pool performance issue please', 'index-wp-mysql-for-speed' );
+        $result[] = '<a href="' . $explanURL . '" target="_blank">' . __( 'click here', 'index-wp-mysql-for-speed' ) . '</a>';
+
+      }
+    } catch ( Exception $e ) {
+      return false;
+    }
+    return 0 === count( $result ) ? false : $result;
   }
 }
 

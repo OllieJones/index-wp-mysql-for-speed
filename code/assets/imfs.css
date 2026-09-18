@@ -195,10 +195,8 @@ fieldset.inline input.number {
     width: 4em;
 }
 
-form div#poststuff div#post-body,
-div#wpbody > div#wpbody-content div.index-wp-mysql-for-speed-content-container {
-    margin-left: 1em;
-    margin-top: 1em;
+.form-table td fieldset#fieldset-pool_size_notice p {
+    line-height: 1.45
 }
 
 p.topinfo {

@@ -40,7 +40,6 @@ class Health {
   public function aa_r() {
     $d      = $this->stats;
     $v      = $d['variables'];
-    $g      = $d['globalStatus'];
     $uptime = $this->getUptime();
     $since  = $d['t'] - $uptime;
     $up     = ImfsQueries::timeCell( 1000000.0 * $uptime );
@@ -76,12 +75,10 @@ class Health {
     if ( $sizes->database_count > 1 ) {
       $o .= '<p>';
       /* translators: 1: size like 4.3Mib  2: percentage like 40.5  3: complementary percentage like 59.5  4:total number of databases visible */
-      $text  = __( 'All %4$s databases size: %1$s. %2$s%% data, %3$s%% keys.', 'index-wp-mysql-for-speed' );
+      __( 'All %4$s databases size: %1$s. %2$s%% data, %3$s%% keys.', 'index-wp-mysql-for-speed' );
       $text  = __( 'All %4$s databases size: %1$s. %2$s%% data, %3$s%% keys.', 'index-wp-mysql-for-speed' );
       $total = $sizes->innodb_data_total + $sizes->innodb_key_total;
       if ( $total > 0 ) {
-        $p1 = $sizes->innodb_data_total / $total;
-        $p2 = $sizes->innodb_key_total / $total;
         $to = ImfsQueries::byteCell( $total );
         $o  .= sprintf( $text,
           $to,
@@ -115,11 +112,25 @@ class Health {
 
     /* translators: 1: size like 4.3Mib  2: percentage like 40.5  3: complementary percentage like 59.5 */
     $text = __( 'Database buffer pool size: %1$s. %2$s%% used, %3$s%% dirty.', 'index-wp-mysql-for-speed' );
-
     return sprintf( $text,
       ImfsQueries::byteCell( $bufferPoolSize ),
       ImfsQueries::percent( $bufferPoolUsed, $bufferPoolSize ),
       ImfsQueries::percent( $bufferPoolDirty, $bufferPoolSize ) );
+
+  }
+
+  public function aab_r() {
+
+    $d               = $this->stats;
+    $g               = $d['globalStatus'];
+    $read_requests  = $g->Innodb_buffer_pool_read_requests;
+    $reads  = $g->Innodb_buffer_pool_reads;
+
+    /* translators: 1: 1: percentage like 40.5  */
+    $text = __( 'Database buffer pool read-hit rate: %1$s%%.', 'index-wp-mysql-for-speed' );
+
+    return sprintf( $text,
+      ImfsQueries::percent( $reads, $read_requests, 2, true ) );
 
   }
 
@@ -165,13 +176,12 @@ class Health {
 
   public function tmptable_traffic_r() {
     $d = $this->stats;
-    $v = $d['variables'];
     $g = $d['globalStatus'];
     if ( $this->getUptime() > 0 && is_numeric( $g->Created_tmp_tables ) && is_numeric( $g->Created_tmp_disk_tables ) ) {
       $since = $d['t'] - $this->getUptime();
 
 
-      /* translators: 1: datestamp  2: number  number like 123.4  4: percentage */
+      /* translators: 1: datestamp  2: number like 123.4  4: percentage */
       $text = __( 'Temporary results tables used (since %1$s): %2$s/sec. %3$s%% overflowed to SSD/HDD.', 'index-wp-mysql-for-speed' );
 
       return sprintf( $text,
