@@ -27,6 +27,9 @@
  * Tags:         database, index, key, mysql, wp-cli
  */
 
+if ( ! defined( 'ABSPATH' ) ) {
+  die( 'No direct access.' );
+}
 /** current version number  */
 define( 'index_wp_mysql_for_speed_VERSION_NUM', '1.5.7' );
 define( 'index_mysql_for_speed_major_version', 1.5 );
@@ -202,7 +205,8 @@ function index_wp_mysql_for_speed_activate_mu_plugin() {
     $src  = trailingslashit( plugin_dir_path( __FILE__ ) ) . 'code/assets/mu/' . $filterName;
     $dest = trailingslashit( WPMU_PLUGIN_DIR ) . $filterName;
 
-    if ( ! file_exists( $dest ) ) {
+    $needs_updating = ( ! defined( 'index_wp_mysql_for_speed_MU_VERSION_NUM' ) ) || index_wp_mysql_for_speed_MU_VERSION_NUM !== index_wp_mysql_for_speed_VERSION_NUM;
+    if ( $needs_updating ) {
       /* Make sure the `mu-plugins` directory exists. It might not in a standard install */
       if ( ! is_dir( WPMU_PLUGIN_DIR ) ) {
         wp_mkdir_p( WPMU_PLUGIN_DIR );

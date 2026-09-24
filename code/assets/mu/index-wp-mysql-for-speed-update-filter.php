@@ -8,8 +8,10 @@
 namespace index_wp_mysql_for_speed;
 
 if ( ! defined( 'ABSPATH' ) ) {
-  die( 'We\'re sorry, but you can not directly access this file.' );
+  die( 'No direct access.' );
 }
+
+define( 'index_wp_mysql_for_speed_MU_VERSION_NUM', '1.5.7' );
 
 /* this filter needs to be called during version upgrades, when ordinary plugins aren't loaded. */
 add_filter( 'dbdelta_queries', 'index_wp_mysql_for_speed\upgrade_filter', 10, 1 );
