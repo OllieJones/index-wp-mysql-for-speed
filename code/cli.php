@@ -4,6 +4,8 @@
 /** @noinspection PhpUndefinedNamespaceInspection */
 /** @noinspection PhpUndefinedClassInspection */
 
+if ( ! defined( 'ABSPATH' ) ) exit;
+
 /**
  * Index WP MySQL For Speed plugin
  *
@@ -202,7 +204,7 @@ class ImsfCli extends WP_CLI_Command {
       /* translators: this appears in wpcli output. 1: site name  2: site URL  3: localized date and time */
       $dateMessage = __( 'Generated from %1$s (%2$s) at %3$s.', 'index-wp-mysql-for-speed' );
       $dateMessage = sprintf( $dateMessage, get_option( 'blogname' ), get_option( 'siteurl' ), index_wp_mysql_for_speed_timestamp( get_option( 'date_format' ) . ' ' . get_option( 'time_format' ) ) );
-      WP_CLI::log( $this->commentPrefix . __( $dateMessage ) );
+      WP_CLI::log( $this->commentPrefix . $dateMessage );
       WP_CLI::log( $this->commentPrefix . __( 'Do not save these statements for later use. Instead, regenerate them.', 'index-wp-mysql-for-speed' ) );
       WP_CLI::log( $this->commentPrefix . __( 'Dry run SQL statements. These statements were NOT run.', 'index-wp-mysql-for-speed' ) );
       WP_CLI::log( "SET @@sql_mode := REPLACE(@@sql_mode, 'NO_ZERO_DATE', '');" );

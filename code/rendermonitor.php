@@ -44,7 +44,7 @@ class renderMonitor {
     $prefix = index_wp_mysql_for_speed_monitor . '-Log-';
     $result = [];
     $q      = "SELECT option_name FROM $wpdb->options WHERE option_name LIKE '" . $prefix . "%' AND LENGTH(option_value) > 0";
-    $rs     = $wpdb->get_results( $q );
+    $rs     = $wpdb->get_results( $wpdb->prepare( $q ) );
     foreach ( $rs as $r ) {
       $name     = str_replace( $prefix, '', $r->option_name );
       $result[] = $name;
@@ -238,7 +238,7 @@ END;
    * @return string
    */
   private function getServerUptime( &$status ) {
-    $result = __( 'Database server' ) . ' ' . DB_HOST . '&ensp;';
+    $result = __( 'Database server', 'index-wp-mysql-for-speed'  ) . ' ' . DB_HOST . '&ensp;';
     if ( ( isset( $status->Uptime_state ) ? $status->Uptime_state : 0 ) > 0 ) {
       $uptime = $status->Uptime_state * 1000000;
       $uptime = $this->timeCell( $uptime );

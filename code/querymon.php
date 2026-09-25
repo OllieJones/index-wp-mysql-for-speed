@@ -1,6 +1,8 @@
 <?php
 require_once( 'litesqlparser.php' );
 
+if ( ! defined( 'ABSPATH' ) ) exit;
+
 if ( ! defined( 'SAVEQUERIES' ) ) {
   define( 'SAVEQUERIES', true );
 }
@@ -109,7 +111,7 @@ class ImfsMonitor {
         } else {
           $explainq = $explainer . ' ' . $q[0];
           try {
-            $item->e = $wpdb->get_results( $this->tagQuery( $explainq ) );
+            $item->e = $wpdb->get_results( $wpdb->prepare( $this->tagQuery( $explainq ) ) );
           } catch ( Exception $ex ) {
             $item->e = null;
           }
@@ -123,7 +125,7 @@ class ImfsMonitor {
   }
 
   private function tagQuery( $q ) {
-    $r = strval( rand( 1000000000, 9999999999 ) );
+    $r = strval( wp_rand( 1000000000, 9999999999 ) );
 
     return $q . '/*' . index_wp_mysql_for_speed_querytag . $r . '*/';
   }
@@ -179,7 +181,7 @@ class ImfsMonitor {
     $queryLogOverflowing = $r[1];
     $statusName          = index_wp_mysql_for_speed_monitor . '-Status-' . $this->captureName;
     $priorStatus         = get_transient( $statusName );
-    $queryLog->status    = getGlobalStatus( $priorStatus );
+    $queryLog->status    = index_wp_mysql_getGlobalStatus( $priorStatus );
 
     $queries = $this->getGatheredQueries();
     foreach ( $queries as $thisQuery ) {

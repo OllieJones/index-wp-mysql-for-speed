@@ -1,5 +1,7 @@
 <?php /** @noinspection ALL */
 
+if ( ! defined( 'ABSPATH' ) ) exit;
+
 function imfsGetAllStats( $db ) {
   global $_SERVER;
   $variables    = ImfsQueries::toObject( $db->getVariables() );

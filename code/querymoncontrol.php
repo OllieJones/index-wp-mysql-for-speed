@@ -1,5 +1,7 @@
 <?php
 
+if ( ! defined( 'ABSPATH' ) ) exit;
+
 require_once( 'getstatus.php' );
 
 class QueryMonControl {
@@ -37,7 +39,7 @@ class QueryMonControl {
     }
     update_option( index_wp_mysql_for_speed_monitor, $monval, true );
 
-    $status              = getGlobalStatus();
+    $status              = index_wp_mysql_getGlobalStatus();
     $status['starttime'] = $now;
     $status['stoptime']  = $stopTime;
     $statusName          = index_wp_mysql_for_speed_monitor . '-Status-' . $name;

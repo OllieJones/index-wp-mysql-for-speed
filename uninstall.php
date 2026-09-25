@@ -16,7 +16,7 @@ $filterName = 'index-wp-mysql-for-speed-update-filter.php';
 delete_option( 'ImfsPage' );
 /* delete saved monitors */
 $q  = "SELECT option_name FROM {$wpdb->options} WHERE option_name LIKE 'imfsQueryMonitor%'";
-$rs = $wpdb->get_results( $q );
+$rs = $wpdb->get_results( $wpdb->prepare ( $q ) );
 foreach ( $rs as $r ) {
   delete_option( $r->option_name );
 }

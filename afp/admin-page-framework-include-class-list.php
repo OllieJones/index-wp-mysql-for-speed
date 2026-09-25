@@ -1,4 +1,5 @@
-<?php 
+<?php
+if ( ! defined( 'ABSPATH' ) ) exit;
 $aClassFiles = array( 
     "Imfs_AdminPageFramework"=> Imfs_AdminPageFramework_Registry::$sDirPath . "/factory/admin_page/AdminPageFramework.php", 
     "Imfs_AdminPageFramework_Form_admin_page"=> Imfs_AdminPageFramework_Registry::$sDirPath . "/factory/admin_page/form/AdminPageFramework_Form_admin_page.php", 

@@ -1,5 +1,8 @@
 <?php /** @noinspection SqlNoDataSourceInspection */
 /** @noinspection SpellCheckingInspection */
+
+if ( ! defined( 'ABSPATH' ) ) exit;
+
 require_once( 'getindexes.php' );
 require_once( 'getqueries.php' );
 require_once( ABSPATH . 'wp-admin/includes/class-wp-upgrader.php' );
@@ -114,7 +117,7 @@ class ImfsDb {
   public function get_results( $sql, $doTiming = false, $outputFormat = OBJECT_K ) {
     global $wpdb;
     $thentime = $doTiming ? $this->getTime() : - 1;
-    $results  = $wpdb->get_results( $this->tagQuery( $sql ), $outputFormat );
+    $results  = $wpdb->get_results( $wpdb->prepare( $this->tagQuery( $sql ) ), $outputFormat );
     if ( false === $results || $wpdb->last_error ) {
       throw new ImfsException( $wpdb->last_error, $wpdb->last_query );
     }
@@ -145,7 +148,7 @@ class ImfsDb {
    * @return string
    */
   private function tagQuery( $q ) {
-    return $q . '/*' . index_wp_mysql_for_speed_querytag . rand( 0, 999999999 ) . '*/';
+    return $q . '/*' . index_wp_mysql_for_speed_querytag . wp_rand( 0, 999999999 ) . '*/';
   }
 
   private function getTableFormats() {
@@ -474,7 +477,7 @@ class ImfsDb {
   public function query( $sql, $doTiming = false ) {
     global $wpdb;
     $thentime = $doTiming ? $this->getTime() : - 1;
-    $results  = $wpdb->query( $this->tagQuery( $sql ) );
+    $results  = $wpdb->query( $wpdb->prepare( $this->tagQuery( $sql ) ) );
     $this->logDDLQuery( $sql );
     if ( false === $results || $wpdb->last_error ) {
       throw new ImfsException( $wpdb->last_error, $wpdb->last_query );
@@ -879,10 +882,10 @@ class ImfsDb {
 
           $explanURL = $isMaria
           /* Translators: The URL on the author's English-language website explaining the issue for MariaDB */
-            ? __( 'https://www.plumislandmedia.net/index-wp-mysql-for-speed/sizing-mariadb-buffer-pool/')
+            ? __( 'https://www.plumislandmedia.net/index-wp-mysql-for-speed/sizing-mariadb-buffer-pool/', 'index-wp-mysql-for-speed')
             /* Translators: The URL on the author's website explaining the issue for MySQL */
-            : __( 'https://www.plumislandmedia.net/index-wp-mysql-for-speed/sizing-mysql-buffer-pool/');
-        $result[] = __( 'Increasing your buffer pool size improves your site\'s performance.', 'index-wp-mysql-for-speed' , 'index-wp-mysql-for-speed' );
+            : __( 'https://www.plumislandmedia.net/index-wp-mysql-for-speed/sizing-mysql-buffer-pool/', 'index-wp-mysql-for-speed');
+        $result[] = __( 'Increasing your buffer pool size improves your site\'s performance.', 'index-wp-mysql-for-speed' );
         $result[] = sprintf(
           /* Translators: 1: MySQL or MariaDB server name. 2: URL of English-language documentation on vendor web site. */
           __( 'Ask the person who supports your %1$s server to read this documentation: <a href="%2$s" target="_blank">%2$s</a>.', 'index-wp-mysql-for-speed' ),
@@ -906,7 +909,7 @@ class ImfsException extends Exception {
   public function __construct( $message, $query = '', $code = 0, $previous = null ) {
     global $wpdb;
     $this->query = $query;
-    parent::__construct( $message, $code, $previous );
+    parent::__construct(  wp_filter_kses( $message ), $code, $previous );
     $wpdb->flush();
   }
 

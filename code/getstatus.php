@@ -1,15 +1,16 @@
 <?php
+if ( ! defined( 'ABSPATH' ) ) exit;
 
 /**
  * @param bool|array $prior if given, this returns the difference between the current and prior results.
  *
  * @return array MySQL's global status with zero values removed.
  */
-function getGlobalStatus( $prior = false ) {
+function index_wp_mysql_getGlobalStatus( $prior = false ) {
   global $wpdb;
 
-  $q         = "SHOW GLOBAL STATUS" . '/*' . index_wp_mysql_for_speed_querytag . rand( 0, 999999999 ) . '*/';
-  $resultSet = $wpdb->get_results( $q, ARRAY_N );
+  $q         = "SHOW GLOBAL STATUS" . '/*' . index_wp_mysql_for_speed_querytag . wp_rand( 0, 999999999 ) . '*/';
+  $resultSet = $wpdb->get_results(  $wpdb->prepare( $q ), ARRAY_N );
 
   $result = [];
 

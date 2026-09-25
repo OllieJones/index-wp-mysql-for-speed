@@ -1,5 +1,7 @@
 <?php
 
+if ( ! defined( 'ABSPATH' ) ) exit;
+
 require_once( 'rendermonitor.php' );
 
 class ImfsPage extends Imfs_AdminPageFramework {
@@ -226,7 +228,7 @@ class ImfsPage extends Imfs_AdminPageFramework {
     $reviewUrl    = "https://wordpress.org/support/plugin/index-wp-mysql-for-speed/reviews/";
     $detailsUrl   = index_wp_mysql_for_speed_help_site . "tables_and_keys/";
     $clickHere    = __( 'click here', 'index-wp-mysql-for-speed' );
-    $orUseHelpTab = __( 'or use the Help tab in the upper left corner of this page.' );
+    $orUseHelpTab = __( 'or use the Help tab in the upper left corner of this page.' ,'index-wp-mysql-for-speed' );
     $help         = sprintf( $hyperlink, $helpUrl, $clickHere ) . ' ' . $orUseHelpTab;
     $support      = sprintf( $hyperlink, $supportUrl, $clickHere );
     $review       = sprintf( $hyperlink, $reviewUrl, $clickHere );
@@ -659,7 +661,7 @@ class ImfsPage extends Imfs_AdminPageFramework {
         'field_id' => $action . '_wp',
         'label'    => $this->cliMessage(
           $actionToDisplay . ' ' . implode( ' ', $tableList ),
-          __( $title, 'index-wp-mysql-for-speed' ) ),
+          $title ),
         'save'     => false,
         'class'    => [
           'fieldrow' => 'info',
