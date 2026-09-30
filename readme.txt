@@ -131,7 +131,7 @@ When you activate it, it will copy [a php source file](https://www.plumislandmed
 
 If you configure your WordPress installation using composer, you may install this plugin into your WordPress top level configuration with the command
 
-`composer require "wpackagist-plugin/index-wp-mysql-for-speed":"^>=1.5.7"`
+`composer require "wpackagist-plugin/index-wp-mysql-for-speed":"^>=1.6.0"`
 
 During composer installation the plugin can automatically copy the necessary source file (see the previous section) into the must-use plugins directory. If you want that to happen, you should include these scripts in your top-level `composer.json` file.
 

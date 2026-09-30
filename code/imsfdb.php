@@ -29,9 +29,9 @@ class ImfsDb {
   private $indexQueryCache = [];
   /** @var int the time in seconds allowed for each ALTER operation */
   private $scriptTimeLimit = 600;
-  private $DEFAULT_POOL_SIZE = 1024 * 1024 * 128;
-  private $POOL_SIZE_THRESHOLD = 1024 * 1024 * 1024;
-  private $POOL_USE_THRESHOLD = 0.9;
+  private $DEFAULT_POOL_SIZE = 1024.0 * 1024.0 * 128.0;
+  private $POOL_SIZE_THRESHOLD = 1024.0 * 1024.0 * 1024.0;
+  private $POOL_USE_THRESHOLD = 0.90;
   private $LOW_POOL_USE_THRESHOLD = 0.5;
 
   /**
@@ -849,22 +849,23 @@ class ImfsDb {
     $result        = array();
     try {
       /* Get the name of the DBMS software. */
-      $fork          = $this->semver->fork;
-      $isMaria       = false !== stripos( $fork, "mariadb" );
-      $fork          = $isMaria ? $fork : 'MySQL';
-      $poolsize      = (float) $this->getVariable( 'innodb_buffer_pool_size' );
-      $poolused = (float) $this->getGlobalStatus('Innodb_buffer_pool_bytes_data' );
+      $fork     = $this->semver->fork;
+      $isMaria  = false !== stripos( $fork, "mariadb" );
+      $fork     = $isMaria ? $fork : 'MySQL';
+      $poolsize = (float) $this->getVariable( 'innodb_buffer_pool_size' );
+      $poolused = (float) $this->getGlobalStatus( 'Innodb_buffer_pool_bytes_data' );
       if ( $poolsize <= 0 || $poolused <= 0 ) {
         return false;
       }
       $poolfraction = $poolused / $poolsize;
 
-      /* If only a small fraction of the buffer pool is saturated, don't pester the user. */
-      if ( $poolfraction < $this->LOW_POOL_USE_THRESHOLD ) {
-        return false;
-      }
 
       $test_text = false;
+
+      /* If only a small fraction of the buffer pool is saturated, don't pester the user. */
+      if ( ! $test_text && $poolfraction < $this->LOW_POOL_USE_THRESHOLD ) {
+        return false;
+      }
 
       /* Alert the user about probable failure to provision the pool size at all. */
       if ( $test_text || $poolsize === $this->DEFAULT_POOL_SIZE ) {

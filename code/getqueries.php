@@ -20,15 +20,33 @@ class ImfsQueries {
       $unit = self::getByteUnit( $bytes );
     }
 
-    return $prefix . number_format_i18n( $bytes / $unit[0], $unit[2] ) . $unit[1];
+    $number = (float) $bytes / (float) $unit[0];
+
+    global $wp_locale;
+    if ( isset( $wp_locale ) ) {
+      $number = number_format( $number, 2, $wp_locale->number_format['decimal_point'], $wp_locale->number_format['thousands_sep'] );
+    } else {
+      $number = number_format( $number, 2 );
+    }
+
+    while ( '0' === substr( $number , -1, 1)) {
+      $number = substr ( $number, 0, strlen( $number) - 1);
+    }
+    if ( $wp_locale->number_format['decimal_point'] === substr ( $number, -1, 1)) {
+      $number = substr ( $number, 0, strlen( $number) - 1);
+    }
+    $number = preg_replace( '/\.$/', '', $number );
+
+
+    return $prefix . $number . $unit[1];
   }
 
   public static function getByteUnit( $bytes ) {
-    if ( $bytes >= 1024 * 1024 * 1024 * 1024 ) {
+    if ( $bytes >= 1024 * 1024 * 1024 * 512 ) {
       $unit = [ 1024 * 1024 * 1024 * 1024, 'TiB', 0 ];
-    } else if ( $bytes >= 1024 * 1024 * 1024 ) {
+    } else if ( $bytes >= 1024 * 1024 * 512 ) {
       $unit = [ 1024 * 1024 * 1024, 'GiB', 0 ];
-    } else if ( $bytes >= 1024 * 1024 ) {
+    } else if ( $bytes >= 1024 * 512 ) {
       $unit = [ 1024 * 1024, 'MiB', 0 ];
     } else if ( $bytes >= 1024 ) {
       $unit = [ 1024, 'KiB', 0 ];
@@ -61,7 +79,7 @@ class ImfsQueries {
     }
     $num = $oneminus ? 1.0 - $num : $num;
 
-    return number_format ( 100.0 * $num, $points );
+    return number_format_i18n ( 100.0 * $num, $points );
   }
   /** get cell data for microsecond times
    *
