@@ -30,8 +30,9 @@ class ImfsDb {
   /** @var int the time in seconds allowed for each ALTER operation */
   private $scriptTimeLimit = 600;
   private $DEFAULT_POOL_SIZE = 1024 * 1024 * 128;
-  private $READ_RATE_THRESHOLD = 0.02;
   private $POOL_SIZE_THRESHOLD = 1024 * 1024 * 1024;
+  private $POOL_USE_THRESHOLD = 0.9;
+  private $LOW_POOL_USE_THRESHOLD = 0.5;
 
   /**
    * @param float $pluginVersion
@@ -117,7 +118,7 @@ class ImfsDb {
   public function get_results( $sql, $doTiming = false, $outputFormat = OBJECT_K ) {
     global $wpdb;
     $thentime = $doTiming ? $this->getTime() : - 1;
-    $results  = $wpdb->get_results( $wpdb->prepare( $this->tagQuery( $sql ) ), $outputFormat );
+    $results  = $wpdb->get_results( $this->tagQuery( $sql ), $outputFormat );
     if ( false === $results || $wpdb->last_error ) {
       throw new ImfsException( $wpdb->last_error, $wpdb->last_query );
     }
@@ -837,38 +838,65 @@ class ImfsDb {
     return $health->getReport();
   }
 
+  /**
+   *
+   * Examine the server's buffer pool provisioning and utilization,
+   * and return narrative diagnostics to recommend changes.
+   *
+   * @return array|false An array of text messages, or false if no messages.
+   */
   public function getPoolDiagnostics () {
     $result        = array();
     try {
+      /* Get the name of the DBMS software. */
       $fork          = $this->semver->fork;
       $isMaria       = false !== stripos( $fork, "mariadb" );
       $fork          = $isMaria ? $fork : 'MySQL';
-      $poolsize      = (int) $this->getVariable( 'innodb_buffer_pool_size' );
-      $read_requests = (int) $this->getGlobalStatus( 'Innodb_buffer_pool_read_requests' );
-      $reads         = (int) $this->getGlobalStatus( 'Innodb_buffer_pool_reads' );
-      $read_rate     = $read_requests > 0 ? $reads / $read_requests : 1.0;
-      if ( $poolsize === $this->DEFAULT_POOL_SIZE ) {
+      $poolsize      = (float) $this->getVariable( 'innodb_buffer_pool_size' );
+      $poolused = (float) $this->getGlobalStatus('Innodb_buffer_pool_bytes_data' );
+      if ( $poolsize <= 0 || $poolused <= 0 ) {
+        return false;
+      }
+      $poolfraction = $poolused / $poolsize;
+
+      /* If only a small fraction of the buffer pool is saturated, don't pester the user. */
+      if ( $poolfraction < $this->LOW_POOL_USE_THRESHOLD ) {
+        return false;
+      }
+
+      $test_text = false;
+
+      /* Alert the user about probable failure to provision the pool size at all. */
+      if ( $test_text || $poolsize === $this->DEFAULT_POOL_SIZE ) {
         $result[] = sprintf(
         /* translators: 1 A number of bytes, like 128Mib or 4Kib */
           __( 'Its buffer pool size is unchanged from the installation default of %1$s.', 'index-wp-mysql-for-speed' ),
           ImfsQueries::byteCell( $this->DEFAULT_POOL_SIZE ) );
-      } else if ( $poolsize < $this->DEFAULT_POOL_SIZE ) {
+      }
+      /* Alert the user about provisioning smaller than the default. That's a big mistake
+       * unless the DBMS is running on a micro VM.
+       */
+      if (  $test_text || $poolsize < $this->DEFAULT_POOL_SIZE ) {
         $result[] = sprintf(
         /* translators: 1. A number of bytes, like 128Mib or 4Kib. 2. another number of bytes. */
           __( 'Its buffer pool size, %1$s, is smaller than the installation default size of %2$s.', 'index-wp-mysql-for-speed' ),
           ImfsQueries::byteCell( $poolsize ),
           ImfsQueries::byteCell( $this->DEFAULT_POOL_SIZE ) );
         $result[] = __( 'Even the installation default size is usually too small.', 'index-wp-mysql-for-speed' );
-      } else if ( $poolsize < $this->POOL_SIZE_THRESHOLD && $read_rate > $this->READ_RATE_THRESHOLD ) {
+      }
+      /* Alert the user if a non-gigantic pool size is nearing saturation. */
+      if ($test_text || ( $poolsize < $this->POOL_SIZE_THRESHOLD && $poolfraction >= $this->POOL_USE_THRESHOLD ) ) {
+
         $result[] = sprintf(
-        /* translators: 1 A number of bytes, like 128Mib or 4Kib. 2 a number of bytes. 3 a percentage lalike 98.5 4: a percentage */
-          __( 'Its buffer pool size. %1$s, is smaller than %2$s and its hit ratio, %3$s%%, is less than %4$s%%.', 'index-wp-mysql-for-speed' ),
+        /* translators: 1. A number of bytes, like 128Mib or 1GiB. 2. another number of bytes. 3. percentage like 98  */
+          __( 'Its buffer pool size, %1$s, is smaller than %2$s and it is %3$s%% full.', 'index-wp-mysql-for-speed' ),
           ImfsQueries::byteCell( $poolsize ),
           ImfsQueries::byteCell( $this->POOL_SIZE_THRESHOLD ),
-          ImfsQueries::percent( $read_rate, null, 1, true ) ,
-          ImfsQueries::percent( $this->READ_RATE_THRESHOLD, null, 1, true ) );
+          ImfsQueries::percent( $poolfraction, null, 0 ) );
+
       }
       if ( count( $result ) > 0 ) {
+        /* unshift dds a message to the beginning of the list of messages. */
         array_unshift( $result,
           sprintf(
            /* translators: 1 MySQL or MariaDb, database server name */
@@ -886,13 +914,15 @@ class ImfsDb {
             /* Translators: The URL on the author's website explaining the issue for MySQL */
             : __( 'https://www.plumislandmedia.net/index-wp-mysql-for-speed/sizing-mysql-buffer-pool/', 'index-wp-mysql-for-speed');
         $result[] = __( 'Increasing your buffer pool size improves your site\'s performance.', 'index-wp-mysql-for-speed' );
+        /* Give appropriate URL references to the MySQL or MariaDB doc sites. */
         $result[] = sprintf(
           /* Translators: 1: MySQL or MariaDB server name. 2: URL of English-language documentation on vendor web site. */
           __( 'Ask the person who supports your %1$s server to read this documentation: <a href="%2$s" target="_blank">%2$s</a>.', 'index-wp-mysql-for-speed' ),
           $fork, $infoURL );
         $result[] = __( 'Then ask them to increase your server\'s <code>innodb_buffer_pool_size</code> system variable.', 'index-wp-mysql-for-speed' );
+        /* Add a link to the author's web site, showing an explanation. */
         $result[] = __( 'For a more detailed explanation of this buffer pool performance issue please', 'index-wp-mysql-for-speed' );
-        $result[] = '<a href="' . $explanURL . '" target="_blank">' . __( 'click here', 'index-wp-mysql-for-speed' ) . '</a>';
+        $result[] = '<a href="' . $explanURL . '" target="_blank">' . __( 'click here', 'index-wp-mysql-for-speed' ) . '</a>.';
 
       }
     } catch ( Exception $e ) {

@@ -1,4 +1,7 @@
 <?php
+
+if ( ! defined( 'ABSPATH' ) ) exit;
+
 require_once( 'getindexes.php' );
 require_once( 'getqueries.php' );
 
@@ -115,21 +118,6 @@ class Health {
       ImfsQueries::byteCell( $bufferPoolSize ),
       ImfsQueries::percent( $bufferPoolUsed, $bufferPoolSize ),
       ImfsQueries::percent( $bufferPoolDirty, $bufferPoolSize ) );
-
-  }
-
-  public function aab_r() {
-
-    $d               = $this->stats;
-    $g               = $d['globalStatus'];
-    $read_requests  = $g->Innodb_buffer_pool_read_requests;
-    $reads  = $g->Innodb_buffer_pool_reads;
-
-    /* translators: 1: 1: percentage like 40.5  */
-    $text = __( 'Database buffer pool read-hit rate: %1$s%%.', 'index-wp-mysql-for-speed' );
-
-    return sprintf( $text,
-      ImfsQueries::percent( $reads, $read_requests, 2, true ) );
 
   }
 

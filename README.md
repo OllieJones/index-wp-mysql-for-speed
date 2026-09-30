@@ -1,101 +1,329 @@
-# Index MySQL For Speed
+# Index WP MySQL For Speed
 
-A plugin to modernize indexes to your WordPress installation's MySQL database.
+**Contributors:** OllieJones, rjasdfiii \
+**Tags:** index, key, performance, mysql, wp-cli \
+**Requires at least:** 4.2 \
+**Tested up to:** 7.1 \
+**Requires PHP:** 5.6 \
+**Stable tag:** 1.6.0 \
+Network: true \
+**License:** GPL v2 or later \
+**License URI:** https://www.gnu.org/licenses/gpl-2.0.html \
+Author URI: https://github.com/OllieJones/ \
+Plugin URI: https://plumislandmedia.net/index-wp-mysql-for-speed/ \
+GitHub Plugin URI: https://github.com/OllieJones/index-wp-mysql-for-speed/ \
+Primary Branch: main \
+Text Domain: index-wp-mysql-for-speed \
+Domain Path: /languages\ 
+**Donate link:** https://github.com/sponsors/OllieJones \
 
-For more information [see here](https://plumislandmedia.net/index-wp-mysql-for-speed/).
+Speed up your WordPress site by adding high-performance keys (database indexes) to your MariaDB / MySQL database tables.
 
-## Internationalization
+## Description
 
-Use this command to generate the .pot file.
+<h4>How do I use this plugin?</h4>
 
-```bash
-wp i18n make-pot . languages/index-wp-mysql-for-speed.pot --path=/var/www/ubu2010.plumislandmedia.local
-```
+After you install and activate this plugin, visit the Index MySQL Tool under the Tools menu. From there you can press the *Add Keys Now* button. If you have large tables, use it with [WP-CLI](https://wp-cli.org/) instead to avoid timeouts. See the WP-CLI section to learn more.
 
-## Plugin repo stuff
+<h4>What does it do for my site?</h4>
 
-Here's the info on the repo.
+This plugin works to make your MySQL database work more efficiently by adding high-performance keys to the tables you choose. On request it monitors your site's use of your MySQL database to detect which database operations are slowest. It is most useful for large sites: sites with many users, posts, pages, and / or products.
 
-* SVN URL: https://plugins.svn.wordpress.org/index-wp-mysql-for-speed
-* Public URL: https://wordpress.org/plugins/index-wp-mysql-for-speed
-* GitHub source code URL: https://github.com/OllieJones/index-wp-mysql-for-speed
+You can use it to restore WordPress's default keys if need be.
 
-## Making a one-off zip file
+<h4>What is this all about?</h4>
 
-In the plugin's top level directory:
+Where does WordPress store all that stuff that makes your site great? Where are your pages, posts, products, media, users, custom fields, metadata, and all your valuable content? All that data is in the [MySQL](https://www.mysql.com/) relational database management system. (Many hosting providers and servers use the [MariaDB](https://mariadb.org/) fork of the MySQL software; it works exactly the same way as MySQL itself.)
 
-```bash
-wp dist-archive .
-```
+As your site grows, your MySQL tables grow. Giant tables can make your page loads slow down, frustrate your users, and even hurt your search-engine rankings. And, bulk imports can take absurd amounts of time. What can you do about this?
 
-### Repo update notes.
+You can install and use a database cleaner plugin to get rid of old unwanted data and reorganize your tables. That makes them smaller, and therefore faster. That is a good and necessary task. That is not the task of this plugin. You can, if your hosting provider supports it, install and use a [Persistent Object Cache plugin](https://developer.wordpress.org/reference/classes/wp_object_cache/#persistent-cache-plugins) to reduce traffic to your database. That is not the task of this plugin either.
 
-1. Make the changes.
-2. Be sure to update the current version number wherever it appears.
-3. Commit to GitHub and push.
+This plugin adds database [keys](https://dev.mysql.com/doc/refman/8.0/en/mysql-indexes.html) (also called indexes) to your MySQL tables to make it easier for WordPress to find the information it needs. All relational database management systems store your information in long-lived _tables_. For example, WordPress stores your posts and other content in a table called _wp_posts_, and custom post fields in another table called _wp_postmeta_.  A successful site can have thousands of posts and hundreds of thousands of custom post fields. MySQL has two jobs:
 
-To automatically release the plugin to the WordPress repo, we're using a GitHub Action with the workflow
-called [WordPress Plugin Deploy](https://github.com/marketplace/actions/wordpress-plugin-deploy). The act of publishing
-a release on GitHub now deploys the plugin to the WordPress repo. More
-information [here](https://www.plumislandmedia.net/wordpress/wordpress-plugin-tools/).
+1. Keep all that data organized.
+2. Find the data it needs quickly.
 
-### Pre-automation plugin release
+To do its second job, MySQL uses database keys. Each table has one or more keys. For example, `wp_posts` has a key to let it quickly find posts when you know the author. Without its _post_author_ key MySQL would have to scan every one of your posts looking for matches to the author you want. Our users know what that looks like: slow. With the key, MySQL can jump right to the matching posts.
 
-See [this](https://developer.wordpress.org/plugins/wordpress-org/how-to-use-subversion/).
+In a new WordPress site with a couple of users and a dozen posts, the keys don't matter very much. As the site grows the keys start to matter, a lot. Database management systems are designed to have their keys updated, adjusted, and tweaked as their tables grow. They're designed to allow the keys to evolve without changing the content of the underlying tables. In organizations with large databases adding, dropping, or altering keys doesn't change the underlying data. It is a routine maintenance task in many data centers. If changing keys caused databases to lose data, the MySQL and MariaDB developers would hear howling not just from you and me, but from many heavyweight users. (You should still back up your WordPress instance of course.)
 
-This is here for archive purposes only. Use the automated process, please.
+Better keys allow WordPress's code to run faster _without any code changes_.  Experience with large sites shows that many MySQL slowdowns can be improved by better keys. Code is poetry, data is treasure, and database keys are grease that makes code and data work together smoothly.
 
-1. If it isn't done already, do 
-   ```bash
-   svn co https://plugins.svn.wordpress.org/index-wp-mysql-for-speed svn
-   ```
-2. Copy the files to be released into the `svn/trunk` directory.
-3. From the `svn` directory add any new files:
-   ```bash
-   svn add svn/trunk/code/whatever.ext
-    ```
-4. From the `svn` directory do
-   ```bash
-   svn cp trunk tags/xx.yy.zz
-   ```
-   where `xx.yy.zz` is the version to release
-5. Do this
-   ```bash
-   svn ci -m "vxx.yy.zz commit message"
-   ```
-   `svn ci` may prompt you on a web browser. If it seems to hang, look at a browser.
+<h4>Which tables does the plugin add keys to?</h4>
+
+This plugin adds and updates keys in these WordPress and WooCommerce tables.
+
+* wp_comments
+* wp_commentmeta
+* wp_posts
+* wp_postmeta
+* wp_termmeta
+* wp_users
+* wp_usermeta
+* wp_options
+* wp_wc_orders_meta
+* wp_woocommerce_order_itemmeta
+* wp_automatewoo_log_meta
+
+You only need run this plugin once to get its benefits.
+
+<h4>How can I monitor my database's operation?</h4>
+
+On the Index MySQL page (from your Tools menu on your dashboard), you will find the "Monitor Database Operations" tab. Use it to request monitoring for a number of minutes you choose.
+
+You can monitor
+
+* either the site (your user-visible pages) or the dashboard, or both.
+* all pageviews, or a random sample. (Random samples are useful on very busy sites to reduce monitoring overhead.)
+
+Once you have gathered monitoring information, you can view the captured queries, and sort them by how long they take. Or you can save the monitor information to a file and show it to somebody who knows about database operations. Or you can upload the monitor to the plugin's servers so the authors can look at it.
+
+It's a good idea to monitor for a five-minute interval at a time of day when your site is busy. Once you've completed a monitor, you can examine it to determine which database operations are slowing you down the most.
+
+Please consider uploading your saved monitors to the plugin's servers. It's how we learn from your experience to keep improving. Push the Upload button on the monitor's tab.
+
+<h4>WP-CLI command line operation</h4>
+
+This plugin supports [WP-CLI](https://wp-cli.org/).  When your tables are large this is the best way to add the high-performance keys: it doesn't time out.
+
+Give the command `wp help index-mysql` for details. A few examples:
+
+* `wp index-mysql status` shows the current status of high-performance keys.
+* `wp index-mysql enable --all` adds the high-performance keys to all tables that don't have them.
+* `wp index-mysql enable wp_postmeta` adds the high-performance keys to the postmeta table.
+* `wp index-mysql disable --all` removes the high-performance keys from all tables that have them, restoring WordPress's default keys.
+* `wp index-mysql enable --all --dryrun` writes out the SQL statements necessary to add the high-performance keys to all tables, but does not run them.
+* `wp index-mysql enable --all --dryrun | wp db query` writes out the SQL statements and pipes them to wp db to run them.
+
+Note: avoid saving the --dryrun output statements to run later. The plugin generates them to match the current state of your tables.
+
+<h4>Why use this plugin?</h4>
+
+Three reasons (maybe four):
+
+1. to save carbon footprint.
+1. to save carbon footprint.
+1. to save carbon footprint.
+1. to save people time.
+
+Seriously, the microwatt hours of electricity saved by faster web site technologies add up fast, especially at WordPress's global scale.
+
+<h4>How can I learn more about making my WordPress site more efficient?</h4>
+
+We offer several plugins to help with your site's database efficiency. You can [read about them here](https://www.plumislandmedia.net/wordpress/performance/optimizing-wordpress-database-servers/).
+
+### Credits
+
+* Michael Uno for Admin Page Framework.
+* Marco Cesarato for LiteSQLParser.
+* Allan Jardine for Datatables.net.
+* Leho Kraav and Sebastian Sommer for suggesting the WooCommerce tables.
+* Japreet Sethi for advice, and for testing on his large installation.
+* Rick James for everything.
+* Jetbrains for their IDE tools, especially PhpStorm. It's hard to imagine trying to navigate an epic code base without their tools.
+
+## Installation
+
+You may install this plugin by visiting Plugins > Add New on your site's Dashboard, then searching for *Index WP MySQL For Speed* and following the usual installation workflow.
+
+When you activate it, it will copy [a php source file](https://www.plumislandmedia.net/reference/filtering-database-changes-during-wordpress-updates/) into the [must-use plugins directory](https://wordpress.org/support/article/must-use-plugins/), `wp-content/mu-plugins`. Some sites' configurations prevent the web server from writing files into that directory. In that case the plugin will still work correctly. But, after WordPress core version upgrades you may have to revisit the Tools > Index MySQL page and correct the keying on some tables. Why? The mu-plugin prevents core version updates from trying to change keys.
+
+### Composer
+
+If you configure your WordPress installation using composer, you may install this plugin into your WordPress top level configuration with the command
+
+`composer require "wpackagist-plugin/index-wp-mysql-for-speed":"^>=1.5.7"`
+
+During composer installation the plugin can automatically copy the necessary source file (see the previous section) into the must-use plugins directory. If you want that to happen, you should include these scripts in your top-level `composer.json` file.
+
+` "scripts": {
+         "install-wp-mysql-mu-module": [
+                 "@composer --working-dir=wordpress/wp-content/plugins/index-wp-mysql-for-speed install-mu-module"
+         ],
+         "post-install-cmd": [
+                 "@install-wp-mysql-mu-module"
+         ],
+         "post-update-cmd": [
+                 "@install-wp-mysql-mu-module"
+         ]
+     },
+`
+
+## Frequently Asked Questions
+
+### Should I back up my site before using this?
+
+**Yes.** You already knew that.
+
+### I don't see any changes to my database speed. Why not?
+
+* Just installing and activating the plugin is **not enough to make it work**. Don't forget to visit the Index MySQL Tool under the Tools menu. From there you can press the **Add Keys Now** button.
+* On a modestly sized site (with a few users and a few hundred posts) your database may be fast enough without these keys. The speed improvements are most noticeable on larger sites with many posts and products.
+
+### I use a nonstandard database table prefix. Will this work ?
+
+**Yes.** Some WordPress databases have [nonstandard prefixes](https://codex.wordpress.org/Creating_Tables_with_Plugins#Database_Table_Prefix). That is, their tables are named _something_posts_, _something_postmeta_, and so forth instead of _wp_posts_ and _wp_postmeta_. This works with those databases.
+
+### My WordPress host offers MariaDB, not MySQL. Can I use this plugin?
+
+**Yes.**
+
+### Which versions of MySQL and MariaDB does this support?
+
+MySQL versions 5.5.62 and above, 5.6.4 and above, 8 and above. MariaDB versions 5.5.62 and above.
+
+### What database Storage Engine does this support?
+
+**InnoDB only.** If your tables use MyISAM (the older storage engine) or the older COMPACT row format, this plugin offers to upgrade them for you.
+
+### What tables and keys does the plugin change?
+
+[Please read this](https://www.plumislandmedia.net/index-wp-mysql-for-speed/tables_and_keys/).
+
+### Is this safe? Can I add high-performance keys and revert back to WordPress standard keys safely?
+
+Yes. it is safe to add keys and revert them. Changing keys is a routine database-maintenance operation.
+
+As you know you should still keep backups of your site: other things can cause data loss.
+
+### My site uses WooCommerce HPOS (High Performance Order Storage). Is this plugin still helpful?
+
+**Yes.** WooCommerce still uses core WordPress tables for your shop's products, posts, pages, and users. This plugin adds high-performance keys to those tables.
+
+High Performance Order Storage, true to its name, stores your shop's orders in a more efficient way. Formerly orders were stored in those same core WordPress tables.
+
+### Is this plugin compatible with some other specific plugin?
+
+This plugin only changes database indexes. If the other plugin does not change database indexes, it is very likely compatible with this one.
+
+Of course, if you find an incompatibility please open a support topic.
+
+### I got a fatal error trying to add keys. How can I fix that?
+
+Sometimes the Index WP MySQL For Speed plugin for WordPress generates errors when you use it to add keys. These can look like this or similar:
+
+    Fatal error: Uncaught ImfsException: [0]: Index for table 'wp_postmeta' is corrupt; try to repair it
+
+First, don't panic. This (usually) does not mean your site has been corrupted. It simply means your MariaDB or MySQL server was not able to add the keys to that particular table. Your site will still function, but you won’t get the benefit of high-performance keys on the particular table. Very large tables are usually the ones causing this kind of error. Very likely you ran out of temporary disk space on your MariaDB or MySQL database server machine. The database server makes a temporary copy of a table when you add keys to it; that allows it to add the keys without blocking your users.
+
+It’s possible to correct this problem by changing your MariaDB or MySQL configuration. [Instructions are here](https://wordpress.org/support/topic/fatal-error-uncaught-exception-29/).
+
+### What happens to my tables and keys during a WordPress version update?
+
+If the plugin is activated during a WordPress version update, it prevents the update workflow from removing your high-performance keys (Version 1.4.7).
+
+### Does this work on my multisite (network) WordPress instance?
+
+**Yes**. On multisite instances, you must activate the plugin from the Network Admin dashboard. After network activation, the Index MySQL tool is available for use by the administrator on each site.
+
+If you have many subsites, you may prefer to use WP-CLI to add the high-performance keys to each site in turn. Commands like these will work, if you mention each `blogid` in turn.:
+
+`wp index-mysql enable --all --blogid=1
+ wp index-mysql enable --all --blogid=2
+ wp index-mysql enable --all --blogid=3`
+
+### My site has thousands of registered users. My Users, Posts, and Pages panels in my dashboard are still load slowly even with this plugin.
+
+We have another plugin to handle lots of users, [Index WP Users For Speed](https://wordpress.org/plugins/index-wp-users-for-speed/). Due to the way WordPress handles users, just changing database keys is not enough to solve those performance problems.
+
+### How can I enable persistent object caching on my site?
+
+Persistent object caching can help your site's database performance by reducing its workload. You can read about it [here](https://developer.wordpress.org/reference/classes/wp_object_cache/#persistent-cache-plugins). If your hosting provider doesn't offer redis or memcached cache-server technology you can try using our [SQLite Object Cache](https://wordpress.org/plugins/sqlite-object-cache/) plugin for the purpose.
+
+### Why did the size of my tables grow when I added high-performance keys?
+
+Database keying works by making copies of your table’s data organized in ways that are easy to randomly access. Your MariaDB or MySQL server automatically maintains the copies of your data as you insert or update rows to each table.  And, the keying task adjusts the amount of free space in each block of your table’s data in preparation for the insertion of new rows. When free space is available, inserting new rows doesn’t require relatively slow block splits. Tables that have been in use for a long time often need new free space in many blocks. When adding keys, it is normal for table sizes to increase. It’s the oldest tradeoff in computer science: time vs. space.
+
+### Will the new keys be valid for new data in the tables?
+
+**Yes**. Once the high-performance keys are in place MariaDB and MySQL automatically maintain them as you update,  delete, or insert rows of data to your tables. There is no need to do anything to apply the keys to new data: the DBMS software does that for you.
+
+### How do I revert to WordPress's standard keys, undoing the action of this plugin?
+
+You can revert the keys from the Index MySQL Tool under the Tools menu, or use the wp-cli command `wp index-mysql disable --all`. *Notice* that if you deactivate or delete the plugin without doing this, the high-performance keys *remain*.
+
+### One of my tables already has a nonstandard key in it. How do I make this plugin leave it there?
+
+If you start the name of the index with the characters `index_wp_mysql_protect_` this plugin ignores it and leaves it in place. For example if yoo want an index on `wp_posts.guid` you can create it like this:
+
+`ALTER TABLE wp_posts ADD KEY index_wp_mysql_protect_guid` ON wp_posts(guid);`
+
+Notice how `index_wp_mysql_protect_guid`, the name of the key, starts with those characters.
+
+### How do I get an answer to another question?
+
+Please see more questions and answers [here](https://plumislandmedia.net/index-wp-mysql-for-speed/faq/).
+
+## Changelog
+
+### 1.6.0
+
+* (No changes to keys).
+* Handle mu plugin update correctly.
+* Provided provisioning suggestions for innodb_buffer_pool_size.
+* Miscellaneous linting fixes.
+
+### 1.5.7
+
+* (No changes to keys).
+* php 8.5 compatibility fixes.
+
+### 1.5.6
+
+* (No changes to keys).
+* Correct composer compatibility issue.
+* Upgrade to the latest Datatables.net code.
+* Suppress reversions to keys when the WooCommerce installer runs.
+
+### 1.5.4
+
+Correct php 5.6 compatibility issue.
+
+### 1.5.3
+
+Correct language deprecations, test on IIS.
+
+### 1.5.2
+
+Correct release error.
+
+### 1.5.1
+
+Add support for the WooCommerce tables wp_automatewoo_log_meta, wp_wc_orders_meta, and  wp_woocommerce_order_itemmeta.
+
+### 1.4.19
+
+Report information about host machine using meminfo and procinfo if those files are available.
+
+### 1.4.18
+
+Security update.
+
+### 1.4.17
+
+Back out a miscellaneous bug fix from the previous version. It was an attempt to avoid a warning from Query Monitor's hooks display.
+Upload the full MariaDB / MySQL version information with monitors as well as metadata.
+
+### 1.4.16
+
+(no changes to keys)
+WordPress 6.5 compatibility.
+Support WordPress versions back to 4.2 (At MDDHosting's request).
+Avoid attempting to upgrade from storage engines except MyISAM and Aria.
+WP-CLI upgrade, enable, and disable commands are idempotent now. They don't generate errors when they find no tables to process.
+Miscellaneous bug fixes
 
 
+## Upgrade Notice
 
-### The target tables are these
+This version suggests adding innodb_buffer_pool_size memory if necessary. It correctly updates its mu plugin.
 
-*   wp_options: data for the WordPress instance, containing such things as default settings and configurations for themes and plugins.
-*   wp_postmeta: metadata for pages, posts, attachments, WooCommerce products, and similar items.
-*   wp_usermeta: metadata describing WordPress users and WooCommerce customers. It has the same characteristics as wp_postmeta.
-*   wp_termmeta: also similar to wp_postmeta, this table contains metadata describing tags, categories, and various WooCommerce data.
+## Screenshots
 
-### How can changing keys make a difference? (wonky)
-
-All modern MySQL databases store their data in tables using a storage engine called [InnoDB](https://dev.mysql.com/doc/refman/8.0/en/innodb-introduction.html).  (Early versions of MySQL used a different, simpler, storage engine, called MyISAM. If you are still using that, it is time to upgrade. Seriously.) WordPress's database tables all have a _primary key_. Think of the primary key as a book's catalog number in a library. You look up, for example Sheeri Cabral and Keith Murphy's excellent [MySQL Administrator's Bible](https://www.worldcat.org/title/mysql-administrators-bible/oclc/44194604), in your library's online catalog by searching for "MySQL" or "Database Administration." Your online lookup gives you the book's catalog number. You then wander around your library looking for the shelf containing books with numbers like that. When you find it, you take out the book.  InnoDB primary keys work like that (but without all the wandering around). Once it knows the primary key, it can grab the data very quickly. In the world of database management, this is called [_clustered_ indexing](https://dev.mysql.com/doc/refman/8.0/en/innodb-index-types.html). It follows that a good choice of primary key can make it very fast for InnoDB to find data.
-
-InnoDB also offers _secondary keys_. A secondary key holds search terms like the "MySQL" or "Database Administration" we used to find Sheeri's book.  Those secondary keys lead us to the primary key. We can think of InnoDB's keys as if they were sorted in alphabetical order. (Technically speaking they use the [B-tree](https://en.wikipedia.org/wiki/B-tree) data structure.) For example, the author key might contain "Cabral, Sheeri" and "Murphy, Keith." If I looked up "Cabral" in the author key I'd find Sheeri right away, get the primary key, and grab her book. (This takes fractions of milliseconds in InnoDB.) But, if I looked up "Sheeri" I would have to scan _every_ author's name to find her: There might be authors named "Aardvark, Sheeri" and "Zyzygy, Sheeri". I know there aren't, but the software doesn't. That takes time. WordPress gets slow when it uses its keys that way. To make this lookup faster we add a new secondary key on authors' first names.
-
-So, we can adjust the primary and secondary keys to make it faster for WordPress to get what it needs from its database tables. This plugin does that.
-
-### What specific key changes do we make? (even wonkier)
-
-Primary keys serve two purposes. They _uniquely identify _their data, and they handle the rapid-lookup _clustered indexing_. Their _unique identification_ purpose means that database designers often set up tables to give each item -- each _row_ of data -- an automatically incrementing serial number for a primary key. Once you know the serial number you can rapidly grab the item from the clustered index. But if you come at the data with some other way of identifying the item, you get an extra lookup step and that slows you down.
-
-For example, the wp_options table contains dozens of rows that WordPress retrieves every time somebody views a page. The row with the option_name of "home", for example, contains https://plumislandmedia.net for this WordPress instance. To get this information, WordPress says this to its database.
-
-```sql
-SELECT option_name, option_value FROM wp_options WHERE autoload = 'yes'
-```
-
-The wp_options table has one of those automatically incrementing primary keys, where each row has a number. It's called option_id. And, it has a key on the "autoload" column of data to help speed up filtering by autoload = 'yes'.  That's a competently designed table (of course! WordPress's developers are poets). But we can do better, especially considering how often we must get all the autoload rows. We can change the table's primary key to include two columns rather than one: autoload and option_id. It still serves the uniqueness purpose: the option_ids are unique. But putting autoload first in the primary key means MySQL can retrieve the autoloaded rows directly from the clustered index, rather than looking in a secondary key to find the primary key. The saved milliseconds and milliwatts add up, especially on a busy site. So we change the primary key like this.
-
-```sql
-ALTER TABLE wp_options ADD PRIMARY KEY (autoload, option_id)
-```
-
-The actual changes are a little more involved than that, but you get the idea.
+1. Use Tools > Index MySQL to view the Dashboard panel.
+2. Choose tables and add High-Performance Keys.
+3. Start Monitoring Database Operations, and see saved monitors.
+4. View a saved monitor to see slow database queries.
+5. About the plugin.
+6. Use WP CLI to run the plugin's operations.

@@ -111,7 +111,7 @@ class ImfsMonitor {
         } else {
           $explainq = $explainer . ' ' . $q[0];
           try {
-            $item->e = $wpdb->get_results( $wpdb->prepare( $this->tagQuery( $explainq ) ) );
+            $item->e = $wpdb->get_results( $this->tagQuery( $explainq ) );
           } catch ( Exception $ex ) {
             $item->e = null;
           }

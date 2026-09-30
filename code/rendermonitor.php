@@ -1,5 +1,7 @@
 <?php /** @noinspection PhpRedundantOptionalArgumentInspection */
 
+if ( ! defined( 'ABSPATH' ) ) exit;
+
 /**
  * Draws the contents of a captured monitor
  */
@@ -44,7 +46,7 @@ class renderMonitor {
     $prefix = index_wp_mysql_for_speed_monitor . '-Log-';
     $result = [];
     $q      = "SELECT option_name FROM $wpdb->options WHERE option_name LIKE '" . $prefix . "%' AND LENGTH(option_value) > 0";
-    $rs     = $wpdb->get_results( $wpdb->prepare( $q ) );
+    $rs     = $wpdb->get_results( $q );
     foreach ( $rs as $r ) {
       $name     = str_replace( $prefix, '', $r->option_name );
       $result[] = $name;

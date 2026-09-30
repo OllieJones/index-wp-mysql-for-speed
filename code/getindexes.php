@@ -1,5 +1,7 @@
 <?php
 
+if ( ! defined( 'ABSPATH' ) ) exit;
+
 class ImfsGetIndexes {
 
   public static $imfsStandardIndexes;

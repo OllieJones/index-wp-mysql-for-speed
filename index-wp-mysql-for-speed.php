@@ -27,11 +27,10 @@
  * Tags:         database, index, key, mysql, wp-cli
  */
 
-if ( ! defined( 'ABSPATH' ) ) {
-  die( 'No direct access.' );
-}
+if ( ! defined( 'ABSPATH' ) ) exit;
+
 /** current version number  */
-define( 'index_wp_mysql_for_speed_VERSION_NUM', '1.5.7' );
+define( 'index_wp_mysql_for_speed_VERSION_NUM', '1.6.0' );
 define( 'index_mysql_for_speed_major_version', 1.5 );
 define( 'index_mysql_for_speed_inception_major_version', 1.3 );
 define( 'index_mysql_for_speed_inception_wp_version', '5.8.3' );

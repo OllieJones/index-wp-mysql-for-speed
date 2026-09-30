@@ -1,17 +1,15 @@
 <?php
 /** Plugin Name: Index WP MySQL For Speed Upgrade Filter for mu-plugins.
  *  Description: Prevents version upgrades from changing database table keys. Installed during activation, removed during deactivation.
- *  Version: 1.5.7
+ *  Version: 1.6.0
  *  License: GPL v2 or later
  */
 
 namespace index_wp_mysql_for_speed;
 
-if ( ! defined( 'ABSPATH' ) ) {
-  die( 'No direct access.' );
-}
+if ( ! defined( 'ABSPATH' ) ) exit;
 
-define( 'index_wp_mysql_for_speed_MU_VERSION_NUM', '1.5.7' );
+define( 'index_wp_mysql_for_speed_MU_VERSION_NUM', '1.6.0' );
 
 /* this filter needs to be called during version upgrades, when ordinary plugins aren't loaded. */
 add_filter( 'dbdelta_queries', 'index_wp_mysql_for_speed\upgrade_filter', 10, 1 );

@@ -1,5 +1,7 @@
 <?php /** @noinspection SqlNoDataSourceInspection */
 
+if ( ! defined( 'ABSPATH' ) ) exit;
+
 class ImfsQueries {
 
   /** get cell data for byte counts

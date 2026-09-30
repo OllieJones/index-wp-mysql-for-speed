@@ -951,6 +951,7 @@ class ImfsPage extends Imfs_AdminPageFramework {
         ] );
     }
 
+    $this->checkPoolSize();
     $this->showIndexStatus( $this->db->getRekeying() );
     $this->showHealthInfo( $this->db->getHealthReport() );
     $this->uploadMetadata();
