@@ -10,7 +10,7 @@ function index_wp_mysql_getGlobalStatus( $prior = false ) {
   global $wpdb;
 
   $q         = "SHOW GLOBAL STATUS" . '/*' . index_wp_mysql_for_speed_querytag . wp_rand( 0, 999999999 ) . '*/';
-  $resultSet = $wpdb->get_results(  $wpdb->prepare( $q ), ARRAY_N );
+  $resultSet = $wpdb->get_results( $q , ARRAY_N );
 
   $result = [];
 

@@ -478,7 +478,7 @@ class ImfsDb {
   public function query( $sql, $doTiming = false ) {
     global $wpdb;
     $thentime = $doTiming ? $this->getTime() : - 1;
-    $results  = $wpdb->query( $wpdb->prepare( $this->tagQuery( $sql ) ) );
+    $results  = $wpdb->query( $this->tagQuery( $sql ) );
     $this->logDDLQuery( $sql );
     if ( false === $results || $wpdb->last_error ) {
       throw new ImfsException( $wpdb->last_error, $wpdb->last_query );
