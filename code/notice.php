@@ -66,7 +66,8 @@ class ImfsNotice {
       }
 
       $notice = '<div class="notice notice-info is-dismissible"><p>' . $notice . '</p></div>';
-      echo wp_filter_kses( $notice );
+      /* These notice stanzas get clobbered by wp_filter_kses() */
+      echo $notice;
     }
   }
 }
