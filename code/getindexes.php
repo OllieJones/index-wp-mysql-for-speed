@@ -5,6 +5,10 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 class ImfsGetIndexes {
 
   public static $imfsStandardIndexes;
+  /**
+   * @var array[]
+   */
+  public static $imfsStandardIndexes_7_2;
 
 
   /** the list of tables we can handle
@@ -42,6 +46,10 @@ class ImfsGetIndexes {
   static function getStandardIndexes( $unconstrained, $version = 51917 ) {
     /* these are WordPress's standard indexes for database version 55853 and before.
      * see the end of this file for their definitions */
+
+    if ( version_compare( $GLOBALS['wp_version'], '7.2', '>=' ) ) {
+      return array_merge_recursive( ImfsGetIndexes::$imfsStandardIndexes, ImfsGetIndexes::$imfsStandardIndexes_7_2 );
+    }
     return ImfsGetIndexes::$imfsStandardIndexes;
   }
 
@@ -54,7 +62,10 @@ class ImfsGetIndexes {
    * @throws ImfsException
    */
   static function getHighPerformanceIndexes( $unconstrained, $version = 1.4 ) {
-    if ( 1.4 === $version || 1.5 === $version ||  1.6 === $version ) {
+    if ( 1.6 === $version ) {
+      return ImfsGetIndexes::getHighPerformanceIndexes1_6( $unconstrained );
+    }
+    if ( 1.4 === $version || 1.5 === $version ) {
       return ImfsGetIndexes::getHighPerformanceIndexes1_4( $unconstrained );
     }
     if ( ! isset( $version ) || $version <= 1.3 ) {
@@ -62,6 +73,17 @@ class ImfsGetIndexes {
     }
 
     throw new ImfsException( "unknown plugin version when retrieving indexing instructions" . $version );
+  }
+
+  /**
+   * @param int unconstrained  1 means barracuda, 0 antelope
+   *
+   * @return array
+   */
+  static function getHighPerformanceIndexes1_6( $unconstrained ) {
+
+    $indexes = ImfsGetIndexes::getHighPerformanceIndexes1_4( $unconstrained );
+    return array_merge_recursive( $indexes, ImfsGetIndexes::$imfsStandardIndexes_7_2 );
   }
 
   /**
@@ -353,6 +375,13 @@ class ImfsGetIndexes {
     return $reindexes;
   }
 }
+
+ImfsGetIndexes::$imfsStandardIndexes_7_2 = [
+  "posts" => [
+    "type_status_post_date_gmt"     => "ADD KEY type_status_post_date_gmt (post_type, post_status, post_date_gmt)",
+    "type_status_modified_date_gmt" => "ADD KEY type_status_modified_date_gmt (post_type, post_status, post_modified_gmt)",
+  ],
+];
 
 ImfsGetIndexes::$imfsStandardIndexes = [
   'postmeta'                   => [
