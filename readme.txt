@@ -4,7 +4,7 @@ Tags: index, key, performance, mysql, wp-cli
 Requires at least: 4.2
 Tested up to: 7.1
 Requires PHP: 5.6
-Stable tag: 1.6.0
+Stable tag: 1.5.7
 Network: true
 License: GPL v2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -256,8 +256,8 @@ Please see more questions and answers [here](https://plumislandmedia.net/index-w
 == Changelog ==
 
 = 1.6.0 =
-* (No changes to keys).
-* Handle mu plugin update correctly.
+* Support the new keys on the posts table defined in WordPress 7.2.
+* Handle the mu plugin update correctly.
 * Provided provisioning suggestions for innodb_buffer_pool_size.
 * Miscellaneous linting fixes.
 
@@ -304,7 +304,7 @@ Miscellaneous bug fixes
 
 == Upgrade Notice ==
 
-This version suggests adding innodb_buffer_pool_size memory if necessary. It correctly updates its mu plugin.
+This version supports WordPress 7.2. It suggests increasing innodb_buffer_pool_size if need be. It correctly updates its mu plugin.
 
 == Screenshots ==
 
