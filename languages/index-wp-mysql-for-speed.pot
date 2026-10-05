@@ -2,14 +2,14 @@
 # This file is distributed under the GPL v2 or later.
 msgid ""
 msgstr ""
-"Project-Id-Version: Index WP MySQL For Speed 1.5.7\n"
+"Project-Id-Version: Index WP MySQL For Speed 1.6.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/index-wp-mysql-for-speed\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-09-30T01:47:09+00:00\n"
+"POT-Creation-Date: 2026-10-05T20:45:36+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.9.0\n"
 "X-Domain: index-wp-mysql-for-speed\n"
@@ -605,7 +605,7 @@ msgid "into your command shell."
 msgstr ""
 
 #: code/admin.php:230
-#: code/imsfdb.php:925
+#: code/imsfdb.php:926
 msgid "click here"
 msgstr ""
 
@@ -1125,63 +1125,63 @@ msgid "%1$d tables upgraded"
 msgstr ""
 
 #. translators: 1 A number of bytes, like 128Mib or 4Kib
-#: code/imsfdb.php:873
+#: code/imsfdb.php:874
 msgid "Its buffer pool size is unchanged from the installation default of %1$s."
 msgstr ""
 
 #. translators: 1. A number of bytes, like 128Mib or 4Kib. 2. another number of bytes.
-#: code/imsfdb.php:882
+#: code/imsfdb.php:883
 msgid "Its buffer pool size, %1$s, is smaller than the installation default size of %2$s."
 msgstr ""
 
-#: code/imsfdb.php:885
+#: code/imsfdb.php:886
 msgid "Even the installation default size is usually too small."
 msgstr ""
 
 #. translators: 1. A number of bytes, like 128Mib or 1GiB. 2. another number of bytes. 3. percentage like 98
-#: code/imsfdb.php:892
+#: code/imsfdb.php:893
 msgid "Its buffer pool size, %1$s, is smaller than %2$s and it is %3$s%% full."
 msgstr ""
 
 #. translators: 1 MySQL or MariaDb, database server name
-#: code/imsfdb.php:903
+#: code/imsfdb.php:904
 msgid "Your %1$s database server's buffer pool size may be too small."
 msgstr ""
 
 #. Translators: The URL on the MariaDB website explaining the innodb buffer pool.
-#: code/imsfdb.php:907
+#: code/imsfdb.php:908
 msgid "https://mariadb.com/docs/server/server-usage/storage-engines/innodb/innodb-buffer-pool"
 msgstr ""
 
 #. Translators: The URL on the MySQL website explaining the innodb buffer pool size.
-#: code/imsfdb.php:909
+#: code/imsfdb.php:910
 msgid "https://dev.mysql.com/doc/refman/8.4/en/innodb-parameters.html#sysvar_innodb_buffer_pool_size"
 msgstr ""
 
 #. Translators: The URL on the author's English-language website explaining the issue for MariaDB
-#: code/imsfdb.php:913
+#: code/imsfdb.php:914
 msgid "https://www.plumislandmedia.net/index-wp-mysql-for-speed/sizing-mariadb-buffer-pool/"
 msgstr ""
 
 #. Translators: The URL on the author's website explaining the issue for MySQL
-#: code/imsfdb.php:915
+#: code/imsfdb.php:916
 msgid "https://www.plumislandmedia.net/index-wp-mysql-for-speed/sizing-mysql-buffer-pool/"
 msgstr ""
 
-#: code/imsfdb.php:916
+#: code/imsfdb.php:917
 msgid "Increasing your buffer pool size improves your site's performance."
 msgstr ""
 
 #. Translators: 1: MySQL or MariaDB server name. 2: URL of English-language documentation on vendor web site.
-#: code/imsfdb.php:920
+#: code/imsfdb.php:921
 msgid "Ask the person who supports your %1$s server to read this documentation: <a href=\"%2$s\" target=\"_blank\">%2$s</a>."
 msgstr ""
 
-#: code/imsfdb.php:922
+#: code/imsfdb.php:923
 msgid "Then ask them to increase your server's <code>innodb_buffer_pool_size</code> system variable."
 msgstr ""
 
-#: code/imsfdb.php:924
+#: code/imsfdb.php:925
 msgid "For a more detailed explanation of this buffer pool performance issue please"
 msgstr ""
 

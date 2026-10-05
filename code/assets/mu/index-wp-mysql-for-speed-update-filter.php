@@ -1,7 +1,7 @@
 <?php
 /** Plugin Name: Index WP MySQL For Speed Upgrade Filter for mu-plugins.
  *  Description: Prevents version upgrades from changing database table keys. Installed during activation, removed during deactivation.
- *  Version: 1.5.7
+ *  Version: 1.6.0
  *  License: GPL v2 or later
  */
 
@@ -26,7 +26,6 @@ if ( !  defined( 'INDEX_WP_MYSQL_FOR_SPEED_TEST' ) || defined('INDEX_WP_MYSQL_FO
    * this will ignore them. It needs work.
    *
    * @param string[] $queries An array of dbDelta SQL queries.
-   *
    * @since 3.3.0
    *
    * @see WP_Upgrader::create_lock()

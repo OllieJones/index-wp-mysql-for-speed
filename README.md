@@ -14,7 +14,7 @@ Plugin URI: https://plumislandmedia.net/index-wp-mysql-for-speed/ \
 GitHub Plugin URI: https://github.com/OllieJones/index-wp-mysql-for-speed/ \
 Primary Branch: main \
 Text Domain: index-wp-mysql-for-speed \
-Domain Path: /languages\ 
+Domain Path: /languages \
 **Donate link:** https://github.com/sponsors/OllieJones \
 
 Speed up your WordPress site by adding high-performance keys (database indexes) to your MariaDB / MySQL database tables.
@@ -133,7 +133,7 @@ When you activate it, it will copy [a php source file](https://www.plumislandmed
 
 If you configure your WordPress installation using composer, you may install this plugin into your WordPress top level configuration with the command
 
-`composer require "wpackagist-plugin/index-wp-mysql-for-speed":"^>=1.5.7"`
+`composer require "wpackagist-plugin/index-wp-mysql-for-speed":"^>=1.6.0"`
 
 During composer installation the plugin can automatically copy the necessary source file (see the previous section) into the must-use plugins directory. If you want that to happen, you should include these scripts in your top-level `composer.json` file.
 
@@ -259,8 +259,8 @@ Please see more questions and answers [here](https://plumislandmedia.net/index-w
 
 ### 1.6.0
 
-* (No changes to keys).
-* Handle mu plugin update correctly.
+* Support the new keys on the posts table defined in WordPress 7.2.
+* Handle the mu plugin update correctly.
 * Provided provisioning suggestions for innodb_buffer_pool_size.
 * Miscellaneous linting fixes.
 
@@ -317,7 +317,7 @@ Miscellaneous bug fixes
 
 ## Upgrade Notice
 
-This version suggests adding innodb_buffer_pool_size memory if necessary. It correctly updates its mu plugin.
+This version supports WordPress 7.2. It suggests increasing innodb_buffer_pool_size if need be. It correctly updates its mu plugin.
 
 ## Screenshots
 

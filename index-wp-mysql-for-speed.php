@@ -55,7 +55,7 @@ add_action( 'init', 'index_wp_mysql_for_speed_do_everything' );
 
 function index_wp_mysql_for_speed_do_everything( ) {
 
-//  define( 'INDEX_WP_MYSQL_FOR_SPEED_TEST', true ); /*tested up to 53932 */
+//  define( 'INDEX_WP_MYSQL_FOR_SPEED_TEST', true ); /*tested up to 61833 */
   if ( defined ('INDEX_WP_MYSQL_FOR_SPEED_TEST') && INDEX_WP_MYSQL_FOR_SPEED_TEST) {
     require_once( plugin_dir_path( __FILE__ ) . 'tests/test-update-filter.php' );
   }
