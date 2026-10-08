@@ -441,9 +441,9 @@ class ImfsQueries {
                 WHEN tc.CONSTRAINT_TYPE LIKE 'UNIQUE' THEN 1
                 ELSE 0 END is_unique,
             CONCAT ( 'ADD ',
-                CASE WHEN tc.CONSTRAINT_TYPE = 'UNIQUE' THEN CONCAT ('UNIQUE KEY ', s.INDEX_NAME)
+                CASE WHEN tc.CONSTRAINT_TYPE = 'UNIQUE' THEN CONCAT ('UNIQUE KEY `', s.INDEX_NAME, '`')
                      WHEN tc.CONSTRAINT_TYPE LIKE 'PRIMARY KEY' THEN tc.CONSTRAINT_TYPE
-                                         ELSE CONCAT ('KEY', ' ', s.INDEX_NAME) END,
+                                         ELSE CONCAT ('KEY', ' `', s.INDEX_NAME, '`') END,
                 ' (',
                 GROUP_CONCAT(
                   IF(s.SUB_PART IS NULL, s.COLUMN_NAME, CONCAT(s.COLUMN_NAME,'(',s.SUB_PART,')'))
@@ -452,7 +452,7 @@ class ImfsQueries {
                 ')'
                 ) `add`,
             CONCAT ( 'DROP ',
-                IF(tc.CONSTRAINT_TYPE LIKE 'PRIMARY KEY', tc.CONSTRAINT_TYPE, CONCAT ('KEY', ' ', s.INDEX_NAME))
+                IF(tc.CONSTRAINT_TYPE LIKE 'PRIMARY KEY', tc.CONSTRAINT_TYPE, CONCAT ('KEY `', s.INDEX_NAME, '`'))
                 ) `drop`
           FROM information_schema.STATISTICS s
           LEFT JOIN information_schema.TABLE_CONSTRAINTS tc
