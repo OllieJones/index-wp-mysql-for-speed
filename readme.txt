@@ -255,6 +255,9 @@ Please see more questions and answers [here](https://plumislandmedia.net/index-w
 
 == Changelog ==
 
+= 1.6.1 =
+* Handle pre-existing key names requiring backticks.
+
 = 1.6.0 =
 * Support the new keys on the posts table defined in WordPress 7.2.
 * Handle the mu plugin update correctly.
@@ -276,30 +279,6 @@ Correct php 5.6 compatibility issue.
 
 = 1.5.3 =
 Correct language deprecations, test on IIS.
-
-= 1.5.2 =
-Correct release error.
-
-= 1.5.1 =
-Add support for the WooCommerce tables wp_automatewoo_log_meta, wp_wc_orders_meta, and  wp_woocommerce_order_itemmeta.
-
-= 1.4.19 =
-Report information about host machine using meminfo and procinfo if those files are available.
-
-= 1.4.18 =
-Security update.
-
-= 1.4.17 =
-Back out a miscellaneous bug fix from the previous version. It was an attempt to avoid a warning from Query Monitor's hooks display.
-Upload the full MariaDB / MySQL version information with monitors as well as metadata.
-
-= 1.4.16 =
-(no changes to keys)
-WordPress 6.5 compatibility.
-Support WordPress versions back to 4.2 (At MDDHosting's request).
-Avoid attempting to upgrade from storage engines except MyISAM and Aria.
-WP-CLI upgrade, enable, and disable commands are idempotent now. They don't generate errors when they find no tables to process.
-Miscellaneous bug fixes
 
 
 == Upgrade Notice ==
