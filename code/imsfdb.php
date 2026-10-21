@@ -323,7 +323,7 @@ class ImfsDb {
     global $wpdb;
 
     $unprefixedName = $alreadyPrefixed ? ImfsQueries::stripPrefix( $name ) : $name;
-    $prefixedName   = $alreadyPrefixed ? $name : $wpdb->prefix . $name;
+    $prefixedName   = $alreadyPrefixed ? $name : ImfsQueries::prefix( $name );
 
     $actions = $this->getConversionList( $targetAction, $unprefixedName, $version );
 
@@ -453,7 +453,7 @@ class ImfsDb {
   public function getKeyDDL( $name, $addPrefix = true ) {
     global $wpdb;
     if ( $addPrefix ) {
-      $name = $wpdb->prefix . $name;
+      $name = ImfsQueries::prefix( $name );
     }
 
     if ( array_key_exists( $name, $this->indexQueryCache ) ) {
@@ -552,7 +552,7 @@ class ImfsDb {
     $tables = [];
     if ( is_array( $this->oldEngineTables ) ) {
       foreach ( $originalTables as $name ) {
-        if ( ! in_array( $wpdb->prefix . $name, $this->oldEngineTables ) ) {
+        if ( ! in_array( ImfsQueries::prefix( $name ), $this->oldEngineTables ) ) {
           $tables[] = $name;
         }
       }
@@ -662,7 +662,7 @@ class ImfsDb {
       }
     }
     foreach ( $tablenames as $tablename ) {
-      if ( ! in_array( $tablename, $avail ) && is_array( $this->newEngineTables ) && in_array( $wpdb->prefix . $tablename, $this->newEngineTables ) ) {
+      if ( ! in_array( $tablename, $avail ) && is_array( $this->newEngineTables ) && in_array( ImfsQueries::prefix( $tablename ), $this->newEngineTables ) ) {
         $avail[] = $tablename;
       }
     }
@@ -680,7 +680,7 @@ class ImfsDb {
     }
     $result = [];
     foreach ( $tables as $table ) {
-      $result[] = $wpdb->prefix . $table;
+      $result[] = ImfsQueries::prefix( $table );
     }
 
     return $result;
@@ -751,7 +751,7 @@ class ImfsDb {
     $tablesToLock = [];
     foreach ( $tableList as $tbl ) {
       if ( ! $alreadyPrefixed ) {
-        $tbl = $wpdb->prefix . $tbl;
+        $tbl = ImfsQueries::prefix( $tbl );
       }
       $tablesToLock[] = $tbl;
     }

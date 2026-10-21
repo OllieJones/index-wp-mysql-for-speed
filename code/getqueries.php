@@ -130,8 +130,60 @@ class ImfsQueries {
   public static function stripPrefix( $name ) {
     global $wpdb;
     $pattern = '/^' . $wpdb->prefix . '/';
+    $result  = preg_replace( $pattern, '', $name );
+    if ( $result === $name && $wpdb->base_prefix !== $wpdb->prefix ) {
+      /* A global table (users, usermeta) has the base prefix, see prefix(). */
+      $global = preg_replace( '/^' . $wpdb->base_prefix . '/', '', $name );
+      if ( in_array( $global, $wpdb->global_tables, true ) ) {
+        $result = $global;
+      }
+    }
 
-    return preg_replace( $pattern, '', $name );
+    return $result;
+  }
+
+  /** Add the table prefix to a WordPress table name.
+   *
+   * Global tables (users, usermeta) are shared by the whole network and always have the base
+   * prefix. On a multisite network whose main site isn't blog 1, $wpdb->prefix is the main
+   * site's own prefix (e.g. wp_26_), and wp_26_usermeta doesn't exist.
+   *
+   * @param string $name unprefixed table name, e.g. usermeta
+   *
+   * @return string prefixed table name, e.g. wp_usermeta
+   */
+  public static function prefix( $name ) {
+    global $wpdb;
+
+    return ( in_array( $name, $wpdb->global_tables, true ) ? $wpdb->base_prefix : $wpdb->prefix ) . $name;
+  }
+
+  /** The tables this plugin reindexes, prefixed and quoted for an SQL IN list.
+   * @return string
+   */
+  private static function tableList() {
+    $names = [];
+    foreach ( [
+      'postmeta', 'termmeta', 'usermeta', 'posts', 'comments', 'options', 'users', 'commentmeta',
+      'woocommerce_order_itemmeta', 'wc_orders_meta', 'automatewoo_log_meta',
+    ] as $name ) {
+      $names[] = "'" . self::prefix( $name ) . "'";
+    }
+
+    return implode( ',', $names );
+  }
+
+  /** SQL expression for the unprefixed name of information_schema.TABLES t.TABLE_NAME.
+   * @return string
+   */
+  private static function unprefixedTableName() {
+    global $wpdb;
+    $p = $wpdb->prefix;
+    $b = $wpdb->base_prefix;
+
+    return "CASE WHEN t.TABLE_NAME IN ('{$b}users','{$b}usermeta')
+                 THEN SUBSTRING(t.TABLE_NAME, " . ( strlen( $b ) + 1 ) . ")
+                 ELSE REPLACE(t.TABLE_NAME, '$p', '') END";
   }
 
   /** Get version information from the database server
@@ -306,7 +358,7 @@ class ImfsQueries {
     $p = $wpdb->prefix;
 
     return
-      "SELECT REPLACE(t.TABLE_NAME, '$p', '') AS 'table',
+      "SELECT " . self::unprefixedTableName() . " AS 'table',
                '$p' AS 'prefix',
                 MAX(t.TABLE_ROWS) AS 'count',
                 MAX(p.CARDINALITY) AS distinct_id,
@@ -337,8 +389,7 @@ class ImfsQueries {
 						AND t.TABLE_NAME = autoload.TABLE_NAME
              WHERE t.TABLE_SCHEMA = DATABASE() 
                AND t.TABLE_NAME IN 
-               ('{$p}postmeta','{$p}termmeta','{$p}usermeta' ,'{$p}posts','{$p}comments', '{$p}options', '{$p}users', '{$p}commentmeta', 
-                 '{$p}woocommerce_order_itemmeta','{$p}wc_orders_meta','{$p}automatewoo_log_meta')
+               (" . self::tableList() . ")
              GROUP BY REPLACE(t.TABLE_NAME, 'wp_', '')";
   }
 
@@ -350,7 +401,7 @@ class ImfsQueries {
     $p = $wpdb->prefix;
 
     return
-      "SELECT REPLACE(t.TABLE_NAME, '$p', '') AS 'table',
+      "SELECT " . self::unprefixedTableName() . " AS 'table',
                '$p' AS 'prefix',
                 t.TABLE_ROWS AS 'count',
                 t.ENGINE AS engine,
@@ -358,8 +409,7 @@ class ImfsQueries {
                 t.TABLE_COLLATION AS collation
              FROM information_schema.TABLES t
              WHERE t.TABLE_SCHEMA = DATABASE() 
-               AND t.TABLE_NAME IN  ('{$p}postmeta','{$p}termmeta','{$p}usermeta' ,'{$p}posts','{$p}comments', '{$p}options', '{$p}users', '{$p}commentmeta', 
-                 '{$p}woocommerce_order_itemmeta','{$p}wc_orders_meta','{$p}automatewoo_log_meta')";
+               AND t.TABLE_NAME IN  (" . self::tableList() . ")";
   }
 
   public static function getTableFormatsQuery() {
