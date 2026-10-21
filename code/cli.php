@@ -165,7 +165,7 @@ class ImsfCli extends WP_CLI_Command {
     }
     $res = [];
     foreach ( $tbls as $tbl ) {
-      $res[] = $wpdb->prefix . $tbl;
+      $res[] = ImfsQueries::prefix( $tbl );
     }
 
     return $res;
@@ -381,7 +381,7 @@ class ImsfCli extends WP_CLI_Command {
       $outrow = [];
       $ddls   = $this->db->getKeyDDL( $table );
       foreach ( $ddls as $keyname => $row ) {
-        $outrow['table']      = $wpdb->prefix . $table;
+        $outrow['table']      = ImfsQueries::prefix( $table );
         $outrow['key']        = $keyname;
         $outrow['definition'] = $row->add;
         $list[]               = $outrow;

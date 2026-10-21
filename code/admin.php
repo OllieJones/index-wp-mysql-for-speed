@@ -475,7 +475,7 @@ class ImfsPage extends Imfs_AdminPageFramework {
     if ( count( $rekeying['fast'] ) > 0 ) {
       $list = [];
       foreach ( $rekeying['fast'] as $tbl ) {
-        $list[] = $wpdb->prefix . $tbl;
+        $list[] = ImfsQueries::prefix( $tbl );
       }
       $list  = implode( ', ', $list );
       $label = __( 'You have added high-performance keys to these tables. You can revert them to WordPress\'s standard keys.', 'index-wp-mysql-for-speed' );
@@ -494,7 +494,7 @@ class ImfsPage extends Imfs_AdminPageFramework {
     if ( count( $rekeying['old'] ) > 0 ) {
       $list = [];
       foreach ( $rekeying['old'] as $tbl ) {
-        $list[] = $wpdb->prefix . $tbl;
+        $list[] = ImfsQueries::prefix( $tbl );
       }
       $list  = implode( ', ', $list );
       $label = __( 'You have added high-performance keys to your tables using an earlier version of this plugin. You can revert them to WordPress\'s standard keys, or update them to the latest high-performance keys.', 'index-wp-mysql-for-speed' );
@@ -514,7 +514,7 @@ class ImfsPage extends Imfs_AdminPageFramework {
     if ( count( $rekeying['enable'] ) > 0 ) {
       $list = [];
       foreach ( $rekeying['enable'] as $tbl ) {
-        $list[] = $wpdb->prefix . $tbl;
+        $list[] = ImfsQueries::prefix( $tbl );
       }
       $list  = implode( ', ', $list );
       $label = __( 'These tables have WordPress\'s standard keys. You can add high-performance keys to these tables to make your WordPress database faster.', 'index-wp-mysql-for-speed' );
@@ -536,7 +536,7 @@ class ImfsPage extends Imfs_AdminPageFramework {
     if ( count( $rekeying['nonstandard'] ) > 0 ) {
       $list = [];
       foreach ( $rekeying['nonstandard'] as $tbl ) {
-        $list[] = $wpdb->prefix . $tbl;
+        $list[] = ImfsQueries::prefix( $tbl );
       }
       $list  = implode( ', ', $list );
       $label = $this->wpDbUpgrading
@@ -606,7 +606,6 @@ class ImfsPage extends Imfs_AdminPageFramework {
     $labels    = [];
     $defaults  = [];
     $tableList = [];
-    $prefix    = $prefixed ? '' : $wpdb->prefix;
     foreach ( $tablesToRekey as $tbl ) {
       $unprefixed = ImfsQueries::stripPrefix( $tbl );
       $rowcount   = - 1;
@@ -628,8 +627,9 @@ class ImfsPage extends Imfs_AdminPageFramework {
       if ( strlen( $itemString ) > 0 ) {
         $itemString = ' (' . $itemString . ')';
       }
-      $tableList[]      = $prefix . $tbl;
-      $labels[ $tbl ]   = $prefix . $tbl . $itemString;
+      $prefixedName     = $prefixed ? $tbl : ImfsQueries::prefix( $tbl );
+      $tableList[]      = $prefixedName;
+      $labels[ $tbl ]   = $prefixedName . $itemString;
       $defaults[ $tbl ] = $prechecked;
     }
 
